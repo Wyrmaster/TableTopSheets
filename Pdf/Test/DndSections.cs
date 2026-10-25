@@ -326,7 +326,7 @@ public class DndSections
     
     Process.Start(new ProcessStartInfo()
     {
-      FileName = @"C:\Program Files\Google\Chrome\Application\chrome.exe",
+      FileName = @"xdg-open",
       Arguments = path
     });
   }
@@ -352,7 +352,7 @@ public class DndSections
     
     Process.Start(new ProcessStartInfo()
     {
-      FileName = @"C:\Program Files\Google\Chrome\Application\chrome.exe",
+      FileName = @"xdg-open",
       Arguments = path
     });
   }
