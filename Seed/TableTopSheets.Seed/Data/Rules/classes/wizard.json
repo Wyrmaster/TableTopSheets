@@ -1,0 +1,293 @@
+{
+  "classes": [
+    {
+      "key": "wizard",
+      "name": "Wizard",
+      "hitDie": "D6",
+      "primaryAbilities": [
+        "int"
+      ],
+      "primaryAbilityMode": "All",
+      "subclassLevel": 3,
+      "scales": {
+        "wizard.cantrips": "3,3,3,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5,5,5",
+        "wizard.prepared": "4,5,6,7,9,10,11,12,14,15,16,16,17,18,19,21,22,23,24,25"
+      },
+      "features": [
+        {
+          "key": "wizard.proficiencies",
+          "name": "Proficiencies",
+          "level": 1,
+          "grantMode": "FirstClassOnly",
+          "sheetSection": "Hidden",
+          "effects": [
+            {
+              "target": "save.int.prof",
+              "op": "Proficiency",
+              "value": "proficient"
+            },
+            {
+              "target": "save.wis.prof",
+              "op": "Proficiency",
+              "value": "proficient"
+            },
+            {
+              "target": "proficiency.weapon.simple",
+              "op": "Grant",
+              "value": "1"
+            }
+          ],
+          "choices": [
+            {
+              "key": "wizard.skills",
+              "name": "Skill Proficiencies",
+              "count": "2",
+              "source": "Skill",
+              "replace": "Never",
+              "filter": "oneOf(option.key, 'arcana', 'history', 'insight', 'investigation', 'medicine', 'nature', 'religion')",
+              "effects": [
+                {
+                  "target": "skill.$option.prof",
+                  "op": "Proficiency",
+                  "value": "proficient"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "wizard.multiclass-proficiencies",
+          "name": "Multiclass Proficiencies",
+          "level": 1,
+          "grantMode": "MulticlassOnly",
+          "sheetSection": "Hidden",
+          "effects": []
+        },
+        {
+          "key": "wizard.spellcasting",
+          "name": "Spellcasting",
+          "level": 1,
+          "spellcasting": {
+            "ability": "int",
+            "progression": "Full",
+            "spellList": "wizard",
+            "prepared": "wizard.prepared",
+            "cantrips": "wizard.cantrips",
+            "pool": "Spellbook",
+            "prepareChange": "LongRest",
+            "ritual": "FromSpellbook",
+            "focus": "Arcane Focus or spellbook"
+          },
+          "choices": [
+            {
+              "key": "wizard.cantrips",
+              "name": "Cantrips",
+              "count": "scale('wizard.cantrips')",
+              "source": "Spell",
+              "replace": "OnLongRest",
+              "filter": "onList('wizard') && option.level == 0",
+              "category": "cantrip"
+            },
+            {
+              "key": "wizard.spellbook-initial",
+              "name": "Spellbook (level 1)",
+              "count": "6",
+              "source": "Spell",
+              "replace": "Never",
+              "filter": "onList('wizard') && option.level == 1",
+              "category": "spellbook"
+            },
+            {
+              "key": "wizard.spellbook",
+              "name": "Spellbook (level up)",
+              "count": "2 * (classLevel('wizard') - 1)",
+              "source": "Spell",
+              "replace": "Never",
+              "filter": "onList('wizard') && option.level >= 1 && option.level <= maxSpellLevel('wizard')",
+              "category": "spellbook"
+            }
+          ]
+        },
+        {
+          "key": "wizard.ritual-adept",
+          "name": "Ritual Adept",
+          "level": 1
+        },
+        {
+          "key": "wizard.arcane-recovery",
+          "name": "Arcane Recovery",
+          "level": 1,
+          "resources": [
+            {
+              "key": "arcane-recovery",
+              "name": "Arcane Recovery",
+              "max": "1",
+              "recharge": "LongRest"
+            }
+          ]
+        },
+        {
+          "key": "wizard.scholar",
+          "name": "Scholar",
+          "level": 2,
+          "choices": [
+            {
+              "key": "wizard.scholar",
+              "name": "Expertise",
+              "count": "1",
+              "source": "Skill",
+              "replace": "Never",
+              "filter": "oneOf(option.key, 'arcana', 'history', 'investigation', 'medicine', 'nature', 'religion') && skillProficiency(option.key) >= proficient",
+              "effects": [
+                {
+                  "target": "skill.$option.prof",
+                  "op": "Proficiency",
+                  "value": "expertise"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "wizard.memorize-spell",
+          "name": "Memorize Spell",
+          "level": 5
+        },
+        {
+          "key": "wizard.spell-mastery",
+          "name": "Spell Mastery",
+          "level": 18
+        },
+        {
+          "key": "wizard.signature-spells",
+          "name": "Signature Spells",
+          "level": 20
+        },
+        {
+          "key": "wizard.ability-score-improvement-4",
+          "name": "Ability Score Improvement",
+          "level": 4,
+          "choices": [
+            {
+              "key": "wizard.ability-score-improvement-4",
+              "name": "Feat",
+              "count": "1",
+              "source": "Feat",
+              "replace": "Never",
+              "filter": "option.category == 'general'"
+            }
+          ]
+        },
+        {
+          "key": "wizard.ability-score-improvement-8",
+          "name": "Ability Score Improvement",
+          "level": 8,
+          "choices": [
+            {
+              "key": "wizard.ability-score-improvement-8",
+              "name": "Feat",
+              "count": "1",
+              "source": "Feat",
+              "replace": "Never",
+              "filter": "option.category == 'general'"
+            }
+          ]
+        },
+        {
+          "key": "wizard.ability-score-improvement-12",
+          "name": "Ability Score Improvement",
+          "level": 12,
+          "choices": [
+            {
+              "key": "wizard.ability-score-improvement-12",
+              "name": "Feat",
+              "count": "1",
+              "source": "Feat",
+              "replace": "Never",
+              "filter": "option.category == 'general'"
+            }
+          ]
+        },
+        {
+          "key": "wizard.ability-score-improvement-16",
+          "name": "Ability Score Improvement",
+          "level": 16,
+          "choices": [
+            {
+              "key": "wizard.ability-score-improvement-16",
+              "name": "Feat",
+              "count": "1",
+              "source": "Feat",
+              "replace": "Never",
+              "filter": "option.category == 'general'"
+            }
+          ]
+        },
+        {
+          "key": "wizard.epic-boon",
+          "name": "Epic Boon",
+          "level": 19,
+          "choices": [
+            {
+              "key": "wizard.epic-boon",
+              "name": "Epic Boon",
+              "count": "1",
+              "source": "Feat",
+              "replace": "Never",
+              "filter": "option.category == 'epic-boon' || option.category == 'general'"
+            }
+          ]
+        }
+      ],
+      "subclasses": [
+        {
+          "key": "evoker",
+          "name": "Evoker",
+          "features": [
+            {
+              "key": "evoker.evocation-savant",
+              "name": "Evocation Savant",
+              "level": 3,
+              "description": "<p>Choose two Wizard spells from the Evocation school, each of which must be no higher than level 2, and add them to your spellbook for free. Whenever you gain access to a new level of spell slots, you can add one Wizard spell from the Evocation school to your spellbook for free.</p>",
+              "choices": [
+                {
+                  "key": "evoker.evocation-savant",
+                  "name": "Evocation Spells",
+                  "count": "maxSpellLevel('wizard')",
+                  "source": "Spell",
+                  "replace": "Never",
+                  "filter": "onList('wizard') && option.school == 'evocation' && option.level >= 1 && option.level <= maxSpellLevel('wizard')",
+                  "category": "spellbook"
+                }
+              ]
+            },
+            {
+              "key": "evoker.potent-cantrip",
+              "name": "Potent Cantrip",
+              "level": 3,
+              "description": "<p>Your damaging cantrips affect even creatures that avoid the brunt of the effect. When you cast a cantrip at a creature and you miss with the attack roll or the target succeeds on a saving throw against the cantrip, the target takes half the cantrip’s damage (if any) but suffers no additional effect from the cantrip.</p>"
+            },
+            {
+              "key": "evoker.sculpt-spells",
+              "name": "Sculpt Spells",
+              "level": 6,
+              "description": "<p>You can create pockets of relative safety within the effects of your evocations. When you cast an Evocation spell that affects other creatures that you can see, you can choose a number of them equal to 1 plus the spell’s level. The chosen creatures automatically succeed on their saving throws against the spell, and they take no damage if they would normally take half damage on a successful save.</p>"
+            },
+            {
+              "key": "evoker.empowered-evocation",
+              "name": "Empowered Evocation",
+              "level": 10,
+              "description": "<p>Whenever you cast a Wizard spell from the Evocation school, you can add your Intelligence modifier to one damage roll of that spell.</p>"
+            },
+            {
+              "key": "evoker.overchannel",
+              "name": "Overchannel",
+              "level": 14,
+              "description": "<p>When you cast a Wizard spell with a spell slot of levels 1–5 that deals damage, you can deal maximum damage with that spell on the turn you cast it. Using it again before a Long Rest deals Necrotic damage to you.</p>"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

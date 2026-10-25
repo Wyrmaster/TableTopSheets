@@ -1,0 +1,442 @@
+{
+  "classes": [
+    {
+      "key": "fighter",
+      "name": "Fighter",
+      "hitDie": "D10",
+      "primaryAbilities": [
+        "str",
+        "dex"
+      ],
+      "primaryAbilityMode": "Any",
+      "subclassLevel": 3,
+      "scales": {
+        "fighter.second-wind": "2,2,2,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4",
+        "fighter.weapon-mastery": "3,3,3,4,4,4,4,4,4,5,5,5,5,5,5,6,6,6,6,6",
+        "fighter.action-surge": "0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2",
+        "fighter.indomitable": "0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3"
+      },
+      "features": [
+        {
+          "key": "fighter.proficiencies",
+          "name": "Proficiencies",
+          "level": 1,
+          "grantMode": "FirstClassOnly",
+          "sheetSection": "Hidden",
+          "effects": [
+            {
+              "target": "save.str.prof",
+              "op": "Proficiency",
+              "value": "proficient"
+            },
+            {
+              "target": "save.con.prof",
+              "op": "Proficiency",
+              "value": "proficient"
+            },
+            {
+              "target": "proficiency.weapon.simple",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "proficiency.weapon.martial",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "proficiency.armor.light",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "proficiency.armor.medium",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "proficiency.armor.heavy",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "proficiency.armor.shield",
+              "op": "Grant",
+              "value": "1"
+            }
+          ],
+          "choices": [
+            {
+              "key": "fighter.skills",
+              "name": "Skill Proficiencies",
+              "count": "2",
+              "source": "Skill",
+              "replace": "Never",
+              "filter": "oneOf(option.key, 'acrobatics', 'animal-handling', 'athletics', 'history', 'insight', 'intimidation', 'persuasion', 'perception', 'survival')",
+              "effects": [
+                {
+                  "target": "skill.$option.prof",
+                  "op": "Proficiency",
+                  "value": "proficient"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "fighter.multiclass-proficiencies",
+          "name": "Multiclass Proficiencies",
+          "level": 1,
+          "grantMode": "MulticlassOnly",
+          "sheetSection": "Hidden",
+          "effects": [
+            {
+              "target": "proficiency.weapon.martial",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "proficiency.armor.light",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "proficiency.armor.medium",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "proficiency.armor.shield",
+              "op": "Grant",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "key": "fighter.fighting-style",
+          "name": "Fighting Style",
+          "level": 1,
+          "choices": [
+            {
+              "key": "fighter.fighting-style",
+              "name": "Fighting Style Feat",
+              "count": "1",
+              "source": "Feat",
+              "replace": "OneOnLevelUp",
+              "filter": "option.category == 'fighting-style'"
+            }
+          ]
+        },
+        {
+          "key": "fighter.second-wind",
+          "name": "Second Wind",
+          "level": 1,
+          "resources": [
+            {
+              "key": "second-wind",
+              "name": "Second Wind",
+              "max": "scale('fighter.second-wind')",
+              "die": "1d10",
+              "recharge": "ShortRest"
+            }
+          ]
+        },
+        {
+          "key": "fighter.weapon-mastery",
+          "name": "Weapon Mastery",
+          "level": 1,
+          "choices": [
+            {
+              "key": "fighter.weapon-mastery",
+              "name": "Weapon Mastery",
+              "count": "scale('fighter.weapon-mastery')",
+              "source": "Weapon",
+              "replace": "OnLongRest",
+              "filter": "option.category == 'simple' || option.category == 'martial'",
+              "effects": [
+                {
+                  "target": "mastery.$option",
+                  "op": "Grant",
+                  "value": "1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "fighter.action-surge",
+          "name": "Action Surge",
+          "level": 2,
+          "resources": [
+            {
+              "key": "action-surge",
+              "name": "Action Surge",
+              "max": "scale('fighter.action-surge')",
+              "recharge": "ShortRest"
+            }
+          ]
+        },
+        {
+          "key": "fighter.tactical-mind",
+          "name": "Tactical Mind",
+          "level": 2
+        },
+        {
+          "key": "fighter.extra-attack",
+          "name": "Extra Attack",
+          "level": 5,
+          "effects": [
+            {
+              "target": "attack.extraAttacks",
+              "op": "Add",
+              "value": "1",
+              "stackGroup": "extra-attack",
+              "label": "Extra Attack"
+            }
+          ]
+        },
+        {
+          "key": "fighter.tactical-shift",
+          "name": "Tactical Shift",
+          "level": 5
+        },
+        {
+          "key": "fighter.indomitable",
+          "name": "Indomitable",
+          "level": 9,
+          "resources": [
+            {
+              "key": "indomitable",
+              "name": "Indomitable",
+              "max": "scale('fighter.indomitable')"
+            }
+          ]
+        },
+        {
+          "key": "fighter.tactical-master",
+          "name": "Tactical Master",
+          "level": 9
+        },
+        {
+          "key": "fighter.two-extra-attacks",
+          "name": "Two Extra Attacks",
+          "level": 11,
+          "effects": [
+            {
+              "target": "attack.extraAttacks",
+              "op": "Add",
+              "value": "2",
+              "stackGroup": "extra-attack",
+              "label": "Two Extra Attacks"
+            }
+          ]
+        },
+        {
+          "key": "fighter.studied-attacks",
+          "name": "Studied Attacks",
+          "level": 13
+        },
+        {
+          "key": "fighter.three-extra-attacks",
+          "name": "Three Extra Attacks",
+          "level": 20,
+          "effects": [
+            {
+              "target": "attack.extraAttacks",
+              "op": "Add",
+              "value": "3",
+              "stackGroup": "extra-attack",
+              "label": "Three Extra Attacks"
+            }
+          ]
+        },
+        {
+          "key": "fighter.ability-score-improvement-4",
+          "name": "Ability Score Improvement",
+          "level": 4,
+          "choices": [
+            {
+              "key": "fighter.ability-score-improvement-4",
+              "name": "Feat",
+              "count": "1",
+              "source": "Feat",
+              "replace": "Never",
+              "filter": "option.category == 'general'"
+            }
+          ]
+        },
+        {
+          "key": "fighter.ability-score-improvement-6",
+          "name": "Ability Score Improvement",
+          "level": 6,
+          "choices": [
+            {
+              "key": "fighter.ability-score-improvement-6",
+              "name": "Feat",
+              "count": "1",
+              "source": "Feat",
+              "replace": "Never",
+              "filter": "option.category == 'general'"
+            }
+          ]
+        },
+        {
+          "key": "fighter.ability-score-improvement-8",
+          "name": "Ability Score Improvement",
+          "level": 8,
+          "choices": [
+            {
+              "key": "fighter.ability-score-improvement-8",
+              "name": "Feat",
+              "count": "1",
+              "source": "Feat",
+              "replace": "Never",
+              "filter": "option.category == 'general'"
+            }
+          ]
+        },
+        {
+          "key": "fighter.ability-score-improvement-12",
+          "name": "Ability Score Improvement",
+          "level": 12,
+          "choices": [
+            {
+              "key": "fighter.ability-score-improvement-12",
+              "name": "Feat",
+              "count": "1",
+              "source": "Feat",
+              "replace": "Never",
+              "filter": "option.category == 'general'"
+            }
+          ]
+        },
+        {
+          "key": "fighter.ability-score-improvement-14",
+          "name": "Ability Score Improvement",
+          "level": 14,
+          "choices": [
+            {
+              "key": "fighter.ability-score-improvement-14",
+              "name": "Feat",
+              "count": "1",
+              "source": "Feat",
+              "replace": "Never",
+              "filter": "option.category == 'general'"
+            }
+          ]
+        },
+        {
+          "key": "fighter.ability-score-improvement-16",
+          "name": "Ability Score Improvement",
+          "level": 16,
+          "choices": [
+            {
+              "key": "fighter.ability-score-improvement-16",
+              "name": "Feat",
+              "count": "1",
+              "source": "Feat",
+              "replace": "Never",
+              "filter": "option.category == 'general'"
+            }
+          ]
+        },
+        {
+          "key": "fighter.epic-boon",
+          "name": "Epic Boon",
+          "level": 19,
+          "choices": [
+            {
+              "key": "fighter.epic-boon",
+              "name": "Epic Boon",
+              "count": "1",
+              "source": "Feat",
+              "replace": "Never",
+              "filter": "option.category == 'epic-boon' || option.category == 'general'"
+            }
+          ]
+        }
+      ],
+      "subclasses": [
+        {
+          "key": "eldritch-knight",
+          "name": "Eldritch Knight",
+          "scales": {
+            "eldritch-knight.cantrips": "0,0,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3",
+            "eldritch-knight.prepared": "0,0,3,4,4,4,5,6,6,7,8,8,9,10,10,11,11,11,12,13"
+          },
+          "features": [
+            {
+              "key": "eldritch-knight.spellcasting",
+              "name": "Spellcasting",
+              "level": 3,
+              "description": "<p>You have learned to cast spells. You know two Wizard cantrips and prepare Wizard spells as shown in the Eldritch Knight Spellcasting table. Intelligence is your spellcasting ability. Whenever you gain a Fighter level, you can replace one cantrip and one prepared spell.</p>",
+              "spellcasting": {
+                "ability": "int",
+                "progression": "Third",
+                "slotTable": "eldritch-knight",
+                "spellList": "wizard",
+                "prepared": "eldritch-knight.prepared",
+                "cantrips": "eldritch-knight.cantrips",
+                "class": "fighter",
+                "pool": "ClassList",
+                "prepareChange": "LevelUp",
+                "ritual": "None",
+                "focus": "Arcane Focus"
+              },
+              "choices": [
+                {
+                  "key": "eldritch-knight.cantrips",
+                  "name": "Cantrips",
+                  "count": "scale('eldritch-knight.cantrips')",
+                  "source": "Spell",
+                  "replace": "OneOnLevelUp",
+                  "filter": "onList('wizard') && option.level == 0",
+                  "category": "cantrip"
+                },
+                {
+                  "key": "eldritch-knight.prepared",
+                  "name": "Prepared Spells",
+                  "count": "scale('eldritch-knight.prepared')",
+                  "source": "Spell",
+                  "replace": "OneOnLevelUp",
+                  "filter": "onList('wizard') && option.level >= 1 && option.level <= maxSpellLevel('fighter')",
+                  "category": "prepared"
+                }
+              ]
+            },
+            {
+              "key": "eldritch-knight.war-bond",
+              "name": "War Bond",
+              "level": 3,
+              "description": "<p>You can bond with up to two weapons; you can’t be disarmed of a bonded weapon and can summon it to your hand as a Bonus Action.</p>"
+            },
+            {
+              "key": "eldritch-knight.war-magic",
+              "name": "War Magic",
+              "level": 7,
+              "description": "<p>When you take the Attack action, you can replace one of the attacks with a casting of one of your Wizard cantrips that has a casting time of an action.</p>"
+            },
+            {
+              "key": "eldritch-knight.eldritch-strike",
+              "name": "Eldritch Strike",
+              "level": 10,
+              "description": "<p>When you hit a creature with an attack using a weapon, that creature has Disadvantage on the next saving throw it makes against a spell you cast before the end of your next turn.</p>"
+            },
+            {
+              "key": "eldritch-knight.arcane-charge",
+              "name": "Arcane Charge",
+              "level": 15,
+              "description": "<p>When you use Action Surge, you can teleport up to 30 feet to an unoccupied space you can see.</p>"
+            },
+            {
+              "key": "eldritch-knight.improved-war-magic",
+              "name": "Improved War Magic",
+              "level": 18,
+              "description": "<p>When you take the Attack action, you can replace two of the attacks with a casting of one of your level 1 or 2 Wizard spells that has a casting time of an action.</p>"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

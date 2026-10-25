@@ -1,0 +1,670 @@
+{
+  "feats": [
+    {
+      "key": "ability-score-improvement",
+      "features": [
+        {
+          "key": "feat.ability-score-improvement",
+          "name": "Ability Score Improvement",
+          "choices": [
+            {
+              "key": "ability-score-improvement.abilities",
+              "name": "Ability Score Increases",
+              "count": "2",
+              "source": "Ability",
+              "replace": "Never",
+              "allowDuplicates": true,
+              "maxPerOption": 2,
+              "effects": [
+                {
+                  "target": "ability.$option.score",
+                  "op": "Add",
+                  "value": "1"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "resilient",
+      "features": [
+        {
+          "key": "feat.resilient",
+          "name": "Resilient",
+          "choices": [
+            {
+              "key": "resilient.ability",
+              "name": "Ability",
+              "count": "1",
+              "source": "Ability",
+              "replace": "Never",
+              "effects": [
+                {
+                  "target": "ability.$option.score",
+                  "op": "Add",
+                  "value": "1"
+                },
+                {
+                  "target": "save.$option.prof",
+                  "op": "Proficiency",
+                  "value": "proficient"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "tough",
+      "features": [
+        {
+          "key": "feat.tough",
+          "name": "Tough",
+          "effects": [
+            {
+              "target": "hp.perLevel",
+              "op": "Add",
+              "value": "2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "alert",
+      "features": [
+        {
+          "key": "feat.alert",
+          "name": "Alert",
+          "effects": [
+            {
+              "target": "initiative.bonus",
+              "op": "Add",
+              "value": "pb"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "lucky",
+      "features": [
+        {
+          "key": "feat.lucky",
+          "name": "Lucky",
+          "resources": [
+            {
+              "key": "luck-points",
+              "name": "Luck Points",
+              "max": "pb"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "musician",
+      "features": [
+        {
+          "key": "feat.musician",
+          "name": "Musician",
+          "choices": [
+            {
+              "key": "musician.instruments",
+              "name": "Instrument Training",
+              "count": "3",
+              "source": "Tool",
+              "replace": "Never",
+              "filter": "option.category == 'musical-instrument'",
+              "effects": [
+                {
+                  "target": "proficiency.tool.$option",
+                  "op": "Proficiency",
+                  "value": "proficient"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "crafter",
+      "features": [
+        {
+          "key": "feat.crafter",
+          "name": "Crafter",
+          "choices": [
+            {
+              "key": "crafter.tools",
+              "name": "Tool Proficiency",
+              "count": "3",
+              "source": "Tool",
+              "replace": "Never",
+              "filter": "option.category == 'artisan'",
+              "effects": [
+                {
+                  "target": "proficiency.tool.$option",
+                  "op": "Proficiency",
+                  "value": "proficient"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "tavern-brawler",
+      "features": [
+        {
+          "key": "feat.tavern-brawler",
+          "name": "Tavern Brawler",
+          "effects": [
+            {
+              "target": "attack.unarmed.die",
+              "op": "Max",
+              "value": "4"
+            },
+            {
+              "target": "proficiency.weapon.improvised",
+              "op": "Grant",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "magic-initiate",
+      "features": [
+        {
+          "key": "feat.magic-initiate",
+          "name": "Magic Initiate",
+          "choices": [
+            {
+              "key": "magic-initiate.list",
+              "name": "Spell List",
+              "count": "1",
+              "source": "Static",
+              "replace": "Never",
+              "options": [
+                {
+                  "key": "cleric",
+                  "name": "Cleric",
+                  "feature": {
+                    "key": "magic-initiate.cleric",
+                    "name": "Magic Initiate (Cleric)",
+                    "sheetSection": "Hidden",
+                    "choices": [
+                      {
+                        "key": "magic-initiate.cleric.cantrips",
+                        "name": "Cantrips",
+                        "count": "2",
+                        "source": "Spell",
+                        "replace": "Never",
+                        "filter": "onList('cleric') && option.level == 0"
+                      },
+                      {
+                        "key": "magic-initiate.cleric.spell",
+                        "name": "Level 1 Spell",
+                        "count": "1",
+                        "source": "Spell",
+                        "replace": "Never",
+                        "filter": "onList('cleric') && option.level == 1"
+                      },
+                      {
+                        "key": "magic-initiate.cleric.ability",
+                        "name": "Spellcasting Ability",
+                        "count": "1",
+                        "source": "Ability",
+                        "replace": "Never",
+                        "filter": "oneOf(option.key, 'int', 'wis', 'cha')"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "druid",
+                  "name": "Druid",
+                  "feature": {
+                    "key": "magic-initiate.druid",
+                    "name": "Magic Initiate (Druid)",
+                    "sheetSection": "Hidden",
+                    "choices": [
+                      {
+                        "key": "magic-initiate.druid.cantrips",
+                        "name": "Cantrips",
+                        "count": "2",
+                        "source": "Spell",
+                        "replace": "Never",
+                        "filter": "onList('druid') && option.level == 0"
+                      },
+                      {
+                        "key": "magic-initiate.druid.spell",
+                        "name": "Level 1 Spell",
+                        "count": "1",
+                        "source": "Spell",
+                        "replace": "Never",
+                        "filter": "onList('druid') && option.level == 1"
+                      },
+                      {
+                        "key": "magic-initiate.druid.ability",
+                        "name": "Spellcasting Ability",
+                        "count": "1",
+                        "source": "Ability",
+                        "replace": "Never",
+                        "filter": "oneOf(option.key, 'int', 'wis', 'cha')"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "wizard",
+                  "name": "Wizard",
+                  "feature": {
+                    "key": "magic-initiate.wizard",
+                    "name": "Magic Initiate (Wizard)",
+                    "sheetSection": "Hidden",
+                    "choices": [
+                      {
+                        "key": "magic-initiate.wizard.cantrips",
+                        "name": "Cantrips",
+                        "count": "2",
+                        "source": "Spell",
+                        "replace": "Never",
+                        "filter": "onList('wizard') && option.level == 0"
+                      },
+                      {
+                        "key": "magic-initiate.wizard.spell",
+                        "name": "Level 1 Spell",
+                        "count": "1",
+                        "source": "Spell",
+                        "replace": "Never",
+                        "filter": "onList('wizard') && option.level == 1"
+                      },
+                      {
+                        "key": "magic-initiate.wizard.ability",
+                        "name": "Spellcasting Ability",
+                        "count": "1",
+                        "source": "Ability",
+                        "replace": "Never",
+                        "filter": "oneOf(option.key, 'int', 'wis', 'cha')"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "archery",
+      "features": [
+        {
+          "key": "feat.archery",
+          "name": "Archery",
+          "effects": [
+            {
+              "target": "attack.ranged.bonus",
+              "op": "Add",
+              "value": "2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "defense",
+      "features": [
+        {
+          "key": "feat.defense",
+          "name": "Defense",
+          "effects": [
+            {
+              "target": "ac.bonus",
+              "op": "Add",
+              "value": "1",
+              "condition": "wearing('armor')"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "dueling",
+      "features": [
+        {
+          "key": "feat.dueling",
+          "name": "Dueling",
+          "effects": [
+            {
+              "target": "damage.melee.bonus",
+              "op": "Add",
+              "value": "2",
+              "condition": "wielding('weapon') && !wielding('two-weapons')"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "blind-fighting",
+      "features": [
+        {
+          "key": "feat.blind-fighting",
+          "name": "Blind Fighting",
+          "effects": [
+            {
+              "target": "sense.blindsight",
+              "op": "Set",
+              "value": "10"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "skilled",
+      "features": [
+        {
+          "key": "feat.skilled",
+          "name": "Skilled",
+          "choices": [
+            {
+              "key": "skilled.proficiencies",
+              "name": "Skills or Tools",
+              "count": "3",
+              "source": "Static",
+              "replace": "Never",
+              "effects": [
+                {
+                  "target": "$value",
+                  "op": "Proficiency",
+                  "value": "proficient"
+                }
+              ],
+              "options": [
+                {
+                  "key": "athletics",
+                  "name": "Athletics",
+                  "value": "skill.athletics.prof"
+                },
+                {
+                  "key": "acrobatics",
+                  "name": "Acrobatics",
+                  "value": "skill.acrobatics.prof"
+                },
+                {
+                  "key": "sleight-of-hand",
+                  "name": "Sleight Of Hand",
+                  "value": "skill.sleight-of-hand.prof"
+                },
+                {
+                  "key": "stealth",
+                  "name": "Stealth",
+                  "value": "skill.stealth.prof"
+                },
+                {
+                  "key": "arcana",
+                  "name": "Arcana",
+                  "value": "skill.arcana.prof"
+                },
+                {
+                  "key": "history",
+                  "name": "History",
+                  "value": "skill.history.prof"
+                },
+                {
+                  "key": "investigation",
+                  "name": "Investigation",
+                  "value": "skill.investigation.prof"
+                },
+                {
+                  "key": "nature",
+                  "name": "Nature",
+                  "value": "skill.nature.prof"
+                },
+                {
+                  "key": "religion",
+                  "name": "Religion",
+                  "value": "skill.religion.prof"
+                },
+                {
+                  "key": "animal-handling",
+                  "name": "Animal Handling",
+                  "value": "skill.animal-handling.prof"
+                },
+                {
+                  "key": "insight",
+                  "name": "Insight",
+                  "value": "skill.insight.prof"
+                },
+                {
+                  "key": "medicine",
+                  "name": "Medicine",
+                  "value": "skill.medicine.prof"
+                },
+                {
+                  "key": "perception",
+                  "name": "Perception",
+                  "value": "skill.perception.prof"
+                },
+                {
+                  "key": "survival",
+                  "name": "Survival",
+                  "value": "skill.survival.prof"
+                },
+                {
+                  "key": "deception",
+                  "name": "Deception",
+                  "value": "skill.deception.prof"
+                },
+                {
+                  "key": "intimidation",
+                  "name": "Intimidation",
+                  "value": "skill.intimidation.prof"
+                },
+                {
+                  "key": "performance",
+                  "name": "Performance",
+                  "value": "skill.performance.prof"
+                },
+                {
+                  "key": "persuasion",
+                  "name": "Persuasion",
+                  "value": "skill.persuasion.prof"
+                },
+                {
+                  "key": "alchemists-supplies",
+                  "name": "Alchemist's Supplies",
+                  "value": "proficiency.tool.alchemists-supplies"
+                },
+                {
+                  "key": "brewers-supplies",
+                  "name": "Brewer's Supplies",
+                  "value": "proficiency.tool.brewers-supplies"
+                },
+                {
+                  "key": "calligraphers-supplies",
+                  "name": "Calligrapher's Supplies",
+                  "value": "proficiency.tool.calligraphers-supplies"
+                },
+                {
+                  "key": "carpenters-tools",
+                  "name": "Carpenter's Tools",
+                  "value": "proficiency.tool.carpenters-tools"
+                },
+                {
+                  "key": "cartographers-tools",
+                  "name": "Cartographer's Tools",
+                  "value": "proficiency.tool.cartographers-tools"
+                },
+                {
+                  "key": "cobblers-tools",
+                  "name": "Cobbler's Tools",
+                  "value": "proficiency.tool.cobblers-tools"
+                },
+                {
+                  "key": "cooks-utensils",
+                  "name": "Cook's Utensils",
+                  "value": "proficiency.tool.cooks-utensils"
+                },
+                {
+                  "key": "glassblowers-tools",
+                  "name": "Glassblower's Tools",
+                  "value": "proficiency.tool.glassblowers-tools"
+                },
+                {
+                  "key": "jewelers-tools",
+                  "name": "Jeweler's Tools",
+                  "value": "proficiency.tool.jewelers-tools"
+                },
+                {
+                  "key": "leatherworkers-tools",
+                  "name": "Leatherworker's Tools",
+                  "value": "proficiency.tool.leatherworkers-tools"
+                },
+                {
+                  "key": "masons-tools",
+                  "name": "Mason's Tools",
+                  "value": "proficiency.tool.masons-tools"
+                },
+                {
+                  "key": "painters-supplies",
+                  "name": "Painter's Supplies",
+                  "value": "proficiency.tool.painters-supplies"
+                },
+                {
+                  "key": "potters-tools",
+                  "name": "Potter's Tools",
+                  "value": "proficiency.tool.potters-tools"
+                },
+                {
+                  "key": "smiths-tools",
+                  "name": "Smith's Tools",
+                  "value": "proficiency.tool.smiths-tools"
+                },
+                {
+                  "key": "tinkers-tools",
+                  "name": "Tinker's Tools",
+                  "value": "proficiency.tool.tinkers-tools"
+                },
+                {
+                  "key": "weavers-tools",
+                  "name": "Weaver's Tools",
+                  "value": "proficiency.tool.weavers-tools"
+                },
+                {
+                  "key": "woodcarvers-tools",
+                  "name": "Woodcarver's Tools",
+                  "value": "proficiency.tool.woodcarvers-tools"
+                },
+                {
+                  "key": "disguise-kit",
+                  "name": "Disguise Kit",
+                  "value": "proficiency.tool.disguise-kit"
+                },
+                {
+                  "key": "forgery-kit",
+                  "name": "Forgery Kit",
+                  "value": "proficiency.tool.forgery-kit"
+                },
+                {
+                  "key": "dice",
+                  "name": "Dice",
+                  "value": "proficiency.tool.dice"
+                },
+                {
+                  "key": "dragonchess",
+                  "name": "Dragonchess",
+                  "value": "proficiency.tool.dragonchess"
+                },
+                {
+                  "key": "playing-cards",
+                  "name": "Playing Cards",
+                  "value": "proficiency.tool.playing-cards"
+                },
+                {
+                  "key": "three-dragon-ante",
+                  "name": "Three-Dragon Ante",
+                  "value": "proficiency.tool.three-dragon-ante"
+                },
+                {
+                  "key": "herbalism-kit",
+                  "name": "Herbalism Kit",
+                  "value": "proficiency.tool.herbalism-kit"
+                },
+                {
+                  "key": "bagpipes",
+                  "name": "Bagpipes",
+                  "value": "proficiency.tool.bagpipes"
+                },
+                {
+                  "key": "drum",
+                  "name": "Drum",
+                  "value": "proficiency.tool.drum"
+                },
+                {
+                  "key": "dulcimer",
+                  "name": "Dulcimer",
+                  "value": "proficiency.tool.dulcimer"
+                },
+                {
+                  "key": "flute",
+                  "name": "Flute",
+                  "value": "proficiency.tool.flute"
+                },
+                {
+                  "key": "lute",
+                  "name": "Lute",
+                  "value": "proficiency.tool.lute"
+                },
+                {
+                  "key": "lyre",
+                  "name": "Lyre",
+                  "value": "proficiency.tool.lyre"
+                },
+                {
+                  "key": "pan-flute",
+                  "name": "Pan Flute",
+                  "value": "proficiency.tool.pan-flute"
+                },
+                {
+                  "key": "shawm",
+                  "name": "Shawm",
+                  "value": "proficiency.tool.shawm"
+                },
+                {
+                  "key": "viol",
+                  "name": "Viol",
+                  "value": "proficiency.tool.viol"
+                },
+                {
+                  "key": "navigators-tools",
+                  "name": "Navigator's Tools",
+                  "value": "proficiency.tool.navigators-tools"
+                },
+                {
+                  "key": "poisoners-kit",
+                  "name": "Poisoner's Kit",
+                  "value": "proficiency.tool.poisoners-kit"
+                },
+                {
+                  "key": "thieves-tools",
+                  "name": "Thieves' Tools",
+                  "value": "proficiency.tool.thieves-tools"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

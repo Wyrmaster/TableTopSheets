@@ -1,0 +1,361 @@
+{
+  "classes": [
+    {
+      "key": "monk",
+      "name": "Monk",
+      "hitDie": "D8",
+      "primaryAbilities": [
+        "dex",
+        "wis"
+      ],
+      "primaryAbilityMode": "All",
+      "subclassLevel": 3,
+      "scales": {
+        "monk.martial-arts": "1d6,1d6,1d6,1d6,1d8,1d8,1d8,1d8,1d8,1d8,1d10,1d10,1d10,1d10,1d10,1d10,1d12,1d12,1d12,1d12",
+        "monk.focus": "0,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20",
+        "monk.unarmored-movement": "0,10,10,10,10,15,15,15,15,20,20,20,20,25,25,25,25,30,30,30"
+      },
+      "features": [
+        {
+          "key": "monk.proficiencies",
+          "name": "Proficiencies",
+          "level": 1,
+          "grantMode": "FirstClassOnly",
+          "sheetSection": "Hidden",
+          "effects": [
+            {
+              "target": "save.str.prof",
+              "op": "Proficiency",
+              "value": "proficient"
+            },
+            {
+              "target": "save.dex.prof",
+              "op": "Proficiency",
+              "value": "proficient"
+            },
+            {
+              "target": "proficiency.weapon.simple",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "proficiency.weapon.scimitar",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "proficiency.weapon.shortsword",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "proficiency.weapon.hand-crossbow",
+              "op": "Grant",
+              "value": "1"
+            }
+          ],
+          "choices": [
+            {
+              "key": "monk.skills",
+              "name": "Skill Proficiencies",
+              "count": "2",
+              "source": "Skill",
+              "replace": "Never",
+              "filter": "oneOf(option.key, 'acrobatics', 'athletics', 'history', 'insight', 'religion', 'stealth')",
+              "effects": [
+                {
+                  "target": "skill.$option.prof",
+                  "op": "Proficiency",
+                  "value": "proficient"
+                }
+              ]
+            },
+            {
+              "key": "monk.tool",
+              "name": "Tool Proficiency",
+              "count": "1",
+              "source": "Tool",
+              "replace": "Never",
+              "filter": "option.category == 'artisan' || option.category == 'musical-instrument'",
+              "effects": [
+                {
+                  "target": "proficiency.tool.$option",
+                  "op": "Proficiency",
+                  "value": "proficient"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "monk.multiclass-proficiencies",
+          "name": "Multiclass Proficiencies",
+          "level": 1,
+          "grantMode": "MulticlassOnly",
+          "sheetSection": "Hidden",
+          "effects": []
+        },
+        {
+          "key": "monk.martial-arts",
+          "name": "Martial Arts",
+          "level": 1,
+          "effects": [
+            {
+              "target": "attack.unarmed.die",
+              "op": "Set",
+              "value": "scale('monk.martial-arts')",
+              "condition": "!wearing('armor') && !wielding('shield')",
+              "label": "Martial Arts"
+            },
+            {
+              "target": "attack.melee.dex",
+              "op": "Grant",
+              "value": "1",
+              "condition": "!wearing('armor') && !wielding('shield')",
+              "label": "Martial Arts"
+            }
+          ]
+        },
+        {
+          "key": "monk.unarmored-defense",
+          "name": "Unarmored Defense",
+          "level": 1,
+          "effects": [
+            {
+              "target": "ac.base",
+              "op": "Candidate",
+              "value": "10 + mod('dex') + mod('wis')",
+              "condition": "!wearing('armor') && !wielding('shield')",
+              "label": "Unarmored Defense (Monk)"
+            }
+          ]
+        },
+        {
+          "key": "monk.monks-focus",
+          "name": "Monk's Focus",
+          "level": 2,
+          "resources": [
+            {
+              "key": "focus-points",
+              "name": "Focus Points",
+              "max": "scale('monk.focus')",
+              "recharge": "ShortRest"
+            }
+          ]
+        },
+        {
+          "key": "monk.unarmored-movement",
+          "name": "Unarmored Movement",
+          "level": 2,
+          "effects": [
+            {
+              "target": "speed.walk",
+              "op": "Add",
+              "value": "scale('monk.unarmored-movement')",
+              "condition": "!wearing('armor') && !wielding('shield')",
+              "label": "Unarmored Movement"
+            }
+          ]
+        },
+        {
+          "key": "monk.uncanny-metabolism",
+          "name": "Uncanny Metabolism",
+          "level": 2
+        },
+        {
+          "key": "monk.deflect-attacks",
+          "name": "Deflect Attacks",
+          "level": 3
+        },
+        {
+          "key": "monk.slow-fall",
+          "name": "Slow Fall",
+          "level": 4
+        },
+        {
+          "key": "monk.extra-attack",
+          "name": "Extra Attack",
+          "level": 5,
+          "effects": [
+            {
+              "target": "attack.extraAttacks",
+              "op": "Add",
+              "value": "1",
+              "stackGroup": "extra-attack",
+              "label": "Extra Attack"
+            }
+          ]
+        },
+        {
+          "key": "monk.stunning-strike",
+          "name": "Stunning Strike",
+          "level": 5
+        },
+        {
+          "key": "monk.empowered-strikes",
+          "name": "Empowered Strikes",
+          "level": 6
+        },
+        {
+          "key": "monk.evasion",
+          "name": "Evasion",
+          "level": 7
+        },
+        {
+          "key": "monk.disciplined-survivor",
+          "name": "Disciplined Survivor",
+          "level": 14,
+          "effects": [
+            {
+              "target": "save.all.prof",
+              "op": "Proficiency",
+              "value": "proficient"
+            }
+          ]
+        },
+        {
+          "key": "monk.body-and-mind",
+          "name": "Body and Mind",
+          "level": 20,
+          "effects": [
+            {
+              "target": "ability.dex.score",
+              "op": "Add",
+              "value": "4"
+            },
+            {
+              "target": "ability.wis.score",
+              "op": "Add",
+              "value": "4"
+            },
+            {
+              "target": "ability.dex.max",
+              "op": "Max",
+              "value": "25"
+            },
+            {
+              "target": "ability.wis.max",
+              "op": "Max",
+              "value": "25"
+            }
+          ]
+        },
+        {
+          "key": "monk.ability-score-improvement-4",
+          "name": "Ability Score Improvement",
+          "level": 4,
+          "choices": [
+            {
+              "key": "monk.ability-score-improvement-4",
+              "name": "Feat",
+              "count": "1",
+              "source": "Feat",
+              "replace": "Never",
+              "filter": "option.category == 'general'"
+            }
+          ]
+        },
+        {
+          "key": "monk.ability-score-improvement-8",
+          "name": "Ability Score Improvement",
+          "level": 8,
+          "choices": [
+            {
+              "key": "monk.ability-score-improvement-8",
+              "name": "Feat",
+              "count": "1",
+              "source": "Feat",
+              "replace": "Never",
+              "filter": "option.category == 'general'"
+            }
+          ]
+        },
+        {
+          "key": "monk.ability-score-improvement-12",
+          "name": "Ability Score Improvement",
+          "level": 12,
+          "choices": [
+            {
+              "key": "monk.ability-score-improvement-12",
+              "name": "Feat",
+              "count": "1",
+              "source": "Feat",
+              "replace": "Never",
+              "filter": "option.category == 'general'"
+            }
+          ]
+        },
+        {
+          "key": "monk.ability-score-improvement-16",
+          "name": "Ability Score Improvement",
+          "level": 16,
+          "choices": [
+            {
+              "key": "monk.ability-score-improvement-16",
+              "name": "Feat",
+              "count": "1",
+              "source": "Feat",
+              "replace": "Never",
+              "filter": "option.category == 'general'"
+            }
+          ]
+        },
+        {
+          "key": "monk.epic-boon",
+          "name": "Epic Boon",
+          "level": 19,
+          "choices": [
+            {
+              "key": "monk.epic-boon",
+              "name": "Epic Boon",
+              "count": "1",
+              "source": "Feat",
+              "replace": "Never",
+              "filter": "option.category == 'epic-boon' || option.category == 'general'"
+            }
+          ]
+        }
+      ],
+      "subclasses": [
+        {
+          "key": "warrior-of-the-open-hand",
+          "name": "Warrior of the Open Hand",
+          "features": [
+            {
+              "key": "warrior-of-the-open-hand.open-hand-technique",
+              "name": "Open Hand Technique",
+              "level": 3,
+              "description": "<p>Whenever you hit a creature with an attack granted by your Flurry of Blows, you can impose one of the following effects on that target: Addle, Push, or Topple.</p>"
+            },
+            {
+              "key": "warrior-of-the-open-hand.wholeness-of-body",
+              "name": "Wholeness of Body",
+              "level": 6,
+              "description": "<p>As a Bonus Action, you can roll your Martial Arts die and regain Hit Points equal to the number rolled plus your Wisdom modifier. Uses equal to your Wisdom modifier per Long Rest.</p>",
+              "resources": [
+                {
+                  "key": "wholeness-of-body",
+                  "name": "Wholeness of Body",
+                  "max": "max(1, mod('wis'))",
+                  "die": "scale('monk.martial-arts')"
+                }
+              ]
+            },
+            {
+              "key": "warrior-of-the-open-hand.fleet-step",
+              "name": "Fleet Step",
+              "level": 11,
+              "description": "<p>When you take a Bonus Action other than Step of the Wind, you can also use Step of the Wind immediately after that Bonus Action.</p>"
+            },
+            {
+              "key": "warrior-of-the-open-hand.quivering-palm",
+              "name": "Quivering Palm",
+              "level": 17,
+              "description": "<p>You gain the ability to set up lethal vibrations in someone’s body (4 Focus Points, Constitution save, 10d12 Force damage).</p>"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

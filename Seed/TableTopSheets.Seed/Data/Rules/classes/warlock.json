@@ -1,0 +1,481 @@
+{
+  "classes": [
+    {
+      "key": "warlock",
+      "name": "Warlock",
+      "hitDie": "D8",
+      "primaryAbilities": [
+        "cha"
+      ],
+      "primaryAbilityMode": "All",
+      "subclassLevel": 3,
+      "scales": {
+        "warlock.cantrips": "2,2,2,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4",
+        "warlock.prepared": "2,3,4,5,6,7,8,9,10,10,11,11,12,12,13,13,14,14,15,15",
+        "warlock.invocations": "1,3,3,3,5,5,6,6,7,7,7,8,8,8,9,9,9,10,10,10"
+      },
+      "features": [
+        {
+          "key": "warlock.proficiencies",
+          "name": "Proficiencies",
+          "level": 1,
+          "grantMode": "FirstClassOnly",
+          "sheetSection": "Hidden",
+          "effects": [
+            {
+              "target": "save.wis.prof",
+              "op": "Proficiency",
+              "value": "proficient"
+            },
+            {
+              "target": "save.cha.prof",
+              "op": "Proficiency",
+              "value": "proficient"
+            },
+            {
+              "target": "proficiency.weapon.simple",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "proficiency.armor.light",
+              "op": "Grant",
+              "value": "1"
+            }
+          ],
+          "choices": [
+            {
+              "key": "warlock.skills",
+              "name": "Skill Proficiencies",
+              "count": "2",
+              "source": "Skill",
+              "replace": "Never",
+              "filter": "oneOf(option.key, 'arcana', 'deception', 'history', 'intimidation', 'investigation', 'nature', 'religion')",
+              "effects": [
+                {
+                  "target": "skill.$option.prof",
+                  "op": "Proficiency",
+                  "value": "proficient"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "warlock.multiclass-proficiencies",
+          "name": "Multiclass Proficiencies",
+          "level": 1,
+          "grantMode": "MulticlassOnly",
+          "sheetSection": "Hidden",
+          "effects": [
+            {
+              "target": "proficiency.armor.light",
+              "op": "Grant",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "key": "warlock.eldritch-invocations",
+          "name": "Eldritch Invocations",
+          "level": 1,
+          "choices": [
+            {
+              "key": "warlock.invocations",
+              "name": "Eldritch Invocations",
+              "count": "scale('warlock.invocations')",
+              "source": "FeatureCategory",
+              "replace": "OneOnLevelUp",
+              "category": "eldritch-invocation"
+            }
+          ]
+        },
+        {
+          "key": "warlock.pact-magic",
+          "name": "Pact Magic",
+          "level": 1,
+          "spellcasting": {
+            "ability": "cha",
+            "progression": "Pact",
+            "spellList": "warlock",
+            "prepared": "warlock.prepared",
+            "cantrips": "warlock.cantrips",
+            "pool": "ClassList",
+            "prepareChange": "LevelUp",
+            "ritual": "None",
+            "focus": "Arcane Focus"
+          },
+          "choices": [
+            {
+              "key": "warlock.cantrips",
+              "name": "Cantrips",
+              "count": "scale('warlock.cantrips')",
+              "source": "Spell",
+              "replace": "OneOnLevelUp",
+              "filter": "onList('warlock') && option.level == 0",
+              "category": "cantrip"
+            },
+            {
+              "key": "warlock.prepared",
+              "name": "Prepared Spells",
+              "count": "scale('warlock.prepared')",
+              "source": "Spell",
+              "replace": "OneOnLevelUp",
+              "filter": "onList('warlock') && option.level >= 1 && option.level <= maxSpellLevel('warlock')",
+              "category": "prepared"
+            }
+          ]
+        },
+        {
+          "key": "warlock.magical-cunning",
+          "name": "Magical Cunning",
+          "level": 2,
+          "resources": [
+            {
+              "key": "magical-cunning",
+              "name": "Magical Cunning",
+              "max": "1"
+            }
+          ]
+        },
+        {
+          "key": "warlock.contact-patron",
+          "name": "Contact Patron",
+          "level": 9,
+          "effects": [
+            {
+              "target": "spell.contact-other-plane",
+              "op": "Grant",
+              "value": "1",
+              "label": "Contact Patron"
+            }
+          ]
+        },
+        {
+          "key": "warlock.mystic-arcanum-11",
+          "name": "Mystic Arcanum",
+          "level": 11,
+          "choices": [
+            {
+              "key": "warlock.mystic-arcanum-11",
+              "name": "Mystic Arcanum (level 6)",
+              "count": "1",
+              "source": "Spell",
+              "replace": "OneOnLevelUp",
+              "filter": "onList('warlock') && option.level == 6"
+            }
+          ]
+        },
+        {
+          "key": "warlock.mystic-arcanum-13",
+          "name": "Mystic Arcanum",
+          "level": 13,
+          "choices": [
+            {
+              "key": "warlock.mystic-arcanum-13",
+              "name": "Mystic Arcanum (level 7)",
+              "count": "1",
+              "source": "Spell",
+              "replace": "OneOnLevelUp",
+              "filter": "onList('warlock') && option.level == 7"
+            }
+          ]
+        },
+        {
+          "key": "warlock.mystic-arcanum-15",
+          "name": "Mystic Arcanum",
+          "level": 15,
+          "choices": [
+            {
+              "key": "warlock.mystic-arcanum-15",
+              "name": "Mystic Arcanum (level 8)",
+              "count": "1",
+              "source": "Spell",
+              "replace": "OneOnLevelUp",
+              "filter": "onList('warlock') && option.level == 8"
+            }
+          ]
+        },
+        {
+          "key": "warlock.mystic-arcanum-17",
+          "name": "Mystic Arcanum",
+          "level": 17,
+          "choices": [
+            {
+              "key": "warlock.mystic-arcanum-17",
+              "name": "Mystic Arcanum (level 9)",
+              "count": "1",
+              "source": "Spell",
+              "replace": "OneOnLevelUp",
+              "filter": "onList('warlock') && option.level == 9"
+            }
+          ]
+        },
+        {
+          "key": "warlock.eldritch-master",
+          "name": "Eldritch Master",
+          "level": 20
+        },
+        {
+          "key": "warlock.ability-score-improvement-4",
+          "name": "Ability Score Improvement",
+          "level": 4,
+          "choices": [
+            {
+              "key": "warlock.ability-score-improvement-4",
+              "name": "Feat",
+              "count": "1",
+              "source": "Feat",
+              "replace": "Never",
+              "filter": "option.category == 'general'"
+            }
+          ]
+        },
+        {
+          "key": "warlock.ability-score-improvement-8",
+          "name": "Ability Score Improvement",
+          "level": 8,
+          "choices": [
+            {
+              "key": "warlock.ability-score-improvement-8",
+              "name": "Feat",
+              "count": "1",
+              "source": "Feat",
+              "replace": "Never",
+              "filter": "option.category == 'general'"
+            }
+          ]
+        },
+        {
+          "key": "warlock.ability-score-improvement-12",
+          "name": "Ability Score Improvement",
+          "level": 12,
+          "choices": [
+            {
+              "key": "warlock.ability-score-improvement-12",
+              "name": "Feat",
+              "count": "1",
+              "source": "Feat",
+              "replace": "Never",
+              "filter": "option.category == 'general'"
+            }
+          ]
+        },
+        {
+          "key": "warlock.ability-score-improvement-16",
+          "name": "Ability Score Improvement",
+          "level": 16,
+          "choices": [
+            {
+              "key": "warlock.ability-score-improvement-16",
+              "name": "Feat",
+              "count": "1",
+              "source": "Feat",
+              "replace": "Never",
+              "filter": "option.category == 'general'"
+            }
+          ]
+        },
+        {
+          "key": "warlock.epic-boon",
+          "name": "Epic Boon",
+          "level": 19,
+          "choices": [
+            {
+              "key": "warlock.epic-boon",
+              "name": "Epic Boon",
+              "count": "1",
+              "source": "Feat",
+              "replace": "Never",
+              "filter": "option.category == 'epic-boon' || option.category == 'general'"
+            }
+          ]
+        }
+      ],
+      "subclasses": [
+        {
+          "key": "fiend-patron",
+          "name": "Fiend Patron",
+          "features": [
+            {
+              "key": "fiend-patron.fiend-spells",
+              "name": "Fiend Spells",
+              "level": 3,
+              "description": "<p>The magic of your patron ensures you always have certain spells ready; when you reach a Warlock level specified in the Fiend Spells table, you thereafter always have the listed spells prepared.</p>",
+              "effects": [
+                {
+                  "target": "spell.burning-hands",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('warlock') >= 3",
+                  "label": "Fiend Spells"
+                },
+                {
+                  "target": "spell.command",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('warlock') >= 3",
+                  "label": "Fiend Spells"
+                },
+                {
+                  "target": "spell.scorching-ray",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('warlock') >= 3",
+                  "label": "Fiend Spells"
+                },
+                {
+                  "target": "spell.suggestion",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('warlock') >= 3",
+                  "label": "Fiend Spells"
+                },
+                {
+                  "target": "spell.fireball",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('warlock') >= 5",
+                  "label": "Fiend Spells"
+                },
+                {
+                  "target": "spell.stinking-cloud",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('warlock') >= 5",
+                  "label": "Fiend Spells"
+                },
+                {
+                  "target": "spell.fire-shield",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('warlock') >= 7",
+                  "label": "Fiend Spells"
+                },
+                {
+                  "target": "spell.wall-of-fire",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('warlock') >= 7",
+                  "label": "Fiend Spells"
+                },
+                {
+                  "target": "spell.geas",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('warlock') >= 9",
+                  "label": "Fiend Spells"
+                },
+                {
+                  "target": "spell.insect-plague",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('warlock') >= 9",
+                  "label": "Fiend Spells"
+                }
+              ]
+            },
+            {
+              "key": "fiend-patron.dark-ones-blessing",
+              "name": "Dark One's Blessing",
+              "level": 3,
+              "description": "<p>When you reduce an enemy to 0 Hit Points, you gain Temporary Hit Points equal to your Charisma modifier plus your Warlock level (minimum of 1 Temporary Hit Point).</p>"
+            },
+            {
+              "key": "fiend-patron.dark-ones-own-luck",
+              "name": "Dark One's Own Luck",
+              "level": 6,
+              "description": "<p>When you make an ability check or a saving throw, you can add a d10 to your roll. You can use this feature a number of times equal to your Charisma modifier (minimum of once) per Long Rest.</p>",
+              "resources": [
+                {
+                  "key": "dark-ones-own-luck",
+                  "name": "Dark One's Own Luck",
+                  "max": "max(1, mod('cha'))",
+                  "die": "1d10"
+                }
+              ]
+            },
+            {
+              "key": "fiend-patron.fiendish-resilience",
+              "name": "Fiendish Resilience",
+              "level": 10,
+              "description": "<p>Choose one damage type, other than Force, whenever you finish a Short or Long Rest. You have Resistance to that damage type until you choose a different one.</p>",
+              "choices": [
+                {
+                  "key": "fiend-patron.fiendish-resilience",
+                  "name": "Resistance",
+                  "count": "1",
+                  "source": "Static",
+                  "replace": "OnShortRest",
+                  "effects": [
+                    {
+                      "target": "damage.resist.$option",
+                      "op": "Grant",
+                      "value": "1"
+                    }
+                  ],
+                  "options": [
+                    {
+                      "key": "acid",
+                      "name": "Acid"
+                    },
+                    {
+                      "key": "bludgeoning",
+                      "name": "Bludgeoning"
+                    },
+                    {
+                      "key": "cold",
+                      "name": "Cold"
+                    },
+                    {
+                      "key": "fire",
+                      "name": "Fire"
+                    },
+                    {
+                      "key": "lightning",
+                      "name": "Lightning"
+                    },
+                    {
+                      "key": "necrotic",
+                      "name": "Necrotic"
+                    },
+                    {
+                      "key": "piercing",
+                      "name": "Piercing"
+                    },
+                    {
+                      "key": "poison",
+                      "name": "Poison"
+                    },
+                    {
+                      "key": "psychic",
+                      "name": "Psychic"
+                    },
+                    {
+                      "key": "radiant",
+                      "name": "Radiant"
+                    },
+                    {
+                      "key": "slashing",
+                      "name": "Slashing"
+                    },
+                    {
+                      "key": "thunder",
+                      "name": "Thunder"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "key": "fiend-patron.hurl-through-hell",
+              "name": "Hurl Through Hell",
+              "level": 14,
+              "description": "<p>Once per turn when you hit a creature with an attack roll, you can try to instantly transport the target through the Lower Planes (Charisma save, 8d10 Psychic damage). Once per Long Rest, or by expending a Pact Magic spell slot.</p>"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

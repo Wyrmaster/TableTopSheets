@@ -1,0 +1,265 @@
+{
+  "features": [
+    {
+      "key": "eldritch-invocation.agonizing-blast",
+      "prerequisite": "classLevel('warlock') >= 2"
+    },
+    {
+      "key": "eldritch-invocation.armor-of-shadows",
+      "effects": [
+        {
+          "target": "spell.mage-armor",
+          "op": "Grant",
+          "value": "1",
+          "label": "Armor of Shadows"
+        }
+      ]
+    },
+    {
+      "key": "eldritch-invocation.ascendant-step",
+      "prerequisite": "classLevel('warlock') >= 5",
+      "effects": [
+        {
+          "target": "spell.levitate",
+          "op": "Grant",
+          "value": "1",
+          "label": "Ascendant Step"
+        }
+      ]
+    },
+    {
+      "key": "eldritch-invocation.devils-sight",
+      "prerequisite": "classLevel('warlock') >= 2"
+    },
+    {
+      "key": "eldritch-invocation.devouring-blade",
+      "prerequisite": "classLevel('warlock') >= 12 && chosen('eldritch-invocation.thirsting-blade')",
+      "effects": [
+        {
+          "target": "attack.extraAttacks",
+          "op": "Add",
+          "value": "2",
+          "stackGroup": "extra-attack",
+          "label": "Devouring Blade"
+        }
+      ]
+    },
+    {
+      "key": "eldritch-invocation.eldritch-mind"
+    },
+    {
+      "key": "eldritch-invocation.eldritch-smite",
+      "prerequisite": "classLevel('warlock') >= 5 && chosen('eldritch-invocation.pact-of-the-blade')"
+    },
+    {
+      "key": "eldritch-invocation.eldritch-spear",
+      "prerequisite": "classLevel('warlock') >= 2"
+    },
+    {
+      "key": "eldritch-invocation.fiendish-vigor",
+      "prerequisite": "classLevel('warlock') >= 2",
+      "effects": [
+        {
+          "target": "spell.false-life",
+          "op": "Grant",
+          "value": "1",
+          "label": "Fiendish Vigor"
+        }
+      ]
+    },
+    {
+      "key": "eldritch-invocation.gaze-of-two-minds",
+      "prerequisite": "classLevel('warlock') >= 5"
+    },
+    {
+      "key": "eldritch-invocation.gift-of-the-depths",
+      "prerequisite": "classLevel('warlock') >= 5",
+      "effects": [
+        {
+          "target": "speed.swim",
+          "op": "Set",
+          "value": "stat('speed.walk')"
+        },
+        {
+          "target": "spell.water-breathing",
+          "op": "Grant",
+          "value": "1",
+          "label": "Gift of the Depths"
+        }
+      ]
+    },
+    {
+      "key": "eldritch-invocation.gift-of-the-protectors",
+      "prerequisite": "classLevel('warlock') >= 9 && chosen('eldritch-invocation.pact-of-the-tome')"
+    },
+    {
+      "key": "eldritch-invocation.investment-of-the-chain-master",
+      "prerequisite": "classLevel('warlock') >= 5 && chosen('eldritch-invocation.pact-of-the-chain')"
+    },
+    {
+      "key": "eldritch-invocation.lessons-of-the-first-ones",
+      "prerequisite": "classLevel('warlock') >= 2",
+      "choices": [
+        {
+          "key": "lessons-of-the-first-ones.feat",
+          "name": "Origin Feat",
+          "count": "1",
+          "source": "Feat",
+          "replace": "Never",
+          "filter": "option.category == 'origin'"
+        }
+      ]
+    },
+    {
+      "key": "eldritch-invocation.lifedrinker",
+      "prerequisite": "classLevel('warlock') >= 9 && chosen('eldritch-invocation.pact-of-the-blade')"
+    },
+    {
+      "key": "eldritch-invocation.mask-of-many-faces",
+      "prerequisite": "classLevel('warlock') >= 2",
+      "effects": [
+        {
+          "target": "spell.disguise-self",
+          "op": "Grant",
+          "value": "1",
+          "label": "Mask of Many Faces"
+        }
+      ]
+    },
+    {
+      "key": "eldritch-invocation.master-of-myriad-forms",
+      "prerequisite": "classLevel('warlock') >= 5",
+      "effects": [
+        {
+          "target": "spell.alter-self",
+          "op": "Grant",
+          "value": "1",
+          "label": "Master of Myriad Forms"
+        }
+      ]
+    },
+    {
+      "key": "eldritch-invocation.misty-visions",
+      "prerequisite": "classLevel('warlock') >= 2",
+      "effects": [
+        {
+          "target": "spell.silent-image",
+          "op": "Grant",
+          "value": "1",
+          "label": "Misty Visions"
+        }
+      ]
+    },
+    {
+      "key": "eldritch-invocation.one-with-shadows",
+      "prerequisite": "classLevel('warlock') >= 5",
+      "effects": [
+        {
+          "target": "spell.invisibility",
+          "op": "Grant",
+          "value": "1",
+          "label": "One with Shadows"
+        }
+      ]
+    },
+    {
+      "key": "eldritch-invocation.otherworldly-leap",
+      "prerequisite": "classLevel('warlock') >= 2",
+      "effects": [
+        {
+          "target": "spell.jump",
+          "op": "Grant",
+          "value": "1",
+          "label": "Otherworldly Leap"
+        }
+      ]
+    },
+    {
+      "key": "eldritch-invocation.pact-of-the-blade"
+    },
+    {
+      "key": "eldritch-invocation.pact-of-the-chain",
+      "effects": [
+        {
+          "target": "spell.find-familiar",
+          "op": "Grant",
+          "value": "1",
+          "label": "Pact of the Chain"
+        }
+      ]
+    },
+    {
+      "key": "eldritch-invocation.pact-of-the-tome",
+      "choices": [
+        {
+          "key": "pact-of-the-tome.cantrips",
+          "name": "Book of Shadows Cantrips",
+          "count": "3",
+          "source": "Spell",
+          "replace": "Never",
+          "filter": "option.level == 0"
+        },
+        {
+          "key": "pact-of-the-tome.rituals",
+          "name": "Book of Shadows Rituals",
+          "count": "2",
+          "source": "Spell",
+          "replace": "Never",
+          "filter": "option.level == 1 && option.ritual"
+        }
+      ]
+    },
+    {
+      "key": "eldritch-invocation.repelling-blast",
+      "prerequisite": "classLevel('warlock') >= 2"
+    },
+    {
+      "key": "eldritch-invocation.thirsting-blade",
+      "prerequisite": "classLevel('warlock') >= 5 && chosen('eldritch-invocation.pact-of-the-blade')",
+      "effects": [
+        {
+          "target": "attack.extraAttacks",
+          "op": "Add",
+          "value": "1",
+          "stackGroup": "extra-attack",
+          "label": "Thirsting Blade"
+        }
+      ]
+    },
+    {
+      "key": "eldritch-invocation.visions-of-distant-realms",
+      "prerequisite": "classLevel('warlock') >= 9",
+      "effects": [
+        {
+          "target": "spell.arcane-eye",
+          "op": "Grant",
+          "value": "1",
+          "label": "Visions of Distant Realms"
+        }
+      ]
+    },
+    {
+      "key": "eldritch-invocation.whispers-of-the-grave",
+      "prerequisite": "classLevel('warlock') >= 7",
+      "effects": [
+        {
+          "target": "spell.speak-with-dead",
+          "op": "Grant",
+          "value": "1",
+          "label": "Whispers of the Grave"
+        }
+      ]
+    },
+    {
+      "key": "eldritch-invocation.witch-sight",
+      "prerequisite": "classLevel('warlock') >= 15",
+      "effects": [
+        {
+          "target": "sense.truesight",
+          "op": "Set",
+          "value": "30"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,171 @@
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
+using TableTopSheets.Common.Sheet;
+using TableTopSheets.Engine.Choices;
+using TableTopSheets.Engine.Evaluation;
+using TableTopSheets.Engine.Expressions;
+using TableTopSheets.Engine.Rules;
+using TableTopSheets.Engine.Services;
+using TableTopSheets.Engine.Sheet;
+using TableTopSheets.Persistence;
+using TableTopSheets.Persistence.Entity.Characters;
+using TableTopSheets.Seed;
+
+namespace TableTopSheets.Engine.Tests;
+
+/// <summary>
+///   Seeded in-memory SQLite database with a character service
+/// </summary>
+public sealed class TestWorld: IAsyncDisposable
+{
+  #region Fields
+
+  private readonly SqliteConnection _connection;
+
+  #endregion
+
+  #region Constructor
+
+  private TestWorld(SqliteConnection connection, TableTopSheetsContext context, RulesCatalog catalog)
+  {
+    this._connection = connection;
+    this.Context = context;
+    this.Catalog = catalog;
+    this.Service = new CharacterService(context, catalog);
+  }
+
+  #endregion
+
+  #region Properties
+
+  public TableTopSheetsContext Context { get; }
+
+  public RulesCatalog Catalog { get; }
+
+  public CharacterService Service { get; }
+
+  #endregion
+
+  #region Factory Methods
+
+  public static async Task<TestWorld> CreateAsync()
+  {
+    SqliteConnection connection = new("DataSource=:memory:");
+    await connection.OpenAsync();
+    TableTopSheetsContext context = CreateContext(connection);
+    await context.Database.EnsureCreatedAsync();
+    await SeedWriter.WriteAsync(context, SeedBuilder.Build(SeedLoader.Load()));
+    RulesCatalog catalog = await RulesCatalog.LoadAsync(context);
+    return new TestWorld(connection, context, catalog);
+  }
+
+  public static TableTopSheetsContext CreateContext(SqliteConnection connection)
+    => new(new DbContextOptionsBuilder<TableTopSheetsContext>().UseSqlite(connection).Options);
+
+  #endregion
+
+  #region Helpers
+
+  public static readonly IReadOnlyDictionary<string, byte> StandardArray = new Dictionary<string, byte>
+  {
+    ["str"] = 15, ["dex"] = 14, ["con"] = 13, ["int"] = 12, ["wis"] = 10, ["cha"] = 8,
+  };
+
+  public static IReadOnlyDictionary<string, byte> Scores(byte str, byte dex, byte con, byte @int, byte wis, byte cha) => new Dictionary<string, byte>
+  {
+    ["str"] = str, ["dex"] = dex, ["con"] = con, ["int"] = @int, ["wis"] = wis, ["cha"] = cha,
+  };
+
+  /// <summary>
+  ///   Dwarf with a background; the given background increases are used, every other origin choice gets the first option
+  /// </summary>
+  public async Task<Guid> CreateCharacterAsync(IReadOnlyDictionary<string, byte>? abilities = null, string background = "farmer", params string[] backgroundIncreases)
+  {
+    Character character = await this.Service.CreateAsync(new CreateCharacterRequest
+    {
+      Name = "Test",
+      SpeciesKey = "dwarf",
+      BackgroundKey = background,
+      Abilities = abilities ?? StandardArray,
+      Selections = backgroundIncreases.Select(entry => new SelectionRequest($"{background}.ability-scores", entry)).ToList(),
+      AllowIncomplete = true,
+    });
+    this.AutoComplete(character);
+    this.Service.EnsureComplete(character);
+    await this.Context.SaveChangesAsync();
+    return character.Id;
+  }
+
+  /// <summary>
+  ///   Level up with the given selections; every other open choice is answered with the first available option
+  /// </summary>
+  public async Task<CharacterEvaluation> LevelUpAsync
+  (
+    Guid characterId,
+    string classKey,
+    string? subclassKey = null,
+    IReadOnlyList<SelectionRequest>? selections = null,
+    IReadOnlyList<ReplacementRequest>? replacements = null
+  )
+  {
+    Character character = await this.Service.LoadAsync(characterId);
+    this.Service.LevelUp(character, new LevelUpRequest
+    {
+      ClassKey = classKey,
+      SubclassKey = subclassKey,
+      Selections = selections ?? [],
+      Replacements = replacements ?? [],
+      AllowIncomplete = true,
+    });
+    this.AutoComplete(character);
+    this.Service.EnsureComplete(character);
+    await this.Context.SaveChangesAsync();
+    return this.Service.Evaluate(character);
+  }
+
+  public async Task<CharacterEvaluation> LevelUpManyAsync(Guid characterId, string classKey, int levels, string? subclassKey = null)
+  {
+    CharacterEvaluation evaluation = this.Service.Evaluate(await this.Service.LoadAsync(characterId));
+    for (int index = 0; index < levels; index++)
+    {
+      int next = evaluation.ClassLevel(classKey) + 1;
+      string? subclass = next == this.Catalog.ClassesByKey[classKey].SubclassLevel ? subclassKey : null;
+      evaluation = await this.LevelUpAsync(characterId, classKey, subclass);
+    }
+
+    return evaluation;
+  }
+
+  public void AutoComplete(Character character)
+  {
+    while (true)
+    {
+      CharacterEvaluation evaluation = this.Service.Evaluate(character);
+      PendingChoice? pending = ChoiceService.Pending(evaluation).FirstOrDefault(entry => !entry.Choice.Optional);
+      if (pending == null)
+      {
+        return;
+      }
+
+      OptionDescriptor option = ChoiceService.AvailableOptions(evaluation, pending.Choice, pending.Owner).FirstOrDefault()
+                                ?? throw new InvalidOperationException($"No option left for '{pending.Choice.Key}'");
+      this.Service.Select(character, [new SelectionRequest(pending.Choice.Key, option.Key, ParentRef: pending.ParentSelectionId?.ToString())]);
+    }
+  }
+
+  public async Task<CharacterSheet> SheetAsync(Guid characterId) => await this.Service.BuildSheetAsync(characterId);
+
+  public async Task<CharacterEvaluation> EvaluateAsync(Guid characterId) => this.Service.Evaluate(await this.Service.LoadAsync(characterId));
+
+  #endregion
+
+  #region IAsyncDisposable
+
+  public async ValueTask DisposeAsync()
+  {
+    await this.Context.DisposeAsync();
+    await this._connection.DisposeAsync();
+  }
+
+  #endregion
+}

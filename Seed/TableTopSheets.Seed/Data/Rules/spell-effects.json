@@ -1,0 +1,50 @@
+{
+  "features": [
+    {
+      "key": "spell-effect.mage-armor",
+      "name": "Mage Armor",
+      "ownerType": "Spell",
+      "spell": "mage-armor",
+      "sheetSection": "Hidden",
+      "effects": [
+        {
+          "target": "ac.base",
+          "op": "Candidate",
+          "value": "13 + mod('dex')",
+          "condition": "!wearing('armor')",
+          "label": "Mage Armor"
+        }
+      ]
+    },
+    {
+      "key": "spell-effect.shield-of-faith",
+      "name": "Shield of Faith",
+      "ownerType": "Spell",
+      "spell": "shield-of-faith",
+      "sheetSection": "Hidden",
+      "effects": [
+        {
+          "target": "ac.bonus",
+          "op": "Add",
+          "value": "2",
+          "label": "Shield of Faith"
+        }
+      ]
+    },
+    {
+      "key": "spell-effect.shield",
+      "name": "Shield",
+      "ownerType": "Spell",
+      "spell": "shield",
+      "sheetSection": "Hidden",
+      "effects": [
+        {
+          "target": "ac.bonus",
+          "op": "Add",
+          "value": "5",
+          "label": "Shield (spell)"
+        }
+      ]
+    }
+  ]
+}

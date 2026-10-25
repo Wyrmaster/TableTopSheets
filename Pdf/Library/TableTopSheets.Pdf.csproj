@@ -1,0 +1,90 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="PDFsharp" Version="6.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Common\TableTopSheets.Common\TableTopSheets.Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Resources\SheetLogo.png" />
+    <EmbeddedResource Include="Resources\SheetLogo.png" />
+    <None Remove="Resources\Roboto\Roboto-Black.ttf" />
+    <EmbeddedResource Include="Resources\Roboto\RobotoBlack.ttf" />
+    <None Remove="Resources\Roboto\Roboto-BlackItalic.ttf" />
+    <EmbeddedResource Include="Resources\Roboto\RobotoBlackItalic.ttf" />
+    <None Remove="Resources\Roboto\Roboto-Bold.ttf" />
+    <EmbeddedResource Include="Resources\Roboto\RobotoBold.ttf" />
+    <None Remove="Resources\Roboto\Roboto-BoldItalic.ttf" />
+    <EmbeddedResource Include="Resources\Roboto\RobotoBoldItalic.ttf" />
+    <None Remove="Resources\Roboto\Roboto-Italic.ttf" />
+    <EmbeddedResource Include="Resources\Roboto\RobotoItalic.ttf" />
+    <None Remove="Resources\Roboto\Roboto-Light.ttf" />
+    <EmbeddedResource Include="Resources\Roboto\RobotoLight.ttf" />
+    <None Remove="Resources\Roboto\Roboto-LightItalic.ttf" />
+    <EmbeddedResource Include="Resources\Roboto\RobotoLightItalic.ttf" />
+    <None Remove="Resources\Roboto\Roboto-Medium.ttf" />
+    <EmbeddedResource Include="Resources\Roboto\RobotoMedium.ttf" />
+    <None Remove="Resources\Roboto\Roboto-MediumItalic.ttf" />
+    <EmbeddedResource Include="Resources\Roboto\RobotoMediumItalic.ttf" />
+    <None Remove="Resources\Roboto\Roboto-Regular.ttf" />
+    <EmbeddedResource Include="Resources\Roboto\RobotoRegular.ttf" />
+    <None Remove="Resources\Roboto\Roboto-Thin.ttf" />
+    <EmbeddedResource Include="Resources\Roboto\RobotoThin.ttf" />
+    <None Remove="Resources\Roboto\Roboto-ThinItalic.ttf" />
+    <EmbeddedResource Include="Resources\Roboto\RobotoThinItalic.ttf" />
+    <None Remove="Resources\Sarabun\SarabunBold.ttf" />
+    <EmbeddedResource Include="Resources\Sarabun\SarabunBold.ttf" />
+    <None Remove="Resources\Sarabun\SarabunBoldItalic.ttf" />
+    <EmbeddedResource Include="Resources\Sarabun\SarabunBoldItalic.ttf" />
+    <None Remove="Resources\Sarabun\SarabunExtraBold.ttf" />
+    <EmbeddedResource Include="Resources\Sarabun\SarabunExtraBold.ttf" />
+    <None Remove="Resources\Sarabun\SarabunExtraBoldItalic.ttf" />
+    <EmbeddedResource Include="Resources\Sarabun\SarabunExtraBoldItalic.ttf" />
+    <None Remove="Resources\Sarabun\SarabunExtraLight.ttf" />
+    <EmbeddedResource Include="Resources\Sarabun\SarabunExtraLight.ttf" />
+    <None Remove="Resources\Sarabun\SarabunExtraLightItalic.ttf" />
+    <EmbeddedResource Include="Resources\Sarabun\SarabunExtraLightItalic.ttf" />
+    <None Remove="Resources\Sarabun\SarabunItalic.ttf" />
+    <EmbeddedResource Include="Resources\Sarabun\SarabunItalic.ttf" />
+    <None Remove="Resources\Sarabun\SarabunLight.ttf" />
+    <EmbeddedResource Include="Resources\Sarabun\SarabunLight.ttf" />
+    <None Remove="Resources\Sarabun\SarabunLightItalic.ttf" />
+    <EmbeddedResource Include="Resources\Sarabun\SarabunLightItalic.ttf" />
+    <None Remove="Resources\Sarabun\SarabunMedium.ttf" />
+    <EmbeddedResource Include="Resources\Sarabun\SarabunMedium.ttf" />
+    <None Remove="Resources\Sarabun\SarabunMediumItalic.ttf" />
+    <EmbeddedResource Include="Resources\Sarabun\SarabunMediumItalic.ttf" />
+    <None Remove="Resources\Sarabun\SarabunRegular.ttf" />
+    <EmbeddedResource Include="Resources\Sarabun\SarabunRegular.ttf" />
+    <None Remove="Resources\Sarabun\SarabunSemiBold.ttf" />
+    <EmbeddedResource Include="Resources\Sarabun\SarabunSemiBold.ttf" />
+    <None Remove="Resources\Sarabun\SarabunSemiBoldItalic.ttf" />
+    <EmbeddedResource Include="Resources\Sarabun\SarabunSemiBoldItalic.ttf" />
+    <None Remove="Resources\Sarabun\SarabunThin.ttf" />
+    <EmbeddedResource Include="Resources\Sarabun\SarabunThin.ttf" />
+    <None Remove="Resources\Sarabun\SarabunThinItalic.ttf" />
+    <EmbeddedResource Include="Resources\Sarabun\SarabunThinItalic.ttf" />
+    <None Remove="Resources\SecondPageItem1.png" />
+    <EmbeddedResource Include="Resources\SecondPageItem1.png" />
+    <None Remove="Resources\SecondPageItem2.png" />
+    <EmbeddedResource Include="Resources\SecondPageItem2.png" />
+    <None Remove="Resources\SecondPageItem3.png" />
+    <EmbeddedResource Include="Resources\SecondPageItem3.png" />
+    <None Remove="Resources\SecondPageItem4.png" />
+    <EmbeddedResource Include="Resources\SecondPageItem4.png" />
+    <None Remove="Resources\SecondPageItem5.png" />
+    <EmbeddedResource Include="Resources\SecondPageItem5.png" />
+    <None Remove="Resources\SecondPageLogo.png" />
+    <EmbeddedResource Include="Resources\SecondPageLogo.png" />
+  </ItemGroup>
+
+</Project>

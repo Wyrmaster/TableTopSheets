@@ -1,0 +1,1828 @@
+{
+  "classes": [],
+  "species": [],
+  "backgrounds": [
+    {
+      "abilities": [
+        "int",
+        "wis",
+        "cha"
+      ],
+      "originFeat": "magic-initiate",
+      "features": [
+        {
+          "effects": [],
+          "choices": [
+            {
+              "key": "acolyte.ability-scores",
+              "name": "Ability Score Increases",
+              "count": "3",
+              "source": "Ability",
+              "filter": "oneOf(option.key, 'int', 'wis', 'cha')",
+              "replace": "Never",
+              "allowDuplicates": true,
+              "maxPerOption": 2,
+              "optional": false,
+              "options": [],
+              "effects": [
+                {
+                  "target": "ability.$option.score",
+                  "op": "Add",
+                  "value": "1",
+                  "label": "Acolyte"
+                }
+              ]
+            }
+          ],
+          "resources": [],
+          "key": "acolyte.ability-scores",
+          "name": "Ability Scores"
+        },
+        {
+          "effects": [
+            {
+              "target": "skill.insight.prof",
+              "op": "Proficiency",
+              "value": "proficient",
+              "label": "Acolyte"
+            },
+            {
+              "target": "skill.religion.prof",
+              "op": "Proficiency",
+              "value": "proficient",
+              "label": "Acolyte"
+            }
+          ],
+          "choices": [],
+          "resources": [],
+          "key": "acolyte.skills",
+          "name": "Skill Proficiencies"
+        },
+        {
+          "effects": [
+            {
+              "target": "proficiency.tool.calligraphers-supplies",
+              "op": "Proficiency",
+              "value": "proficient",
+              "label": "Acolyte"
+            }
+          ],
+          "choices": [],
+          "resources": [],
+          "key": "acolyte.tool",
+          "name": "Tool Proficiency"
+        },
+        {
+          "effects": [
+            {
+              "target": "language.common",
+              "op": "Grant",
+              "value": "1",
+              "label": "Common"
+            }
+          ],
+          "choices": [
+            {
+              "key": "acolyte.languages",
+              "name": "Standard Languages",
+              "count": "2",
+              "source": "Language",
+              "filter": "option.category == 'standard' && option.key != 'common'",
+              "replace": "Never",
+              "allowDuplicates": false,
+              "maxPerOption": 1,
+              "optional": false,
+              "options": [],
+              "effects": [
+                {
+                  "target": "language.$option",
+                  "op": "Grant",
+                  "value": "1"
+                }
+              ]
+            }
+          ],
+          "resources": [],
+          "key": "acolyte.languages",
+          "name": "Languages"
+        }
+      ],
+      "key": "acolyte",
+      "name": "Acolyte",
+      "description": "<ul><li><strong>Ability Scores:</strong> Intelligence, Wisdom, Charisma</li><li><strong>Feat:</strong> Magic Initiate (Cleric)</li><li><strong>Skill Proficiencies:</strong> Insight, Religion</li><li><strong>Tool Proficiency:</strong> <em>Calligrapher's Supplies</em></li><li><strong>Equipment:</strong> Choose A or B: (A) <em>Calligrapher's Supplies</em>, <em>Book (prayers)</em>, <em>Holy Symbol</em>, <em>Parchment</em> (10 sheets), <em>Robe</em>, 8 GP; or (B) 50 GP</li></ul>"
+    },
+    {
+      "abilities": [
+        "str",
+        "dex",
+        "int"
+      ],
+      "originFeat": "crafter",
+      "features": [
+        {
+          "effects": [],
+          "choices": [
+            {
+              "key": "artisan.ability-scores",
+              "name": "Ability Score Increases",
+              "count": "3",
+              "source": "Ability",
+              "filter": "oneOf(option.key, 'str', 'dex', 'int')",
+              "replace": "Never",
+              "allowDuplicates": true,
+              "maxPerOption": 2,
+              "optional": false,
+              "options": [],
+              "effects": [
+                {
+                  "target": "ability.$option.score",
+                  "op": "Add",
+                  "value": "1",
+                  "label": "Artisan"
+                }
+              ]
+            }
+          ],
+          "resources": [],
+          "key": "artisan.ability-scores",
+          "name": "Ability Scores"
+        },
+        {
+          "effects": [
+            {
+              "target": "skill.investigation.prof",
+              "op": "Proficiency",
+              "value": "proficient",
+              "label": "Artisan"
+            },
+            {
+              "target": "skill.persuasion.prof",
+              "op": "Proficiency",
+              "value": "proficient",
+              "label": "Artisan"
+            }
+          ],
+          "choices": [],
+          "resources": [],
+          "key": "artisan.skills",
+          "name": "Skill Proficiencies"
+        },
+        {
+          "effects": [],
+          "choices": [
+            {
+              "key": "artisan.tool",
+              "name": "Tool Proficiency",
+              "count": "1",
+              "source": "Tool",
+              "filter": "option.category == 'artisan'",
+              "replace": "Never",
+              "allowDuplicates": false,
+              "maxPerOption": 1,
+              "optional": false,
+              "options": [],
+              "effects": [
+                {
+                  "target": "proficiency.tool.$option",
+                  "op": "Proficiency",
+                  "value": "proficient",
+                  "label": "Artisan"
+                }
+              ]
+            }
+          ],
+          "resources": [],
+          "key": "artisan.tool",
+          "name": "Tool Proficiency"
+        },
+        {
+          "effects": [
+            {
+              "target": "language.common",
+              "op": "Grant",
+              "value": "1",
+              "label": "Common"
+            }
+          ],
+          "choices": [
+            {
+              "key": "artisan.languages",
+              "name": "Standard Languages",
+              "count": "2",
+              "source": "Language",
+              "filter": "option.category == 'standard' && option.key != 'common'",
+              "replace": "Never",
+              "allowDuplicates": false,
+              "maxPerOption": 1,
+              "optional": false,
+              "options": [],
+              "effects": [
+                {
+                  "target": "language.$option",
+                  "op": "Grant",
+                  "value": "1"
+                }
+              ]
+            }
+          ],
+          "resources": [],
+          "key": "artisan.languages",
+          "name": "Languages"
+        }
+      ],
+      "key": "artisan",
+      "name": "Artisan",
+      "description": "<ul><li><strong>Ability Scores:</strong> Strength, Dexterity, Intelligence</li><li><strong>Feat:</strong> Crafter</li><li><strong>Skill Proficiencies:</strong> Investigation, Persuasion</li><li><strong>Tool Proficiency:</strong> Choose one kind of <em>Artisan's Tools</em></li><li><strong>Equipment:</strong> Choose A or B: (A) <em>Artisan's Tools</em> (same as above), 2 <em>Pouches</em>, <em>Traveler's Clothes</em>, 32 GP; or (B) 50 GP</li></ul>"
+    },
+    {
+      "abilities": [
+        "dex",
+        "con",
+        "cha"
+      ],
+      "originFeat": "skilled",
+      "features": [
+        {
+          "effects": [],
+          "choices": [
+            {
+              "key": "charlatan.ability-scores",
+              "name": "Ability Score Increases",
+              "count": "3",
+              "source": "Ability",
+              "filter": "oneOf(option.key, 'dex', 'con', 'cha')",
+              "replace": "Never",
+              "allowDuplicates": true,
+              "maxPerOption": 2,
+              "optional": false,
+              "options": [],
+              "effects": [
+                {
+                  "target": "ability.$option.score",
+                  "op": "Add",
+                  "value": "1",
+                  "label": "Charlatan"
+                }
+              ]
+            }
+          ],
+          "resources": [],
+          "key": "charlatan.ability-scores",
+          "name": "Ability Scores"
+        },
+        {
+          "effects": [
+            {
+              "target": "skill.deception.prof",
+              "op": "Proficiency",
+              "value": "proficient",
+              "label": "Charlatan"
+            },
+            {
+              "target": "skill.sleight-of-hand.prof",
+              "op": "Proficiency",
+              "value": "proficient",
+              "label": "Charlatan"
+            }
+          ],
+          "choices": [],
+          "resources": [],
+          "key": "charlatan.skills",
+          "name": "Skill Proficiencies"
+        },
+        {
+          "effects": [
+            {
+              "target": "proficiency.tool.forgery-kit",
+              "op": "Proficiency",
+              "value": "proficient",
+              "label": "Charlatan"
+            }
+          ],
+          "choices": [],
+          "resources": [],
+          "key": "charlatan.tool",
+          "name": "Tool Proficiency"
+        },
+        {
+          "effects": [
+            {
+              "target": "language.common",
+              "op": "Grant",
+              "value": "1",
+              "label": "Common"
+            }
+          ],
+          "choices": [
+            {
+              "key": "charlatan.languages",
+              "name": "Standard Languages",
+              "count": "2",
+              "source": "Language",
+              "filter": "option.category == 'standard' && option.key != 'common'",
+              "replace": "Never",
+              "allowDuplicates": false,
+              "maxPerOption": 1,
+              "optional": false,
+              "options": [],
+              "effects": [
+                {
+                  "target": "language.$option",
+                  "op": "Grant",
+                  "value": "1"
+                }
+              ]
+            }
+          ],
+          "resources": [],
+          "key": "charlatan.languages",
+          "name": "Languages"
+        }
+      ],
+      "key": "charlatan",
+      "name": "Charlatan",
+      "description": "<ul><li><strong>Ability Scores:</strong> Dexterity, Constitution, Charisma</li><li><strong>Feat:</strong> Skilled</li><li><strong>Skill Proficiencies:</strong> Deception, Sleight of Hand</li><li><strong>Tool Proficiency:</strong> <em>Forgery Kit</em></li><li><strong>Equipment:</strong> Choose A or B: (A) <em>Forgery Kit</em>, <em>Costume</em>, <em>Fine Clothes</em>, 15 GP; or (B) 50 GP</li></ul>"
+    },
+    {
+      "abilities": [
+        "dex",
+        "con",
+        "int"
+      ],
+      "originFeat": "alert",
+      "features": [
+        {
+          "effects": [],
+          "choices": [
+            {
+              "key": "criminal.ability-scores",
+              "name": "Ability Score Increases",
+              "count": "3",
+              "source": "Ability",
+              "filter": "oneOf(option.key, 'dex', 'con', 'int')",
+              "replace": "Never",
+              "allowDuplicates": true,
+              "maxPerOption": 2,
+              "optional": false,
+              "options": [],
+              "effects": [
+                {
+                  "target": "ability.$option.score",
+                  "op": "Add",
+                  "value": "1",
+                  "label": "Criminal"
+                }
+              ]
+            }
+          ],
+          "resources": [],
+          "key": "criminal.ability-scores",
+          "name": "Ability Scores"
+        },
+        {
+          "effects": [
+            {
+              "target": "skill.sleight-of-hand.prof",
+              "op": "Proficiency",
+              "value": "proficient",
+              "label": "Criminal"
+            },
+            {
+              "target": "skill.stealth.prof",
+              "op": "Proficiency",
+              "value": "proficient",
+              "label": "Criminal"
+            }
+          ],
+          "choices": [],
+          "resources": [],
+          "key": "criminal.skills",
+          "name": "Skill Proficiencies"
+        },
+        {
+          "effects": [
+            {
+              "target": "proficiency.tool.thieves-tools",
+              "op": "Proficiency",
+              "value": "proficient",
+              "label": "Criminal"
+            }
+          ],
+          "choices": [],
+          "resources": [],
+          "key": "criminal.tool",
+          "name": "Tool Proficiency"
+        },
+        {
+          "effects": [
+            {
+              "target": "language.common",
+              "op": "Grant",
+              "value": "1",
+              "label": "Common"
+            }
+          ],
+          "choices": [
+            {
+              "key": "criminal.languages",
+              "name": "Standard Languages",
+              "count": "2",
+              "source": "Language",
+              "filter": "option.category == 'standard' && option.key != 'common'",
+              "replace": "Never",
+              "allowDuplicates": false,
+              "maxPerOption": 1,
+              "optional": false,
+              "options": [],
+              "effects": [
+                {
+                  "target": "language.$option",
+                  "op": "Grant",
+                  "value": "1"
+                }
+              ]
+            }
+          ],
+          "resources": [],
+          "key": "criminal.languages",
+          "name": "Languages"
+        }
+      ],
+      "key": "criminal",
+      "name": "Criminal",
+      "description": "<ul><li><strong>Ability Scores:</strong> Dexterity, Constitution, Intelligence</li><li><strong>Feat:</strong> Alert</li><li><strong>Skill Proficiencies:</strong> Sleight of Hand, Stealth</li><li><strong>Tool Proficiency:</strong> <em>Thieves' Tools</em></li><li><strong>Equipment:</strong> Choose A or B: (A) <em>2 Daggers</em>, <em>Thieves' Tools</em>, <em>Crowbar</em>, <em>2 Pouches</em>, <em>Traveler's Clothes</em>, 16 GP; or (B) 50 GP</li></ul>"
+    },
+    {
+      "abilities": [
+        "str",
+        "dex",
+        "cha"
+      ],
+      "originFeat": "musician",
+      "features": [
+        {
+          "effects": [],
+          "choices": [
+            {
+              "key": "entertainer.ability-scores",
+              "name": "Ability Score Increases",
+              "count": "3",
+              "source": "Ability",
+              "filter": "oneOf(option.key, 'str', 'dex', 'cha')",
+              "replace": "Never",
+              "allowDuplicates": true,
+              "maxPerOption": 2,
+              "optional": false,
+              "options": [],
+              "effects": [
+                {
+                  "target": "ability.$option.score",
+                  "op": "Add",
+                  "value": "1",
+                  "label": "Entertainer"
+                }
+              ]
+            }
+          ],
+          "resources": [],
+          "key": "entertainer.ability-scores",
+          "name": "Ability Scores"
+        },
+        {
+          "effects": [
+            {
+              "target": "skill.acrobatics.prof",
+              "op": "Proficiency",
+              "value": "proficient",
+              "label": "Entertainer"
+            },
+            {
+              "target": "skill.performance.prof",
+              "op": "Proficiency",
+              "value": "proficient",
+              "label": "Entertainer"
+            }
+          ],
+          "choices": [],
+          "resources": [],
+          "key": "entertainer.skills",
+          "name": "Skill Proficiencies"
+        },
+        {
+          "effects": [],
+          "choices": [
+            {
+              "key": "entertainer.tool",
+              "name": "Tool Proficiency",
+              "count": "1",
+              "source": "Tool",
+              "filter": "option.category == 'musical-instrument'",
+              "replace": "Never",
+              "allowDuplicates": false,
+              "maxPerOption": 1,
+              "optional": false,
+              "options": [],
+              "effects": [
+                {
+                  "target": "proficiency.tool.$option",
+                  "op": "Proficiency",
+                  "value": "proficient",
+                  "label": "Entertainer"
+                }
+              ]
+            }
+          ],
+          "resources": [],
+          "key": "entertainer.tool",
+          "name": "Tool Proficiency"
+        },
+        {
+          "effects": [
+            {
+              "target": "language.common",
+              "op": "Grant",
+              "value": "1",
+              "label": "Common"
+            }
+          ],
+          "choices": [
+            {
+              "key": "entertainer.languages",
+              "name": "Standard Languages",
+              "count": "2",
+              "source": "Language",
+              "filter": "option.category == 'standard' && option.key != 'common'",
+              "replace": "Never",
+              "allowDuplicates": false,
+              "maxPerOption": 1,
+              "optional": false,
+              "options": [],
+              "effects": [
+                {
+                  "target": "language.$option",
+                  "op": "Grant",
+                  "value": "1"
+                }
+              ]
+            }
+          ],
+          "resources": [],
+          "key": "entertainer.languages",
+          "name": "Languages"
+        }
+      ],
+      "key": "entertainer",
+      "name": "Entertainer",
+      "description": "<ul><li><strong>Ability Scores:</strong> Strength, Dexterity, Charisma</li><li><strong>Feat:</strong> Musician</li><li><strong>Skill Proficiencies:</strong> Acrobatics, Performance</li><li><strong>Tool Proficiency:</strong> Choose one kind of <em>Musical Instrument</em></li><li><strong>Equipment:</strong> Choose A or B: (A) <em>Musical Instrument</em> (same as above), <em>2 Costumes</em>, <em>Mirror</em>, <em>Perfume</em>, <em>Traveler's Clothes</em>, 11 GP; or (B) 50 GP</li></ul>"
+    },
+    {
+      "abilities": [
+        "str",
+        "con",
+        "wis"
+      ],
+      "originFeat": "tough",
+      "features": [
+        {
+          "effects": [],
+          "choices": [
+            {
+              "key": "farmer.ability-scores",
+              "name": "Ability Score Increases",
+              "count": "3",
+              "source": "Ability",
+              "filter": "oneOf(option.key, 'str', 'con', 'wis')",
+              "replace": "Never",
+              "allowDuplicates": true,
+              "maxPerOption": 2,
+              "optional": false,
+              "options": [],
+              "effects": [
+                {
+                  "target": "ability.$option.score",
+                  "op": "Add",
+                  "value": "1",
+                  "label": "Farmer"
+                }
+              ]
+            }
+          ],
+          "resources": [],
+          "key": "farmer.ability-scores",
+          "name": "Ability Scores"
+        },
+        {
+          "effects": [
+            {
+              "target": "skill.animal-handling.prof",
+              "op": "Proficiency",
+              "value": "proficient",
+              "label": "Farmer"
+            },
+            {
+              "target": "skill.nature.prof",
+              "op": "Proficiency",
+              "value": "proficient",
+              "label": "Farmer"
+            }
+          ],
+          "choices": [],
+          "resources": [],
+          "key": "farmer.skills",
+          "name": "Skill Proficiencies"
+        },
+        {
+          "effects": [
+            {
+              "target": "proficiency.tool.carpenters-tools",
+              "op": "Proficiency",
+              "value": "proficient",
+              "label": "Farmer"
+            }
+          ],
+          "choices": [],
+          "resources": [],
+          "key": "farmer.tool",
+          "name": "Tool Proficiency"
+        },
+        {
+          "effects": [
+            {
+              "target": "language.common",
+              "op": "Grant",
+              "value": "1",
+              "label": "Common"
+            }
+          ],
+          "choices": [
+            {
+              "key": "farmer.languages",
+              "name": "Standard Languages",
+              "count": "2",
+              "source": "Language",
+              "filter": "option.category == 'standard' && option.key != 'common'",
+              "replace": "Never",
+              "allowDuplicates": false,
+              "maxPerOption": 1,
+              "optional": false,
+              "options": [],
+              "effects": [
+                {
+                  "target": "language.$option",
+                  "op": "Grant",
+                  "value": "1"
+                }
+              ]
+            }
+          ],
+          "resources": [],
+          "key": "farmer.languages",
+          "name": "Languages"
+        }
+      ],
+      "key": "farmer",
+      "name": "Farmer",
+      "description": "<ul><li><strong>Ability Scores:</strong> Strength, Constitution, Wisdom</li><li><strong>Feat:</strong> Tough</li><li><strong>Skill Proficiencies:</strong> Animal Handling, Nature</li><li><strong>Tool Proficiency:</strong> <em>Carpenter's Tools</em></li><li><strong>Equipment:</strong> Choose A or B: (A) <em>Sickle</em>, <em>Carpenter's Tools</em>, <em>Healer's Kit</em>, <em>Iron Pot</em>, <em>Shovel</em>, <em>Traveler's Clothes</em>, 30 GP; or (B) 50 GP</li></ul>"
+    },
+    {
+      "abilities": [
+        "str",
+        "int",
+        "wis"
+      ],
+      "originFeat": "alert",
+      "features": [
+        {
+          "effects": [],
+          "choices": [
+            {
+              "key": "guard.ability-scores",
+              "name": "Ability Score Increases",
+              "count": "3",
+              "source": "Ability",
+              "filter": "oneOf(option.key, 'str', 'int', 'wis')",
+              "replace": "Never",
+              "allowDuplicates": true,
+              "maxPerOption": 2,
+              "optional": false,
+              "options": [],
+              "effects": [
+                {
+                  "target": "ability.$option.score",
+                  "op": "Add",
+                  "value": "1",
+                  "label": "Guard"
+                }
+              ]
+            }
+          ],
+          "resources": [],
+          "key": "guard.ability-scores",
+          "name": "Ability Scores"
+        },
+        {
+          "effects": [
+            {
+              "target": "skill.athletics.prof",
+              "op": "Proficiency",
+              "value": "proficient",
+              "label": "Guard"
+            },
+            {
+              "target": "skill.perception.prof",
+              "op": "Proficiency",
+              "value": "proficient",
+              "label": "Guard"
+            }
+          ],
+          "choices": [],
+          "resources": [],
+          "key": "guard.skills",
+          "name": "Skill Proficiencies"
+        },
+        {
+          "effects": [],
+          "choices": [
+            {
+              "key": "guard.tool",
+              "name": "Tool Proficiency",
+              "count": "1",
+              "source": "Tool",
+              "filter": "option.category == 'gaming-set'",
+              "replace": "Never",
+              "allowDuplicates": false,
+              "maxPerOption": 1,
+              "optional": false,
+              "options": [],
+              "effects": [
+                {
+                  "target": "proficiency.tool.$option",
+                  "op": "Proficiency",
+                  "value": "proficient",
+                  "label": "Guard"
+                }
+              ]
+            }
+          ],
+          "resources": [],
+          "key": "guard.tool",
+          "name": "Tool Proficiency"
+        },
+        {
+          "effects": [
+            {
+              "target": "language.common",
+              "op": "Grant",
+              "value": "1",
+              "label": "Common"
+            }
+          ],
+          "choices": [
+            {
+              "key": "guard.languages",
+              "name": "Standard Languages",
+              "count": "2",
+              "source": "Language",
+              "filter": "option.category == 'standard' && option.key != 'common'",
+              "replace": "Never",
+              "allowDuplicates": false,
+              "maxPerOption": 1,
+              "optional": false,
+              "options": [],
+              "effects": [
+                {
+                  "target": "language.$option",
+                  "op": "Grant",
+                  "value": "1"
+                }
+              ]
+            }
+          ],
+          "resources": [],
+          "key": "guard.languages",
+          "name": "Languages"
+        }
+      ],
+      "key": "guard",
+      "name": "Guard",
+      "description": "<ul><li><strong>Ability Scores:</strong> Strength, Intelligence, Wisdom</li><li><strong>Feat:</strong> Alert</li><li><strong>Skill Proficiencies:</strong> Athletics, Perception</li><li><strong>Tool Proficiency:</strong> Choose one kind of <em>Gaming Set</em></li><li><strong>Equipment:</strong> Choose A or B: (A) <em>Spear</em>, <em>Light Crossbow</em>, 20 <em>Bolts</em>, <em>Gaming Set</em> (same as above), <em>Hooded Lantern</em>, <em>Manacles</em>, <em>Quiver</em>, <em>Traveler's Clothes</em>, 12 GP; or (B) 50 GP</li></ul>"
+    },
+    {
+      "abilities": [
+        "dex",
+        "con",
+        "wis"
+      ],
+      "originFeat": "magic-initiate",
+      "features": [
+        {
+          "effects": [],
+          "choices": [
+            {
+              "key": "guide.ability-scores",
+              "name": "Ability Score Increases",
+              "count": "3",
+              "source": "Ability",
+              "filter": "oneOf(option.key, 'dex', 'con', 'wis')",
+              "replace": "Never",
+              "allowDuplicates": true,
+              "maxPerOption": 2,
+              "optional": false,
+              "options": [],
+              "effects": [
+                {
+                  "target": "ability.$option.score",
+                  "op": "Add",
+                  "value": "1",
+                  "label": "Guide"
+                }
+              ]
+            }
+          ],
+          "resources": [],
+          "key": "guide.ability-scores",
+          "name": "Ability Scores"
+        },
+        {
+          "effects": [
+            {
+              "target": "skill.stealth.prof",
+              "op": "Proficiency",
+              "value": "proficient",
+              "label": "Guide"
+            },
+            {
+              "target": "skill.survival.prof",
+              "op": "Proficiency",
+              "value": "proficient",
+              "label": "Guide"
+            }
+          ],
+          "choices": [],
+          "resources": [],
+          "key": "guide.skills",
+          "name": "Skill Proficiencies"
+        },
+        {
+          "effects": [
+            {
+              "target": "proficiency.tool.cartographers-tools",
+              "op": "Proficiency",
+              "value": "proficient",
+              "label": "Guide"
+            }
+          ],
+          "choices": [],
+          "resources": [],
+          "key": "guide.tool",
+          "name": "Tool Proficiency"
+        },
+        {
+          "effects": [
+            {
+              "target": "language.common",
+              "op": "Grant",
+              "value": "1",
+              "label": "Common"
+            }
+          ],
+          "choices": [
+            {
+              "key": "guide.languages",
+              "name": "Standard Languages",
+              "count": "2",
+              "source": "Language",
+              "filter": "option.category == 'standard' && option.key != 'common'",
+              "replace": "Never",
+              "allowDuplicates": false,
+              "maxPerOption": 1,
+              "optional": false,
+              "options": [],
+              "effects": [
+                {
+                  "target": "language.$option",
+                  "op": "Grant",
+                  "value": "1"
+                }
+              ]
+            }
+          ],
+          "resources": [],
+          "key": "guide.languages",
+          "name": "Languages"
+        }
+      ],
+      "key": "guide",
+      "name": "Guide",
+      "description": "<ul><li><strong>Ability Scores:</strong> Dexterity, Constitution, Wisdom</li><li><strong>Feat:</strong> Magic Initiate (Druid)</li><li><strong>Skill Proficiencies:</strong> Stealth, Survival</li><li><strong>Tool Proficiency:</strong> <em>Cartographer's Tools</em></li><li><strong>Equipment:</strong> Choose A or B: (A) <em>Shortbow</em>, <em>20 Arrows</em>, <em>Cartographer's Tools</em>, <em>Bedroll</em>, <em>Quiver</em>, <em>Tent</em>, <em>Traveler's Clothes</em>, 3 GP; or (B) 50 GP</li></ul>"
+    },
+    {
+      "abilities": [
+        "con",
+        "wis",
+        "cha"
+      ],
+      "originFeat": "healer",
+      "features": [
+        {
+          "effects": [],
+          "choices": [
+            {
+              "key": "hermit.ability-scores",
+              "name": "Ability Score Increases",
+              "count": "3",
+              "source": "Ability",
+              "filter": "oneOf(option.key, 'con', 'wis', 'cha')",
+              "replace": "Never",
+              "allowDuplicates": true,
+              "maxPerOption": 2,
+              "optional": false,
+              "options": [],
+              "effects": [
+                {
+                  "target": "ability.$option.score",
+                  "op": "Add",
+                  "value": "1",
+                  "label": "Hermit"
+                }
+              ]
+            }
+          ],
+          "resources": [],
+          "key": "hermit.ability-scores",
+          "name": "Ability Scores"
+        },
+        {
+          "effects": [
+            {
+              "target": "skill.medicine.prof",
+              "op": "Proficiency",
+              "value": "proficient",
+              "label": "Hermit"
+            },
+            {
+              "target": "skill.religion.prof",
+              "op": "Proficiency",
+              "value": "proficient",
+              "label": "Hermit"
+            }
+          ],
+          "choices": [],
+          "resources": [],
+          "key": "hermit.skills",
+          "name": "Skill Proficiencies"
+        },
+        {
+          "effects": [
+            {
+              "target": "proficiency.tool.herbalism-kit",
+              "op": "Proficiency",
+              "value": "proficient",
+              "label": "Hermit"
+            }
+          ],
+          "choices": [],
+          "resources": [],
+          "key": "hermit.tool",
+          "name": "Tool Proficiency"
+        },
+        {
+          "effects": [
+            {
+              "target": "language.common",
+              "op": "Grant",
+              "value": "1",
+              "label": "Common"
+            }
+          ],
+          "choices": [
+            {
+              "key": "hermit.languages",
+              "name": "Standard Languages",
+              "count": "2",
+              "source": "Language",
+              "filter": "option.category == 'standard' && option.key != 'common'",
+              "replace": "Never",
+              "allowDuplicates": false,
+              "maxPerOption": 1,
+              "optional": false,
+              "options": [],
+              "effects": [
+                {
+                  "target": "language.$option",
+                  "op": "Grant",
+                  "value": "1"
+                }
+              ]
+            }
+          ],
+          "resources": [],
+          "key": "hermit.languages",
+          "name": "Languages"
+        }
+      ],
+      "key": "hermit",
+      "name": "Hermit",
+      "description": "<ul><li><strong>Ability Scores:</strong> Constitution, Wisdom, Charisma</li><li><strong>Feat:</strong> Healer</li><li><strong>Skill Proficiencies:</strong> Medicine, Religion</li><li><strong>Tool Proficiency:</strong> <em>Herbalism Kit</em></li><li><strong>Equipment:</strong> Choose A or B: (A) <em>Quarterstaff</em>, <em>Herbalism Kit</em>, <em>Bedroll</em>, <em>Book</em> (philosophy), <em>Lamp</em>, <em>Oil</em> (3 flasks), <em>Traveler's Clothes</em>, 16 GP; or (B) 50 GP</li></ul>"
+    },
+    {
+      "abilities": [
+        "con",
+        "int",
+        "cha"
+      ],
+      "originFeat": "lucky",
+      "features": [
+        {
+          "effects": [],
+          "choices": [
+            {
+              "key": "merchant.ability-scores",
+              "name": "Ability Score Increases",
+              "count": "3",
+              "source": "Ability",
+              "filter": "oneOf(option.key, 'con', 'int', 'cha')",
+              "replace": "Never",
+              "allowDuplicates": true,
+              "maxPerOption": 2,
+              "optional": false,
+              "options": [],
+              "effects": [
+                {
+                  "target": "ability.$option.score",
+                  "op": "Add",
+                  "value": "1",
+                  "label": "Merchant"
+                }
+              ]
+            }
+          ],
+          "resources": [],
+          "key": "merchant.ability-scores",
+          "name": "Ability Scores"
+        },
+        {
+          "effects": [
+            {
+              "target": "skill.animal-handling.prof",
+              "op": "Proficiency",
+              "value": "proficient",
+              "label": "Merchant"
+            },
+            {
+              "target": "skill.persuasion.prof",
+              "op": "Proficiency",
+              "value": "proficient",
+              "label": "Merchant"
+            }
+          ],
+          "choices": [],
+          "resources": [],
+          "key": "merchant.skills",
+          "name": "Skill Proficiencies"
+        },
+        {
+          "effects": [
+            {
+              "target": "proficiency.tool.navigators-tools",
+              "op": "Proficiency",
+              "value": "proficient",
+              "label": "Merchant"
+            }
+          ],
+          "choices": [],
+          "resources": [],
+          "key": "merchant.tool",
+          "name": "Tool Proficiency"
+        },
+        {
+          "effects": [
+            {
+              "target": "language.common",
+              "op": "Grant",
+              "value": "1",
+              "label": "Common"
+            }
+          ],
+          "choices": [
+            {
+              "key": "merchant.languages",
+              "name": "Standard Languages",
+              "count": "2",
+              "source": "Language",
+              "filter": "option.category == 'standard' && option.key != 'common'",
+              "replace": "Never",
+              "allowDuplicates": false,
+              "maxPerOption": 1,
+              "optional": false,
+              "options": [],
+              "effects": [
+                {
+                  "target": "language.$option",
+                  "op": "Grant",
+                  "value": "1"
+                }
+              ]
+            }
+          ],
+          "resources": [],
+          "key": "merchant.languages",
+          "name": "Languages"
+        }
+      ],
+      "key": "merchant",
+      "name": "Merchant",
+      "description": "<ul><li><strong>Ability Scores:</strong> Constitution, Intelligence, Charisma</li><li><strong>Feat:</strong> Lucky</li><li><strong>Skill Proficiencies:</strong> Animal Handling, Persuasion</li><li><strong>Tool Proficiency:</strong> <em>Navigator's Tools</em></li><li><strong>Equipment:</strong> Choose A or B: (A) <em>Navigator's Tools</em>, <em>2 Pouches</em>, <em>Traveler's Clothes</em>, 22 GP; or (B) 50 GP</li></ul>"
+    },
+    {
+      "abilities": [
+        "str",
+        "int",
+        "cha"
+      ],
+      "originFeat": "skilled",
+      "features": [
+        {
+          "effects": [],
+          "choices": [
+            {
+              "key": "noble.ability-scores",
+              "name": "Ability Score Increases",
+              "count": "3",
+              "source": "Ability",
+              "filter": "oneOf(option.key, 'str', 'int', 'cha')",
+              "replace": "Never",
+              "allowDuplicates": true,
+              "maxPerOption": 2,
+              "optional": false,
+              "options": [],
+              "effects": [
+                {
+                  "target": "ability.$option.score",
+                  "op": "Add",
+                  "value": "1",
+                  "label": "Noble"
+                }
+              ]
+            }
+          ],
+          "resources": [],
+          "key": "noble.ability-scores",
+          "name": "Ability Scores"
+        },
+        {
+          "effects": [
+            {
+              "target": "skill.history.prof",
+              "op": "Proficiency",
+              "value": "proficient",
+              "label": "Noble"
+            },
+            {
+              "target": "skill.persuasion.prof",
+              "op": "Proficiency",
+              "value": "proficient",
+              "label": "Noble"
+            }
+          ],
+          "choices": [],
+          "resources": [],
+          "key": "noble.skills",
+          "name": "Skill Proficiencies"
+        },
+        {
+          "effects": [],
+          "choices": [
+            {
+              "key": "noble.tool",
+              "name": "Tool Proficiency",
+              "count": "1",
+              "source": "Tool",
+              "filter": "option.category == 'gaming-set'",
+              "replace": "Never",
+              "allowDuplicates": false,
+              "maxPerOption": 1,
+              "optional": false,
+              "options": [],
+              "effects": [
+                {
+                  "target": "proficiency.tool.$option",
+                  "op": "Proficiency",
+                  "value": "proficient",
+                  "label": "Noble"
+                }
+              ]
+            }
+          ],
+          "resources": [],
+          "key": "noble.tool",
+          "name": "Tool Proficiency"
+        },
+        {
+          "effects": [
+            {
+              "target": "language.common",
+              "op": "Grant",
+              "value": "1",
+              "label": "Common"
+            }
+          ],
+          "choices": [
+            {
+              "key": "noble.languages",
+              "name": "Standard Languages",
+              "count": "2",
+              "source": "Language",
+              "filter": "option.category == 'standard' && option.key != 'common'",
+              "replace": "Never",
+              "allowDuplicates": false,
+              "maxPerOption": 1,
+              "optional": false,
+              "options": [],
+              "effects": [
+                {
+                  "target": "language.$option",
+                  "op": "Grant",
+                  "value": "1"
+                }
+              ]
+            }
+          ],
+          "resources": [],
+          "key": "noble.languages",
+          "name": "Languages"
+        }
+      ],
+      "key": "noble",
+      "name": "Noble",
+      "description": "<ul><li><strong>Ability Scores:</strong> Strength, Intelligence, Charisma</li><li><strong>Feat:</strong> Skilled</li><li><strong>Skill Proficiencies:</strong> History, Persuasion</li><li><strong>Tool Proficiency:</strong> Choose one kind of <em>Gaming Set</em></li><li><strong>Equipment:</strong> Choose A or B: (A) <em>Gaming Set</em> (same as above), <em>Fine Clothes</em>, <em>Perfume</em>, 29 GP; or (B) 50 GP</li></ul>"
+    },
+    {
+      "abilities": [
+        "con",
+        "int",
+        "wis"
+      ],
+      "originFeat": "magic-initiate",
+      "features": [
+        {
+          "effects": [],
+          "choices": [
+            {
+              "key": "sage.ability-scores",
+              "name": "Ability Score Increases",
+              "count": "3",
+              "source": "Ability",
+              "filter": "oneOf(option.key, 'con', 'int', 'wis')",
+              "replace": "Never",
+              "allowDuplicates": true,
+              "maxPerOption": 2,
+              "optional": false,
+              "options": [],
+              "effects": [
+                {
+                  "target": "ability.$option.score",
+                  "op": "Add",
+                  "value": "1",
+                  "label": "Sage"
+                }
+              ]
+            }
+          ],
+          "resources": [],
+          "key": "sage.ability-scores",
+          "name": "Ability Scores"
+        },
+        {
+          "effects": [
+            {
+              "target": "skill.arcana.prof",
+              "op": "Proficiency",
+              "value": "proficient",
+              "label": "Sage"
+            },
+            {
+              "target": "skill.history.prof",
+              "op": "Proficiency",
+              "value": "proficient",
+              "label": "Sage"
+            }
+          ],
+          "choices": [],
+          "resources": [],
+          "key": "sage.skills",
+          "name": "Skill Proficiencies"
+        },
+        {
+          "effects": [
+            {
+              "target": "proficiency.tool.calligraphers-supplies",
+              "op": "Proficiency",
+              "value": "proficient",
+              "label": "Sage"
+            }
+          ],
+          "choices": [],
+          "resources": [],
+          "key": "sage.tool",
+          "name": "Tool Proficiency"
+        },
+        {
+          "effects": [
+            {
+              "target": "language.common",
+              "op": "Grant",
+              "value": "1",
+              "label": "Common"
+            }
+          ],
+          "choices": [
+            {
+              "key": "sage.languages",
+              "name": "Standard Languages",
+              "count": "2",
+              "source": "Language",
+              "filter": "option.category == 'standard' && option.key != 'common'",
+              "replace": "Never",
+              "allowDuplicates": false,
+              "maxPerOption": 1,
+              "optional": false,
+              "options": [],
+              "effects": [
+                {
+                  "target": "language.$option",
+                  "op": "Grant",
+                  "value": "1"
+                }
+              ]
+            }
+          ],
+          "resources": [],
+          "key": "sage.languages",
+          "name": "Languages"
+        }
+      ],
+      "key": "sage",
+      "name": "Sage",
+      "description": "<ul><li><strong>Ability Scores:</strong> Constitution, Intelligence, Wisdom</li><li><strong>Feat:</strong> Magic Initiate (Wizard)</li><li><strong>Skill Proficiencies:</strong> Arcana, History</li><li><strong>Tool Proficiency:</strong> <em>Calligrapher's Supplies</em></li><li><strong>Equipment:</strong> Choose A or B: (A) <em>Quarterstaff</em>, <em>Calligrapher's Supplies</em>, <em>Book</em> (history), <em>Parchment</em> (8 sheets), <em>Robe</em>, 8 GP; or (B) 50 GP</li></ul>"
+    },
+    {
+      "abilities": [
+        "str",
+        "dex",
+        "wis"
+      ],
+      "originFeat": "tavern-brawler",
+      "features": [
+        {
+          "effects": [],
+          "choices": [
+            {
+              "key": "sailor.ability-scores",
+              "name": "Ability Score Increases",
+              "count": "3",
+              "source": "Ability",
+              "filter": "oneOf(option.key, 'str', 'dex', 'wis')",
+              "replace": "Never",
+              "allowDuplicates": true,
+              "maxPerOption": 2,
+              "optional": false,
+              "options": [],
+              "effects": [
+                {
+                  "target": "ability.$option.score",
+                  "op": "Add",
+                  "value": "1",
+                  "label": "Sailor"
+                }
+              ]
+            }
+          ],
+          "resources": [],
+          "key": "sailor.ability-scores",
+          "name": "Ability Scores"
+        },
+        {
+          "effects": [
+            {
+              "target": "skill.acrobatics.prof",
+              "op": "Proficiency",
+              "value": "proficient",
+              "label": "Sailor"
+            },
+            {
+              "target": "skill.perception.prof",
+              "op": "Proficiency",
+              "value": "proficient",
+              "label": "Sailor"
+            }
+          ],
+          "choices": [],
+          "resources": [],
+          "key": "sailor.skills",
+          "name": "Skill Proficiencies"
+        },
+        {
+          "effects": [
+            {
+              "target": "proficiency.tool.navigators-tools",
+              "op": "Proficiency",
+              "value": "proficient",
+              "label": "Sailor"
+            }
+          ],
+          "choices": [],
+          "resources": [],
+          "key": "sailor.tool",
+          "name": "Tool Proficiency"
+        },
+        {
+          "effects": [
+            {
+              "target": "language.common",
+              "op": "Grant",
+              "value": "1",
+              "label": "Common"
+            }
+          ],
+          "choices": [
+            {
+              "key": "sailor.languages",
+              "name": "Standard Languages",
+              "count": "2",
+              "source": "Language",
+              "filter": "option.category == 'standard' && option.key != 'common'",
+              "replace": "Never",
+              "allowDuplicates": false,
+              "maxPerOption": 1,
+              "optional": false,
+              "options": [],
+              "effects": [
+                {
+                  "target": "language.$option",
+                  "op": "Grant",
+                  "value": "1"
+                }
+              ]
+            }
+          ],
+          "resources": [],
+          "key": "sailor.languages",
+          "name": "Languages"
+        }
+      ],
+      "key": "sailor",
+      "name": "Sailor",
+      "description": "<ul><li><strong>Ability Scores:</strong> Strength, Dexterity, Wisdom</li><li><strong>Feat:</strong> Tavern Brawler</li><li><strong>Skill Proficiencies:</strong> Acrobatics, Perception</li><li><strong>Tool Proficiency:</strong> <em>Navigator's Tools</em></li><li><strong>Equipment:</strong> Choose A or B: (A) <em>Dagger</em>, <em>Navigator's Tools</em>, <em>Rope</em>, <em>Traveler's Clothes</em>, 20 GP; or (B) 50 GP</li></ul>"
+    },
+    {
+      "abilities": [
+        "dex",
+        "int",
+        "wis"
+      ],
+      "originFeat": "skilled",
+      "features": [
+        {
+          "effects": [],
+          "choices": [
+            {
+              "key": "scribe.ability-scores",
+              "name": "Ability Score Increases",
+              "count": "3",
+              "source": "Ability",
+              "filter": "oneOf(option.key, 'dex', 'int', 'wis')",
+              "replace": "Never",
+              "allowDuplicates": true,
+              "maxPerOption": 2,
+              "optional": false,
+              "options": [],
+              "effects": [
+                {
+                  "target": "ability.$option.score",
+                  "op": "Add",
+                  "value": "1",
+                  "label": "Scribe"
+                }
+              ]
+            }
+          ],
+          "resources": [],
+          "key": "scribe.ability-scores",
+          "name": "Ability Scores"
+        },
+        {
+          "effects": [
+            {
+              "target": "skill.investigation.prof",
+              "op": "Proficiency",
+              "value": "proficient",
+              "label": "Scribe"
+            },
+            {
+              "target": "skill.perception.prof",
+              "op": "Proficiency",
+              "value": "proficient",
+              "label": "Scribe"
+            }
+          ],
+          "choices": [],
+          "resources": [],
+          "key": "scribe.skills",
+          "name": "Skill Proficiencies"
+        },
+        {
+          "effects": [
+            {
+              "target": "proficiency.tool.calligraphers-supplies",
+              "op": "Proficiency",
+              "value": "proficient",
+              "label": "Scribe"
+            }
+          ],
+          "choices": [],
+          "resources": [],
+          "key": "scribe.tool",
+          "name": "Tool Proficiency"
+        },
+        {
+          "effects": [
+            {
+              "target": "language.common",
+              "op": "Grant",
+              "value": "1",
+              "label": "Common"
+            }
+          ],
+          "choices": [
+            {
+              "key": "scribe.languages",
+              "name": "Standard Languages",
+              "count": "2",
+              "source": "Language",
+              "filter": "option.category == 'standard' && option.key != 'common'",
+              "replace": "Never",
+              "allowDuplicates": false,
+              "maxPerOption": 1,
+              "optional": false,
+              "options": [],
+              "effects": [
+                {
+                  "target": "language.$option",
+                  "op": "Grant",
+                  "value": "1"
+                }
+              ]
+            }
+          ],
+          "resources": [],
+          "key": "scribe.languages",
+          "name": "Languages"
+        }
+      ],
+      "key": "scribe",
+      "name": "Scribe",
+      "description": "<ul><li><strong>Ability Scores:</strong> Dexterity, Intelligence, Wisdom</li><li><strong>Feat:</strong> Skilled</li><li><strong>Skill Proficiencies:</strong> Investigation, Perception</li><li><strong>Tool Proficiency:</strong> <em>Calligrapher's Supplies</em></li><li><strong>Equipment:</strong> Choose A or B: (A) <em>Calligrapher's Supplies</em>, <em>Fine Clothes</em>, <em>Lamp</em>, <em>Oil</em> (3 flasks), <em>Parchment</em> (12 sheets), 23 GP; or (B) 50 GP</li></ul>"
+    },
+    {
+      "abilities": [
+        "str",
+        "dex",
+        "con"
+      ],
+      "originFeat": "savage-attacker",
+      "features": [
+        {
+          "effects": [],
+          "choices": [
+            {
+              "key": "soldier.ability-scores",
+              "name": "Ability Score Increases",
+              "count": "3",
+              "source": "Ability",
+              "filter": "oneOf(option.key, 'str', 'dex', 'con')",
+              "replace": "Never",
+              "allowDuplicates": true,
+              "maxPerOption": 2,
+              "optional": false,
+              "options": [],
+              "effects": [
+                {
+                  "target": "ability.$option.score",
+                  "op": "Add",
+                  "value": "1",
+                  "label": "Soldier"
+                }
+              ]
+            }
+          ],
+          "resources": [],
+          "key": "soldier.ability-scores",
+          "name": "Ability Scores"
+        },
+        {
+          "effects": [
+            {
+              "target": "skill.athletics.prof",
+              "op": "Proficiency",
+              "value": "proficient",
+              "label": "Soldier"
+            },
+            {
+              "target": "skill.intimidation.prof",
+              "op": "Proficiency",
+              "value": "proficient",
+              "label": "Soldier"
+            }
+          ],
+          "choices": [],
+          "resources": [],
+          "key": "soldier.skills",
+          "name": "Skill Proficiencies"
+        },
+        {
+          "effects": [],
+          "choices": [
+            {
+              "key": "soldier.tool",
+              "name": "Tool Proficiency",
+              "count": "1",
+              "source": "Tool",
+              "filter": "option.category == 'gaming-set'",
+              "replace": "Never",
+              "allowDuplicates": false,
+              "maxPerOption": 1,
+              "optional": false,
+              "options": [],
+              "effects": [
+                {
+                  "target": "proficiency.tool.$option",
+                  "op": "Proficiency",
+                  "value": "proficient",
+                  "label": "Soldier"
+                }
+              ]
+            }
+          ],
+          "resources": [],
+          "key": "soldier.tool",
+          "name": "Tool Proficiency"
+        },
+        {
+          "effects": [
+            {
+              "target": "language.common",
+              "op": "Grant",
+              "value": "1",
+              "label": "Common"
+            }
+          ],
+          "choices": [
+            {
+              "key": "soldier.languages",
+              "name": "Standard Languages",
+              "count": "2",
+              "source": "Language",
+              "filter": "option.category == 'standard' && option.key != 'common'",
+              "replace": "Never",
+              "allowDuplicates": false,
+              "maxPerOption": 1,
+              "optional": false,
+              "options": [],
+              "effects": [
+                {
+                  "target": "language.$option",
+                  "op": "Grant",
+                  "value": "1"
+                }
+              ]
+            }
+          ],
+          "resources": [],
+          "key": "soldier.languages",
+          "name": "Languages"
+        }
+      ],
+      "key": "soldier",
+      "name": "Soldier",
+      "description": "<ul><li><strong>Ability Scores:</strong> Strength, Dexterity, Constitution</li><li><strong>Feat:</strong> Savage Attacker</li><li><strong>Skill Proficiencies:</strong> Athletics, Intimidation</li><li><strong>Tool Proficiency:</strong> Choose one kind of <em>Gaming Set</em></li><li><strong>Equipment:</strong> Choose A or B: (A) <em>Spear</em>, <em>Shortbow</em>, <em>20 Arrows</em>, <em>Gaming Set</em> (same as above), <em>Healer's Kit</em>, <em>Quiver</em>, <em>Traveler's Clothes</em>, 14 GP; or (B) 50 GP</li></ul>"
+    },
+    {
+      "abilities": [
+        "dex",
+        "wis",
+        "cha"
+      ],
+      "originFeat": "lucky",
+      "features": [
+        {
+          "effects": [],
+          "choices": [
+            {
+              "key": "wayfarer.ability-scores",
+              "name": "Ability Score Increases",
+              "count": "3",
+              "source": "Ability",
+              "filter": "oneOf(option.key, 'dex', 'wis', 'cha')",
+              "replace": "Never",
+              "allowDuplicates": true,
+              "maxPerOption": 2,
+              "optional": false,
+              "options": [],
+              "effects": [
+                {
+                  "target": "ability.$option.score",
+                  "op": "Add",
+                  "value": "1",
+                  "label": "Wayfarer"
+                }
+              ]
+            }
+          ],
+          "resources": [],
+          "key": "wayfarer.ability-scores",
+          "name": "Ability Scores"
+        },
+        {
+          "effects": [
+            {
+              "target": "skill.insight.prof",
+              "op": "Proficiency",
+              "value": "proficient",
+              "label": "Wayfarer"
+            },
+            {
+              "target": "skill.stealth.prof",
+              "op": "Proficiency",
+              "value": "proficient",
+              "label": "Wayfarer"
+            }
+          ],
+          "choices": [],
+          "resources": [],
+          "key": "wayfarer.skills",
+          "name": "Skill Proficiencies"
+        },
+        {
+          "effects": [
+            {
+              "target": "proficiency.tool.thieves-tools",
+              "op": "Proficiency",
+              "value": "proficient",
+              "label": "Wayfarer"
+            }
+          ],
+          "choices": [],
+          "resources": [],
+          "key": "wayfarer.tool",
+          "name": "Tool Proficiency"
+        },
+        {
+          "effects": [
+            {
+              "target": "language.common",
+              "op": "Grant",
+              "value": "1",
+              "label": "Common"
+            }
+          ],
+          "choices": [
+            {
+              "key": "wayfarer.languages",
+              "name": "Standard Languages",
+              "count": "2",
+              "source": "Language",
+              "filter": "option.category == 'standard' && option.key != 'common'",
+              "replace": "Never",
+              "allowDuplicates": false,
+              "maxPerOption": 1,
+              "optional": false,
+              "options": [],
+              "effects": [
+                {
+                  "target": "language.$option",
+                  "op": "Grant",
+                  "value": "1"
+                }
+              ]
+            }
+          ],
+          "resources": [],
+          "key": "wayfarer.languages",
+          "name": "Languages"
+        }
+      ],
+      "key": "wayfarer",
+      "name": "Wayfarer",
+      "description": "<ul><li><strong>Ability Scores:</strong> Dexterity, Wisdom, Charisma</li><li><strong>Feat:</strong> Lucky</li><li><strong>Skill Proficiencies:</strong> Insight, Stealth</li><li><strong>Tool Proficiency:</strong> <em>Thieves' Tools</em></li><li><strong>Equipment:</strong> Choose A or B: (A) <em>2 Daggers</em>, <em>Thieves' Tools</em>, <em>Gaming Set</em> (any), <em>Bedroll</em>, <em>2 Pouches</em>, <em>Traveler's Clothes</em>, 16 GP; or (B) 50 GP</li></ul>"
+    }
+  ],
+  "feats": [],
+  "features": [],
+  "classFeatureTexts": [],
+  "spells": [],
+  "items": [],
+  "masteries": [],
+  "languages": [],
+  "slotTables": {}
+}

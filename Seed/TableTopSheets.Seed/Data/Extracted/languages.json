@@ -1,0 +1,109 @@
+{
+  "classes": [],
+  "species": [],
+  "backgrounds": [],
+  "feats": [],
+  "features": [],
+  "classFeatureTexts": [],
+  "spells": [],
+  "items": [],
+  "masteries": [],
+  "languages": [
+    {
+      "rare": false,
+      "key": "common",
+      "name": "Common"
+    },
+    {
+      "rare": false,
+      "key": "common-sign-language",
+      "name": "Common Sign Language"
+    },
+    {
+      "rare": false,
+      "key": "draconic",
+      "name": "Draconic"
+    },
+    {
+      "rare": false,
+      "key": "dwarvish",
+      "name": "Dwarvish"
+    },
+    {
+      "rare": false,
+      "key": "elvish",
+      "name": "Elvish"
+    },
+    {
+      "rare": false,
+      "key": "giant",
+      "name": "Giant"
+    },
+    {
+      "rare": false,
+      "key": "gnomish",
+      "name": "Gnomish"
+    },
+    {
+      "rare": false,
+      "key": "goblin",
+      "name": "Goblin"
+    },
+    {
+      "rare": false,
+      "key": "halfling",
+      "name": "Halfling"
+    },
+    {
+      "rare": false,
+      "key": "orc",
+      "name": "Orc"
+    },
+    {
+      "rare": true,
+      "key": "abyssal",
+      "name": "Abyssal"
+    },
+    {
+      "rare": true,
+      "key": "celestial",
+      "name": "Celestial"
+    },
+    {
+      "rare": true,
+      "key": "deep-speech",
+      "name": "Deep Speech"
+    },
+    {
+      "rare": true,
+      "key": "druidic",
+      "name": "Druidic"
+    },
+    {
+      "rare": true,
+      "key": "infernal",
+      "name": "Infernal"
+    },
+    {
+      "rare": true,
+      "key": "primordial",
+      "name": "Primordial"
+    },
+    {
+      "rare": true,
+      "key": "sylvan",
+      "name": "Sylvan"
+    },
+    {
+      "rare": true,
+      "key": "thieves-cant",
+      "name": "Thieves' Cant"
+    },
+    {
+      "rare": true,
+      "key": "undercommon",
+      "name": "Undercommon"
+    }
+  ],
+  "slotTables": {}
+}

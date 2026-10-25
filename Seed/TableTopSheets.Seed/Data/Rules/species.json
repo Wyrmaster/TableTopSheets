@@ -1,0 +1,226 @@
+{
+  "species": [
+    {
+      "key": "human",
+      "features": [
+        {
+          "key": "human.skillful",
+          "choices": [
+            {
+              "key": "human.skillful",
+              "name": "Skillful",
+              "count": "1",
+              "source": "Skill",
+              "replace": "Never",
+              "effects": [
+                {
+                  "target": "skill.$option.prof",
+                  "op": "Proficiency",
+                  "value": "proficient"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "human.versatile",
+          "choices": [
+            {
+              "key": "human.versatile",
+              "name": "Origin Feat",
+              "count": "1",
+              "source": "Feat",
+              "replace": "Never",
+              "filter": "option.category == 'origin'"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "elf",
+      "features": [
+        {
+          "key": "elf.elven-lineage",
+          "choices": [
+            {
+              "key": "elf.elven-lineage",
+              "name": "Elven Lineage",
+              "count": "1",
+              "source": "Static",
+              "replace": "Never",
+              "options": [
+                {
+                  "key": "drow",
+                  "name": "Drow",
+                  "feature": {
+                    "key": "elf.lineage.drow",
+                    "name": "Drow Lineage",
+                    "sheetSection": "SpeciesTraits",
+                    "effects": [
+                      {
+                        "target": "sense.darkvision",
+                        "op": "Set",
+                        "value": "120"
+                      },
+                      {
+                        "target": "spell.dancing-lights",
+                        "op": "Grant",
+                        "value": "1",
+                        "label": "Drow"
+                      },
+                      {
+                        "target": "spell.faerie-fire",
+                        "op": "Grant",
+                        "value": "1",
+                        "condition": "level >= 3",
+                        "label": "Drow"
+                      },
+                      {
+                        "target": "spell.darkness",
+                        "op": "Grant",
+                        "value": "1",
+                        "condition": "level >= 5",
+                        "label": "Drow"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "high-elf",
+                  "name": "High Elf",
+                  "feature": {
+                    "key": "elf.lineage.high-elf",
+                    "name": "High Elf Lineage",
+                    "sheetSection": "SpeciesTraits",
+                    "effects": [
+                      {
+                        "target": "spell.prestidigitation",
+                        "op": "Grant",
+                        "value": "1",
+                        "label": "High Elf"
+                      },
+                      {
+                        "target": "spell.detect-magic",
+                        "op": "Grant",
+                        "value": "1",
+                        "condition": "level >= 3",
+                        "label": "High Elf"
+                      },
+                      {
+                        "target": "spell.misty-step",
+                        "op": "Grant",
+                        "value": "1",
+                        "condition": "level >= 5",
+                        "label": "High Elf"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "wood-elf",
+                  "name": "Wood Elf",
+                  "feature": {
+                    "key": "elf.lineage.wood-elf",
+                    "name": "Wood Elf Lineage",
+                    "sheetSection": "SpeciesTraits",
+                    "effects": [
+                      {
+                        "target": "speed.walk",
+                        "op": "Set",
+                        "value": "35"
+                      },
+                      {
+                        "target": "spell.druidcraft",
+                        "op": "Grant",
+                        "value": "1",
+                        "label": "Wood Elf"
+                      },
+                      {
+                        "target": "spell.longstrider",
+                        "op": "Grant",
+                        "value": "1",
+                        "condition": "level >= 3",
+                        "label": "Wood Elf"
+                      },
+                      {
+                        "target": "spell.pass-without-trace",
+                        "op": "Grant",
+                        "value": "1",
+                        "condition": "level >= 5",
+                        "label": "Wood Elf"
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "key": "elf.elven-lineage-ability",
+              "name": "Lineage Spellcasting Ability",
+              "count": "1",
+              "source": "Ability",
+              "replace": "Never",
+              "filter": "oneOf(option.key, 'int', 'wis', 'cha')"
+            }
+          ]
+        },
+        {
+          "key": "elf.keen-senses",
+          "choices": [
+            {
+              "key": "elf.keen-senses",
+              "name": "Keen Senses",
+              "count": "1",
+              "source": "Skill",
+              "replace": "Never",
+              "filter": "oneOf(option.key, 'insight', 'perception', 'survival')",
+              "effects": [
+                {
+                  "target": "skill.$option.prof",
+                  "op": "Proficiency",
+                  "value": "proficient"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "dwarf",
+      "features": [
+        {
+          "key": "dwarf.dwarven-resilience",
+          "effects": [
+            {
+              "target": "damage.resist.poison",
+              "op": "Grant",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "key": "dwarf.dwarven-toughness",
+          "effects": [
+            {
+              "target": "hp.perLevel",
+              "op": "Add",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "key": "dwarf.stonecunning",
+          "resources": [
+            {
+              "key": "stonecunning",
+              "name": "Stonecunning",
+              "max": "pb"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,728 @@
+{
+  "classes": [],
+  "species": [
+    {
+      "creatureType": "Humanoid",
+      "features": [
+        {
+          "sheetSection": "Hidden",
+          "effects": [
+            {
+              "target": "speed.walk",
+              "op": "Set",
+              "value": "30",
+              "label": "Aasimar"
+            }
+          ],
+          "choices": [
+            {
+              "key": "aasimar.size",
+              "name": "Size",
+              "count": "1",
+              "source": "Static",
+              "replace": "Never",
+              "allowDuplicates": false,
+              "maxPerOption": 1,
+              "optional": false,
+              "options": [
+                {
+                  "key": "medium",
+                  "name": "Medium",
+                  "value": "2"
+                },
+                {
+                  "key": "small",
+                  "name": "Small",
+                  "value": "1"
+                }
+              ],
+              "effects": [
+                {
+                  "target": "size",
+                  "op": "Set",
+                  "value": "$value"
+                }
+              ]
+            }
+          ],
+          "resources": [],
+          "key": "aasimar.basics",
+          "name": "Aasimar Traits"
+        },
+        {
+          "sheetSection": "SpeciesTraits",
+          "effects": [],
+          "choices": [],
+          "resources": [],
+          "key": "aasimar.celestial-resistance",
+          "name": "Celestial Resistance",
+          "description": "<p>You have Resistance to Necrotic damage and Radiant damage.</p>"
+        },
+        {
+          "sheetSection": "SpeciesTraits",
+          "effects": [
+            {
+              "target": "sense.darkvision",
+              "op": "Set",
+              "value": "60"
+            }
+          ],
+          "choices": [],
+          "resources": [],
+          "key": "aasimar.darkvision",
+          "name": "Darkvision",
+          "description": "<p>You have Darkvision with a range of 60 feet.</p>"
+        },
+        {
+          "sheetSection": "SpeciesTraits",
+          "effects": [],
+          "choices": [],
+          "resources": [],
+          "key": "aasimar.healing-hands",
+          "name": "Healing Hands",
+          "description": "<p>As a Magic action, you touch a creature and roll a number of d4s equal to your Proficiency Bonus. The creature regains a number of Hit Points equal to the total rolled. Once you use this trait, you can't use it again until you finish a Long Rest.</p>"
+        },
+        {
+          "sheetSection": "SpeciesTraits",
+          "effects": [],
+          "choices": [],
+          "resources": [],
+          "key": "aasimar.light-bearer",
+          "name": "Light Bearer",
+          "description": "<p>You know the <em>Light</em> cantrip. Charisma is your spellcasting ability for it.</p>"
+        },
+        {
+          "sheetSection": "SpeciesTraits",
+          "effects": [],
+          "choices": [],
+          "resources": [],
+          "key": "aasimar.celestial-revelation",
+          "name": "Celestial Revelation",
+          "description": "<p>When you reach character level 3, you can transform as a Bonus Action using one of the options below (choose the option each time you transform). The transformation lasts for 1 minute or until you end it (no action required). Once you transform, you can't do so again until you finish a Long Rest.</p><p>Once on each of your turns before the transformation ends, you can deal extra damage to one target when you deal damage to it with an attack or a spell. The extra damage equals your Proficiency Bonus, and the extra damage's type is either Necrotic for Necrotic Shroud or Radiant for Heavenly Wings and Inner Radiance.</p><p>Here are the transformation options:</p><ul><li><strong>Heavenly Wings.</strong> Two spectral wings sprout from your back temporarily. Until the transformation ends, you have a Fly Speed equal to your Speed.</li><li><strong>Inner Radiance.</strong> Searing light temporarily radiates from your eyes and mouth. For the duration, you shed Bright Light in a 10-foot radius and Dim Light for an additional 10 feet, and at the end of each of your turns, each creature within 10 feet of you takes Radiant damage equal to your Proficiency Bonus.</li><li><strong>Necrotic Shroud.</strong> Your eyes briefly become pools of darkness, and flightless wings sprout from your back temporarily. Creatures other than your allies within 10 feet of you must succeed on a Charisma saving throw (DC 8 plus your Charisma modifier and Proficiency Bonus) or have the Frightened condition until the end of your next turn.</li></ul>"
+        }
+      ],
+      "key": "aasimar",
+      "name": "Aasimar",
+      "description": "<ul><li><strong>Creature Type:</strong> Humanoid</li><li><strong>Size:</strong> Medium (about 4-7 feet tall) or Small (about 2-4 feet tall), chosen when you select this species</li><li><strong>Speed:</strong> 30 feet</li></ul>"
+    },
+    {
+      "creatureType": "Humanoid",
+      "features": [
+        {
+          "sheetSection": "Hidden",
+          "effects": [
+            {
+              "target": "speed.walk",
+              "op": "Set",
+              "value": "30",
+              "label": "Dragonborn"
+            }
+          ],
+          "choices": [],
+          "resources": [],
+          "key": "dragonborn.basics",
+          "name": "Dragonborn Traits"
+        },
+        {
+          "sheetSection": "SpeciesTraits",
+          "effects": [],
+          "choices": [],
+          "resources": [],
+          "key": "dragonborn.draconic-ancestry",
+          "name": "Draconic Ancestry",
+          "description": "<p>Your lineage stems from a dragon progenitor. Choose the kind of dragon from the Draconic Ancestors table. Your choice affects your Breath Weapon and Damage Resistance traits as well as your appearance.</p><h5>Draconic Ancestors</h5><table><tr><th>Dragon</th><th>Damage Type</th></tr><tr><td>Black</td><td>Acid</td></tr><tr><td>Blue</td><td>Lightning</td></tr><tr><td>Brass</td><td>Fire</td></tr><tr><td>Bronze</td><td>Lightning</td></tr><tr><td>Copper</td><td>Acid</td></tr><tr><td>Gold</td><td>Fire</td></tr><tr><td>Green</td><td>Poison</td></tr><tr><td>Red</td><td>Fire</td></tr><tr><td>Silver</td><td>Cold</td></tr><tr><td>White</td><td>Cold</td></tr></table>"
+        },
+        {
+          "sheetSection": "SpeciesTraits",
+          "effects": [],
+          "choices": [],
+          "resources": [],
+          "key": "dragonborn.breath-weapon",
+          "name": "Breath Weapon",
+          "description": "<p>When you take the Attack action on your turn, you can replace one of your attacks with an exhalation of magical energy in either a 15-foot Cone or a 30-foot Line that is 5 feet wide (choose the shape each time). Each creature in that area must make a Dexterity saving throw (DC 8 plus your Constitution modifier and Proficiency Bonus). On a failed save, a creature takes 1d10 damage of the type determined by your Draconic Ancestry trait. On a successful save, a creature takes half as much damage. This damage increases by 1d10 when you reach character levels 5 (2d10), 11 (3d10), and 17 (4d10).</p><p>You can use this Breath Weapon a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest.</p>"
+        },
+        {
+          "sheetSection": "SpeciesTraits",
+          "effects": [],
+          "choices": [],
+          "resources": [],
+          "key": "dragonborn.damage-resistance",
+          "name": "Damage Resistance",
+          "description": "<p>You have Resistance to the damage type determined by your Draconic Ancestry trait.</p>"
+        },
+        {
+          "sheetSection": "SpeciesTraits",
+          "effects": [
+            {
+              "target": "sense.darkvision",
+              "op": "Set",
+              "value": "60"
+            }
+          ],
+          "choices": [],
+          "resources": [],
+          "key": "dragonborn.darkvision",
+          "name": "Darkvision",
+          "description": "<p>You have Darkvision with a range of 60 feet.</p>"
+        },
+        {
+          "sheetSection": "SpeciesTraits",
+          "effects": [],
+          "choices": [],
+          "resources": [],
+          "key": "dragonborn.draconic-flight",
+          "name": "Draconic Flight",
+          "description": "<p>When you reach character level 5, you can channel draconic magic to give yourself temporary flight. As a Bonus Action, you sprout spectral wings on your back that last for 10 minutes or until you retract the wings (no action required) or have the Incapacitated condition. During that time, you have a Fly Speed equal to your Speed. Your wings appear to be made of the same energy as your Breath Weapon. Once you use this trait, you can't use it again until you finish a Long Rest.</p>"
+        }
+      ],
+      "key": "dragonborn",
+      "name": "Dragonborn",
+      "description": "<ul><li><strong>Creature Type:</strong> Humanoid</li><li><strong>Size:</strong> Medium (about 5-7 feet tall)</li><li><strong>Speed:</strong> 30 feet</li></ul>"
+    },
+    {
+      "creatureType": "Humanoid",
+      "features": [
+        {
+          "sheetSection": "Hidden",
+          "effects": [
+            {
+              "target": "speed.walk",
+              "op": "Set",
+              "value": "30",
+              "label": "Dwarf"
+            }
+          ],
+          "choices": [],
+          "resources": [],
+          "key": "dwarf.basics",
+          "name": "Dwarf Traits"
+        },
+        {
+          "sheetSection": "SpeciesTraits",
+          "effects": [
+            {
+              "target": "sense.darkvision",
+              "op": "Set",
+              "value": "120"
+            }
+          ],
+          "choices": [],
+          "resources": [],
+          "key": "dwarf.darkvision",
+          "name": "Darkvision",
+          "description": "<p>You have Darkvision with a range of 120 feet.</p>"
+        },
+        {
+          "sheetSection": "SpeciesTraits",
+          "effects": [],
+          "choices": [],
+          "resources": [],
+          "key": "dwarf.dwarven-resilience",
+          "name": "Dwarven Resilience",
+          "description": "<p>You have Resistance to Poison damage. You also have Advantage on saving throws you make to avoid or end the Poisoned condition.</p>"
+        },
+        {
+          "sheetSection": "SpeciesTraits",
+          "effects": [],
+          "choices": [],
+          "resources": [],
+          "key": "dwarf.dwarven-toughness",
+          "name": "Dwarven Toughness",
+          "description": "<p>Your Hit Point maximum increases by 1, and it increases by 1 again whenever you gain a level.</p>"
+        },
+        {
+          "sheetSection": "SpeciesTraits",
+          "effects": [],
+          "choices": [],
+          "resources": [],
+          "key": "dwarf.stonecunning",
+          "name": "Stonecunning",
+          "description": "<p>As a Bonus Action, you gain Tremorsense with a range of 60 feet for 10 minutes. You must be on a stone surface or touching a stone surface to use this Tremorsense. The stone can be natural or worked.</p><p>You can use this Bonus Action a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest.</p>"
+        }
+      ],
+      "key": "dwarf",
+      "name": "Dwarf",
+      "description": "<ul><li><strong>Creature Type:</strong> Humanoid</li><li><strong>Size:</strong> Medium (about 4-5 feet tall)</li><li><strong>Speed:</strong> 30 feet</li></ul>"
+    },
+    {
+      "creatureType": "Humanoid",
+      "features": [
+        {
+          "sheetSection": "Hidden",
+          "effects": [
+            {
+              "target": "speed.walk",
+              "op": "Set",
+              "value": "30",
+              "label": "Elf"
+            }
+          ],
+          "choices": [],
+          "resources": [],
+          "key": "elf.basics",
+          "name": "Elf Traits"
+        },
+        {
+          "sheetSection": "SpeciesTraits",
+          "effects": [
+            {
+              "target": "sense.darkvision",
+              "op": "Set",
+              "value": "60"
+            }
+          ],
+          "choices": [],
+          "resources": [],
+          "key": "elf.darkvision",
+          "name": "Darkvision",
+          "description": "<p>You have Darkvision with a range of 60 feet.</p>"
+        },
+        {
+          "sheetSection": "SpeciesTraits",
+          "effects": [],
+          "choices": [],
+          "resources": [],
+          "key": "elf.elven-lineage",
+          "name": "Elven Lineage",
+          "description": "<p>You are part of a lineage that grants you supernatural abilities. Choose a lineage from the Elven Lineages table. You gain the level 1 benefit of that lineage.</p><p>When you reach character levels 3 and 5, you learn a higher-level spell, as shown on the table. You always have that spell prepared. You can cast it once without a spell slot, and you regain the ability to cast it in that way when you finish a Long Rest. You can also cast the spell using any spell slots you have of the appropriate level.</p><p>Intelligence, Wisdom, or Charisma is your spellcasting ability for the spells you cast with this trait (choose the ability when you select the lineage).</p><h5>Elven Lineages</h5><table><tr><th>Lineage</th><th>Level 1</th><th>Level 3</th><th>Level 5</th></tr><tr><td>Drow</td><td>The range of your Darkvision increases to 120 feet. You also know the <em>Dancing Lights</em> cantrip.</td><td><em>Faerie Fire</em></td><td><em>Darkness</em></td></tr><tr><td>High Elf</td><td>You know the <em>Prestidigitation</em> cantrip. Whenever you finish a Long Rest, you can replace that cantrip with a different cantrip from the Wizard spell list.</td><td><em>Detect Magic</em></td><td><em>Misty Step</em></td></tr><tr><td>Wood Elf</td><td>Your Speed increases to 35 feet. You also know the <em>Druidcraft</em> cantrip.</td><td><em>Longstrider</em></td><td><em>Pass without Trace</em></td></tr></table>"
+        },
+        {
+          "sheetSection": "SpeciesTraits",
+          "effects": [],
+          "choices": [],
+          "resources": [],
+          "key": "elf.fey-ancestry",
+          "name": "Fey Ancestry",
+          "description": "<p>You have Advantage on saving throws you make to avoid or end the Charmed condition.</p>"
+        },
+        {
+          "sheetSection": "SpeciesTraits",
+          "effects": [],
+          "choices": [],
+          "resources": [],
+          "key": "elf.keen-senses",
+          "name": "Keen Senses",
+          "description": "<p>You have proficiency in the Insight, Perception, or Survival skill.</p>"
+        },
+        {
+          "sheetSection": "SpeciesTraits",
+          "effects": [],
+          "choices": [],
+          "resources": [],
+          "key": "elf.trance",
+          "name": "Trance",
+          "description": "<p>You don't need to sleep, and magic can't put you to sleep. You can finish a Long Rest in 4 hours if you spend those hours in a trancelike meditation, during which you retain consciousness.</p>"
+        }
+      ],
+      "key": "elf",
+      "name": "Elf",
+      "description": "<ul><li><strong>Creature Type:</strong> Humanoid</li><li><strong>Size:</strong> Medium (about 5-6 feet tall)</li><li><strong>Speed:</strong> 30 feet</li></ul>"
+    },
+    {
+      "creatureType": "Humanoid",
+      "features": [
+        {
+          "sheetSection": "Hidden",
+          "effects": [
+            {
+              "target": "speed.walk",
+              "op": "Set",
+              "value": "30",
+              "label": "Gnome"
+            },
+            {
+              "target": "size",
+              "op": "Set",
+              "value": "1"
+            }
+          ],
+          "choices": [],
+          "resources": [],
+          "key": "gnome.basics",
+          "name": "Gnome Traits"
+        },
+        {
+          "sheetSection": "SpeciesTraits",
+          "effects": [
+            {
+              "target": "sense.darkvision",
+              "op": "Set",
+              "value": "60"
+            }
+          ],
+          "choices": [],
+          "resources": [],
+          "key": "gnome.darkvision",
+          "name": "Darkvision",
+          "description": "<p>You have Darkvision with a range of 60 feet.</p>"
+        },
+        {
+          "sheetSection": "SpeciesTraits",
+          "effects": [],
+          "choices": [],
+          "resources": [],
+          "key": "gnome.gnomish-cunning",
+          "name": "Gnomish Cunning",
+          "description": "<p>You have Advantage on Intelligence, Wisdom, and Charisma saving throws.</p>"
+        },
+        {
+          "sheetSection": "SpeciesTraits",
+          "effects": [],
+          "choices": [],
+          "resources": [],
+          "key": "gnome.gnomish-lineage",
+          "name": "Gnomish Lineage",
+          "description": "<p>You are part of a lineage that grants you supernatural abilities. Choose one of the following options; whichever one you choose, Intelligence, Wisdom, or Charisma is your spellcasting ability for the spells you cast with this trait (choose the ability when you select the lineage):</p><ul><li><strong>Forest Gnome.</strong> You know the <em>Minor Illusion</em> cantrip. You also always have the <em>Speak with Animals</em> spell prepared. You can cast it without a spell slot a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest. You can also use any spell slots you have to cast the spell.</li><li><strong>Rock Gnome.</strong> You know the <em>Mending</em> and <em>Prestidigitation</em> cantrips. In addition, you can spend 10 minutes casting <em>Prestidigitation</em> to create a Tiny clockwork device (AC 5, 1 HP), such as a toy, fire starter, or music box. When you create the device, you determine its function by choosing one effect from <em>Prestidigitation</em>; the device produces that effect whenever you or another creature takes a Bonus Action to activate it with a touch. If the chosen effect has options within it, you choose one of those options for the device when you create it. For example, if you choose the spell's ignite-extinguish effect, you determine whether the device ignites or extinguishes fire; the device doesn't do both. You can have three such devices in existence at a time, and each falls apart 8 hours after its creation or when you dismantle it with a touch as a Utilize action.</li></ul>"
+        }
+      ],
+      "key": "gnome",
+      "name": "Gnome",
+      "description": "<ul><li><strong>Creature Type:</strong> Humanoid</li><li><strong>Size:</strong> Small (about 3-4 feet tall)</li><li><strong>Speed:</strong> 30 feet</li></ul>"
+    },
+    {
+      "creatureType": "Humanoid",
+      "features": [
+        {
+          "sheetSection": "Hidden",
+          "effects": [
+            {
+              "target": "speed.walk",
+              "op": "Set",
+              "value": "35",
+              "label": "Goliath"
+            }
+          ],
+          "choices": [],
+          "resources": [],
+          "key": "goliath.basics",
+          "name": "Goliath Traits"
+        },
+        {
+          "sheetSection": "SpeciesTraits",
+          "effects": [],
+          "choices": [],
+          "resources": [],
+          "key": "goliath.giant-ancestry",
+          "name": "Giant Ancestry",
+          "description": "<p>You are descended from Giants. Choose one of the following benefits—a supernatural boon from your ancestry; you can use the chosen benefit a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest:</p><ul><li><strong>Cloud's Jaunt (Cloud Giant).</strong> As a Bonus Action, you magically teleport up to 30 feet to an unoccupied space you can see.</li><li><strong>Fire's Burn (Fire Giant).</strong> When you hit a target with an attack roll and deal damage to it, you can also deal 1d10 Fire damage to that target.</li><li><strong>Frost's Chill (Frost Giant).</strong> When you hit a target with an attack roll and deal damage to it, you can also deal 1d6 Cold damage to that target and reduce its Speed by 10 feet until the start of your next turn.</li><li><strong>Hill's Tumble (Hill Giant).</strong> When you hit a Large or smaller creature with an attack roll and deal damage to it, you can give that target the Prone condition.</li><li><strong>Stone's Endurance (Stone Giant).</strong> When you take damage, you can take a Reaction to roll 1d12. Add your Constitution modifier to the number rolled and reduce the damage by that total.</li><li><strong>Storm's Thunder (Storm Giant).</strong> When you take damage from a creature within 60 feet of you, you can take a Reaction to deal 1d8 Thunder damage to that creature.</li></ul>"
+        },
+        {
+          "sheetSection": "SpeciesTraits",
+          "effects": [],
+          "choices": [],
+          "resources": [],
+          "key": "goliath.large-form",
+          "name": "Large Form",
+          "description": "<p>Starting at character level 5, you can change your size to Large as a Bonus Action if you're in a big enough space. This transformation lasts for 10 minutes or until you end it (no action required). For that duration, you have Advantage on Strength checks, and your Speed increases by 10 feet. Once you use this trait, you can't use it again until you finish a Long Rest.</p>"
+        },
+        {
+          "sheetSection": "SpeciesTraits",
+          "effects": [],
+          "choices": [],
+          "resources": [],
+          "key": "goliath.powerful-build",
+          "name": "Powerful Build",
+          "description": "<p>You have Advantage on any ability check you make to end the Grappled condition. You also count as one size larger when determining your carrying capacity.</p>"
+        }
+      ],
+      "key": "goliath",
+      "name": "Goliath",
+      "description": "<ul><li><strong>Creature Type:</strong> Humanoid</li><li><strong>Size:</strong> Medium (about 7-8 feet tall)</li><li><strong>Speed:</strong> 35 feet</li></ul>"
+    },
+    {
+      "creatureType": "Humanoid",
+      "features": [
+        {
+          "sheetSection": "Hidden",
+          "effects": [
+            {
+              "target": "speed.walk",
+              "op": "Set",
+              "value": "30",
+              "label": "Halfling"
+            },
+            {
+              "target": "size",
+              "op": "Set",
+              "value": "1"
+            }
+          ],
+          "choices": [],
+          "resources": [],
+          "key": "halfling.basics",
+          "name": "Halfling Traits"
+        },
+        {
+          "sheetSection": "SpeciesTraits",
+          "effects": [],
+          "choices": [],
+          "resources": [],
+          "key": "halfling.brave",
+          "name": "Brave",
+          "description": "<p>You have Advantage on saving throws you make to avoid or end the Frightened condition.</p>"
+        },
+        {
+          "sheetSection": "SpeciesTraits",
+          "effects": [],
+          "choices": [],
+          "resources": [],
+          "key": "halfling.halfling-nimbleness",
+          "name": "Halfling Nimbleness",
+          "description": "<p>You can move through the space of any creature that is a size larger than you, but you can't stop in the same space.</p>"
+        },
+        {
+          "sheetSection": "SpeciesTraits",
+          "effects": [],
+          "choices": [],
+          "resources": [],
+          "key": "halfling.luck",
+          "name": "Luck",
+          "description": "<p>When you roll a 1 on the d20 of a D20 Test, you can reroll the die, and you must use the new roll.</p>"
+        },
+        {
+          "sheetSection": "SpeciesTraits",
+          "effects": [],
+          "choices": [],
+          "resources": [],
+          "key": "halfling.naturally-stealthy",
+          "name": "Naturally Stealthy",
+          "description": "<p>You can take the Hide action even when you are obscured only by a creature that is at least one size larger than you.</p>"
+        }
+      ],
+      "key": "halfling",
+      "name": "Halfling",
+      "description": "<ul><li><strong>Creature Type:</strong> Humanoid</li><li><strong>Size:</strong> Small (about 2-3 feet tall)</li><li><strong>Speed:</strong> 30 feet</li></ul>"
+    },
+    {
+      "creatureType": "Humanoid",
+      "features": [
+        {
+          "sheetSection": "Hidden",
+          "effects": [
+            {
+              "target": "speed.walk",
+              "op": "Set",
+              "value": "30",
+              "label": "Human"
+            }
+          ],
+          "choices": [
+            {
+              "key": "human.size",
+              "name": "Size",
+              "count": "1",
+              "source": "Static",
+              "replace": "Never",
+              "allowDuplicates": false,
+              "maxPerOption": 1,
+              "optional": false,
+              "options": [
+                {
+                  "key": "medium",
+                  "name": "Medium",
+                  "value": "2"
+                },
+                {
+                  "key": "small",
+                  "name": "Small",
+                  "value": "1"
+                }
+              ],
+              "effects": [
+                {
+                  "target": "size",
+                  "op": "Set",
+                  "value": "$value"
+                }
+              ]
+            }
+          ],
+          "resources": [],
+          "key": "human.basics",
+          "name": "Human Traits"
+        },
+        {
+          "sheetSection": "SpeciesTraits",
+          "effects": [],
+          "choices": [],
+          "resources": [],
+          "key": "human.resourceful",
+          "name": "Resourceful",
+          "description": "<p>You gain Heroic Inspiration whenever you finish a Long Rest.</p>"
+        },
+        {
+          "sheetSection": "SpeciesTraits",
+          "effects": [],
+          "choices": [],
+          "resources": [],
+          "key": "human.skillful",
+          "name": "Skillful",
+          "description": "<p>You gain proficiency in one skill of your choice.</p>"
+        },
+        {
+          "sheetSection": "SpeciesTraits",
+          "effects": [],
+          "choices": [],
+          "resources": [],
+          "key": "human.versatile",
+          "name": "Versatile",
+          "description": "<p>You gain an Origin feat of your choice.</p>"
+        }
+      ],
+      "key": "human",
+      "name": "Human",
+      "description": "<ul><li><strong>Creature Type:</strong> Humanoid</li><li><strong>Size:</strong> Medium (about 4-7 feet tall) or Small (about 2-4 feet tall), chosen when you select this species</li><li><strong>Speed:</strong> 30 feet</li></ul>"
+    },
+    {
+      "creatureType": "Humanoid",
+      "features": [
+        {
+          "sheetSection": "Hidden",
+          "effects": [
+            {
+              "target": "speed.walk",
+              "op": "Set",
+              "value": "30",
+              "label": "Orc"
+            }
+          ],
+          "choices": [],
+          "resources": [],
+          "key": "orc.basics",
+          "name": "Orc Traits"
+        },
+        {
+          "sheetSection": "SpeciesTraits",
+          "effects": [],
+          "choices": [],
+          "resources": [],
+          "key": "orc.adrenaline-rush",
+          "name": "Adrenaline Rush",
+          "description": "<p>You can take the Dash action as a Bonus Action. When you do so, you gain a number of Temporary Hit Points equal to your Proficiency Bonus.</p><p>You can use this trait a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Short or Long Rest.</p>"
+        },
+        {
+          "sheetSection": "SpeciesTraits",
+          "effects": [
+            {
+              "target": "sense.darkvision",
+              "op": "Set",
+              "value": "120"
+            }
+          ],
+          "choices": [],
+          "resources": [],
+          "key": "orc.darkvision",
+          "name": "Darkvision",
+          "description": "<p>You have Darkvision with a range of 120 feet.</p>"
+        },
+        {
+          "sheetSection": "SpeciesTraits",
+          "effects": [],
+          "choices": [],
+          "resources": [],
+          "key": "orc.relentless-endurance",
+          "name": "Relentless Endurance",
+          "description": "<p>When you are reduced to 0 Hit Points but not killed outright, you can drop to 1 Hit Point instead. Once you use this trait, you can't do so again until you finish a Long Rest.</p>"
+        }
+      ],
+      "key": "orc",
+      "name": "Orc",
+      "description": "<ul><li><strong>Creature Type:</strong> Humanoid</li><li><strong>Size:</strong> Medium (about 6-7 feet tall)</li><li><strong>Speed:</strong> 30 feet</li></ul>"
+    },
+    {
+      "creatureType": "Humanoid",
+      "features": [
+        {
+          "sheetSection": "Hidden",
+          "effects": [
+            {
+              "target": "speed.walk",
+              "op": "Set",
+              "value": "30",
+              "label": "Tiefling"
+            }
+          ],
+          "choices": [
+            {
+              "key": "tiefling.size",
+              "name": "Size",
+              "count": "1",
+              "source": "Static",
+              "replace": "Never",
+              "allowDuplicates": false,
+              "maxPerOption": 1,
+              "optional": false,
+              "options": [
+                {
+                  "key": "medium",
+                  "name": "Medium",
+                  "value": "2"
+                },
+                {
+                  "key": "small",
+                  "name": "Small",
+                  "value": "1"
+                }
+              ],
+              "effects": [
+                {
+                  "target": "size",
+                  "op": "Set",
+                  "value": "$value"
+                }
+              ]
+            }
+          ],
+          "resources": [],
+          "key": "tiefling.basics",
+          "name": "Tiefling Traits"
+        },
+        {
+          "sheetSection": "SpeciesTraits",
+          "effects": [
+            {
+              "target": "sense.darkvision",
+              "op": "Set",
+              "value": "60"
+            }
+          ],
+          "choices": [],
+          "resources": [],
+          "key": "tiefling.darkvision",
+          "name": "Darkvision",
+          "description": "<p>You have Darkvision with a range of 60 feet.</p>"
+        },
+        {
+          "sheetSection": "SpeciesTraits",
+          "effects": [],
+          "choices": [],
+          "resources": [],
+          "key": "tiefling.fiendish-legacy",
+          "name": "Fiendish Legacy",
+          "description": "<p>You are the recipient of a legacy that grants you supernatural abilities. Choose a legacy from the Fiendish Legacies table. You gain the level 1 benefit of the chosen legacy.</p><p>When you reach character levels 3 and 5, you learn a higher-level spell, as shown on the table. You always have that spell prepared. You can cast it once without a spell slot, and you regain the ability to cast it in that way when you finish a Long Rest. You can also cast the spell using any spell slots you have of the appropriate level. Intelligence, Wisdom, or Charisma is your spellcasting ability for the spells you cast with this trait (choose the ability when you select the legacy).</p><h5>Fiendish Legacies</h5><table><tr><th>Legacy</th><th>Level 1</th><th>Level 3</th><th>Level 5</th></tr><tr><td>Abyssal</td><td>You have Resistance to Poison damage. You also know the <em>Poison Spray</em> cantrip.</td><td><em>Ray of Sickness</em></td><td><em>Hold Person</em></td></tr><tr><td>Chthonic</td><td>You have Resistance to Necrotic damage. You also know the <em>Chill Touch</em> cantrip.</td><td><em>False Life</em></td><td><em>Ray of Enfeeblement</em></td></tr><tr><td>Infernal</td><td>You have Resistance to Fire damage. You also know the <em>Fire Bolt</em> cantrip.</td><td><em>Hellish Rebuke</em></td><td><em>Darkness</em></td></tr></table>"
+        },
+        {
+          "sheetSection": "SpeciesTraits",
+          "effects": [],
+          "choices": [],
+          "resources": [],
+          "key": "tiefling.otherworldly-presence",
+          "name": "Otherworldly Presence",
+          "description": "<p>You know the <em>Thaumaturgy</em> cantrip. When you cast it with this trait, the spell uses the same spellcasting ability you use for your Fiendish Legacy Trait.</p><p>------</p>"
+        }
+      ],
+      "key": "tiefling",
+      "name": "Tiefling",
+      "description": "<ul><li><strong>Creature Type:</strong> Humanoid</li><li><strong>Size:</strong> Medium (about 4-7 feet tall) or Small (about 3-4 feet tall), chosen when you select this species</li><li><strong>Speed:</strong> 30 feet</li></ul>"
+    }
+  ],
+  "backgrounds": [],
+  "feats": [],
+  "features": [],
+  "classFeatureTexts": [],
+  "spells": [],
+  "items": [],
+  "masteries": [],
+  "languages": [],
+  "slotTables": {}
+}
