@@ -43,6 +43,12 @@ public sealed class SeedDocument
   ///   Spell slot tables: table key → rows per caster level (index 0 = level 1) → slots per spell level (index 0 = level 1)
   /// </summary>
   public Dictionary<string, List<List<int>>> SlotTables { get; set; } = [];
+
+  /// <summary>
+  ///   Tables that follow the character level instead of a class level (species traits, feats):
+  ///   key → 20 comma separated values for level 1..20
+  /// </summary>
+  public Dictionary<string, string> Scales { get; set; } = [];
 }
 
 public class SeedNamed
@@ -282,6 +288,16 @@ public sealed class SeedSpell: SeedNamed
   public string? Duration { get; set; }
 
   public List<string>? Lists { get; set; }
+
+  public string? Damage { get; set; }
+
+  public DamageTypeEnum? DamageType { get; set; }
+
+  public bool? AttackRoll { get; set; }
+
+  public string? SaveAbility { get; set; }
+
+  public List<string>? CantripDamage { get; set; }
 }
 
 public sealed class SeedItem: SeedNamed

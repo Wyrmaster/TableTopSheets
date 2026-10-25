@@ -860,6 +860,13 @@ namespace TableTopSheets.Persistence.Postgresql.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
 
+                    b.Property<bool>("AttackRoll")
+                        .HasColumnType("boolean");
+
+                    b.PrimitiveCollection<List<string>>("CantripDamage")
+                        .IsRequired()
+                        .HasColumnType("text[]");
+
                     b.Property<string>("CastingTime")
                         .IsRequired()
                         .HasColumnType("text");
@@ -870,6 +877,13 @@ namespace TableTopSheets.Persistence.Postgresql.Migrations
 
                     b.Property<bool>("Concentration")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("Damage")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DamageType")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
 
                     b.Property<string>("DescriptionHtml")
                         .IsRequired()
@@ -905,6 +919,9 @@ namespace TableTopSheets.Persistence.Postgresql.Migrations
 
                     b.Property<bool>("Ritual")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("SaveAbility")
+                        .HasColumnType("text");
 
                     b.Property<string>("School")
                         .IsRequired()

@@ -34,5 +34,15 @@ public record Attack
   /// </summary>
   public string Notes { get; set; } = string.Empty;
 
+  /// <summary>
+  ///   Text shown instead of <see cref="AttackRollModifier"/> (e.g. <c>DC 13</c> for saving throws)
+  /// </summary>
+  public string? AttackRollText { get; set; }
+
+  /// <summary>
+  ///   Text shown instead of the rendered <see cref="DamageRoll"/> and <see cref="DamageType"/> (e.g. <c>2 × 1d10 Force</c>)
+  /// </summary>
+  public string? DamageText { get; set; }
+
   #endregion
 }

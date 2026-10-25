@@ -2,7 +2,25 @@
   "features": [
     {
       "key": "eldritch-invocation.agonizing-blast",
-      "prerequisite": "classLevel('warlock') >= 2"
+      "prerequisite": "classLevel('warlock') >= 2",
+      "choices": [
+        {
+          "key": "agonizing-blast.cantrip",
+          "name": "Cantrip",
+          "count": "1",
+          "source": "Spell",
+          "replace": "Never",
+          "filter": "onList('warlock') && option.level == 0 && option.damage && chosen(option.key)",
+          "effects": [
+            {
+              "target": "damage.spell.$option",
+              "op": "Add",
+              "value": "mod('cha')",
+              "label": "Agonizing Blast"
+            }
+          ]
+        }
+      ]
     },
     {
       "key": "eldritch-invocation.armor-of-shadows",

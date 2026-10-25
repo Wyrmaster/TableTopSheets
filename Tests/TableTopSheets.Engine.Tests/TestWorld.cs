@@ -79,15 +79,28 @@ public sealed class TestWorld: IAsyncDisposable
   /// <summary>
   ///   Dwarf with a background; the given background increases are used, every other origin choice gets the first option
   /// </summary>
-  public async Task<Guid> CreateCharacterAsync(IReadOnlyDictionary<string, byte>? abilities = null, string background = "farmer", params string[] backgroundIncreases)
+  public Task<Guid> CreateCharacterAsync(IReadOnlyDictionary<string, byte>? abilities = null, string background = "farmer", params string[] backgroundIncreases)
+    => this.CreateCharacterAsync("dwarf", abilities, background, [], backgroundIncreases);
+
+  /// <summary>
+  ///   Character of any species; <paramref name="originSelections"/> answer species choices, everything else is auto completed
+  /// </summary>
+  public async Task<Guid> CreateCharacterAsync
+  (
+    string species,
+    IReadOnlyDictionary<string, byte>? abilities,
+    string background,
+    IReadOnlyList<SelectionRequest> originSelections,
+    params string[] backgroundIncreases
+  )
   {
     Character character = await this.Service.CreateAsync(new CreateCharacterRequest
     {
       Name = "Test",
-      SpeciesKey = "dwarf",
+      SpeciesKey = species,
       BackgroundKey = background,
       Abilities = abilities ?? StandardArray,
-      Selections = backgroundIncreases.Select(entry => new SelectionRequest($"{background}.ability-scores", entry)).ToList(),
+      Selections = backgroundIncreases.Select(entry => new SelectionRequest($"{background}.ability-scores", entry)).Concat(originSelections).ToList(),
       AllowIncomplete = true,
     });
     this.AutoComplete(character);

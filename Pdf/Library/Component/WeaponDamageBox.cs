@@ -190,7 +190,7 @@ public class WeaponDamageBox: InformationBox
         tf.Alignment = XParagraphAlignment.Center;
         tf.DrawString
         (
-          $"+{attack.AttackRollModifier}",
+          attack.AttackRollText ?? (attack.AttackRollModifier >= 0 ? $"+{attack.AttackRollModifier}" : $"{attack.AttackRollModifier}"),
           new XFont("Roboto#", 8, XFontStyleEx.Bold),
           this.FontBrush,
           atkBonusRec
@@ -231,7 +231,7 @@ public class WeaponDamageBox: InformationBox
         tf.Alignment = XParagraphAlignment.Center;
         tf.DrawString
         (
-          $"{damageRoll} {attack.DamageType}",
+          attack.DamageText ?? $"{damageRoll} {attack.DamageType}",
           new XFont("Roboto#", 8, XFontStyleEx.Bold),
           this.FontBrush,
           damageTypeNotesRect

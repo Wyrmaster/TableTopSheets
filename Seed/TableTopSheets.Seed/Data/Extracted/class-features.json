@@ -1977,5 +1977,6 @@
   "items": [],
   "masteries": [],
   "languages": [],
-  "slotTables": {}
+  "slotTables": {},
+  "scales": {}
 }

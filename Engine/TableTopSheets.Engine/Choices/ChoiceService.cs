@@ -67,7 +67,8 @@ public static class ChoiceService
       entry.Name,
       entry.Level,
       entry.School.ToString().ToLowerInvariant(),
-      entry.Ritual
+      entry.Ritual,
+      Damage: entry.Damage != null
     ) { Lists = entry.Lists }),
     OptionSourceEnum.Feat => catalog.Feats.Values.Select(entry => new OptionDescriptor
     (

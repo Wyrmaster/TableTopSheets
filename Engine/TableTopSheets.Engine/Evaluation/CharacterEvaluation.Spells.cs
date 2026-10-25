@@ -11,7 +11,8 @@ namespace TableTopSheets.Engine.Evaluation;
 /// <param name="AlwaysPrepared">prepared without counting against the prepared limit</param>
 /// <param name="Prepared">part of the prepared list (cantrips are always prepared)</param>
 /// <param name="InSpellbook">written in a spellbook</param>
-public sealed record KnownSpell(Spell Spell, string Source, SpellcastingProfile? Profile, bool AlwaysPrepared, bool Prepared, bool InSpellbook);
+/// <param name="Ability">spellcasting ability key used for the spell</param>
+public sealed record KnownSpell(Spell Spell, string Source, SpellcastingProfile? Profile, bool AlwaysPrepared, bool Prepared, bool InSpellbook, string Ability);
 
 public sealed partial class CharacterEvaluation
 {
@@ -32,9 +33,50 @@ public sealed partial class CharacterEvaluation
   /// </summary>
   public const string SpellbookCategory = "spellbook";
 
+  /// <summary>
+  ///   Character levels at which every cantrip upgrades ("Cantrip Upgrade"); the damage per tier is stored on the spell
+  /// </summary>
+  public static readonly IReadOnlyList<int> CantripUpgradeLevels = [5, 11, 17];
+
+  #endregion
+
+  #region Properties
+
+  /// <summary>
+  ///   Cantrip tier 0..3; cantrips scale with the character level, not with a class level
+  /// </summary>
+  public int CantripTier => CantripUpgradeLevels.Count(level => this.TotalLevel >= level);
+
   #endregion
 
   #region Methods
+
+  /// <summary>
+  ///   Damage of a cantrip at the current character level (null for cantrips without damage)
+  /// </summary>
+  public string? CantripDamage(Spell spell)
+    => spell.CantripDamage.Count > this.CantripTier ? spell.CantripDamage[this.CantripTier] : spell.Damage;
+
+  /// <summary>
+  ///   Spellcasting ability for spells granted outside a class (species, feats): the ability chosen with the granting
+  ///   feature or one of the features above it (Elven Lineage, Magic Initiate); otherwise the best mental ability
+  /// </summary>
+  public string ChosenSpellcastingAbility(FeatureInstance instance)
+  {
+    for (FeatureInstance? current = instance; current != null;)
+    {
+      SelectionInstance? ability = this._selections.FirstOrDefault(entry => entry.Owner == current && entry.Choice.OptionSource == OptionSourceEnum.Ability);
+      if (ability != null)
+      {
+        return ability.Selection.OptionKey;
+      }
+
+      CharacterChoice? grantedBy = current.GrantedBy;
+      current = grantedBy == null ? null : this._selections.FirstOrDefault(entry => entry.Selection.Id == grantedBy.Id)?.Owner;
+    }
+
+    return new[] { "int", "wis", "cha" }.MaxBy(this.Score)!;
+  }
 
   /// <summary>
   ///   Class a feature instance counts for, following the chain of selections for option features (invocations ...)
@@ -76,7 +118,7 @@ public sealed partial class CharacterEvaluation
     List<SpellcastingProfile> profiles = this.SpellcastingProfiles.ToList();
     Dictionary<(Guid Spell, Guid? Profile), KnownSpell> spells = new();
 
-    void Add(Spell spell, string source, SpellcastingProfile? profile, bool alwaysPrepared = false, bool prepared = false, bool inSpellbook = false)
+    void Add(Spell spell, string source, SpellcastingProfile? profile, FeatureInstance? owner, bool alwaysPrepared = false, bool prepared = false, bool inSpellbook = false)
     {
       if (spells.TryGetValue((spell.Id, profile?.Id), out KnownSpell? existing))
       {
@@ -89,7 +131,8 @@ public sealed partial class CharacterEvaluation
         return;
       }
 
-      spells[(spell.Id, profile?.Id)] = new(spell, source, profile, alwaysPrepared, prepared, inSpellbook);
+      string ability = profile?.Ability ?? (owner == null ? "int" : this.ChosenSpellcastingAbility(owner));
+      spells[(spell.Id, profile?.Id)] = new(spell, source, profile, alwaysPrepared, prepared, inSpellbook, ability);
     }
 
     foreach (SelectionInstance selection in this._selections.Where(entry => entry.Owner.Active && entry.Choice.OptionSource == OptionSourceEnum.Spell))
@@ -106,13 +149,13 @@ public sealed partial class CharacterEvaluation
       {
         case CantripCategory:
         case PreparedCategory:
-          Add(spell, source, profile, prepared: true);
+          Add(spell, source, profile, selection.Owner, prepared: true);
           break;
         case SpellbookCategory:
-          Add(spell, source, profile, inSpellbook: true);
+          Add(spell, source, profile, selection.Owner, inSpellbook: true);
           break;
         default:
-          Add(spell, selection.Owner.Feature.Name, profile, alwaysPrepared: true, prepared: true);
+          Add(spell, selection.Owner.Feature.Name, profile, selection.Owner, alwaysPrepared: true, prepared: true);
           break;
       }
     }
@@ -120,14 +163,14 @@ public sealed partial class CharacterEvaluation
     foreach (CharacterSpellbookEntry entry in this.Character.SpellbookEntries)
     {
       SpellcastingProfile? profile = profiles.FirstOrDefault(profile => profile.Pool == SpellPoolEnum.Spellbook);
-      Add(this.Catalog.Spells[entry.SpellId], "Spellbook", profile, inSpellbook: true);
+      Add(this.Catalog.Spells[entry.SpellId], "Spellbook", profile, null, inSpellbook: true);
     }
 
     foreach (SpellcastingProfile profile in profiles)
     {
       foreach (CharacterPreparedSpell entry in this.PreparedLoadout(profile))
       {
-        Add(this.Catalog.Spells[entry.SpellId], this.Catalog.Classes[profile.ClassId].Name, profile, prepared: true);
+        Add(this.Catalog.Spells[entry.SpellId], this.Catalog.Classes[profile.ClassId].Name, profile, null, prepared: true);
       }
     }
 
@@ -141,7 +184,7 @@ public sealed partial class CharacterEvaluation
       }
 
       CharacterClass? @class = this.OwningClass(effect.Owner);
-      Add(spell, effect.Label, profiles.FirstOrDefault(entry => entry.ClassId == @class?.Id), alwaysPrepared: true, prepared: true);
+      Add(spell, effect.Label, profiles.FirstOrDefault(entry => entry.ClassId == @class?.Id), effect.Owner, alwaysPrepared: true, prepared: true);
     }
 
     return spells.Values.OrderBy(entry => entry.Spell.Level).ThenBy(entry => entry.Spell.Name).ToList();

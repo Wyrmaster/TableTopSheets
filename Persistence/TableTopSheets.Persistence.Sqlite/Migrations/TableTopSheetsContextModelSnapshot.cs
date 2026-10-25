@@ -854,6 +854,13 @@ namespace TableTopSheets.Persistence.Sqlite.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("AttackRoll")
+                        .HasColumnType("INTEGER");
+
+                    b.PrimitiveCollection<string>("CantripDamage")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("CastingTime")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -864,6 +871,13 @@ namespace TableTopSheets.Persistence.Sqlite.Migrations
 
                     b.Property<bool>("Concentration")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("Damage")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DamageType")
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("DescriptionHtml")
                         .IsRequired()
@@ -899,6 +913,9 @@ namespace TableTopSheets.Persistence.Sqlite.Migrations
 
                     b.Property<bool>("Ritual")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("SaveAbility")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("School")
                         .IsRequired()

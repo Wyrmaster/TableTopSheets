@@ -103,7 +103,7 @@ public sealed class OptionContext(CharacterEvaluation evaluation, OptionDescript
 
   public static readonly IReadOnlySet<string> KnownIdentifiers = new HashSet<string>
   {
-    "option.key", "option.name", "option.level", "option.school", "option.ritual", "option.category", "option.value", "option.repeatable",
+    "option.key", "option.name", "option.level", "option.school", "option.ritual", "option.category", "option.value", "option.repeatable", "option.damage",
   };
 
   #endregion
@@ -120,6 +120,7 @@ public sealed class OptionContext(CharacterEvaluation evaluation, OptionDescript
     "option.category" => ExprValue.Of(option.Category ?? string.Empty),
     "option.value" => ExprValue.Of(option.Value ?? string.Empty),
     "option.repeatable" => ExprValue.Of(option.Repeatable),
+    "option.damage" => ExprValue.Of(option.Damage),
     _ => evaluation.Resolve(identifier),
   };
 
@@ -145,7 +146,8 @@ public sealed record OptionDescriptor
   string? Category = null,
   string? Value = null,
   bool Repeatable = false,
-  string? PrerequisiteExpr = null
+  string? PrerequisiteExpr = null,
+  bool Damage = false
 )
 {
   public IReadOnlyList<string> Lists { get; init; } = [];

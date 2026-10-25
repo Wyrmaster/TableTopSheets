@@ -97,8 +97,10 @@ public class CharacterSheetDocument: Document
     Name = attack.Name,
     AttackRollModifier = (sbyte)attack.AttackBonus,
     DamageRoll = attack.DamageDice.Concat(Enumerable.Repeat(DiceEnum.D1, Math.Max(0, attack.DamageBonus))).ToArray(),
-    DamageType = attack.DamageType,
+    DamageType = attack.DamageType ?? DamageTypeEnum.Force,
     Notes = attack.Notes,
+    AttackRollText = attack.SaveDc is { } dc ? $"DC {dc}" : null,
+    DamageText = attack.Damage.Contains(' ') || attack.DamageType == null ? $"{attack.Damage} {attack.DamageType}".TrimEnd() : null,
   };
 
   private static PdfSpell ToSpell(SpellSheet spell) => new()

@@ -48,6 +48,11 @@ public static class SeedMerger
       into.Concentration = from.Concentration ?? into.Concentration;
       into.Duration = from.Duration ?? into.Duration;
       into.Lists = from.Lists ?? into.Lists;
+      into.Damage = from.Damage ?? into.Damage;
+      into.DamageType = from.DamageType ?? into.DamageType;
+      into.AttackRoll = from.AttackRoll ?? into.AttackRoll;
+      into.SaveAbility = from.SaveAbility ?? into.SaveAbility;
+      into.CantripDamage = from.CantripDamage ?? into.CantripDamage;
     });
     MergeList(target.Items, source.Items, MergeItem);
     MergeList(target.Masteries, source.Masteries, MergeNamed);
@@ -59,6 +64,11 @@ public static class SeedMerger
     foreach ((string key, List<List<int>> rows) in source.SlotTables)
     {
       target.SlotTables[key] = rows;
+    }
+
+    foreach ((string key, string values) in source.Scales)
+    {
+      target.Scales[key] = values;
     }
   }
 

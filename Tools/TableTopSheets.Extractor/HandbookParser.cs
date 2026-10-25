@@ -59,8 +59,17 @@ internal sealed partial class HandbookParser(string[] lines)
       int descriptionStart = block.FindIndex(line => line.Trim() == "---") + 1;
       List<string> description = block.Skip(descriptionStart).Where(line => !line.StartsWith("**Classes:**", StringComparison.Ordinal)).ToList();
 
+      (string? damage, DamageTypeEnum? damageType, List<string>? tiers) = header.Success ? (null, null, null) : CantripDamage(description);
+      string plain = Markdown.Plain(string.Join(" ", description));
+      Match save = SaveRegex().Match(plain);
+
       spells.Add(new SeedSpell
       {
+        Damage = damage,
+        DamageType = damageType,
+        CantripDamage = tiers,
+        AttackRoll = plain.Contains("spell attack", StringComparison.OrdinalIgnoreCase) ? true : null,
+        SaveAbility = save.Success ? AbilityKeys[save.Groups[1].Value] : null,
         Key = SeedKeys.Slug(name),
         Name = name,
         Level = header.Success ? byte.Parse(header.Groups[1].Value) : (byte)0,
@@ -78,6 +87,38 @@ internal sealed partial class HandbookParser(string[] lines)
     }
 
     return spells;
+  }
+
+  /// <summary>
+  ///   Damage of a cantrip and the damage at character levels 1, 5, 11 and 17 from its "Cantrip Upgrade" text
+  /// </summary>
+  private static (string? Damage, DamageTypeEnum? Type, List<string>? Tiers) CantripDamage(List<string> description)
+  {
+    string text = Markdown.Plain(string.Join(" ", description));
+    Match damage = CantripDamageRegex().Match(text);
+    if (!damage.Success)
+    {
+      return (null, null, null);
+    }
+
+    string dice = damage.Groups[1].Value;
+    DamageTypeEnum? type = Enum.TryParse(damage.Groups[2].Value, out DamageTypeEnum parsed) ? parsed : null;
+
+    Match tiers = UpgradeTiersRegex().Match(text);
+    if (tiers.Success)
+    {
+      // "2d8 or 2d12" at level 5 means "1d8 or 1d12" at level 1
+      string first = tiers.Groups[1].Value.Contains(" or ") ? tiers.Groups[1].Value.Replace("2d", "1d") : dice;
+      return (first, type, [first, tiers.Groups[1].Value, tiers.Groups[2].Value, tiers.Groups[3].Value]);
+    }
+
+    // Eldritch Blast: more beams instead of more dice
+    if (text.Contains("two beams at level 5"))
+    {
+      return (dice, type, [dice, $"2 × {dice}", $"3 × {dice}", $"4 × {dice}"]);
+    }
+
+    return (dice, type, null);
   }
 
   #endregion
@@ -824,6 +865,15 @@ internal sealed partial class HandbookParser(string[] lines)
       yield return cells;
     }
   }
+
+  [GeneratedRegex(@"(\d+d\d+) (?:(Acid|Bludgeoning|Cold|Fire|Force|Lightning|Necrotic|Piercing|Poison|Psychic|Radiant|Slashing|Thunder) )?damage")]
+  private static partial Regex CantripDamageRegex();
+
+  [GeneratedRegex(@"levels 5 \(([^)]+)\), 11 \(([^)]+)\), and 17 \(([^)]+)\)")]
+  private static partial Regex UpgradeTiersRegex();
+
+  [GeneratedRegex("(Strength|Dexterity|Constitution|Intelligence|Wisdom|Charisma) saving throw")]
+  private static partial Regex SaveRegex();
 
   [GeneratedRegex(@"^\*Level (\d) (\w+)")]
   private static partial Regex SpellLevelRegex();

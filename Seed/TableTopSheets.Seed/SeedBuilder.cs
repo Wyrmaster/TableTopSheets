@@ -131,6 +131,11 @@ public sealed class SeedBuilder
         Concentration = spell.Concentration ?? false,
         Duration = spell.Duration ?? string.Empty,
         Lists = spell.Lists ?? [],
+        Damage = spell.Damage,
+        DamageType = spell.DamageType,
+        AttackRoll = spell.AttackRoll ?? false,
+        SaveAbility = spell.SaveAbility,
+        CantripDamage = spell.CantripDamage ?? [],
       }, "spell", spell));
     }
 
@@ -220,6 +225,8 @@ public sealed class SeedBuilder
     {
       this._result.Classes.Add(this.BuildClass(seed));
     }
+
+    this.AddScales(null, this._document.Scales);
 
     foreach ((string table, List<List<int>> rows) in this._document.SlotTables)
     {
@@ -327,7 +334,10 @@ public sealed class SeedBuilder
     return @class;
   }
 
-  private void AddScales(CharacterClass @class, Dictionary<string, string> scales)
+  /// <summary>
+  ///   Scale rows of a class (counted with the class level) or, without class, counted with the character level
+  /// </summary>
+  private void AddScales(CharacterClass? @class, Dictionary<string, string> scales)
   {
     foreach ((string key, string values) in scales)
     {
@@ -346,7 +356,7 @@ public sealed class SeedBuilder
           Key = key,
           Level = (byte)(level + 1),
           Value = cells[level],
-          ClassId = @class.Id,
+          ClassId = @class?.Id,
         });
       }
     }

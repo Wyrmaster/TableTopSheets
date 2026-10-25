@@ -221,6 +221,111 @@
           ]
         }
       ]
+    },
+    {
+      "key": "dragonborn",
+      "features": [
+        {
+          "key": "dragonborn.draconic-ancestry",
+          "choices": [
+            {
+              "key": "dragonborn.draconic-ancestry",
+              "name": "Draconic Ancestry",
+              "count": "1",
+              "source": "Static",
+              "replace": "Never",
+              "options": [
+                {
+                  "key": "black",
+                  "name": "Black",
+                  "value": "acid"
+                },
+                {
+                  "key": "blue",
+                  "name": "Blue",
+                  "value": "lightning"
+                },
+                {
+                  "key": "brass",
+                  "name": "Brass",
+                  "value": "fire"
+                },
+                {
+                  "key": "bronze",
+                  "name": "Bronze",
+                  "value": "lightning"
+                },
+                {
+                  "key": "copper",
+                  "name": "Copper",
+                  "value": "acid"
+                },
+                {
+                  "key": "gold",
+                  "name": "Gold",
+                  "value": "fire"
+                },
+                {
+                  "key": "green",
+                  "name": "Green",
+                  "value": "poison"
+                },
+                {
+                  "key": "red",
+                  "name": "Red",
+                  "value": "fire"
+                },
+                {
+                  "key": "silver",
+                  "name": "Silver",
+                  "value": "cold"
+                },
+                {
+                  "key": "white",
+                  "name": "White",
+                  "value": "cold"
+                }
+              ],
+              "effects": [
+                {
+                  "target": "damage.resist.$value",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Draconic Ancestry"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "dragonborn.breath-weapon",
+          "resources": [
+            {
+              "key": "breath-weapon",
+              "name": "Breath Weapon",
+              "max": "pb",
+              "die": "scale('dragonborn.breath-weapon')",
+              "recharge": "LongRest"
+            }
+          ]
+        },
+        {
+          "key": "dragonborn.draconic-flight",
+          "toggleable": true,
+          "effects": [
+            {
+              "target": "speed.fly",
+              "op": "Set",
+              "value": "stat('speed.walk')",
+              "condition": "level >= 5",
+              "label": "Draconic Flight"
+            }
+          ]
+        }
+      ]
     }
-  ]
+  ],
+  "scales": {
+    "dragonborn.breath-weapon": "1d10,1d10,1d10,1d10,2d10,2d10,2d10,2d10,2d10,2d10,3d10,3d10,3d10,3d10,3d10,3d10,4d10,4d10,4d10,4d10"
+  }
 }

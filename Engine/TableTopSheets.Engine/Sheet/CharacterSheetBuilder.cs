@@ -1,3 +1,4 @@
+using System.Globalization;
 using TableTopSheets.Common.Container.Magic;
 using TableTopSheets.Common.Enum;
 using TableTopSheets.Common.Enum.Item;
@@ -290,7 +291,67 @@ public static class CharacterSheetBuilder
       string.Empty
     ));
 
+    attacks.AddRange(CantripAttacks(evaluation));
     return attacks;
+  }
+
+  /// <summary>
+  ///   Damaging cantrips the character can cast; their damage grows with the character level (not the class level)
+  /// </summary>
+  private static IEnumerable<AttackSheet> CantripAttacks(CharacterEvaluation evaluation)
+  {
+    List<KnownSpell> cantrips = evaluation.KnownSpells().Where(entry => entry.Spell.Level == 0 && (entry.Prepared || entry.AlwaysPrepared)).ToList();
+    foreach (KnownSpell known in cantrips)
+    {
+      string? damage = evaluation.CantripDamage(known.Spell);
+      if (damage == null)
+      {
+        continue;
+      }
+
+      int modifier = evaluation.Modifier(known.Ability);
+      int bonus = (int)evaluation.Stat($"damage.spell.{known.Spell.Key}");
+      int? saveDc = known.Spell.SaveAbility == null || known.Spell.AttackRoll
+        ? null
+        : 8 + evaluation.ProficiencyBonus + modifier + (int)evaluation.Stat("spellcasting.dc.bonus");
+
+      List<string> notes = [known.Spell.Range];
+      if (known.Spell.DamageType == null)
+      {
+        notes.Add("damage type of your choice");
+      }
+
+      if (saveDc != null)
+      {
+        notes.Add($"{Naming.Title(known.Spell.SaveAbility!)} save");
+      }
+
+      // the same cantrip learned through two classes can use different abilities, so both rows stay
+      bool duplicate = cantrips.Count(entry => entry.Spell.Id == known.Spell.Id) > 1;
+      yield return new AttackSheet
+      (
+        duplicate ? $"{known.Spell.Name} ({known.Source})" : known.Spell.Name,
+        evaluation.ProficiencyBonus + modifier + (int)evaluation.Stat("spellcasting.attack.bonus"),
+        damage.Contains('×') && bonus != 0 ? $"{damage.Split('×')[0].Trim()} × ({Damage(damage.Split('×')[1].Trim(), bonus)})" : Damage(damage, bonus),
+        SpellDice(damage),
+        bonus,
+        known.Spell.DamageType,
+        string.Join(", ", notes),
+        saveDc,
+        known.Spell.SaveAbility
+      );
+    }
+  }
+
+  /// <summary>
+  ///   <c>2 × 1d10</c> → [D10, D10]; <c>2d8 or 2d12</c> → [D8, D8]
+  /// </summary>
+  private static List<DiceEnum> SpellDice(string damage)
+  {
+    string[] beams = damage.Split(" or ")[0].Split('×', StringSplitOptions.TrimEntries);
+    int count = beams.Length == 2 ? int.Parse(beams[0], CultureInfo.InvariantCulture) : 1;
+    List<DiceEnum> dice = Dice(beams[^1]);
+    return Enumerable.Range(0, count).SelectMany(_ => dice).ToList();
   }
 
   private static List<SpellcastingSheet> Spellcasting(CharacterEvaluation evaluation) => evaluation.SpellcastingProfiles

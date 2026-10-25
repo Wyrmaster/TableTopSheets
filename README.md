@@ -53,7 +53,11 @@ Neither needs an inverse script.
     or `spellbook`. A spell choice without a category grants an always-prepared spell, such as Magic Initiate.
 - **ChoiceOption**: a static option. It can grant a feature, which allows nested choices such as Elven Lineage or a
   Magic Initiate spell list.
-- **ScaleValue**: class table columns per level, for example `wizard.cantrips` or `monk.martial-arts` = `1d8`.
+- **ScaleValue**: a table column per level, read with `scale('key')`.
+  - A column that belongs to a class or subclass counts that **class level**, for example `wizard.cantrips` or
+    `monk.martial-arts` = `1d8`. These are written under `scales` in the class file.
+  - A column without a class counts the **character level** (all classes together), for example
+    `dragonborn.breath-weapon`. These are written under the top-level `scales` of any seed file.
 - **ResourceDefinition**: limited uses such as Second Wind, Sorcery Points or Luck Points, with a `MaxExpr`, an optional die
   and a recharge period.
 - **SpellcastingProfile**: one per Spellcasting or Pact Magic feature, with these columns:
@@ -102,6 +106,16 @@ When anything fails, the in-memory character is restored and nothing is saved.
 Loadouts that become illegal, such as too many prepared spells or spells above the new maximum level, are reported as
 `SheetViolation`s instead of being deleted. The database enforces the same rule: `CharacterChoice.LevelId` cascades, and
 `SupersededByLevelId` is set to null when the level is deleted.
+
+### Class level vs character level
+
+| Depends on the class level | Depends on the character level |
+|---|---|
+| when class and subclass features unlock (`Feature.Level`) | proficiency bonus |
+| class scale columns, `classLevel('x')` | `level`, feat prerequisites, species traits ("at character level 5") |
+| highest spell level a class can prepare (`maxSpellLevel`) | scale columns without a class (Breath Weapon) |
+| swapping choices on level up (only for the class being leveled) | cantrip damage (`Spell.CantripDamage` holds the dice for levels 1, 5, 11, 17) |
+| hit die of each level | spell slots of multiclass casters (combined caster level) |
 
 ## Expressions
 
