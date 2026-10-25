@@ -44,7 +44,7 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
          .Include(entry => entry.SpellbookEntries)
          .Include(entry => entry.ResourceUsages)
          .SingleOrDefaultAsync(entry => entry.Id == characterId, cancellationToken)
-       ?? throw new RuleViolationException($"Character {characterId} doesn't exist");
+       ?? throw new CharacterNotFoundException(characterId);
 
   public CharacterEvaluation Evaluate(Character character) => new(catalog, character);
 
@@ -94,6 +94,37 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
   }
 
   /// <summary>
+  ///   Change the descriptive fields of a character (null keeps the current value); nothing rule relevant changes
+  /// </summary>
+  public async Task<CharacterEvaluation> UpdateDetailsAsync(Guid characterId, CharacterDetailsUpdate update, CancellationToken cancellationToken = default)
+  {
+    Character character = await this.LoadAsync(characterId, cancellationToken);
+    if (update.Name is { } name)
+    {
+      character.Name = string.IsNullOrWhiteSpace(name) ? throw new RuleViolationException("A character needs a name") : name;
+    }
+
+    if (update.Experience is < 0)
+    {
+      throw new RuleViolationException("Experience can't be negative");
+    }
+
+    character.Alignment = update.Alignment ?? character.Alignment;
+    character.Appearance = update.Appearance ?? character.Appearance;
+    character.Backstory = update.Backstory ?? character.Backstory;
+    character.Experience = update.Experience ?? character.Experience;
+    await context.SaveChangesAsync(cancellationToken);
+    return this.Evaluate(character);
+  }
+
+  public async Task DeleteAsync(Guid characterId, CancellationToken cancellationToken = default)
+  {
+    Character character = await this.LoadAsync(characterId, cancellationToken);
+    context.Characters.Remove(character);
+    await context.SaveChangesAsync(cancellationToken);
+  }
+
+  /// <summary>
   ///   Answer open choices. The selections belong to the latest level (origin when the character has no level yet),
   ///   so undoing that level removes them as well
   /// </summary>
@@ -119,6 +150,46 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
   /// </summary>
   public void EnsureComplete(Character character) => EnsureComplete(this.Evaluate(character));
 
+  /// <summary>
+  ///   Validate selections without saving them; throws <see cref="RuleViolationException"/> when the rules are violated
+  /// </summary>
+  public Task<T> ValidateSelectionsAsync<T>(Guid characterId, IReadOnlyList<SelectionRequest> selections, Func<CharacterEvaluation, T> project, CancellationToken cancellationToken = default)
+    => this.DryRunAsync(characterId, character => this.Select(character, selections), project, cancellationToken);
+
+  /// <summary>
+  ///   Take back a selection (and the selections scoped to it). Only selections of the latest level (or of the origin when the
+  ///   character has no level) can be removed; older ones are removed by undoing levels
+  /// </summary>
+  public async Task<CharacterEvaluation> DeselectAsync(Guid characterId, Guid selectionId, CancellationToken cancellationToken = default)
+  {
+    Character character = await this.LoadAsync(characterId, cancellationToken);
+    CharacterChoice selection = character.Choices.SingleOrDefault(entry => entry.Id == selectionId)
+                                ?? throw new RuleViolationException($"Selection {selectionId} doesn't exist");
+    Guid? latest = character.Levels.MaxBy(entry => entry.Number)?.Id;
+    if (selection.LevelId != latest)
+    {
+      throw new RuleViolationException("Only selections of the latest level can be removed; undo the level instead");
+    }
+
+    if (selection.SupersededByLevelId != null)
+    {
+      throw new RuleViolationException($"Selection {selectionId} was replaced and is no longer active");
+    }
+
+    // a replacement made on this level brings the replaced selection back
+    if (selection.LevelId != null)
+    {
+      CharacterChoice? replaced = character.Choices
+        .Where(entry => entry.SupersededByLevelId == selection.LevelId && entry.ChoiceId == selection.ChoiceId && entry.ParentId == selection.ParentId)
+        .SingleOrDefault();
+      replaced?.SupersededByLevelId = null;
+    }
+
+    RemoveSelection(character, selection);
+    await context.SaveChangesAsync(cancellationToken);
+    return this.Evaluate(character);
+  }
+
   #endregion
 
   #region Level Up
@@ -127,19 +198,19 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
   ///   Choices the character will have to answer when gaining a level in the class (nothing is saved)
   /// </summary>
   public async Task<IReadOnlyList<PendingChoice>> PreviewLevelUpAsync(Guid characterId, string classKey, string? subclassKey = null, CancellationToken cancellationToken = default)
-  {
-    Character character = await this.LoadAsync(characterId, cancellationToken);
-    CharacterLevel level = this.CreateLevel(character, new LevelUpRequest { ClassKey = classKey, SubclassKey = subclassKey });
-    character.Levels.Add(level);
-    try
-    {
-      return ChoiceService.Pending(this.Evaluate(character)).ToList();
-    }
-    finally
-    {
-      character.Levels.Remove(level);
-    }
-  }
+    => await this.PreviewLevelUpAsync(characterId, classKey, subclassKey, evaluation => ChoiceService.Pending(evaluation).ToList(), cancellationToken);
+
+  /// <summary>
+  ///   Evaluate the character as if it gained a level in the class and project the result (nothing is saved)
+  /// </summary>
+  public Task<T> PreviewLevelUpAsync<T>(Guid characterId, string classKey, string? subclassKey, Func<CharacterEvaluation, T> project, CancellationToken cancellationToken = default)
+    => this.DryRunAsync(characterId, character => character.Levels.Add(this.CreateLevel(character, new LevelUpRequest { ClassKey = classKey, SubclassKey = subclassKey })), project, cancellationToken);
+
+  /// <summary>
+  ///   Validate a level up without saving it; throws <see cref="RuleViolationException"/> when the rules are violated
+  /// </summary>
+  public Task<T> ValidateLevelUpAsync<T>(Guid characterId, LevelUpRequest request, Func<CharacterEvaluation, T> project, CancellationToken cancellationToken = default)
+    => this.DryRunAsync(characterId, character => this.LevelUp(character, request), project, cancellationToken);
 
   public async Task<CharacterEvaluation> LevelUpAsync(Guid characterId, LevelUpRequest request, CancellationToken cancellationToken = default)
   {
@@ -557,6 +628,23 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
   #endregion
 
   #region Private Methods
+
+  /// <summary>
+  ///   Apply a change to a loaded character, project the evaluation and forget the change (nothing reaches the database)
+  /// </summary>
+  private async Task<T> DryRunAsync<T>(Guid characterId, Action<Character> change, Func<CharacterEvaluation, T> project, CancellationToken cancellationToken)
+  {
+    Character character = await this.LoadAsync(characterId, cancellationToken);
+    try
+    {
+      change(character);
+      return project(this.Evaluate(character));
+    }
+    finally
+    {
+      context.ChangeTracker.Clear();
+    }
+  }
 
   /// <summary>
   ///   Apply selections one after another; each selection is validated against an evaluation that includes the previous ones,

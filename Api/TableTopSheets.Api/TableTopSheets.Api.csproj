@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>TableTopSheets.Api</RootNamespace>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.10" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Seed\TableTopSheets.Seed\TableTopSheets.Seed.csproj" />
+    <ProjectReference Include="..\..\Pdf\Library\TableTopSheets.Pdf.csproj" />
+    <ProjectReference Include="..\..\Persistence\TableTopSheets.Persistence.Sqlite\TableTopSheets.Persistence.Sqlite.csproj" />
+    <ProjectReference Include="..\..\Persistence\TableTopSheets.Persistence.Postgresql\TableTopSheets.Persistence.Postgresql.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -2,7 +2,7 @@ using System.Globalization;
 
 namespace TableTopSheets.Engine.Evaluation;
 
-internal static class Naming
+public static class Naming
 {
   #region Fields
 

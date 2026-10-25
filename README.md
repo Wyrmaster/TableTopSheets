@@ -21,9 +21,10 @@ the engine computes a complete character sheet from them, and the PDF library pr
 5. [Level up, multiclassing and undo](#level-up-multiclassing-and-undo)
 6. [Equipment, toggles and Armor Class](#equipment-toggles-and-armor-class)
 7. [Spellcasting](#spellcasting)
-8. [Adding rule data](#adding-rule-data)
-9. [Extending the engine](#extending-the-engine)
-10. [Reference](#reference)
+8. [REST API](#rest-api)
+9. [Adding rule data](#adding-rule-data)
+10. [Extending the engine](#extending-the-engine)
+11. [Reference](#reference)
 
 ---
 
@@ -32,7 +33,16 @@ the engine computes a complete character sheet from them, and the PDF library pr
 ```bash
 dotnet build TableTopSheets.slnx
 dotnet test Tests/TableTopSheets.Engine.Tests    # engine, rules, undo, multiclass, equipment, PDF
+dotnet test Tests/TableTopSheets.Api.Tests       # REST API end to end
 ```
+
+The quickest way to try it is the REST API. It creates, migrates and seeds a local SQLite database on start:
+
+```bash
+dotnet run --project Api/TableTopSheets.Api      # Swagger UI at http://localhost:5180/swagger
+```
+
+`Api/TableTopSheets.Api/TableTopSheets.Api.http` walks through a whole character. See [REST API](#rest-api).
 
 Create a database and fill it with the rules:
 
@@ -106,7 +116,9 @@ foreach (PendingChoice pending in ChoiceService.Pending(evaluation))
 | `Seed/TableTopSheets.Seed` | Rule data as JSON (`Data/Extracted`, `Data/Rules`), loader, validator hookup, database writer |
 | `Tools/TableTopSheets.Extractor` | Reads the Player's Handbook markdown and generates `Data/Extracted` |
 | `Pdf/Library` | PDF rendering (PDFsharp); `CharacterSheetDocument` prints a `CharacterSheet` |
+| `Api/TableTopSheets.Api` | ASP.NET Core minimal API: rules catalog, characters, the choice loop, level up, sheet and PDF |
 | `Tests/TableTopSheets.Engine.Tests` | Tests for everything above, including migrations and PDF output |
+| `Tests/TableTopSheets.Api.Tests` | End to end tests of the REST API (`WebApplicationFactory`, in-memory SQLite) |
 | `.claude/agents/pdf-library.md` | Claude Code sub agent specialised on the PDF library |
 
 ```mermaid
@@ -418,6 +430,9 @@ prepared count, the highest spell level and the spellbook or class list.
 | what a level up will ask | `PreviewLevelUpAsync(characterId, classKey)` |
 | answer during creation / level up | `SelectionRequest(choiceKey, optionKey, Ref, ParentRef)` |
 | answer later (belongs to the latest level) | `SelectAsync(characterId, selections)` |
+| check without saving | `ValidateSelectionsAsync` / `ValidateLevelUpAsync` (dry run, project the evaluation) |
+| take a selection back (latest level only) | `DeselectAsync(characterId, selectionId)` |
+| why an option is not available | `ChoiceService.EvaluateOptions(evaluation, choice, owner)` (option + reason) |
 | swap on level up (`OneOnLevelUp`) | `ReplacementRequest(selectionId, newOptionKey)` |
 | change after a rest (`OnLongRest`/`OnShortRest`) | `ReplaceOnRestAsync(characterId, selectionId, newOptionKey)` |
 
@@ -508,6 +523,136 @@ Every spellcasting feature has a **spellcasting profile**. The differences betwe
 
 The sheet shows each class's spellcasting ability, save DC and attack bonus, the slots (Pact slots marked as short rest),
 and the spell list. That list holds cantrips, prepared and always-prepared spells, and rituals castable from the spellbook.
+
+---
+
+## REST API
+
+`Api/TableTopSheets.Api` exposes everything above over HTTP. A client never needs to know the rules. It shows what the
+API says is open, sends the user's answers and shows the next state.
+
+### Running and configuration
+
+```bash
+dotnet run --project Api/TableTopSheets.Api
+```
+
+| Setting | Default | Meaning |
+|---|---|---|
+| `Database:Provider` | `Sqlite` | `Sqlite` or `Postgresql` |
+| `ConnectionStrings:TableTopSheets` | – | falls back to `TABLETOPSHEETS_SQLITE` / `TABLETOPSHEETS_POSTGRESQL`, then `Data Source=tabletopsheets.db` |
+| `Database:MigrateOnStartup` | `true` | apply EF migrations on start |
+| `Database:SeedOnStartup` | `true` | write the rules seed on start (idempotent upsert) |
+
+The rules catalog is loaded once on startup and shared. A request gets its own `TableTopSheetsContext` and
+`CharacterService`. There is no authentication; the API is meant for a local or single-user deployment.
+
+### The choice loop
+
+```mermaid
+sequenceDiagram
+  participant GUI
+  participant API
+  GUI->>API: POST /api/characters (species, background, scores)
+  API-->>GUI: state + pendingChoices
+  loop until complete
+    GUI->>API: GET optionsUrl (only for large choices; paged, filtered)
+    GUI->>API: POST /choices/validate (optional live feedback)
+    GUI->>API: POST /choices (the user's answers)
+    API-->>GUI: state + pendingChoices (follow-up choices appear here)
+  end
+  GUI->>API: GET /level-up/preview?class=wizard
+  GUI->>API: POST /levels { classKey, subclassKey? }
+  API-->>GUI: state + pendingChoices of the new level
+```
+
+1. **Everything is a draft.** Creating a character and gaining a level save what was sent, even when choices are still
+   open (`allowIncomplete` is `true` by default). Every write answers with the character's **state**: summary, abilities,
+   HP, AC, items, `complete`, `pendingChoices` and `violations`.
+2. **Pending choices describe themselves**, so a GUI can render any of them without special code:
+
+   | Field | Use |
+   |---|---|
+   | `input` | `SingleSelect` (radio / dropdown), `MultiSelect` (checkboxes), `Distribution` (counters per option: background +2/+1, ASI) |
+   | `constraints` | `min`, `max`, `maxPerOption`, `allowDuplicates`, and for distributions the `allowedPatterns`, e.g. `[[2,1],[1,1,1]]` |
+   | `optionSource` | `Ability`, `Skill`, `Spell`, `Feat`, `Static` …; lets a GUI pick a richer widget, e.g. a spell picker |
+   | `options` | embedded when there are at most 30 options |
+   | `optionsUrl`, `optionCount`, `optionFilters` | for larger choices (spells, feats): the paged option list and the filters it accepts |
+   | `parentRef` | send it back with the selection; it says which instance of the choice is meant |
+   | `selectedOptions` | what was already picked for this instance (with selection ids) |
+   | `source`, `description` | where the choice comes from, e.g. "Ability Score Improvement (Wizard 4)" |
+
+   Each option has `key`, `name`, `summary`, `grants` (features the option gives, such as Elven Lineage → Drow Lineage)
+   and typed `meta` (spell level, school, ritual, feat category, prerequisite …). With `includeDisabled=true` the options
+   endpoint also lists options that exist but can't be taken right now, with a `disabledReason` such as "Prerequisite not
+   met", "Already selected" or "The spell is already known".
+3. **Follow-up choices.** Picking the *Ability Score Improvement* feat makes `ability-score-improvement.abilities` (a
+   `Distribution`) appear in the next state, with the `parentRef` to use. A client that knows the follow-up ahead of time
+   can send both in one request with `ref` / `parentRef` (see [example 3](#example-3-ability-score-improvement-a-choice-inside-a-choice)).
+4. **Validate before saving.** `POST /choices/validate` and `POST /levels/validate` take the same body as the real call.
+   They return `{ valid, errors, state }` and change nothing. The returned state already shows the follow-up choices.
+5. **Errors.** Rule violations are **422** problem details whose `errors.rules` holds the engine messages, e.g.
+   `'actor' is not an available option for 'Feat' (Prerequisite not met)`. Unknown characters are **404**. Bad query
+   parameters or bodies are **400**.
+
+### Endpoints
+
+| Method | Route | Purpose |
+|---|---|---|
+| GET | `/api/rules/{species,backgrounds,classes,feats,spells,items}` | catalog lists (paged, filterable) |
+| GET | `/api/rules/{…}/{key}` | details: full text, features with their choice definitions; classes with features per level and subclasses |
+| GET / POST | `/api/characters` | list (filter `class`, `species`, `minLevel`, `maxLevel`) / create a draft |
+| GET / PATCH / DELETE | `/api/characters/{id}` | state / name, alignment, appearance, backstory, experience / delete |
+| GET | `/api/characters/{id}/sheet`, `/sheet.pdf` | the computed `CharacterSheet` / the printable PDF |
+| GET / POST | `/api/characters/{id}/choices` | pending choices / answer them |
+| POST | `/api/characters/{id}/choices/validate` | dry run of the selections |
+| GET | `/api/characters/{id}/choices/{choiceKey}/options` | options of a choice instance (`parentRef`, `preview`, filters, `includeDisabled`, `includeDescriptions`) |
+| GET | `/api/characters/{id}/selections` | active selections with ids, level, `removable` |
+| DELETE | `/api/characters/{id}/selections/{selectionId}` | take back a selection of the latest level, together with the selections that depend on it |
+| POST | `/api/characters/{id}/selections/{selectionId}/rest-replace` | change a selection on a rest (Wizard cantrip swap …) |
+| GET | `/api/characters/{id}/level-up/preview?class=&subclass=` | choices a level would open, plus the selections that may be swapped; `requiresSubclass` + `subclasses` at the subclass level |
+| POST | `/api/characters/{id}/levels`, `/levels/validate` | gain a level (`classKey`, `subclassKey`, `hitPointRoll`, `selections`, `replacements`) / dry run |
+| DELETE | `/api/characters/{id}/levels/last` | undo the highest level |
+| POST / PUT | `/api/characters/{id}/items`, `/items/{itemId}/slot`, `/items/{itemId}/attunement` | inventory, equip, attune |
+| PUT | `/api/characters/{id}/toggles/{featureKey}`, `/armor-class` | toggles (Rage, Mage Armor …), AC calculation |
+| PUT / POST | `/api/characters/{id}/prepared-spells/{classKey}`, `/spellbook` | long rest loadout, copy a spell into the spellbook |
+
+### Paging, search, filters and sorting
+
+Every list (catalog lists, characters, choice options) takes `page` (from 1), `pageSize` (1–200, default 50), `search`
+(name and key) and `sort` (comma separated, `-` for descending, e.g. `sort=-level,name`). Unknown sort fields give a 400
+that lists the allowed ones. Lists answer with `{ items, page, pageSize, totalCount, totalPages }`.
+
+| List | Filters | Sort fields |
+|---|---|---|
+| spells | `class`, `level`, `minLevel`, `maxLevel`, `school`, `ritual`, `concentration`, `damage`, `damageType`, `castingTime` | name, key, level, school |
+| feats | `category`, `repeatable`, `hasPrerequisite` | name, key, category |
+| items | `kind`, `category` (weapon/armor category, tool group), `magic`, `attunement` | name, key, kind, cost, weight |
+| species, backgrounds, classes | – | name, key |
+| characters | `class`, `species`, `minLevel`, `maxLevel` | name, level, species |
+| choice options | `level`, `minLevel`, `maxLevel`, `school`, `ritual`, `damage`, `category` (see `optionFilters`) | name, key, level, school, category, available |
+
+```bash
+curl "http://localhost:5180/api/rules/spells?class=wizard&maxLevel=1&school=evocation&sort=level,name&pageSize=20"
+curl "http://localhost:5180/api/characters/$ID/choices/wizard.spellbook-initial/options?level=1&ritual=true&includeDisabled=true"
+```
+
+### Swagger UI and generating a client
+
+**Swagger UI** runs at `http://localhost:5180/swagger`; `/` redirects there. It lists every endpoint with its parameters,
+schemas and descriptions, and "Try it out" is on by default, so requests can be sent from the browser. The UI reads
+the document generated by `Microsoft.AspNetCore.OpenApi`.
+
+The OpenAPI document (`/openapi/v1.json`) has:
+- an `operationId` for every endpoint (`CreateCharacter`, `GetPendingChoices`, `SelectOptions`, `GetChoiceOptions`,
+  `PreviewLevelUp`, `LevelUp`, `UndoLevel` …)
+- enums as strings
+- XML documentation as descriptions
+- the 400/404/422 problem responses
+
+`openapi-generator`, NSwag or Kiota produce a typed client from it. `Tests/TableTopSheets.Api.Tests/ApiClient.cs`
+(`AnswerAllAsync`) is an example of a generic client: it completes any character using only `input`, `constraints`,
+`options` and `optionsUrl`.
 
 ---
 

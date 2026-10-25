@@ -1,0 +1,116 @@
+# Walkthrough: create an elf sage wizard step by step.
+# Run the API with `dotnet run --project Api/TableTopSheets.Api` and execute the requests in order
+# (VS Code REST Client / JetBrains HTTP client). Replace the ids with the ones from the answers.
+
+@host = http://localhost:5180
+@id = 00000000-0000-0000-0000-000000000000
+@initiate = 00000000-0000-0000-0000-000000000000
+
+### What can be picked
+GET {{host}}/api/rules/species
+
+###
+GET {{host}}/api/rules/backgrounds?search=sage
+
+###
+GET {{host}}/api/rules/spells?class=wizard&level=1&school=evocation&sort=name&page=1&pageSize=10
+
+### 1. Create a draft: only the origin, choices may stay open (copy "id" from the answer)
+POST {{host}}/api/characters
+Content-Type: application/json
+
+{
+  "name": "Elara",
+  "speciesKey": "elf",
+  "backgroundKey": "sage",
+  "abilityMethod": "StandardArray",
+  "abilities": { "str": 8, "dex": 14, "con": 13, "int": 15, "wis": 12, "cha": 10 }
+}
+
+### 2. What is still open (also part of every answer as "pendingChoices")
+GET {{host}}/api/characters/{{id}}/choices
+
+### 3. Answer origin choices. "sage.ability-scores" is a Distribution: +2/+1 = int twice and con once
+POST {{host}}/api/characters/{{id}}/choices
+Content-Type: application/json
+
+{
+  "selections": [
+    { "choiceKey": "elf.elven-lineage", "optionKey": "high-elf" },
+    { "choiceKey": "elf.elven-lineage-ability", "optionKey": "int" },
+    { "choiceKey": "elf.keen-senses", "optionKey": "perception" },
+    { "choiceKey": "sage.ability-scores", "optionKey": "int" },
+    { "choiceKey": "sage.ability-scores", "optionKey": "int" },
+    { "choiceKey": "sage.ability-scores", "optionKey": "con" },
+    { "choiceKey": "sage.languages", "optionKey": "draconic" },
+    { "choiceKey": "sage.languages", "optionKey": "dwarvish" },
+    { "choiceKey": "magic-initiate.list", "optionKey": "wizard" }
+  ]
+}
+
+### 4. Picking the Magic Initiate list opened follow-up choices; their "parentRef" addresses the instance (copy it to @initiate)
+GET {{host}}/api/characters/{{id}}/choices/magic-initiate.wizard.spell/options?parentRef={{initiate}}&school=enchantment
+
+###
+POST {{host}}/api/characters/{{id}}/choices
+Content-Type: application/json
+
+{
+  "selections": [
+    { "choiceKey": "magic-initiate.wizard.ability", "optionKey": "int", "parentRef": "{{initiate}}" },
+    { "choiceKey": "magic-initiate.wizard.spell", "optionKey": "sleep", "parentRef": "{{initiate}}" },
+    { "choiceKey": "magic-initiate.wizard.cantrips", "optionKey": "light", "parentRef": "{{initiate}}" },
+    { "choiceKey": "magic-initiate.wizard.cantrips", "optionKey": "mage-hand", "parentRef": "{{initiate}}" }
+  ]
+}
+
+### 5. What would Wizard 1 ask for? (nothing is saved)
+GET {{host}}/api/characters/{{id}}/level-up/preview?class=wizard
+
+### 6. Gain the level; open choices are answered afterwards with POST /choices
+POST {{host}}/api/characters/{{id}}/levels
+Content-Type: application/json
+
+{ "classKey": "wizard" }
+
+### 7. The spellbook has many options: page and filter them
+GET {{host}}/api/characters/{{id}}/choices/wizard.spellbook-initial/options?level=1&school=evocation&includeDescriptions=true
+
+### 8. Check selections without saving them
+POST {{host}}/api/characters/{{id}}/choices/validate
+Content-Type: application/json
+
+{ "selections": [ { "choiceKey": "wizard.cantrips", "optionKey": "fire-bolt" } ] }
+
+### 9. Later: an ASI feat and its abilities in one request (ref / parentRef link them)
+POST {{host}}/api/characters/{{id}}/choices
+Content-Type: application/json
+
+{
+  "selections": [
+    { "choiceKey": "wizard.ability-score-improvement-4", "optionKey": "ability-score-improvement", "ref": "asi" },
+    { "choiceKey": "ability-score-improvement.abilities", "optionKey": "int", "parentRef": "asi" },
+    { "choiceKey": "ability-score-improvement.abilities", "optionKey": "int", "parentRef": "asi" }
+  ]
+}
+
+### Active selections (ids for removing or swapping)
+GET {{host}}/api/characters/{{id}}/selections
+
+### Undo the highest level
+DELETE {{host}}/api/characters/{{id}}/levels/last
+
+### Equipment
+POST {{host}}/api/characters/{{id}}/items
+Content-Type: application/json
+
+{ "itemKey": "quarterstaff" }
+
+### Sheet as JSON and PDF
+GET {{host}}/api/characters/{{id}}/sheet
+
+###
+GET {{host}}/api/characters/{{id}}/sheet.pdf
+
+### OpenAPI document (generate a client with NSwag, Kiota or openapi-generator)
+GET {{host}}/openapi/v1.json

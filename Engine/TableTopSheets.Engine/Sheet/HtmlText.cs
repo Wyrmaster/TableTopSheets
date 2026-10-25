@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace TableTopSheets.Engine.Sheet;
 
-internal static partial class HtmlText
+public static partial class HtmlText
 {
   #region Methods
 

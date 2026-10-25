@@ -13,6 +13,16 @@ namespace TableTopSheets.Engine.Choices;
 /// </summary>
 public static class ChoiceService
 {
+  #region Constants
+
+  /// <summary>
+  ///   Reason of options the filter of the choice excludes (e.g. spells of another class list); these are not part of the choice
+  ///   at all, unlike options that are merely unavailable right now
+  /// </summary>
+  public const string NotPartOfChoice = "Not part of this choice";
+
+  #endregion
+
   #region Methods
 
   /// <summary>
@@ -89,6 +99,12 @@ public static class ChoiceService
   ///   Options that may be selected for a choice instance right now
   /// </summary>
   public static IEnumerable<OptionDescriptor> AvailableOptions(CharacterEvaluation evaluation, Choice choice, FeatureInstance owner)
+    => EvaluateOptions(evaluation, choice, owner).Where(entry => entry.Available).Select(entry => entry.Option);
+
+  /// <summary>
+  ///   Every option of a choice instance with the reason it can't be selected right now (null when it can)
+  /// </summary>
+  public static IEnumerable<OptionAvailability> EvaluateOptions(CharacterEvaluation evaluation, Choice choice, FeatureInstance owner)
   {
     List<string> selected = evaluation.SelectionsOf(choice, owner).Select(entry => entry.Selection.OptionKey).ToList();
     HashSet<string> feats = KnownFeats(evaluation);
@@ -97,41 +113,57 @@ public static class ChoiceService
 
     foreach (OptionDescriptor option in AllOptions(evaluation.Catalog, choice))
     {
-      int count = selected.Count(entry => entry == option.Key);
-      if (count >= (choice.AllowDuplicates ? Math.Max((byte)1, choice.MaxPerOption) : 1))
-      {
-        continue;
-      }
-
-      if (choice.OptionSource == OptionSourceEnum.Feat && !option.Repeatable && feats.Contains(option.Key))
-      {
-        continue;
-      }
-
-      // an option feature granted elsewhere (another instance of the choice) can't be taken twice
-      if (choice.OptionSource == OptionSourceEnum.FeatureCategory && count == 0 && evaluation.Features.Any(entry => entry.Feature.Key == option.Key))
-      {
-        continue;
-      }
-
-      if (count == 0 && knownSpells.Contains(option.Key))
-      {
-        continue;
-      }
-
-      OptionContext context = new(evaluation, option);
-      if (filter != null && !filter.EvaluateBoolean(context))
-      {
-        continue;
-      }
-
-      if (option.PrerequisiteExpr != null && !Expression.Parse(option.PrerequisiteExpr).EvaluateBoolean(context))
-      {
-        continue;
-      }
-
-      yield return option;
+      yield return new(option, Unavailable(evaluation, choice, option, selected, feats, knownSpells, filter));
     }
+  }
+
+  private static string? Unavailable
+  (
+    CharacterEvaluation evaluation,
+    Choice choice,
+    OptionDescriptor option,
+    List<string> selected,
+    HashSet<string> feats,
+    HashSet<string> knownSpells,
+    Expression? filter
+  )
+  {
+    // the filter decides what belongs to the choice at all, so it is checked first
+    OptionContext context = new(evaluation, option);
+    if (filter != null && !filter.EvaluateBoolean(context))
+    {
+      return NotPartOfChoice;
+    }
+
+    int count = selected.Count(entry => entry == option.Key);
+    int maximum = choice.AllowDuplicates ? Math.Max((byte)1, choice.MaxPerOption) : 1;
+    if (count >= maximum)
+    {
+      return maximum == 1 ? "Already selected" : $"Already selected {count} time(s)";
+    }
+
+    if (choice.OptionSource == OptionSourceEnum.Feat && !option.Repeatable && feats.Contains(option.Key))
+    {
+      return "The character already has this feat";
+    }
+
+    // an option feature granted elsewhere (another instance of the choice) can't be taken twice
+    if (choice.OptionSource == OptionSourceEnum.FeatureCategory && count == 0 && evaluation.Features.Any(entry => entry.Feature.Key == option.Key))
+    {
+      return "The character already has this feature";
+    }
+
+    if (count == 0 && knownSpells.Contains(option.Key))
+    {
+      return "The spell is already known";
+    }
+
+    if (option.PrerequisiteExpr != null && !Expression.Parse(option.PrerequisiteExpr).EvaluateBoolean(context))
+    {
+      return "Prerequisite not met";
+    }
+
+    return null;
   }
 
   /// <summary>
@@ -146,9 +178,11 @@ public static class ChoiceService
       return $"'{choice.Name}' allows only {total} selection(s)";
     }
 
-    if (AvailableOptions(evaluation, choice, owner).All(entry => entry.Key != optionKey))
+    OptionAvailability? option = EvaluateOptions(evaluation, choice, owner).FirstOrDefault(entry => entry.Option.Key == optionKey);
+    if (option is not { Available: true })
     {
-      return $"'{optionKey}' is not an available option for '{choice.Name}'";
+      string reason = option?.Reason ?? "Unknown option";
+      return $"'{optionKey}' is not an available option for '{choice.Name}' ({reason})";
     }
 
     return null;

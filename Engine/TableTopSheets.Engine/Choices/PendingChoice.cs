@@ -15,3 +15,11 @@ public sealed record PendingChoice(Choice Choice, FeatureInstance Owner, int Tot
   /// </summary>
   public Guid? ParentSelectionId => this.Owner.SelectionScope;
 }
+
+/// <summary>
+///   An option of a choice instance and why it can't be selected (null when it can)
+/// </summary>
+public sealed record OptionAvailability(OptionDescriptor Option, string? Reason)
+{
+  public bool Available => this.Reason == null;
+}
