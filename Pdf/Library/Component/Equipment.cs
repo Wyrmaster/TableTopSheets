@@ -1,13 +1,15 @@
 using TableTopSheets.Pdf.Component.Generic;
 using TableTopSheets.Pdf.Enum;
-using TableTopSheets.Pdf.Extension;
+using TableTopSheets.Pdf.Interface;
+using TableTopSheets.Pdf.Text;
 using PdfSharp.Drawing;
-using PdfSharp.Drawing.Layout;
-using PdfSharp.UniversalAccessibility.Drawing;
 
 namespace TableTopSheets.Pdf.Component;
 
-public class Equipment: InformationBox
+/// <summary>
+///   Equipment list and magic item attunement; the list shrinks to fit and the rest continues on an extra page
+/// </summary>
+public class Equipment: InformationBox, IOverflowComponent
 {
   #region Fields
   
@@ -36,6 +38,16 @@ public class Equipment: InformationBox
     this._attuned2 = attuned2;
     this._attuned3 = attuned3;
   }
+
+  #endregion
+
+  #region Property
+
+  /// <inheritdoc />
+  public string? Overflow { get; private set; }
+
+  /// <inheritdoc />
+  public string ContinuationTitle => "EQUIPMENT";
 
   #endregion
 
@@ -77,15 +89,10 @@ public class Equipment: InformationBox
       contentRect.Height * equipmentContent - size.Height - 10
     );
     
-    XTextFormatter tf = new(gfx);
-    tf.Alignment = XParagraphAlignment.Left;
-    tf.DrawString
-    (
-      this._equipment,
-      textFont,
-      this.FontBrush,
-      dataRect
-    );
+    XRect[] rects = [dataRect];
+    TextFitResult fit = TextFit.Fit(gfx, this._equipment, TextFit.Family, XFontStyleEx.Regular, rects, TextFit.BodyMaxSize, TextFit.BodyMinSize);
+    TextFit.Draw(gfx, fit, this.FontBrush, rects);
+    this.Overflow = fit.Overflow;
     
     dataRect = dataRect with { Y = contentRect.Y + contentRect.Height * equipmentContent, Height = 20};
     
@@ -94,26 +101,36 @@ public class Equipment: InformationBox
     dataRect = dataRect with { Y = contentRect.Y + contentRect.Height * equipmentContent, Height = 20};
     
     new CurveBox(new XRect(dataRect.X + 4, dataRect.Y + 28, 20, 20), deg45: true, fill: this._attuned1 != null).Draw(gfx);
-    new CurveBox(new XRect(dataRect.X + 4, dataRect.Y + 48, 20, 20), deg45: true, fill: this._attuned1 != null).Draw(gfx);
-    new CurveBox(new XRect(dataRect.X + 4, dataRect.Y + 68, 20, 20), deg45: true, fill: this._attuned1 != null).Draw(gfx);
+    new CurveBox(new XRect(dataRect.X + 4, dataRect.Y + 48, 20, 20), deg45: true, fill: this._attuned2 != null).Draw(gfx);
+    new CurveBox(new XRect(dataRect.X + 4, dataRect.Y + 68, 20, 20), deg45: true, fill: this._attuned3 != null).Draw(gfx);
     
     dataRect = dataRect with { X = dataRect.X + 16, Y = dataRect.Y + 20, Height = 15, Width = dataRect.Width - 18 };
-    if (this._attuned1 != null)
-    {
-      gfx.DrawText(this._attuned1, dataRect, alignment: XParagraphAlignment.Left);
-    }
+    this.DrawAttuned(gfx, this._attuned1, dataRect);
     
     dataRect = dataRect with { Y = dataRect.Y + 20};
-    if (this._attuned2 != null)
-    {
-      gfx.DrawText(this._attuned2, dataRect, alignment: XParagraphAlignment.Left);
-    }
+    this.DrawAttuned(gfx, this._attuned2, dataRect);
     
     dataRect = dataRect with { Y = dataRect.Y + 20};
-    if (this._attuned3 != null)
+    this.DrawAttuned(gfx, this._attuned3, dataRect);
+  }
+
+  #endregion
+
+  #region Private Methods
+
+  /// <summary>
+  ///   Attuned item name on one line, bottom aligned in its slot; long names shrink, then end with "…"
+  /// </summary>
+  private void DrawAttuned(XGraphics gfx, string? item, XRect rect)
+  {
+    if (item == null)
     {
-      gfx.DrawText(this._attuned3, dataRect, alignment: XParagraphAlignment.Left);
+      return;
     }
+
+    (XFont font, string text, _) = TextFit.FitSingleLine(gfx, item, TextFit.Family, XFontStyleEx.Regular, TextFit.BodyMaxSize, TextFit.CellMinSize, rect.Width);
+    double height = TextFit.LineHeight(font);
+    TextFit.DrawLine(gfx, text, font, this.FontBrush, rect with { Y = rect.Y + rect.Height - height, Height = height });
   }
 
   #endregion

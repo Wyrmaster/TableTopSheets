@@ -1,6 +1,7 @@
 using TableTopSheets.Pdf.Extension;
+using TableTopSheets.Pdf.Text;
 using PdfSharp.Drawing;
-using PdfSharp.UniversalAccessibility.Drawing;
+using PdfSharp.Drawing.Layout;
 
 namespace TableTopSheets.Pdf.Component;
 
@@ -82,7 +83,7 @@ public class TitleBox: BaseComponent
       X + outerBoxWidth - (X + leftLineIntent) - nameRectIntent - 10,
       15
     );
-    gfx.DrawText(this._name, nameRect);
+    this.DrawField(gfx, this._name, nameRect);
 
     const string characterName = "CHARACTER NAME";
     XSize size = gfx.MeasureString(characterName, font);
@@ -109,7 +110,7 @@ public class TitleBox: BaseComponent
       lineWidth / 2 - innerSpacing * 2.5 - 7.5,
       14
     );
-    gfx.DrawText(this._background, backgroundRect);
+    this.DrawField(gfx, this._background, backgroundRect);
     
     gfx.DrawLine
     (
@@ -128,7 +129,7 @@ public class TitleBox: BaseComponent
       lineWidth / 2 - innerSpacing * 2.5 - 17,
       14
     );
-    gfx.DrawText(this._class, classRect);
+    this.DrawField(gfx, this._class, classRect);
     
     const double secondRowMultiplier = 1.55;
     gfx.DrawLine
@@ -148,7 +149,7 @@ public class TitleBox: BaseComponent
       lineWidth / 2 - innerSpacing * 2.5 - 7.5,
       14
     );
-    gfx.DrawText(this._species, speciesRect);
+    this.DrawField(gfx, this._species, speciesRect);
     
     gfx.DrawLine
     (
@@ -167,7 +168,7 @@ public class TitleBox: BaseComponent
       lineWidth / 2 - innerSpacing * 2.5 - 17,
       14
     );
-    gfx.DrawText(this._subclass, subClassRect);
+    this.DrawField(gfx, this._subclass, subClassRect);
     
     #endregion
     
@@ -393,6 +394,21 @@ public class TitleBox: BaseComponent
     gfx.DrawText(this._level, levelRect);
 
     #endregion
+  }
+
+  #endregion
+
+  #region Private Methods
+
+  /// <summary>
+  ///   Field value on one line, centered and bottom aligned: as large as the field height allows, shrinking to fit the width and ending with "…" at the minimum size
+  /// </summary>
+  private void DrawField(XGraphics gfx, string text, XRect rect)
+  {
+    const double maxSize = 30;
+    (XFont font, string line, _) = TextFit.FitSingleLine(gfx, text, TextFit.Family, XFontStyleEx.Regular, maxSize, TextFit.CellMinSize, rect.Width, rect.Height);
+    double height = TextFit.LineHeight(font);
+    TextFit.DrawLine(gfx, line, font, this.FontBrush, rect with { Y = rect.Y + rect.Height - height, Height = height }, XParagraphAlignment.Center);
   }
 
   #endregion

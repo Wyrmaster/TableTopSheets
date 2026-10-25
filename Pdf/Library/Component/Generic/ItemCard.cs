@@ -1,4 +1,5 @@
 using TableTopSheets.Pdf.Enum;
+using TableTopSheets.Pdf.Text;
 using PdfSharp.Drawing;
 using PdfSharp.Drawing.Layout;
 
@@ -12,6 +13,16 @@ public class ItemCard: Card
   private readonly string _body;
   private static readonly XFont HeaderFont = new("Roboto#", 12, XFontStyleEx.Bold);
   private static readonly XFont BodyFont = new("Roboto#", 10, XFontStyleEx.Regular);
+
+  /// <summary>
+  ///   Space around the header and body inside the card
+  /// </summary>
+  private const double Padding = 30;
+
+  /// <summary>
+  ///   Indent of the body on the left and right
+  /// </summary>
+  private const double BodyIndent = 8;
 
   #endregion
 
@@ -30,11 +41,13 @@ public class ItemCard: Card
 
   protected override void WithRender(XGraphics gfx)
   {
+    // same widths as the content drawn in WithRender(gfx, contentRect), see InformationBox for the margins
+    double contentWidth = this.Rect.Width - 2;
     this.Rect = new(
       this.Rect.X,
       this.Rect.Y,
       this.Rect.Width,
-      this.GetSize(gfx, this._header,HeaderFont, this.Rect.Width).Height + this.GetSize(gfx, this._body, BodyFont, this.Rect.Width).Height + 50
+      this.GetSize(gfx, this._header, HeaderFont, contentWidth).Height + this.GetSize(gfx, this._body, BodyFont, contentWidth - BodyIndent * 2).Height + Padding
     );
     base.WithRender(gfx);
   }
@@ -42,40 +55,32 @@ public class ItemCard: Card
   public override void WithRender(XGraphics gfx, XRect contentRect)
   {
     const double lineSize = 1.2;
-    const double columnSize = 0.3;
-    const double underlineSize = 0.2;
     
     XPen line = new(this.FontColor, lineSize);
-    XColor columnColor = XColor.FromArgb(156, 157, 161);
-    XPen vLine = new(columnColor, lineSize * 0.75);
     XBrush titleBrush = new XSolidBrush(XColor.FromArgb(110, 110, 112));
     
     XSize headerSize = this.GetSize(gfx, this._header, HeaderFont, contentRect.Width);
-
-    XTextFormatter tf = new(gfx);
-    tf.Alignment = XParagraphAlignment.Center;
-    tf.DrawString(this._header, HeaderFont, titleBrush, new(
-      contentRect.X,
-      contentRect.Y,
-      headerSize.Width,
-      headerSize.Height
-    ));
+    List<string> headerLines = TextFit.Wrap(gfx, this._header, HeaderFont, contentRect.Width);
+    for (int index = 0; index < headerLines.Count; index++)
+    {
+      double y = contentRect.Y + index * TextFit.LineHeight(HeaderFont);
+      TextFit.DrawLine(gfx, headerLines[index], HeaderFont, titleBrush, contentRect with { Y = y }, XParagraphAlignment.Center);
+    }
     
     gfx.DrawLine
     (
       line,
-      new(contentRect.X + 2, contentRect.Y + headerSize.Height + 15),
-      new(contentRect.X + contentRect.Width - 4, contentRect.Y + headerSize.Height + 15)
+      new(contentRect.X + 2, contentRect.Y + headerSize.Height + 5),
+      new(contentRect.X + contentRect.Width - 4, contentRect.Y + headerSize.Height + 5)
     );
 
-    tf.Alignment = XParagraphAlignment.Justify;
-    tf.DrawString(this._body, BodyFont, titleBrush, new(
-      contentRect.X + 8, 
-      contentRect.Y + headerSize.Height + 20,
-      contentRect.Width - 20,
-      contentRect.Height - 6 - headerSize.Height
-    ));
-
+    double bodyWidth = contentRect.Width - BodyIndent * 2;
+    List<string> bodyLines = TextFit.Wrap(gfx, this._body, BodyFont, bodyWidth);
+    for (int index = 0; index < bodyLines.Count; index++)
+    {
+      double y = contentRect.Y + headerSize.Height + 10 + index * TextFit.LineHeight(BodyFont);
+      TextFit.DrawLine(gfx, bodyLines[index], BodyFont, titleBrush, new XRect(contentRect.X + BodyIndent, y, bodyWidth, TextFit.LineHeight(BodyFont)));
+    }
   }
 
   #endregion

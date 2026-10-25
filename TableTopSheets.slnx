@@ -17,6 +17,9 @@
   <Folder Name="/Seed/">
     <Project Path="Seed/TableTopSheets.Seed/TableTopSheets.Seed.csproj" />
   </Folder>
+  <Folder Name="/SolutionFiles/">
+    <File Path="README.md" />
+  </Folder>
   <Folder Name="/Tests/">
     <Project Path="Tests/TableTopSheets.Engine.Tests/TableTopSheets.Engine.Tests.csproj" />
   </Folder>

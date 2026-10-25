@@ -1,13 +1,17 @@
 using TableTopSheets.Common.Enum.Item;
 using TableTopSheets.Pdf.Component.Generic;
 using TableTopSheets.Pdf.Enum;
-using TableTopSheets.Pdf.Extension;
+using TableTopSheets.Pdf.Interface;
+using TableTopSheets.Pdf.Text;
 using PdfSharp.Drawing;
 using PdfSharp.Drawing.Layout;
 
 namespace TableTopSheets.Pdf.Component;
 
-public class EquipmentBox: InformationBox
+/// <summary>
+///   Armor training, weapon and tool proficiencies; the weapon and tool texts shrink to fit and the rest continues on an extra page
+/// </summary>
+public class EquipmentBox: InformationBox, IOverflowComponent
 {
   #region Fields
 
@@ -34,6 +38,16 @@ public class EquipmentBox: InformationBox
     this._weapons = weapons;
     this._tools = tools;
   }
+
+  #endregion
+
+  #region Property
+
+  /// <inheritdoc />
+  public string? Overflow { get; private set; }
+
+  /// <inheritdoc />
+  public string ContinuationTitle => "EQUIPMENT TRAINING & PROFICIENCIES";
 
   #endregion
 
@@ -191,15 +205,9 @@ public class EquipmentBox: InformationBox
       weaponRect.Height - size.Height - 2
     );
 
-    XTextFormatter weaponFormatter = new(gfx);
-    weaponFormatter.Alignment = XParagraphAlignment.Left;
-    weaponFormatter.DrawString
-    (
-      this._weapons,
-      new XFont("Roboto#", 8, XFontStyleEx.Bold),
-      this.FontBrush,
-      weaponContentRect
-    );
+    XRect[] weaponRects = [weaponContentRect];
+    TextFitResult weaponFit = TextFit.Fit(gfx, this._weapons, TextFit.Family, XFontStyleEx.Bold, weaponRects, TextFit.BodyMaxSize, TextFit.BodyMinSize);
+    TextFit.Draw(gfx, weaponFit, this.FontBrush, weaponRects);
 
     #endregion
 
@@ -225,17 +233,24 @@ public class EquipmentBox: InformationBox
       toolRect.Height - size.Height - 2
     );
     
-    XTextFormatter toolFormatter = new(gfx);
-    toolFormatter.Alignment = XParagraphAlignment.Left;
-    toolFormatter.DrawString
-    (
-      this._tools,
-      new XFont("Roboto#", 8, XFontStyleEx.Bold),
-      this.FontBrush,
-      toolContentRect
-    );
+    XRect[] toolRects = [toolContentRect];
+    TextFitResult toolFit = TextFit.Fit(gfx, this._tools, TextFit.Family, XFontStyleEx.Bold, toolRects, TextFit.BodyMaxSize, TextFit.BodyMinSize);
+    TextFit.Draw(gfx, toolFit, this.FontBrush, toolRects);
 
     #endregion
+
+    List<string> overflow = [];
+    if (weaponFit.Overflow != null)
+    {
+      overflow.Add($"Weapons: {weaponFit.Overflow}");
+    }
+
+    if (toolFit.Overflow != null)
+    {
+      overflow.Add($"Tools: {toolFit.Overflow}");
+    }
+
+    this.Overflow = overflow.Count == 0 ? null : string.Join("\n\n", overflow);
   }
 
   #endregion

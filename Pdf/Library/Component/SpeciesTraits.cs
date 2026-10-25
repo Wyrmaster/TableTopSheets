@@ -1,11 +1,15 @@
 using TableTopSheets.Pdf.Component.Generic;
 using TableTopSheets.Pdf.Enum;
+using TableTopSheets.Pdf.Interface;
+using TableTopSheets.Pdf.Text;
 using PdfSharp.Drawing;
-using PdfSharp.Drawing.Layout;
 
 namespace TableTopSheets.Pdf.Component;
 
-public class SpeciesTraits: InformationBox
+/// <summary>
+///   Species Traits box; text shrinks to fit and the rest continues on an extra page
+/// </summary>
+public class SpeciesTraits: InformationBox, IOverflowComponent
 {
   #region Fields
   
@@ -28,6 +32,16 @@ public class SpeciesTraits: InformationBox
   {
     this._text = text;
   }
+
+  #endregion
+
+  #region Property
+
+  /// <inheritdoc />
+  public string? Overflow { get; private set; }
+
+  /// <inheritdoc />
+  public string ContinuationTitle => "SPECIES TRAITS";
 
   #endregion
 
@@ -65,15 +79,10 @@ public class SpeciesTraits: InformationBox
       contentRect.Height - size.Height - 10
     );
 
-    XTextFormatter tf = new(gfx);
-    tf.Alignment = XParagraphAlignment.Left;
-    tf.DrawString
-    (
-      this._text,
-      new("Roboto#", 6.5, XFontStyleEx.Regular),
-      this.FontBrush,
-      textRect
-    );
+    XRect[] rects = [textRect];
+    TextFitResult fit = TextFit.Fit(gfx, this._text, TextFit.Family, XFontStyleEx.Regular, rects, TextFit.BodyMaxSize, TextFit.BodyMinSize);
+    TextFit.Draw(gfx, fit, this.FontBrush, rects);
+    this.Overflow = fit.Overflow;
   }
 
   #endregion

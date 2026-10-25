@@ -1,16 +1,19 @@
 using TableTopSheets.Pdf.Component.Generic;
 using TableTopSheets.Pdf.Enum;
+using TableTopSheets.Pdf.Interface;
+using TableTopSheets.Pdf.Text;
 using PdfSharp.Drawing;
-using PdfSharp.Drawing.Layout;
 
 namespace TableTopSheets.Pdf.Component;
 
-public class ClassFeature: InformationBox
+/// <summary>
+///   Class features box; one text flows from the first into the second column
+/// </summary>
+public class ClassFeature: InformationBox, IOverflowComponent
 {
   #region Fields
   
-  private readonly string _column1;
-  private readonly string _column2;
+  private readonly string _text;
 
   #endregion
 
@@ -25,11 +28,31 @@ public class ClassFeature: InformationBox
   
   #region Constructor
   
-  public ClassFeature(string column1, string column2) : base(new XRect(X, Y, Width, Height), CornerEnum.Slant, CornerEnum.Edge, CornerEnum.Edge, CornerEnum.Slant)
+  /// <summary>
+  ///   Class features flowing through both columns
+  /// </summary>
+  public ClassFeature(string text) : base(new XRect(X, Y, Width, Height), CornerEnum.Slant, CornerEnum.Edge, CornerEnum.Edge, CornerEnum.Slant)
   {
-    this._column1 = column1;
-    this._column2 = column2;
+    this._text = text;
   }
+
+  /// <summary>
+  ///   Compatibility constructor; both columns are joined into one flowing text
+  /// </summary>
+  public ClassFeature(string column1, string column2)
+    : this(string.Join("\n\n", new[] { column1, column2 }.Where(entry => !string.IsNullOrWhiteSpace(entry))))
+  {
+  }
+
+  #endregion
+
+  #region Property
+
+  /// <inheritdoc />
+  public string? Overflow { get; private set; }
+
+  /// <inheritdoc />
+  public string ContinuationTitle => "CLASS FEATURES";
 
   #endregion
 
@@ -47,7 +70,6 @@ public class ClassFeature: InformationBox
     XBrush titleBrush = new XSolidBrush(XColor.FromArgb(110, 110, 112));
 
     XFont boxTitleFont = new("Roboto#", 9, XFontStyleEx.Bold);
-    XFont boxTextFont = new("Roboto#", 8, XFontStyleEx.Regular);
     
     const string boxTitle = "CLASS FEATURES";
     XSize size = gfx.MeasureString(boxTitle, boxTitleFont);
@@ -75,16 +97,6 @@ public class ClassFeature: InformationBox
       contentRect.Height - size.Height - 10
     );
 
-    XTextFormatter tf = new(gfx);
-    tf.Alignment = XParagraphAlignment.Left;
-    tf.DrawString
-    (
-      this._column1,
-      boxTextFont,
-      this.FontBrush,
-      col1Rect
-    );
-
     XRect col2Rect = new XRect
     (
       contentRect.X + contentRect.Width / 2 + 4,
@@ -93,16 +105,10 @@ public class ClassFeature: InformationBox
       contentRect.Height - size.Height - 10
     );
     
-    tf = new(gfx);
-    tf.Alignment = XParagraphAlignment.Left;
-    tf.DrawString
-    (
-      this._column2,
-      boxTextFont,
-      this.FontBrush,
-      col2Rect
-    );
-    
+    XRect[] columns = [col1Rect, col2Rect];
+    TextFitResult fit = TextFit.Fit(gfx, this._text, TextFit.Family, XFontStyleEx.Regular, columns, TextFit.BodyMaxSize, TextFit.BodyMinSize);
+    TextFit.Draw(gfx, fit, this.FontBrush, columns);
+    this.Overflow = fit.Overflow;
   }
 
   #endregion

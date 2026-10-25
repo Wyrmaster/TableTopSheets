@@ -1,4 +1,5 @@
 using TableTopSheets.Pdf.Enum;
+using TableTopSheets.Pdf.Text;
 using PdfSharp.Drawing;
 
 namespace TableTopSheets.Pdf.Component.Generic;
@@ -23,13 +24,16 @@ public abstract class Card: InformationBox
   
   #region Public Methods
 
+  /// <summary>
+  ///   Size of a text word wrapped to <paramref name="width"/>
+  /// </summary>
   public XSize GetSize(XGraphics gfx, string text, XFont font, double width)
   {
-    XSize size = gfx.MeasureString(text, font);
+    int lines = TextFit.Wrap(gfx, text, font, width).Count;
     return new XSize()
     {
       Width = width,
-      Height = size.Width / width * size.Height,
+      Height = lines * TextFit.LineHeight(font),
     };
   }
 

@@ -1,11 +1,15 @@
 using TableTopSheets.Pdf.Component.Generic;
 using TableTopSheets.Pdf.Enum;
+using TableTopSheets.Pdf.Interface;
+using TableTopSheets.Pdf.Text;
 using PdfSharp.Drawing;
-using PdfSharp.Drawing.Layout;
 
 namespace TableTopSheets.Pdf.Component;
 
-public class Languages: InformationBox
+/// <summary>
+///   Languages box; text shrinks to fit and the rest continues on an extra page
+/// </summary>
+public class Languages: InformationBox, IOverflowComponent
 {
   #region Fields
 
@@ -28,6 +32,16 @@ public class Languages: InformationBox
   {
     this._languages = languages;
   }
+
+  #endregion
+
+  #region Property
+
+  /// <inheritdoc />
+  public string? Overflow { get; private set; }
+
+  /// <inheritdoc />
+  public string ContinuationTitle => "LANGUAGES";
 
   #endregion
 
@@ -59,15 +73,10 @@ public class Languages: InformationBox
     
     XRect languageRect = new(contentRect.X + 4, contentRect.Y + size.Height + 4, contentRect.Width - 8, contentRect.Height - size.Height - 10);
 
-    XTextFormatter tf = new(gfx);
-    tf.Alignment = XParagraphAlignment.Left;
-    tf.DrawString
-    (
-      this._languages,
-      new("Roboto#", 8, XFontStyleEx.Regular),
-      this.FontBrush,
-      languageRect
-    );
+    XRect[] rects = [languageRect];
+    TextFitResult fit = TextFit.Fit(gfx, this._languages, TextFit.Family, XFontStyleEx.Regular, rects, TextFit.BodyMaxSize, TextFit.BodyMinSize);
+    TextFit.Draw(gfx, fit, this.FontBrush, rects);
+    this.Overflow = fit.Overflow;
   }
 
   #endregion

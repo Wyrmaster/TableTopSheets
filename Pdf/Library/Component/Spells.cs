@@ -1,15 +1,22 @@
 using TableTopSheets.Pdf.Common;
 using TableTopSheets.Pdf.Component.Generic;
 using TableTopSheets.Pdf.Enum;
+using TableTopSheets.Pdf.Interface;
+using TableTopSheets.Pdf.Text;
 using PdfSharp.Drawing;
 using PdfSharp.Drawing.Layout;
 
 namespace TableTopSheets.Pdf.Component;
 
-public class Spells: InformationBox
+/// <summary>
+///   Spell table with 30 rows; spells that don't fit (or whose cells had to be cut) continue on an extra page
+/// </summary>
+public class Spells: InformationBox, IOverflowComponent
 {
   #region Fields
   
+  private const int Rows = 30;
+
   private readonly Spell[] _spells;
 
   #endregion
@@ -29,6 +36,16 @@ public class Spells: InformationBox
   {
     this._spells = spells;
   }
+
+  #endregion
+
+  #region Property
+
+  /// <inheritdoc />
+  public string? Overflow { get; private set; }
+
+  /// <inheritdoc />
+  public string ContinuationTitle => "CANTRIP & PREPARED SPELLS";
 
   #endregion
 
@@ -264,60 +281,25 @@ public class Spells: InformationBox
     #region Data
     
     double dataHeight = subContentRect.Height - underScoreOffset;
-    double rowHeight = dataHeight / 30;
+    double rowHeight = dataHeight / Rows;
+    List<Spell> cut = [];
 
-    for (int i = 0; i < 30; i++)
+    for (int i = 0; i < Rows; i++)
     {
       Spell? spell = null;
       if (this._spells.Length > i)
       {
         spell = this._spells[i];
-        XRect dataRect = new XRect
-        (
-          subContentRect.X,
-          subContentRect.Y + underScoreOffset + i * rowHeight + 6,
-          nameColumn - 6,
-          rowHeight - 4
-        );
-        XTextFormatter tf = new(gfx);
-        tf.Alignment = XParagraphAlignment.Center;
-        tf.DrawString(spell.Level, textFont, this.FontBrush, dataRect);
-      
-        dataRect = new XRect
-        (
-          subContentRect.X + nameColumn,
-          subContentRect.Y + underScoreOffset + i * rowHeight + 6,
-          castingTimeColumn - nameColumn - 6,
-          rowHeight - 4
-        );
-        tf.DrawString(spell.Name, textFont, this.FontBrush, dataRect);
-      
-        dataRect = new XRect
-        (
-          subContentRect.X + castingTimeColumn,
-          subContentRect.Y + underScoreOffset + i * rowHeight + 6,
-          rangeColumn - castingTimeColumn - 6,
-          rowHeight - 4
-        );
-        tf.DrawString(spell.CastingTime, textFont, this.FontBrush, dataRect);
-      
-        dataRect = new XRect
-        (
-          subContentRect.X + rangeColumn,
-          subContentRect.Y + underScoreOffset + i * rowHeight + 6,
-          spellTypeColumn - rangeColumn - 6,
-          rowHeight - 4
-        );
-        tf.DrawString(spell.Range, textFont, this.FontBrush, dataRect);
-      
-        dataRect = new XRect
-        (
-          subContentRect.X + notesColumn,
-          subContentRect.Y + underScoreOffset + i * rowHeight + 6,
-          contentRect.Width - notesColumn - 6,
-          rowHeight - 4
-        );
-        tf.DrawString(spell.Notes, textFont, this.FontBrush, dataRect);
+        double top = subContentRect.Y + underScoreOffset + i * rowHeight + 6;
+        bool truncated = this.DrawSingleLineCell(gfx, spell.Level, new XRect(subContentRect.X, top, nameColumn - 6, rowHeight - 4));
+        truncated |= this.DrawCell(gfx, spell.Name, new XRect(subContentRect.X + nameColumn, top, castingTimeColumn - nameColumn - 6, rowHeight - 4));
+        truncated |= this.DrawCell(gfx, spell.CastingTime, new XRect(subContentRect.X + castingTimeColumn, top, rangeColumn - castingTimeColumn - 6, rowHeight - 4));
+        truncated |= this.DrawCell(gfx, spell.Range ?? string.Empty, new XRect(subContentRect.X + rangeColumn, top, spellTypeColumn - rangeColumn - 6, rowHeight - 4));
+        truncated |= this.DrawCell(gfx, spell.Notes, new XRect(subContentRect.X + notesColumn, top, contentRect.Width - notesColumn - 6, rowHeight - 4));
+        if (truncated)
+        {
+          cut.Add(spell);
+        }
       }
       
       gfx.DrawLine
@@ -416,8 +398,47 @@ public class Spells: InformationBox
       );
     }
 
-    #endregion
+    // spells with a cut cell are repeated in full, spells without a row follow
+    List<Spell> overflow = cut.Concat(this._spells.Skip(Rows)).ToList();
+    this.Overflow = overflow.Count == 0 ? null : string.Join("\n", overflow.Select(Describe));
 
+    #endregion
+  }
+
+  #endregion
+
+  #region Private Methods
+
+  /// <summary>
+  ///   Cell text that may wrap inside the row; returns <c>true</c> when it had to be cut
+  /// </summary>
+  private bool DrawCell(XGraphics gfx, string text, XRect rect)
+  {
+    XRect[] rects = [rect];
+    TextFitResult fit = TextFit.Fit(gfx, text, TextFit.Family, XFontStyleEx.Regular, rects, TextFit.BodyMaxSize, TextFit.CellMinSize);
+    TextFit.Draw(gfx, fit, this.FontBrush, rects, XParagraphAlignment.Center);
+    return fit.Overflow != null;
+  }
+
+  /// <summary>
+  ///   One line cell text; returns <c>true</c> when it had to be cut
+  /// </summary>
+  private bool DrawSingleLineCell(XGraphics gfx, string text, XRect rect)
+  {
+    (XFont font, string line, bool truncated) = TextFit.FitSingleLine(gfx, text, TextFit.Family, XFontStyleEx.Regular, TextFit.BodyMaxSize, TextFit.CellMinSize, rect.Width);
+    TextFit.DrawLine(gfx, line, font, this.FontBrush, rect, XParagraphAlignment.Center);
+    return truncated;
+  }
+
+  /// <summary>
+  ///   One line of the continuation section, e.g. <c>Level 1: Detect Magic — Action — Self — C, R — ritual from spellbook</c>
+  /// </summary>
+  private static string Describe(Spell spell)
+  {
+    string flags = string.Join(", ", new[] { (spell.Concentration, "C"), (spell.Ritual, "R"), (spell.Material, "M") }.Where(entry => entry.Item1).Select(entry => entry.Item2));
+    string level = spell.Level == "C" ? "Cantrip" : $"Level {spell.Level}";
+    string[] parts = [spell.Name, spell.CastingTime, spell.Range ?? string.Empty, flags, spell.Notes];
+    return $"{level}: {string.Join(" — ", parts.Where(entry => !string.IsNullOrWhiteSpace(entry)))}";
   }
 
   #endregion

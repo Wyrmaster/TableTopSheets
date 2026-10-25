@@ -2,14 +2,25 @@ using TableTopSheets.Common.Enum;
 using TableTopSheets.Pdf.Common;
 using TableTopSheets.Pdf.Component.Generic;
 using TableTopSheets.Pdf.Enum;
+using TableTopSheets.Pdf.Interface;
+using TableTopSheets.Pdf.Text;
 using PdfSharp.Drawing;
 using PdfSharp.Drawing.Layout;
 
 namespace TableTopSheets.Pdf.Component;
 
-public class WeaponDamageBox: InformationBox
+/// <summary>
+///   Attack table with six rows; attacks that don't fit (or whose cells had to be cut) continue on an extra page
+/// </summary>
+public class WeaponDamageBox: InformationBox, IOverflowComponent
 {
+  #region Fields
+
+  private const int Rows = 6;
+
   private readonly Attack[] _attacks;
+
+  #endregion
 
   #region Constants
 
@@ -26,6 +37,16 @@ public class WeaponDamageBox: InformationBox
   {
     this._attacks = attacks;
   }
+
+  #endregion
+
+  #region Property
+
+  /// <inheritdoc />
+  public string? Overflow { get; private set; }
+
+  /// <inheritdoc />
+  public string ContinuationTitle => "WEAPON & DAMAGE CANTRIPS";
 
   #endregion
 
@@ -139,9 +160,10 @@ public class WeaponDamageBox: InformationBox
     );
     double contentHeight = size.Height + 6 + nameSize.Height;
     XRect dataRect = new(contentRect.X, contentRect.Y + contentHeight + 1, contentRect.Width, contentRect.Height - contentHeight - 8.5);
-    double itemHeight = dataRect.Height / 6;
+    double itemHeight = dataRect.Height / Rows;
     double linePadding = 1.5;
-    for (int i = 0; i < 6; i++)
+    List<Attack> cut = [];
+    for (int i = 0; i < Rows; i++)
     {
       Attack? attack = null;
       if (this._attacks.Length > i)
@@ -156,17 +178,10 @@ public class WeaponDamageBox: InformationBox
         itemHeight - 1.5
       );
 
+      bool truncated = false;
       if (attack != null)
       {
-        XTextFormatter tf = new(gfx);
-        tf.Alignment = XParagraphAlignment.Center;
-        tf.DrawString
-        (
-          attack.Name,
-          new XFont("Roboto#", 8, XFontStyleEx.Bold),
-          this.FontBrush,
-          nameRect
-        );
+        truncated |= this.DrawCell(gfx, attack.Name, nameRect);
       }
       
       gfx.DrawLine
@@ -186,15 +201,7 @@ public class WeaponDamageBox: InformationBox
       
       if (attack != null)
       {
-        XTextFormatter tf = new(gfx);
-        tf.Alignment = XParagraphAlignment.Center;
-        tf.DrawString
-        (
-          attack.AttackRollText ?? (attack.AttackRollModifier >= 0 ? $"+{attack.AttackRollModifier}" : $"{attack.AttackRollModifier}"),
-          new XFont("Roboto#", 8, XFontStyleEx.Bold),
-          this.FontBrush,
-          atkBonusRec
-        );
+        truncated |= this.DrawSingleLineCell(gfx, AttackRoll(attack), atkBonusRec);
       }
       
       gfx.DrawLine
@@ -214,28 +221,7 @@ public class WeaponDamageBox: InformationBox
       
       if (attack != null)
       {
-        string damageRoll = string.Join
-        (
-          "",
-          attack
-            .DamageRoll
-            .Where(entry => entry != DiceEnum.D1)
-            .GroupBy(entry => entry)
-            .Select(entry => $"{entry.Count()}{entry.Key}")
-        );
-        if (attack.DamageRoll.Any(entry => entry == DiceEnum.D1))
-        {
-          damageRoll += $" +{attack.DamageRoll.Count(entry => entry == DiceEnum.D1)}";
-        }
-        XTextFormatter tf = new(gfx);
-        tf.Alignment = XParagraphAlignment.Center;
-        tf.DrawString
-        (
-          attack.DamageText ?? $"{damageRoll} {attack.DamageType}",
-          new XFont("Roboto#", 8, XFontStyleEx.Bold),
-          this.FontBrush,
-          damageTypeNotesRect
-        );
+        truncated |= this.DrawSingleLineCell(gfx, Damage(attack), damageTypeNotesRect);
       }
       
       gfx.DrawLine
@@ -254,15 +240,11 @@ public class WeaponDamageBox: InformationBox
       );
       if (attack != null)
       {
-        XTextFormatter tf = new(gfx);
-        tf.Alignment = XParagraphAlignment.Center;
-        tf.DrawString
-        (
-          attack.Notes,
-          new XFont("Roboto#", 8, XFontStyleEx.Bold),
-          this.FontBrush,
-          noteRect
-        );
+        truncated |= this.DrawCell(gfx, attack.Notes, noteRect);
+        if (truncated)
+        {
+          cut.Add(attack);
+        }
       }
       
       gfx.DrawLine
@@ -272,7 +254,64 @@ public class WeaponDamageBox: InformationBox
         new(dataRect.X + nameNotesWidth + atkBonusWidth + damageTypeNotesWidth + nameNotesWidth, dataRect.Y + itemHeight * (i + 1))
       );
     }
+
+    // attacks with a cut cell are repeated in full, attacks without a row follow
+    List<Attack> overflow = cut.Concat(this._attacks.Skip(Rows)).ToList();
+    this.Overflow = overflow.Count == 0 ? null : string.Join("\n", overflow.Select(Describe));
   }
+
+  #endregion
+
+  #region Private Methods
+
+  /// <summary>
+  ///   Cell text that may wrap inside the row; returns <c>true</c> when it had to be cut
+  /// </summary>
+  private bool DrawCell(XGraphics gfx, string text, XRect rect)
+  {
+    XRect[] rects = [rect];
+    TextFitResult fit = TextFit.Fit(gfx, text, TextFit.Family, XFontStyleEx.Bold, rects, TextFit.BodyMaxSize, TextFit.CellMinSize);
+    TextFit.Draw(gfx, fit, this.FontBrush, rects, XParagraphAlignment.Center);
+    return fit.Overflow != null;
+  }
+
+  /// <summary>
+  ///   One line cell text; returns <c>true</c> when it had to be cut
+  /// </summary>
+  private bool DrawSingleLineCell(XGraphics gfx, string text, XRect rect)
+  {
+    (XFont font, string line, bool truncated) = TextFit.FitSingleLine(gfx, text, TextFit.Family, XFontStyleEx.Bold, TextFit.BodyMaxSize, TextFit.CellMinSize, rect.Width);
+    TextFit.DrawLine(gfx, line, font, this.FontBrush, rect, XParagraphAlignment.Center);
+    return truncated;
+  }
+
+  private static string AttackRoll(Attack attack)
+    => attack.AttackRollText ?? (attack.AttackRollModifier >= 0 ? $"+{attack.AttackRollModifier}" : $"{attack.AttackRollModifier}");
+
+  private static string Damage(Attack attack)
+  {
+    string damageRoll = string.Join
+    (
+      "",
+      attack
+        .DamageRoll
+        .Where(entry => entry != DiceEnum.D1)
+        .GroupBy(entry => entry)
+        .Select(entry => $"{entry.Count()}{entry.Key}")
+    );
+    if (attack.DamageRoll.Any(entry => entry == DiceEnum.D1))
+    {
+      damageRoll += $" +{attack.DamageRoll.Count(entry => entry == DiceEnum.D1)}";
+    }
+
+    return attack.DamageText ?? $"{damageRoll} {attack.DamageType}";
+  }
+
+  /// <summary>
+  ///   One line of the continuation section, e.g. <c>Fire Bolt — +6 — 2d10 Fire — 120 feet</c>
+  /// </summary>
+  private static string Describe(Attack attack)
+    => string.Join(" — ", new[] { attack.Name, AttackRoll(attack), Damage(attack), attack.Notes }.Where(entry => !string.IsNullOrWhiteSpace(entry)));
 
   #endregion
 }
