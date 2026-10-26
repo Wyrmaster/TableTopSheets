@@ -4,6 +4,7 @@
   <meta charset='utf-8'>
   <meta name='viewport' content='width=device-width, initial-scale=1'>
   <title>TableTopSheets UI mockups</title>
+  <!-- Icons: Material Design Icons (https://pictogrammers.com/library/mdi/), Apache License 2.0, paths from @mdi/js -->
   <style>
     /* ------------------------------------------------------------------ tokens (Chakra-like, brand from src/theme.ts) */
     :root {
@@ -22,7 +23,10 @@
       --brand-muted: #fee2e2;
       --warning-bg: #fefce8;
       --warning-fg: #a16207;
-      --warning-border: #fde68a;
+      --warning-border: #f59e0b;
+      --error-bg: #fef2f2;
+      --error-fg: #b91c1c;
+      --error-border: #ef4444;
       --success-bg: #f0fdf4;
       --success-fg: #15803d;
       --info-bg: #eff6ff;
@@ -51,7 +55,10 @@
       --brand-muted: #7f1d1d;
       --warning-bg: #2a2008;
       --warning-fg: #facc15;
-      --warning-border: #713f12;
+      --warning-border: #ca8a04;
+      --error-bg: #2a0a0a;
+      --error-fg: #fca5a5;
+      --error-border: #ef4444;
       --success-bg: #052e16;
       --success-fg: #4ade80;
       --info-bg: #0b1a33;
@@ -93,8 +100,24 @@
       margin: 0;
     }
 
+    code {
+      font-size: 12px;
+    }
+
     [hidden] {
       display: none !important;
+    }
+
+    .icon {
+      flex-shrink: 0;
+      width: 1.2em;
+      height: 1.2em;
+      fill: currentColor;
+      vertical-align: -0.25em;
+    }
+
+    [data-icon] {
+      display: inline-flex;
     }
 
     /* ------------------------------------------------------------------ mockup toolbar (not part of the app) */
@@ -149,8 +172,9 @@
 
     .device {
       container: device / inline-size;
+      position: relative;
       width: 100%;
-      max-width: 1180px;
+      max-width: 1280px;
       border-radius: var(--radius-lg);
       background: var(--bg);
       box-shadow: var(--shadow-lg);
@@ -166,14 +190,13 @@
     }
 
     .app {
-      position: relative;
       display: flex;
       flex-direction: column;
       min-height: 100%;
       background: var(--bg);
     }
 
-    /* ------------------------------------------------------------------ app chrome */
+    /* ------------------------------------------------------------------ title bar */
     .appbar {
       position: sticky;
       top: 0;
@@ -182,16 +205,19 @@
       gap: 16px;
       align-items: center;
       height: 56px;
-      padding: 0 20px;
+      padding: 0 24px;
       border-bottom: 1px solid var(--border);
       background: var(--bg);
     }
 
     .logo {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
       color: var(--brand-fg);
       font-size: 17px;
       font-weight: 700;
-      cursor: pointer;
+      white-space: nowrap;
     }
 
     .appnav {
@@ -200,10 +226,14 @@
     }
 
     .appnav a {
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
       padding: 6px 10px;
       border-radius: 6px;
       color: var(--fg-muted);
       text-decoration: none;
+      white-space: nowrap;
       cursor: pointer;
     }
 
@@ -219,33 +249,44 @@
 
     .user {
       display: flex;
-      gap: 8px;
+      gap: 10px;
       align-items: center;
+      padding-left: 14px;
+      border-left: 1px solid var(--border);
+    }
+
+    .user .who {
+      display: grid;
+      line-height: 1.2;
+    }
+
+    .user .who small {
       color: var(--fg-muted);
+      font-size: 11px;
     }
 
     .avatar {
       display: grid;
       place-items: center;
-      width: 28px;
-      height: 28px;
+      width: 30px;
+      height: 30px;
       border-radius: 50%;
       background: var(--brand-muted);
       color: var(--brand-fg);
-      font-weight: 600;
       font-size: 12px;
+      font-weight: 600;
     }
 
     .icon-button {
       display: grid;
       place-items: center;
-      width: 34px;
-      height: 34px;
+      width: 36px;
+      height: 36px;
       border: 0;
       border-radius: 6px;
       background: transparent;
       cursor: pointer;
-      font-size: 17px;
+      font-size: 18px;
     }
 
     .icon-button:hover {
@@ -257,9 +298,7 @@
     }
 
     .container {
-      max-width: 1120px;
-      margin: 0 auto;
-      padding: 28px 20px 40px;
+      padding: 28px 24px 40px;
     }
 
     /* ------------------------------------------------------------------ primitives */
@@ -312,6 +351,38 @@
       cursor: not-allowed;
     }
 
+    .info-button {
+      display: inline-grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      border: 0;
+      border-radius: 50%;
+      background: transparent;
+      color: var(--fg-muted);
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .info-button:hover {
+      background: var(--bg-muted);
+      color: var(--brand-fg);
+    }
+
+    .link {
+      border: 0;
+      padding: 0;
+      background: transparent;
+      font-weight: 600;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .link:hover {
+      color: var(--brand-fg);
+      text-decoration: underline;
+    }
+
     .input,
     .select,
     .textarea {
@@ -336,7 +407,8 @@
       outline-offset: -1px;
     }
 
-    label.field {
+    label.field,
+    div.field {
       display: grid;
       gap: 6px;
       font-weight: 500;
@@ -359,6 +431,20 @@
 
     .card-body {
       padding: 18px;
+    }
+
+    .card-title {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .card-title h3 {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
     }
 
     .badge {
@@ -384,6 +470,11 @@
       color: var(--warning-fg);
     }
 
+    .badge.error {
+      background: var(--error-bg);
+      color: var(--error-fg);
+    }
+
     .badge.success {
       background: var(--success-bg);
       color: var(--success-fg);
@@ -392,14 +483,15 @@
     .alert {
       display: flex;
       gap: 10px;
+      align-items: flex-start;
       padding: 10px 12px;
       border-radius: var(--radius);
       font-size: 13px;
     }
 
     .alert.error {
-      background: var(--brand-subtle);
-      color: var(--brand-fg);
+      background: var(--error-bg);
+      color: var(--error-fg);
     }
 
     .alert.warning {
@@ -440,6 +532,9 @@
     }
 
     .segmented button {
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
       padding: 5px 12px;
       border: 0;
       border-radius: 6px;
@@ -464,12 +559,12 @@
 
     .stack {
       display: grid;
-      gap: 14px;
+      gap: 16px;
     }
 
     .grid {
       display: grid;
-      gap: 12px;
+      gap: 14px;
     }
 
     .grid.cols-2 {
@@ -480,14 +575,15 @@
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
-    .grid.cols-4 {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+    .grid.auto {
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
     }
 
     .choice-card {
+      position: relative;
       display: grid;
       gap: 4px;
-      padding: 14px;
+      padding: 14px 40px 14px 14px;
       border: 1px solid var(--border);
       border-radius: var(--radius);
       background: var(--bg);
@@ -514,6 +610,12 @@
       font-weight: 600;
     }
 
+    .choice-card .info-button {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+    }
+
     .counter {
       display: inline-flex;
       align-items: center;
@@ -522,12 +624,13 @@
     }
 
     .counter button {
+      display: grid;
+      place-items: center;
       width: 30px;
       height: 30px;
       border: 0;
       background: transparent;
       cursor: pointer;
-      font-size: 16px;
     }
 
     .counter button:disabled {
@@ -544,12 +647,12 @@
     .stat {
       display: grid;
       place-items: center;
-      gap: 0;
-      min-width: 64px;
+      min-width: 70px;
       padding: 8px 10px;
       border: 1px solid var(--border);
       border-radius: var(--radius);
       background: var(--bg-subtle);
+      white-space: nowrap;
     }
 
     .stat b {
@@ -578,6 +681,7 @@
       align-items: center;
       padding: 10px 12px;
       border-top: 1px solid var(--border);
+      border-left: 3px solid transparent;
       background: var(--bg);
     }
 
@@ -599,22 +703,50 @@
       min-width: 140px;
     }
 
+    .list-row.violation-error {
+      border-left-color: var(--error-border);
+      background: color-mix(in srgb, var(--error-bg) 70%, var(--bg));
+    }
+
+    .list-row.violation-warning {
+      border-left-color: var(--warning-border);
+      background: color-mix(in srgb, var(--warning-bg) 70%, var(--bg));
+    }
+
+    .violation-text {
+      display: flex;
+      flex-basis: 100%;
+      gap: 6px;
+      align-items: flex-start;
+      font-size: 12px;
+    }
+
+    .violation-error .violation-text {
+      color: var(--error-fg);
+    }
+
+    .violation-warning .violation-text {
+      color: var(--warning-fg);
+    }
+
     .section-title {
       display: flex;
+      flex-wrap: wrap;
       gap: 10px;
-      align-items: baseline;
+      align-items: center;
       justify-content: space-between;
-      margin-bottom: 10px;
     }
 
     .tabs {
       display: flex;
       gap: 4px;
-      border-bottom: 1px solid var(--border);
       overflow-x: auto;
     }
 
     .tabs button {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
       padding: 10px 14px;
       border: 0;
       border-bottom: 2px solid transparent;
@@ -636,8 +768,7 @@
       gap: 8px 18px;
     }
 
-    .radio-row label,
-    .check-row label {
+    .radio-row label {
       display: inline-flex;
       gap: 6px;
       align-items: center;
@@ -649,34 +780,89 @@
       accent-color: var(--brand);
     }
 
+    .switch {
+      position: relative;
+      flex-shrink: 0;
+      width: 36px;
+      height: 20px;
+      border: 0;
+      border-radius: 999px;
+      background: var(--bg-emphasized);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .switch::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #ffffff;
+      box-shadow: var(--shadow);
+      transition: transform 0.15s;
+    }
+
+    .switch.on {
+      background: var(--brand);
+    }
+
+    .switch.on::after {
+      transform: translateX(16px);
+    }
+
+    .pips {
+      display: inline-flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .pip {
+      width: 18px;
+      height: 18px;
+      padding: 0;
+      border: 2px solid var(--brand);
+      border-radius: 50%;
+      background: var(--brand);
+      cursor: pointer;
+    }
+
+    .pip.used {
+      background: transparent;
+    }
+
+    .pip.square {
+      border-radius: 4px;
+    }
+
     /* ------------------------------------------------------------------ login */
     .login {
       display: grid;
-      grid-template-columns: 1.1fr 1fr;
+      grid-template-columns: 1.2fr 1fr;
       gap: 28px;
-      max-width: 940px;
-      margin: 0 auto;
-      padding: 56px 20px;
+      padding: 56px 24px;
     }
 
     .login-art {
       display: grid;
       align-content: end;
       gap: 10px;
-      min-height: 420px;
+      min-height: 440px;
       padding: 28px;
+      border: 1px solid var(--border);
       border-radius: var(--radius-lg);
       background:
         radial-gradient(circle at 30% 20%, var(--brand-muted), transparent 55%),
         linear-gradient(160deg, var(--bg-muted), var(--bg-subtle));
-      border: 1px solid var(--border);
     }
 
     .sheet-art {
       display: grid;
       gap: 8px;
       align-self: start;
-      width: 70%;
+      width: 62%;
       padding: 16px;
       border-radius: var(--radius);
       background: var(--bg);
@@ -706,6 +892,7 @@
       display: grid;
       align-content: start;
       gap: 16px;
+      max-width: 460px;
       padding: 26px;
     }
 
@@ -728,7 +915,7 @@
     /* ------------------------------------------------------------------ characters */
     .character-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
       gap: 14px;
     }
 
@@ -740,12 +927,13 @@
     }
 
     .character-card:hover {
-      border-color: var(--fg-subtle);
+      border-color: var(--brand);
     }
 
-    .character-card .portrait {
+    .portrait {
       display: grid;
       place-items: center;
+      flex-shrink: 0;
       width: 44px;
       height: 44px;
       border-radius: 10px;
@@ -753,21 +941,6 @@
       color: var(--brand-fg);
       font-size: 20px;
       font-weight: 700;
-    }
-
-    .new-card {
-      display: grid;
-      place-items: center;
-      min-height: 150px;
-      border: 2px dashed var(--border);
-      border-radius: var(--radius-lg);
-      color: var(--fg-muted);
-      cursor: pointer;
-    }
-
-    .new-card:hover {
-      border-color: var(--brand);
-      color: var(--brand-fg);
     }
 
     /* ------------------------------------------------------------------ creator */
@@ -833,8 +1006,8 @@
 
     .creator {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 280px;
-      gap: 22px;
+      grid-template-columns: minmax(0, 1fr) 300px;
+      gap: 24px;
       align-items: start;
     }
 
@@ -873,7 +1046,7 @@
       border-radius: var(--radius-lg);
     }
 
-    .choice-box header {
+    .choice-box > header {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
@@ -898,7 +1071,7 @@
     }
 
     .spell-list {
-      max-height: 260px;
+      max-height: 300px;
       overflow-y: auto;
     }
 
@@ -920,11 +1093,11 @@
       opacity: 0.5;
     }
 
-    /* ------------------------------------------------------------------ manage */
+    /* ------------------------------------------------------------------ character */
     .char-header {
       display: grid;
       gap: 14px;
-      padding: 20px 20px 0;
+      padding: 20px 24px 0;
       border-bottom: 1px solid var(--border);
     }
 
@@ -942,64 +1115,190 @@
       padding-bottom: 2px;
     }
 
-    .manage-body {
-      padding: 22px 20px 40px;
+    .char-body {
+      padding: 22px 24px 40px;
+    }
+
+    .sheet-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
     }
 
     .bottom-tabs {
       display: none;
     }
 
-    .level-cards {
+    /* ability boxes: score block · saving throw · skills */
+    .ability-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-      gap: 10px;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 14px;
     }
 
-    .slots {
+    .ability-box {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 12px;
+      grid-template-columns: 96px minmax(0, 1fr);
+      overflow: hidden;
     }
 
-    .slot {
+    .score-block {
       display: grid;
-      align-content: start;
+      align-content: center;
+      justify-items: center;
       gap: 6px;
-      min-height: 140px;
-      padding: 14px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      background: var(--bg-subtle);
+      padding: 14px 8px;
+      border-right: 1px solid var(--border);
+      background: var(--brand-subtle);
     }
 
-    .slot.empty {
-      border-style: dashed;
-      background: transparent;
-    }
-
-    .slot .label {
-      color: var(--fg-muted);
+    .score-block .label {
+      color: var(--brand-fg);
       font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.05em;
+      font-weight: 700;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
     }
 
-    .slot .name {
+    .score-block .modifier {
+      font-size: 32px;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .score-block .score {
+      padding: 1px 12px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--bg);
       font-weight: 600;
     }
 
-    .slot .actions {
+    .ability-detail {
+      display: grid;
+      align-content: start;
+      gap: 8px;
+      padding: 12px 14px;
+    }
+
+    .save-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg-muted);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .save-row .bonus {
+      margin-left: auto;
+    }
+
+    .skills-head {
+      color: var(--fg-muted);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .skill {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    .skill .bonus {
+      margin-left: auto;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .marker {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border: 1.5px solid var(--fg-subtle);
+      border-radius: 50%;
+    }
+
+    .marker.proficient {
+      border-color: var(--brand);
+      background: var(--brand);
+    }
+
+    .marker.expertise {
+      border-color: var(--brand);
+      background: var(--brand);
+      box-shadow: 0 0 0 2px var(--bg), 0 0 0 3.5px var(--brand);
+    }
+
+    .sheet-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 14px;
+    }
+
+    .resource {
       display: flex;
       flex-wrap: wrap;
-      gap: 6px;
-      margin-top: auto;
+      gap: 6px 12px;
+      align-items: center;
+      padding: 10px 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .resource:first-child {
+      border-top: 0;
+    }
+
+    .resource .grow {
+      flex: 1;
+      min-width: 150px;
+    }
+
+    .hp-value {
+      font-size: 30px;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 10px;
+    }
+
+    .feature {
+      display: grid;
+      gap: 2px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      text-align: left;
+      background: var(--bg);
+      cursor: pointer;
+    }
+
+    .feature:hover {
+      border-color: var(--brand);
+    }
+
+    .weapon-columns {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
     }
 
     .shop {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 300px;
+      grid-template-columns: minmax(0, 1fr) 340px;
       gap: 18px;
       align-items: start;
     }
@@ -1009,60 +1308,13 @@
       top: 76px;
     }
 
-    .pips {
-      display: inline-flex;
-      gap: 4px;
-    }
-
-    .pips i {
-      width: 12px;
-      height: 12px;
-      border: 2px solid var(--brand);
-      border-radius: 50%;
-    }
-
-    .pips i.used {
-      background: transparent;
-    }
-
-    .pips i:not(.used) {
-      background: var(--brand);
-    }
-
-    .ability-grid {
+    .level-cards {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 12px;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 10px;
     }
 
-    .ability-card {
-      display: grid;
-      gap: 6px;
-      padding: 14px;
-    }
-
-    .ability-card .head {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-    }
-
-    .ability-card .mod {
-      font-size: 22px;
-      font-weight: 700;
-    }
-
-    .skill {
-      display: flex;
-      justify-content: space-between;
-      font-size: 13px;
-    }
-
-    .skill .prof {
-      color: var(--brand-fg);
-    }
-
-    /* ------------------------------------------------------------------ dialog / bottom sheet / toast */
+    /* ------------------------------------------------------------------ dialog, drawer, toast */
     .overlay {
       position: absolute;
       inset: 0;
@@ -1073,18 +1325,72 @@
       background: rgb(0 0 0 / 0.45);
     }
 
+    .overlay.drawer {
+      place-items: stretch end;
+      padding: 0;
+    }
+
     .dialog {
       display: grid;
       gap: 14px;
-      width: min(420px, 100%);
+      width: min(440px, 100%);
       padding: 20px;
       border-radius: var(--radius-lg);
       background: var(--bg);
       box-shadow: var(--shadow-lg);
     }
 
+    .drawer .dialog {
+      align-content: start;
+      width: min(480px, 100%);
+      height: 100%;
+      border-radius: 0;
+      overflow-y: auto;
+    }
+
     .dialog .grabber {
       display: none;
+    }
+
+    .dialog-head {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+
+    .facts {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--border);
+      overflow: hidden;
+    }
+
+    .facts div {
+      display: grid;
+      padding: 8px 10px;
+      background: var(--bg);
+    }
+
+    .facts span {
+      color: var(--fg-muted);
+      font-size: 11px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .prose {
+      display: grid;
+      gap: 8px;
+      line-height: 1.6;
+    }
+
+    .prose h4 {
+      margin-top: 4px;
+      font-size: 13px;
     }
 
     .toast {
@@ -1092,6 +1398,7 @@
       right: 24px;
       bottom: 24px;
       z-index: 60;
+      max-width: 360px;
       padding: 10px 14px;
       border-radius: var(--radius);
       background: var(--fg);
@@ -1102,12 +1409,32 @@
     /* ------------------------------------------------------------------ mobile layout (width of the app, not the window) */
     @container device (max-width: 760px) {
       .appbar {
-        padding: 0 14px;
+        gap: 4px;
+        padding: 0 10px;
       }
 
-      .appnav,
-      .user .name {
+      .appnav a span.label,
+      .user .who,
+      .user .avatar,
+      .logout-label {
         display: none;
+      }
+
+      .appnav a {
+        padding: 6px 7px;
+      }
+
+      .user {
+        gap: 0;
+        padding-left: 4px;
+      }
+
+      .user .btn.sm {
+        padding: 0 7px;
+      }
+
+      .icon-button {
+        width: 32px;
       }
 
       .container {
@@ -1124,12 +1451,13 @@
       }
 
       .login-form {
+        max-width: none;
         padding: 18px;
       }
 
       .grid.cols-2,
       .grid.cols-3,
-      .grid.cols-4 {
+      .weapon-columns {
         grid-template-columns: 1fr;
       }
 
@@ -1175,10 +1503,6 @@
         list-style: none;
       }
 
-      .summary:not([open]) .summary-content {
-        display: none;
-      }
-
       .summary .summary-content {
         padding: 0 14px 14px;
       }
@@ -1208,7 +1532,7 @@
         display: none;
       }
 
-      .manage-body {
+      .char-body {
         padding: 16px 14px 24px;
       }
 
@@ -1217,7 +1541,7 @@
         bottom: 0;
         z-index: 20;
         display: grid;
-        grid-template-columns: repeat(5, 1fr);
+        grid-template-columns: repeat(3, 1fr);
         border-top: 1px solid var(--border);
         background: var(--bg);
       }
@@ -1234,8 +1558,9 @@
         cursor: pointer;
       }
 
-      .bottom-tabs button span {
-        font-size: 18px;
+      .bottom-tabs button .icon {
+        width: 22px;
+        height: 22px;
       }
 
       .bottom-tabs button.active {
@@ -1243,12 +1568,13 @@
         font-weight: 600;
       }
 
-      .slots {
+      .ability-grid,
+      .sheet-grid {
         grid-template-columns: 1fr;
       }
 
-      .slot {
-        min-height: 0;
+      .ability-box {
+        grid-template-columns: 84px minmax(0, 1fr);
       }
 
       .shop {
@@ -1259,18 +1585,19 @@
         position: static;
       }
 
-      .ability-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .overlay {
+      .overlay,
+      .overlay.drawer {
         place-items: end stretch;
         padding: 0;
       }
 
-      .dialog {
+      .dialog,
+      .drawer .dialog {
         width: 100%;
+        height: auto;
+        max-height: 88%;
         border-radius: 18px 18px 0 0;
+        overflow-y: auto;
       }
 
       .dialog .grabber {
@@ -1280,6 +1607,10 @@
         height: 4px;
         border-radius: 2px;
         background: var(--bg-emphasized);
+      }
+
+      .facts {
+        grid-template-columns: 1fr 1fr;
       }
 
       .hide-mobile {
@@ -1296,31 +1627,34 @@
       <button data-screen='login'>Login</button>
       <button data-screen='characters'>Characters</button>
       <button data-screen='creator'>Character creator</button>
-      <button data-screen='manage'>Character management</button>
+      <button data-screen='character'>Character</button>
     </div>
     <div class='group' id='device-switch'>
-      <button data-device='desktop'>🖥 Desktop</button>
-      <button data-device='mobile'>📱 Mobile</button>
+      <button data-device='desktop'>Desktop</button>
+      <button data-device='mobile'>Mobile</button>
     </div>
-    <span class='hint'>Mock data only · dashed boxes mark API notes</span>
+    <span class='hint'>Mock data only · dashed boxes are API notes</span>
   </div>
 
   <div class='stage'>
     <div class='device' id='device'>
       <div class='app'>
-        <!-- ================================================================ app bar -->
+        <!-- ================================================================ title bar -->
         <header class='appbar'>
-          <span class='logo' data-go='characters'>TableTopSheets</span>
+          <span class='logo'><span data-icon='dice'></span>TableTopSheets</span>
           <nav class='appnav' id='appnav'>
-            <a data-go='characters'>Characters</a>
-            <a data-go='creator'>New character</a>
+            <a data-go='characters'><span data-icon='group'></span><span class='label'>Characters</span></a>
+            <a data-go='creator'><span data-icon='newChar'></span><span class='label'>New character</span></a>
           </nav>
           <span class='spacer'></span>
-          <span class='user' id='user'>
+          <div class='user' id='user'>
             <span class='avatar'>EP</span>
-            <span class='name'>elara-player ▾</span>
-          </span>
-          <button class='icon-button' id='theme-toggle' title='Toggle color mode'>☾</button>
+            <span class='who'><b>elara-player</b><small>Signed in</small></span>
+            <button class='btn sm ghost' data-go='login' title='Log out'>
+              <span data-icon='logout'></span><span class='logout-label'>Log out</span>
+            </button>
+          </div>
+          <button class='icon-button' id='theme-toggle' title='Toggle color mode'></button>
         </header>
 
         <!-- ================================================================ login -->
@@ -1355,11 +1689,13 @@
                 <input class='input' type='password' value='secret'>
               </label>
               <p class='muted small' data-register hidden>At least 8 characters.</p>
-              <div class='alert error' data-signin>⚠ Unknown user name or wrong password</div>
-              <div class='alert error' data-register hidden>⚠ The user name 'elara-player' is already taken</div>
+              <div class='alert error' data-signin><span data-icon='alert'></span>Unknown user name or wrong password</div>
+              <div class='alert error' data-register hidden>
+                <span data-icon='alert'></span>The user name 'elara-player' is already taken
+              </div>
               <button class='btn solid block' id='login-submit' data-go='characters'>Sign in</button>
               <div class='divider'>or</div>
-              <button class='btn block'>Sign in with SSO ⇢</button>
+              <button class='btn block' data-go='characters'><span data-icon='account'></span>Sign in with SSO</button>
               <div class='api-note'>
                 <b>API:</b> errors are problem details (401 sign in failed, 409 name taken, 400 field errors).
                 The SSO button only shows when the API runs with <code>Authentication:Provider = Oidc</code>;
@@ -1375,12 +1711,9 @@
             <div class='section-title'>
               <div>
                 <h1>Your characters</h1>
-                <p class='muted'>3 characters</p>
+                <p class='muted'>3 characters · open one to see its sheet</p>
               </div>
-              <div class='row'>
-                <input class='input hide-mobile' placeholder='Search…' style='width: 200px'>
-                <button class='btn solid' data-go='creator'>+ New character</button>
-              </div>
+              <input class='input hide-mobile' placeholder='Search…' style='width: 240px'>
             </div>
             <div class='character-grid' id='character-grid'></div>
           </div>
@@ -1400,26 +1733,24 @@
 
             <div class='creator'>
               <div>
-                <!-- step 1: species -->
                 <div class='stack' data-step='0'>
                   <div>
                     <h2>Species</h2>
-                    <p class='muted'>Size, speed and traits. Choices of the species (e.g. Elven Lineage) come in step 4.</p>
+                    <p class='muted'>Click a card to choose it, the <span data-icon='info'></span> button shows all
+                      traits.</p>
                   </div>
                   <input class='input' placeholder='Search species…'>
-                  <div class='grid cols-3' id='species-grid'></div>
+                  <div class='grid auto' id='species-grid'></div>
                 </div>
 
-                <!-- step 2: background -->
                 <div class='stack' data-step='1' hidden>
                   <div>
                     <h2>Background</h2>
                     <p class='muted'>Gives the ability score increases, two skills, a tool and an origin feat.</p>
                   </div>
-                  <div class='grid cols-2' id='background-grid'></div>
+                  <div class='grid auto' id='background-grid'></div>
                 </div>
 
-                <!-- step 3: ability scores -->
                 <div class='stack' data-step='2' hidden>
                   <div>
                     <h2>Ability scores</h2>
@@ -1438,7 +1769,6 @@
                   </div>
                 </div>
 
-                <!-- step 4: origin choices -->
                 <div class='stack' data-step='3' hidden>
                   <div class='section-title'>
                     <div>
@@ -1450,17 +1780,15 @@
                   <div id='origin-choices' class='stack'></div>
                 </div>
 
-                <!-- step 5: class -->
                 <div class='stack' data-step='4' hidden>
                   <div>
                     <h2>Class (level 1)</h2>
                     <p class='muted'>The first class decides the saving throws and full armor training.</p>
                   </div>
-                  <div class='grid cols-4' id='class-grid'></div>
+                  <div class='grid auto' id='class-grid'></div>
                   <div id='class-choices' class='stack'></div>
                 </div>
 
-                <!-- step 6: details -->
                 <div class='stack' data-step='5' hidden>
                   <h2>Details</h2>
                   <div class='grid cols-2'>
@@ -1483,19 +1811,20 @@
                   <label class='field'>Backstory
                     <textarea class='textarea'>Raised in the library of Candlekeep …</textarea>
                   </label>
-                  <div class='alert success' id='complete-alert'>✓ All choices made – the character is complete.</div>
+                  <div class='alert success' id='complete-alert'></div>
                 </div>
 
                 <div class='creator-actions'>
-                  <button class='btn' id='back'>◂ Back</button>
-                  <button class='btn solid' id='next'>Next ▸</button>
+                  <button class='btn' id='back'>Back</button>
+                  <button class='btn solid' id='next'>Next</button>
                 </div>
               </div>
 
               <details class='card summary' id='summary' open>
                 <summary>
-                  <span><b class='summary-name'>Elara</b> · AC <b class='summary-ac'></b> · <span class='summary-open'></span></span>
-                  <span class='muted'>▾</span>
+                  <span><b class='summary-name'>Elara</b> · AC <b class='summary-ac'></b> ·
+                    <span class='summary-open'></span></span>
+                  <span data-icon='chevronDown'></span>
                 </summary>
                 <div class='summary-content card-body stack'>
                   <div class='summary-title'>
@@ -1519,138 +1848,200 @@
           </div>
         </section>
 
-        <!-- ================================================================ manage -->
-        <section class='screen' data-screen='manage' hidden>
+        <!-- ================================================================ character -->
+        <section class='screen' data-screen='character' hidden>
           <div class='char-header'>
             <div class='top'>
-              <button class='btn ghost sm' data-go='characters'>‹ <span class='hide-mobile'>Characters</span></button>
-              <div class='portrait avatar' style='width: 40px; height: 40px; font-size: 18px'>E</div>
+              <div class='portrait'>E</div>
               <div style='flex: 1; min-width: 160px'>
                 <h2>Elara</h2>
-                <p class='muted small' id='manage-classes'>Elf · Sage · Wizard 4 / Fighter 1</p>
+                <p class='muted small'>Elf · Sage · Wizard 4 (Evoker) / Fighter 1 · Neutral good</p>
               </div>
-              <span class='badge warning' id='violation-badge' hidden>⚠ 1 violation</span>
-              <button class='btn sm'>⤓ <span class='hide-mobile'>Sheet PDF</span></button>
-              <button class='btn sm ghost'>⋯</button>
+              <span class='badge warning' id='violation-badge' hidden></span>
+              <button class='btn sm'><span data-icon='pdf'></span><span class='hide-mobile'>Sheet PDF</span></button>
+              <button class='icon-button' title='More'><span data-icon='dots'></span></button>
             </div>
-            <div class='stats'>
-              <div class='stat'><b id='stat-ac'>14</b><span>AC</span></div>
-              <div class='stat'><b>32</b><span>HP</span></div>
-              <div class='stat'><b>+3</b><span>PB</span></div>
-              <div class='stat'><b id='stat-speed'>30</b><span>Speed</span></div>
-              <div class='stat'><b>+2</b><span>Init</span></div>
-              <div class='stat'><b>13</b><span>Pass. Perc.</span></div>
-              <div class='stat'><b>5</b><span>Level</span></div>
-            </div>
-            <div class='tabs' id='manage-tabs'>
-              <button data-tab='overview'>Overview</button>
-              <button data-tab='level'>Level up</button>
-              <button data-tab='inventory'>Inventory</button>
-              <button data-tab='shop'>Shop</button>
-              <button data-tab='spells'>Spells</button>
+            <div class='stats' id='header-stats'></div>
+            <div class='tabs' id='page-tabs'>
+              <button data-page='sheet'><span data-icon='sheet'></span>Character sheet</button>
+              <button data-page='level'><span data-icon='levelUp'></span>Level up</button>
+              <button data-page='shop'><span data-icon='cart'></span>Shop</button>
             </div>
           </div>
 
-          <div class='manage-body'>
-            <!-- overview -->
-            <div class='stack' data-tab-panel='overview'>
-              <div class='ability-grid' id='ability-grid'></div>
-              <div class='grid cols-2'>
-                <div class='card card-body stack'>
-                  <h3>Features</h3>
-                  <div class='list'>
-                    <div class='list-row'><b class='grow'>Arcane Recovery</b><span class='muted small'>Wizard 1</span></div>
-                    <div class='list-row'><b class='grow'>Scholar (Arcana expertise)</b><span class='muted small'>Wizard 2</span></div>
-                    <div class='list-row'><b class='grow'>Evocation Savant</b><span class='muted small'>Evoker 3</span></div>
-                    <div class='list-row'><b class='grow'>Second Wind</b><span class='muted small'>Fighter 1</span></div>
-                    <div class='list-row'><b class='grow'>Fey Ancestry · Trance</b><span class='muted small'>Elf</span></div>
+          <div class='char-body'>
+            <!-- ============================================================ character sheet -->
+            <div data-page-panel='sheet'>
+              <div class='sheet-bar'>
+                <div class='segmented' id='sheet-tabs'>
+                  <button data-tab='overview'><span data-icon='account'></span>Overview</button>
+                  <button data-tab='inventory'><span data-icon='backpack'></span>Inventory</button>
+                  <button data-tab='spells'><span data-icon='book'></span>Spells</button>
+                </div>
+                <div class='row'>
+                  <button class='btn sm' id='short-rest'><span data-icon='coffee'></span>Short rest</button>
+                  <button class='btn sm' id='long-rest'><span data-icon='bed'></span>Long rest</button>
+                </div>
+              </div>
+
+              <!-- overview -->
+              <div class='stack' data-tab-panel='overview'>
+                <div class='ability-grid' id='ability-grid'></div>
+                <div class='sheet-grid'>
+                  <div class='card card-body'>
+                    <div class='card-title'><h3><span data-icon='heart'></span>Hit points</h3></div>
+                    <div id='hit-points'></div>
+                  </div>
+                  <div class='card card-body'>
+                    <div class='card-title'>
+                      <h3><span data-icon='bolt'></span>Resources</h3>
+                      <span class='muted small'>click a charge to use it</span>
+                    </div>
+                    <div id='resources'></div>
+                  </div>
+                </div>
+                <div class='card card-body'>
+                  <div class='card-title'>
+                    <h3><span data-icon='star'></span>Features</h3>
+                    <span class='muted small'>click to read</span>
+                  </div>
+                  <div class='stack' id='features'></div>
+                </div>
+                <div class='api-note'>
+                  <b>API:</b> charges, current HP, hit dice and rests aren't stored by the API yet – they live in the
+                  browser for now (a later play-state route could keep them). Maximums come from the sheet
+                  (<code>resources</code>, <code>hitDice</code>).
+                </div>
+              </div>
+
+              <!-- inventory -->
+              <div class='stack' data-tab-panel='inventory' hidden>
+                <div class='sheet-grid'>
+                  <div class='card card-body'>
+                    <div class='card-title'><h3><span data-icon='armor'></span>Armor &amp; shield</h3></div>
+                    <div class='list' id='armor-list'></div>
+                  </div>
+                  <div class='card card-body stack'>
+                    <div class='card-title' style='margin-bottom: 0'>
+                      <h3><span data-icon='shield'></span>Armor class</h3>
+                      <b style='font-size: 22px' id='ac-value'></b>
+                    </div>
+                    <label class='field'>Calculation
+                      <select class='select' id='ac-select'></select>
+                    </label>
+                    <div class='row'>
+                      <button class='switch' id='mage-armor' aria-label='Mage Armor'></button>
+                      <span>Mage Armor <span class='muted small'>(without armor: 13 + DEX)</span></span>
+                    </div>
+                  </div>
+                </div>
+                <div class='weapon-columns'>
+                  <div class='card card-body'>
+                    <div class='card-title'>
+                      <h3><span data-icon='sword'></span>Weapons – melee</h3>
+                      <span class='muted small' id='melee-count'></span>
+                    </div>
+                    <div class='list' id='melee-list'></div>
+                  </div>
+                  <div class='card card-body'>
+                    <div class='card-title'>
+                      <h3><span data-icon='bow'></span>Weapons – ranged</h3>
+                      <span class='muted small' id='ranged-count'></span>
+                    </div>
+                    <div class='list' id='ranged-list'></div>
+                  </div>
+                </div>
+                <div class='sheet-grid'>
+                  <div class='card card-body'>
+                    <div class='card-title'>
+                      <h3><span data-icon='ring'></span>Worn &amp; attuned</h3>
+                      <span class='badge' id='attune-count'></span>
+                    </div>
+                    <div class='list' id='worn-list'></div>
+                  </div>
+                  <div class='card card-body'>
+                    <div class='card-title'><h3><span data-icon='bag'></span>Backpack</h3></div>
+                    <div class='list' id='backpack-list'></div>
+                  </div>
+                </div>
+                <div class='api-note'>
+                  <b>API change needed:</b> today an item is equipped into one slot (<code>Armor</code>,
+                  <code>MainHand</code>, <code>OffHand</code>, <code>Worn</code>) and equipping a second weapon replaces the
+                  first. Any number of ready weapons needs e.g. an <code>Equipped</code> flag per item, with all ready
+                  weapons listed as attacks. Violations come from the sheet (<code>violations</code>).
+                </div>
+              </div>
+
+              <!-- spells -->
+              <div class='stack' data-tab-panel='spells' hidden>
+                <div class='sheet-grid'>
+                  <div class='card card-body'>
+                    <p class='muted small'>Wizard · Intelligence</p>
+                    <h3>Spell save DC 15 · Spell attack +7</h3>
+                    <p class='muted small'>Prepared limit 7 · ritual casting from the spellbook</p>
+                  </div>
+                  <div class='card card-body'>
+                    <div class='card-title'>
+                      <h3>Spell slots</h3>
+                      <span class='muted small'>click to use</span>
+                    </div>
+                    <div class='stack' id='spell-slots'></div>
                   </div>
                 </div>
                 <div class='card card-body stack'>
-                  <h3>Resources</h3>
-                  <div class='list'>
-                    <div class='list-row'>
-                      <span class='grow'>Second Wind <span class='muted small'>d10 · short rest</span></span>
-                      <span class='pips'><i></i><i class='used'></i></span>
-                    </div>
-                    <div class='list-row'>
-                      <span class='grow'>Arcane Recovery <span class='muted small'>long rest</span></span>
-                      <span class='pips'><i></i></span>
-                    </div>
+                  <div class='section-title'>
+                    <h3>Cantrips</h3>
+                    <span class='muted small'>at will</span>
                   </div>
-                  <h3>Proficiencies</h3>
-                  <p class='muted'>Light, medium armor, shields · simple, martial weapons · calligrapher's supplies ·
-                    Common, Elvish, Draconic, Dwarvish</p>
+                  <div class='list' id='cantrips'></div>
+                </div>
+                <div class='card card-body stack'>
+                  <div class='section-title'>
+                    <h3>Spellbook</h3>
+                    <span class='badge' id='prepared-count'></span>
+                  </div>
+                  <div class='list' id='spellbook'></div>
+                  <div class='row' style='justify-content: flex-end'>
+                    <button class='btn'><span data-icon='plus'></span>Copy a spell into the spellbook</button>
+                    <button class='btn solid'>Save prepared spells</button>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <!-- level up -->
-            <div class='stack' data-tab-panel='level' hidden>
+            <!-- ============================================================ level up -->
+            <div class='stack' data-page-panel='level' hidden>
               <div class='section-title'>
                 <div>
                   <h2>Gain a level</h2>
                   <p class='muted'>Character level 5 → 6. Nothing is saved until you press “Level up”.</p>
                 </div>
-                <button class='btn sm' id='undo-level'>↶ Undo last level</button>
+                <button class='btn sm' id='undo-level'><span data-icon='undo'></span>Undo last level</button>
               </div>
               <div class='level-cards' id='level-cards'></div>
               <div class='card card-body stack' id='level-detail'></div>
               <div class='api-note'>
                 <b>API:</b> <code>GET /level-up/preview?class=</code> lists the choices, swaps and the subclass;
-                <code>POST /levels/validate</code> checks, <code>POST /levels</code> saves, <code>DELETE /levels/last</code> undoes.
+                <code>POST /levels/validate</code> checks, <code>POST /levels</code> saves,
+                <code>DELETE /levels/last</code> undoes.
               </div>
             </div>
 
-            <!-- inventory -->
-            <div class='stack' data-tab-panel='inventory' hidden>
-              <div class='section-title'>
-                <h2>Equipped</h2>
-                <span class='badge' id='attune-count'></span>
-              </div>
-              <div class='slots' id='slots'></div>
-              <div class='grid cols-2'>
-                <label class='field'>Armor class calculation
-                  <select class='select' id='ac-select'></select>
-                </label>
-                <div class='field'>Toggles
-                  <div class='row' style='height: 36px'>
-                    <label class='row'><input type='checkbox' id='mage-armor'> Mage Armor <span class='muted small'>(no armor: 13 + DEX)</span></label>
-                  </div>
-                </div>
-              </div>
-              <div id='inventory-warnings' class='stack'></div>
-              <div class='section-title' style='margin-top: 8px'>
-                <h2>Backpack</h2>
-                <select class='select' id='backpack-filter' style='width: 150px'>
-                  <option value=''>All kinds</option>
-                  <option>Weapon</option>
-                  <option>Armor</option>
-                  <option>Gear</option>
-                </select>
-              </div>
-              <div class='list' id='backpack'></div>
-              <div class='api-note'>
-                <b>API:</b> equip/unequip = <code>PUT /items/{itemId}/slot</code> (slot <code>None</code> unequips),
-                attunement = <code>PUT /items/{itemId}/attunement</code>. Removing or selling an item has no route yet.
-              </div>
-            </div>
-
-            <!-- shop -->
-            <div class='stack' data-tab-panel='shop' hidden>
+            <!-- ============================================================ shop -->
+            <div class='stack' data-page-panel='shop' hidden>
               <div class='section-title'>
                 <h2>Shop</h2>
                 <span class='badge brand' id='coins'></span>
               </div>
               <div class='row'>
                 <input class='input' id='shop-search' placeholder='Search items…' style='flex: 1; min-width: 160px'>
-                <select class='select' id='shop-kind' style='width: 130px'>
+                <select class='select' id='shop-kind' style='width: 140px'>
                   <option value=''>All kinds</option>
                   <option>Weapon</option>
                   <option>Armor</option>
                   <option>Gear</option>
                 </select>
-                <select class='select' id='shop-sort' style='width: 130px'>
+                <select class='select' id='shop-sort' style='width: 140px'>
                   <option value='name'>Sort: name</option>
                   <option value='cost'>Sort: cost</option>
                 </select>
@@ -1661,51 +2052,22 @@
                 <div class='card card-body stack shop-detail' id='shop-detail'></div>
               </div>
               <div class='api-note'>
-                <b>API gap:</b> <code>POST /items</code> adds the item but doesn't charge coins, and coins can't be changed
-                yet. “Buy” needs an API addition (a coins route or a purchase flag); here it subtracts mock coins.
-              </div>
-            </div>
-
-            <!-- spells -->
-            <div class='stack' data-tab-panel='spells' hidden>
-              <div class='grid cols-3'>
-                <div class='card card-body'>
-                  <p class='muted small'>Wizard · INT</p>
-                  <h3>Save DC 15 · Attack +7</h3>
-                </div>
-                <div class='card card-body'>
-                  <p class='muted small'>1st level slots</p>
-                  <span class='pips'><i></i><i></i><i></i><i class='used'></i></span>
-                </div>
-                <div class='card card-body'>
-                  <p class='muted small'>2nd level slots</p>
-                  <span class='pips'><i></i><i class='used'></i><i class='used'></i></span>
-                </div>
-              </div>
-              <div class='section-title'>
-                <h2>Spellbook</h2>
-                <span class='badge' id='prepared-count'></span>
-              </div>
-              <div class='list' id='spellbook'></div>
-              <div class='row' style='justify-content: flex-end'>
-                <button class='btn'>+ Copy a spell into the spellbook</button>
-                <button class='btn solid'>Save prepared spells (long rest)</button>
+                <b>API gap:</b> <code>POST /items</code> adds the item but doesn't charge coins, and coins can't be
+                changed yet. “Buy” needs an API addition (a coins route or a purchase flag); here it subtracts mock coins.
               </div>
             </div>
           </div>
 
           <nav class='bottom-tabs' id='bottom-tabs'>
-            <button data-tab='overview'><span>🏠</span>Overview</button>
-            <button data-tab='level'><span>⬆</span>Level</button>
-            <button data-tab='inventory'><span>🎒</span>Items</button>
-            <button data-tab='shop'><span>🛒</span>Shop</button>
-            <button data-tab='spells'><span>✨</span>Spells</button>
+            <button data-page='sheet'><span data-icon='sheet'></span>Sheet</button>
+            <button data-page='level'><span data-icon='levelUp'></span>Level up</button>
+            <button data-page='shop'><span data-icon='cart'></span>Shop</button>
           </nav>
         </section>
+      </div>
 
-        <div class='overlay' id='overlay' hidden>
-          <div class='dialog' id='dialog'></div>
-        </div>
+      <div class='overlay' id='overlay' hidden>
+        <div class='dialog' id='dialog'></div>
       </div>
     </div>
   </div>
@@ -1713,7 +2075,50 @@
   <div class='toast' id='toast' hidden></div>
 
   <script>
-    // ---------------------------------------------------------------- mock data
+    // ---------------------------------------------------------------- icons (Material Design Icons, Apache 2.0)
+    const icons = {
+      account: 'M12,19.2C9.5,19.2 7.29,17.92 6,16C6.03,14 10,12.9 12,12.9C14,12.9 17.97,14 18,16C16.71,17.92 14.5,19.2 12,19.2M12,5A3,3 0 0,1 15,8A3,3 0 0,1 12,11A3,3 0 0,1 9,8A3,3 0 0,1 12,5M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12C22,6.47 17.5,2 12,2Z',
+      alert: 'M13 14H11V9H13M13 18H11V16H13M1 21H23L12 2L1 21Z',
+      armor: 'M16,21H8A1,1 0 0,1 7,20V12.07L5.7,13.07C5.31,13.46 4.68,13.46 4.29,13.07L1.46,10.29C1.07,9.9 1.07,9.27 1.46,8.88L7.34,3H9C9,4.1 10.34,5 12,5C13.66,5 15,4.1 15,3H16.66L22.54,8.88C22.93,9.27 22.93,9.9 22.54,10.29L19.71,13.12C19.32,13.5 18.69,13.5 18.3,13.12L17,12.12V20A1,1 0 0,1 16,21',
+      backpack: 'M16,5V4A2,2 0 0,0 14,2H10A2,2 0 0,0 8,4V5A4,4 0 0,0 4,9V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V9A4,4 0 0,0 16,5M10,4H14V5H10V4M12,9L14,11L12,13L10,11L12,9M18,20H6V16H8V18H9V16H18V20M18,15H6V9A2,2 0 0,1 8,7H16A2,2 0 0,1 18,9V15Z',
+      bag: 'M16,5V4A2,2 0 0,0 14,2H10A2,2 0 0,0 8,4V5A4,4 0 0,0 4,9V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V9A4,4 0 0,0 16,5M10,4H14V5H10V4M12,9L14,11L12,13L10,11L12,9M18,16H9V18H8V16H6V15H18V16Z',
+      bed: 'M19,7H11V14H3V5H1V20H3V17H21V20H23V11A4,4 0 0,0 19,7M7,13A3,3 0 0,0 10,10A3,3 0 0,0 7,7A3,3 0 0,0 4,10A3,3 0 0,0 7,13Z',
+      bolt: 'M11 15H6L13 1V9H18L11 23V15Z',
+      book: 'M12 21.5C10.65 20.65 8.2 20 6.5 20C4.85 20 3.15 20.3 1.75 21.05C1.65 21.1 1.6 21.1 1.5 21.1C1.25 21.1 1 20.85 1 20.6V6C1.6 5.55 2.25 5.25 3 5C4.11 4.65 5.33 4.5 6.5 4.5C8.45 4.5 10.55 4.9 12 6C13.45 4.9 15.55 4.5 17.5 4.5C18.67 4.5 19.89 4.65 21 5C21.75 5.25 22.4 5.55 23 6V20.6C23 20.85 22.75 21.1 22.5 21.1C22.4 21.1 22.35 21.1 22.25 21.05C20.85 20.3 19.15 20 17.5 20C15.8 20 13.35 20.65 12 21.5M12 8V19.5C13.35 18.65 15.8 18 17.5 18C18.7 18 19.9 18.15 21 18.5V7C19.9 6.65 18.7 6.5 17.5 6.5C15.8 6.5 13.35 7.15 12 8M13 11.5C14.11 10.82 15.6 10.5 17.5 10.5C18.41 10.5 19.26 10.59 20 10.78V9.23C19.13 9.08 18.29 9 17.5 9C15.73 9 14.23 9.28 13 9.84V11.5M17.5 11.67C15.79 11.67 14.29 11.93 13 12.46V14.15C14.11 13.5 15.6 13.16 17.5 13.16C18.54 13.16 19.38 13.24 20 13.4V11.9C19.13 11.74 18.29 11.67 17.5 11.67M20 14.57C19.13 14.41 18.29 14.33 17.5 14.33C15.67 14.33 14.17 14.6 13 15.13V16.82C14.11 16.16 15.6 15.83 17.5 15.83C18.54 15.83 19.38 15.91 20 16.07V14.57Z',
+      bow: 'M19.03 6.03L20 7L22 2L17 4L17.97 4.97L16.15 6.79C10.87 2.16 3.3 3.94 2.97 4L2 4.26L2.5 6.2L3.29 6L10.12 12.82L6.94 16H5L2 19L4 20L5 22L8 19V17.06L11.18 13.88L18 20.71L17.81 21.5L19.74 22L20 21.03C20.06 20.7 21.84 13.13 17.21 7.85L19.03 6.03M4.5 5.78C6.55 5.5 11.28 5.28 14.73 8.21L10.82 12.12L4.5 5.78M18.22 19.5L11.88 13.18L15.79 9.27C18.72 12.72 18.5 17.45 18.22 19.5Z',
+      cancel: 'M12 2C17.5 2 22 6.5 22 12S17.5 22 12 22 2 17.5 2 12 6.5 2 12 2M12 4C10.1 4 8.4 4.6 7.1 5.7L18.3 16.9C19.3 15.5 20 13.8 20 12C20 7.6 16.4 4 12 4M16.9 18.3L5.7 7.1C4.6 8.4 4 10.1 4 12C4 16.4 7.6 20 12 20C13.9 20 15.6 19.4 16.9 18.3Z',
+      cart: 'M17,18C15.89,18 15,18.89 15,20A2,2 0 0,0 17,22A2,2 0 0,0 19,20C19,18.89 18.1,18 17,18M1,2V4H3L6.6,11.59L5.24,14.04C5.09,14.32 5,14.65 5,15A2,2 0 0,0 7,17H19V15H7.42A0.25,0.25 0 0,1 7.17,14.75C7.17,14.7 7.18,14.66 7.2,14.63L8.1,13H15.55C16.3,13 16.96,12.58 17.3,11.97L20.88,5.5C20.95,5.34 21,5.17 21,5A1,1 0 0,0 20,4H5.21L4.27,2M7,18C5.89,18 5,18.89 5,20A2,2 0 0,0 7,22A2,2 0 0,0 9,20C9,18.89 8.1,18 7,18Z',
+      check: 'M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z',
+      checkCircle: 'M12 2C6.5 2 2 6.5 2 12S6.5 22 12 22 22 17.5 22 12 17.5 2 12 2M10 17L5 12L6.41 10.59L10 14.17L17.59 6.58L19 8L10 17Z',
+      chevronDown: 'M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z',
+      close: 'M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z',
+      coffee: 'M2,21H20V19H2M20,8H18V5H20M20,3H4V13A4,4 0 0,0 8,17H14A4,4 0 0,0 18,13V10H20A2,2 0 0,0 22,8V5C22,3.89 21.1,3 20,3Z',
+      dice: 'M20.47 6.62L12.57 2.18C12.41 2.06 12.21 2 12 2S11.59 2.06 11.43 2.18L3.53 6.62C3.21 6.79 3 7.12 3 7.5V16.5C3 16.88 3.21 17.21 3.53 17.38L11.43 21.82C11.59 21.94 11.79 22 12 22S12.41 21.94 12.57 21.82L20.47 17.38C20.79 17.21 21 16.88 21 16.5V7.5C21 7.12 20.79 6.79 20.47 6.62M11.45 15.96L6.31 15.93V14.91C6.31 14.91 9.74 11.58 9.75 10.57C9.75 9.33 8.73 9.46 8.73 9.46S7.75 9.5 7.64 10.71L6.14 10.76C6.14 10.76 6.18 8.26 8.83 8.26C11.2 8.26 11.23 10.04 11.23 10.5C11.23 12.18 8.15 14.77 8.15 14.77L11.45 14.76V15.96M17.5 13.5C17.5 14.9 16.35 16.05 14.93 16.05C13.5 16.05 12.36 14.9 12.36 13.5V10.84C12.36 9.42 13.5 8.27 14.93 8.27S17.5 9.42 17.5 10.84V13.5M16 10.77V13.53C16 14.12 15.5 14.6 14.92 14.6C14.34 14.6 13.86 14.12 13.86 13.53V10.77C13.86 10.18 14.34 9.71 14.92 9.71C15.5 9.71 16 10.18 16 10.77Z',
+      dots: 'M12,16A2,2 0 0,1 14,18A2,2 0 0,1 12,20A2,2 0 0,1 10,18A2,2 0 0,1 12,16M12,10A2,2 0 0,1 14,12A2,2 0 0,1 12,14A2,2 0 0,1 10,12A2,2 0 0,1 12,10M12,4A2,2 0 0,1 14,6A2,2 0 0,1 12,8A2,2 0 0,1 10,6A2,2 0 0,1 12,4Z',
+      group: 'M12,5.5A3.5,3.5 0 0,1 15.5,9A3.5,3.5 0 0,1 12,12.5A3.5,3.5 0 0,1 8.5,9A3.5,3.5 0 0,1 12,5.5M5,8C5.56,8 6.08,8.15 6.53,8.42C6.38,9.85 6.8,11.27 7.66,12.38C7.16,13.34 6.16,14 5,14A3,3 0 0,1 2,11A3,3 0 0,1 5,8M19,8A3,3 0 0,1 22,11A3,3 0 0,1 19,14C17.84,14 16.84,13.34 16.34,12.38C17.2,11.27 17.62,9.85 17.47,8.42C17.92,8.15 18.44,8 19,8M5.5,18.25C5.5,16.18 8.41,14.5 12,14.5C15.59,14.5 18.5,16.18 18.5,18.25V20H5.5V18.25M0,20V18.5C0,17.11 1.89,15.94 4.45,15.6C3.86,16.28 3.5,17.22 3.5,18.25V20H0M24,20H20.5V18.25C20.5,17.22 20.14,16.28 19.55,15.6C22.11,15.94 24,17.11 24,18.5V20Z',
+      heart: 'M12,21.35L10.55,20.03C5.4,15.36 2,12.27 2,8.5C2,5.41 4.42,3 7.5,3C9.24,3 10.91,3.81 12,5.08C13.09,3.81 14.76,3 16.5,3C19.58,3 22,5.41 22,8.5C22,12.27 18.6,15.36 13.45,20.03L12,21.35Z',
+      info: 'M11,9H13V7H11M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,17H13V11H11V17Z',
+      levelUp: 'M12,7L17,12H14V16H10V12H7L12,7M12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20Z',
+      logout: 'M17 7L15.59 8.41L18.17 11H8V13H18.17L15.59 15.58L17 17L22 12M4 5H12V3H4C2.9 3 2 3.9 2 5V19C2 20.1 2.9 21 4 21H12V19H4V5Z',
+      magnify: 'M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z',
+      minus: 'M19,13H5V11H19V13Z',
+      moon: 'M17.75,4.09L15.22,6.03L16.13,9.09L13.5,7.28L10.87,9.09L11.78,6.03L9.25,4.09L12.44,4L13.5,1L14.56,4L17.75,4.09M21.25,11L19.61,12.25L20.2,14.23L18.5,13.06L16.8,14.23L17.39,12.25L15.75,11L17.81,10.95L18.5,9L19.19,10.95L21.25,11M18.97,15.95C19.8,15.87 20.69,17.05 20.16,17.8C19.84,18.25 19.5,18.67 19.08,19.07C15.17,23 8.84,23 4.94,19.07C1.03,15.17 1.03,8.83 4.94,4.93C5.34,4.53 5.76,4.17 6.21,3.85C6.96,3.32 8.14,4.21 8.06,5.04C7.79,7.9 8.75,10.87 10.95,13.06C13.14,15.26 16.1,16.22 18.97,15.95M17.33,17.97C14.5,17.81 11.7,16.64 9.53,14.5C7.36,12.31 6.2,9.5 6.04,6.68C3.23,9.82 3.34,14.64 6.35,17.66C9.37,20.67 14.19,20.78 17.33,17.97Z',
+      newChar: 'M15,14C12.33,14 7,15.33 7,18V20H23V18C23,15.33 17.67,14 15,14M6,10V7H4V10H1V12H4V15H6V12H9V10M15,12A4,4 0 0,0 19,8A4,4 0 0,0 15,4A4,4 0 0,0 11,8A4,4 0 0,0 15,12Z',
+      pdf: 'M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3M9.5 11.5C9.5 12.3 8.8 13 8 13H7V15H5.5V9H8C8.8 9 9.5 9.7 9.5 10.5V11.5M14.5 13.5C14.5 14.3 13.8 15 13 15H10.5V9H13C13.8 9 14.5 9.7 14.5 10.5V13.5M18.5 10.5H17V11.5H18.5V13H17V15H15.5V9H18.5V10.5M12 10.5H13V13.5H12V10.5M7 10.5H8V11.5H7V10.5Z',
+      plus: 'M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z',
+      potion: 'M13 4H11L10 2H14L13 4M14 8V6H15V5H9V6H10V8C7.24 8 5 10.24 5 13V22H19V13C19 10.24 16.76 8 14 8M16 17H13V20H11V17H8V15H11V12H13V15H16V17Z',
+      ring: 'M12,10L8,4.4L9.6,2H14.4L16,4.4L12,10M15.5,6.8L14.3,8.5C16.5,9.4 18,11.5 18,14A6,6 0 0,1 12,20A6,6 0 0,1 6,14C6,11.5 7.5,9.4 9.7,8.5L8.5,6.8C5.8,8.1 4,10.8 4,14A8,8 0 0,0 12,22A8,8 0 0,0 20,14C20,10.8 18.2,8.1 15.5,6.8Z',
+      sheet: 'M22,3H2C0.91,3.04 0.04,3.91 0,5V19C0.04,20.09 0.91,20.96 2,21H22C23.09,20.96 23.96,20.09 24,19V5C23.96,3.91 23.09,3.04 22,3M22,19H2V5H22V19M14,17V15.75C14,14.09 10.66,13.25 9,13.25C7.34,13.25 4,14.09 4,15.75V17H14M9,7A2.5,2.5 0 0,0 6.5,9.5A2.5,2.5 0 0,0 9,12A2.5,2.5 0 0,0 11.5,9.5A2.5,2.5 0 0,0 9,7M14,7V8H20V7H14M14,9V10H20V9H14M14,11V12H18V11H14',
+      shield: 'M21,11C21,16.55 17.16,21.74 12,23C6.84,21.74 3,16.55 3,11V5L12,1L21,5V11M12,21C15.75,20 19,15.54 19,11.22V6.3L12,3.18L5,6.3V11.22C5,15.54 8.25,20 12,21Z',
+      star: 'M12,1L9,9L1,12L9,15L12,23L15,15L23,12L15,9L12,1Z',
+      sun: 'M3.55 19.09L4.96 20.5L6.76 18.71L5.34 17.29M12 6C8.69 6 6 8.69 6 12S8.69 18 12 18 18 15.31 18 12C18 8.68 15.31 6 12 6M20 13H23V11H20M17.24 18.71L19.04 20.5L20.45 19.09L18.66 17.29M20.45 5L19.04 3.6L17.24 5.39L18.66 6.81M13 1H11V4H13M6.76 5.39L4.96 3.6L3.55 5L5.34 6.81L6.76 5.39M1 13H4V11H1M13 20H11V23H13',
+      sword: 'M6.92,5H5L14,14L15,13.06M19.96,19.12L19.12,19.96C18.73,20.35 18.1,20.35 17.71,19.96L14.59,16.84L11.91,19.5L10.5,18.09L11.92,16.67L3,7.75V3H7.75L16.67,11.92L18.09,10.5L19.5,11.91L16.83,14.58L19.95,17.7C20.35,18.1 20.35,18.73 19.96,19.12Z',
+      undo: 'M12.5,8C9.85,8 7.45,9 5.6,10.6L2,7V16H11L7.38,12.38C8.77,11.22 10.54,10.5 12.5,10.5C16.04,10.5 19.05,12.81 20.1,16L22.47,15.22C21.08,11.03 17.15,8 12.5,8Z',
+    }
+
+    const icon = (name) => `<svg class='icon' viewBox='0 0 24 24' aria-hidden='true'><path d='${icons[name]}'/></svg>`
+
+    // ---------------------------------------------------------------- rules data (what the rules routes would deliver)
     const abilityKeys = ['str', 'dex', 'con', 'int', 'wis', 'cha']
     const abilityNames = {
       str: 'Strength',
@@ -1735,158 +2140,467 @@
       15: 9,
     }
 
-    const characters = [
-      {
-        name: 'Elara',
-        line: 'Elf · Sage',
-        classes: 'Wizard 4 / Fighter 1',
-        level: 5,
-        badge: '⚠ 1 violation',
-        badgeKind: 'warning',
-      },
-      {
-        name: 'Borin',
-        line: 'Dwarf · Soldier',
-        classes: 'Fighter 3 (Battle Master)',
-        level: 3,
-        badge: '✓ complete',
-        badgeKind: 'success',
-      },
-      {
-        name: 'Nyx',
-        line: 'Tiefling · Criminal',
-        classes: 'no class yet',
-        level: 0,
-        badge: 'Draft · 3 open choices',
-        badgeKind: 'brand',
-      },
-    ]
-
-    const species = [
-      {
-        key: 'elf',
+    const species = {
+      elf: {
         name: 'Elf',
-        info: 'Medium · 30 ft · Darkvision, Fey Ancestry, Keen Senses, Elven Lineage',
+        summary: 'Medium · 30 ft · Darkvision, Fey Ancestry, Keen Senses, Elven Lineage',
+        facts: [['Creature type', 'Humanoid'], ['Size', 'Medium'], ['Speed', '30 ft'], ['Life span', 'about 750 years']],
+        features: [
+          ['Darkvision', 'You can see in dim light within 60 feet as if it were bright light.'],
+          ['Elven Lineage', 'Choose Drow, High Elf or Wood Elf; each lineage grants a cantrip and later spells at ' +
+            'character levels 3 and 5. Choice: lineage and its spellcasting ability (INT, WIS or CHA).'],
+          ['Fey Ancestry', 'You have advantage on saving throws to avoid or end the Charmed condition.'],
+          ['Keen Senses', 'Choice: proficiency in Insight, Perception or Survival.'],
+          ['Trance', 'You don’t need to sleep; a long rest takes 4 hours of meditation.'],
+        ],
       },
-      {
-        key: 'human',
+      human: {
         name: 'Human',
-        info: 'Medium/Small · 30 ft · Resourceful, Skillful, Versatile (origin feat)',
+        summary: 'Medium or Small · 30 ft · Resourceful, Skillful, Versatile',
+        facts: [['Creature type', 'Humanoid'], ['Size', 'Medium or Small'], ['Speed', '30 ft']],
+        features: [
+          ['Resourceful', 'You gain Heroic Inspiration whenever you finish a long rest.'],
+          ['Skillful', 'Choice: proficiency in one skill.'],
+          ['Versatile', 'Choice: an origin feat (Skilled is recommended).'],
+        ],
       },
-      {
-        key: 'dwarf',
+      dwarf: {
         name: 'Dwarf',
-        info: 'Medium · 30 ft · Darkvision 120, Dwarven Resilience, Stonecunning',
+        summary: 'Medium · 30 ft · Darkvision 120 ft, Dwarven Resilience, Stonecunning',
+        facts: [['Creature type', 'Humanoid'], ['Size', 'Medium'], ['Speed', '30 ft']],
+        features: [
+          ['Darkvision', 'Range 120 feet.'],
+          ['Dwarven Resilience', 'Resistance to poison damage and advantage on saves against the Poisoned condition.'],
+          ['Dwarven Toughness', 'Your hit point maximum increases by 1 per character level.'],
+          ['Stonecunning', 'Bonus action: tremorsense 60 ft on stone for 10 minutes, PB times per long rest.'],
+        ],
       },
-      {
-        key: 'dragonborn',
+      dragonborn: {
         name: 'Dragonborn',
-        info: 'Medium · 30 ft · Draconic Ancestry, Breath Weapon, Damage Resistance',
+        summary: 'Medium · 30 ft · Draconic Ancestry, Breath Weapon, Damage Resistance',
+        facts: [['Creature type', 'Humanoid'], ['Size', 'Medium'], ['Speed', '30 ft']],
+        features: [
+          ['Draconic Ancestry', 'Choice: a dragon; it decides the damage type of your breath and resistance.'],
+          ['Breath Weapon', '15 ft cone or 30 ft line, 1d10 damage (scales with level), DEX save, PB uses.'],
+          ['Damage Resistance', 'Resistance to the damage type of your ancestry.'],
+        ],
       },
-      {
-        key: 'halfling',
+      halfling: {
         name: 'Halfling',
-        info: 'Small · 30 ft · Brave, Halfling Nimbleness, Luck, Naturally Stealthy',
+        summary: 'Small · 30 ft · Brave, Halfling Nimbleness, Luck, Naturally Stealthy',
+        facts: [['Creature type', 'Humanoid'], ['Size', 'Small'], ['Speed', '30 ft']],
+        features: [
+          ['Brave', 'Advantage on saving throws to avoid or end the Frightened condition.'],
+          ['Luck', 'Reroll a 1 on a d20 test and use the new roll.'],
+        ],
       },
-      {
-        key: 'tiefling',
+      tiefling: {
         name: 'Tiefling',
-        info: 'Medium/Small · 30 ft · Darkvision, Fiendish Legacy, Otherworldly Presence',
+        summary: 'Medium or Small · 30 ft · Darkvision, Fiendish Legacy, Otherworldly Presence',
+        facts: [['Creature type', 'Humanoid'], ['Size', 'Medium or Small'], ['Speed', '30 ft']],
+        features: [
+          ['Fiendish Legacy', 'Choice: Abyssal, Chthonic or Infernal legacy (resistance and spells).'],
+          ['Otherworldly Presence', 'You know the Thaumaturgy cantrip.'],
+        ],
       },
-    ]
+    }
 
-    const backgrounds = [
-      {
-        key: 'sage',
+    const backgrounds = {
+      sage: {
         name: 'Sage',
         abilities: ['con', 'int', 'wis'],
-        info: 'Arcana, History · Calligrapher’s Supplies · Magic Initiate (Wizard)',
+        summary: 'Arcana, History · Calligrapher’s Supplies · Magic Initiate (Wizard)',
+        feat: 'magic-initiate',
+        facts: [
+          ['Ability scores', 'CON, INT, WIS'],
+          ['Skills', 'Arcana, History'],
+          ['Tool', 'Calligrapher’s Supplies'],
+          ['Origin feat', 'Magic Initiate (Wizard)'],
+        ],
+        description: 'You spent your formative years traveling between manors and monasteries, performing odd jobs ' +
+          'in exchange for access to their libraries.',
       },
-      {
-        key: 'acolyte',
+      acolyte: {
         name: 'Acolyte',
         abilities: ['int', 'wis', 'cha'],
-        info: 'Insight, Religion · Calligrapher’s Supplies · Magic Initiate (Cleric)',
+        summary: 'Insight, Religion · Calligrapher’s Supplies · Magic Initiate (Cleric)',
+        feat: 'magic-initiate',
+        facts: [
+          ['Ability scores', 'INT, WIS, CHA'],
+          ['Skills', 'Insight, Religion'],
+          ['Tool', 'Calligrapher’s Supplies'],
+          ['Origin feat', 'Magic Initiate (Cleric)'],
+        ],
+        description: 'You devoted yourself to service in a temple.',
       },
-      {
-        key: 'soldier',
+      soldier: {
         name: 'Soldier',
         abilities: ['str', 'dex', 'con'],
-        info: 'Athletics, Intimidation · Gaming Set · Savage Attacker',
+        summary: 'Athletics, Intimidation · Gaming Set · Savage Attacker',
+        feat: 'savage-attacker',
+        facts: [
+          ['Ability scores', 'STR, DEX, CON'],
+          ['Skills', 'Athletics, Intimidation'],
+          ['Tool', 'Gaming Set'],
+          ['Origin feat', 'Savage Attacker'],
+        ],
+        description: 'You began training for war as soon as you reached adulthood.',
       },
-      {
-        key: 'criminal',
+      criminal: {
         name: 'Criminal',
         abilities: ['dex', 'con', 'int'],
-        info: 'Sleight of Hand, Stealth · Thieves’ Tools · Alert',
+        summary: 'Sleight of Hand, Stealth · Thieves’ Tools · Alert',
+        feat: 'alert',
+        facts: [
+          ['Ability scores', 'DEX, CON, INT'],
+          ['Skills', 'Sleight of Hand, Stealth'],
+          ['Tool', 'Thieves’ Tools'],
+          ['Origin feat', 'Alert'],
+        ],
+        description: 'You eked out a living in dark alleyways, cutting purses or burgling shops.',
       },
-    ]
+    }
 
-    const classes = [
-      {
-        key: 'wizard',
+    const feats = {
+      'magic-initiate': {
+        name: 'Magic Initiate',
+        facts: [['Category', 'Origin'], ['Repeatable', 'Yes, with a different spell list']],
+        features: [
+          ['Two Cantrips', 'Choice: two cantrips from the Cleric, Druid or Wizard spell list.'],
+          ['Level 1 Spell', 'Choice: a level 1 spell from the same list; cast it once per long rest without a slot.'],
+          ['Spellcasting Ability', 'Choice: INT, WIS or CHA for these spells.'],
+        ],
+      },
+      'savage-attacker': {
+        name: 'Savage Attacker',
+        facts: [['Category', 'Origin'], ['Repeatable', 'No']],
+        features: [['Savage Attacker', 'Once per turn, roll a weapon’s damage dice twice and use either roll.']],
+      },
+      alert: {
+        name: 'Alert',
+        facts: [['Category', 'Origin'], ['Repeatable', 'No']],
+        features: [
+          ['Initiative Proficiency', 'Add your proficiency bonus to initiative rolls.'],
+          ['Initiative Swap', 'Swap your initiative with a willing ally after rolling.'],
+        ],
+      },
+    }
+
+    const classes = {
+      wizard: {
         name: 'Wizard',
         die: 6,
-        info: 'd6 · INT · spellbook',
+        summary: 'd6 · INT · spellbook',
+        facts: [
+          ['Hit die', 'd6'],
+          ['Primary ability', 'Intelligence'],
+          ['Saving throws', 'INT, WIS'],
+          ['Armor', 'none'],
+          ['Weapons', 'simple'],
+          ['Subclass', 'level 3'],
+        ],
+        levels: [
+          [1, 'Spellcasting, Ritual Adept, Arcane Recovery', 'Choices: 3 cantrips, 6 spellbook spells, 2 skills'],
+          [2, 'Scholar', 'Choice: expertise in one known knowledge skill'],
+          [3, 'Wizard Subclass', 'Choice: Abjurer, Diviner, Evoker or Illusionist'],
+          [4, 'Ability Score Improvement', 'Choice: a general feat'],
+          [5, 'Memorize Spell', 'Choices: 1 cantrip, 2 spellbook spells'],
+        ],
       },
-      {
-        key: 'fighter',
+      fighter: {
         name: 'Fighter',
         die: 10,
-        info: 'd10 · STR or DEX · all armor',
+        summary: 'd10 · STR or DEX · all armor',
+        facts: [
+          ['Hit die', 'd10'],
+          ['Primary ability', 'STR or DEX'],
+          ['Saving throws', 'STR, CON'],
+          ['Armor', 'all, shields'],
+          ['Weapons', 'simple, martial'],
+          ['Subclass', 'level 3'],
+        ],
+        levels: [
+          [1, 'Fighting Style, Second Wind, Weapon Mastery', 'Choices: fighting style feat, 3 weapon masteries'],
+          [2, 'Action Surge, Tactical Mind', 'no choices'],
+          [3, 'Fighter Subclass', 'Choice: Battle Master, Champion, Eldritch Knight or Psi Warrior'],
+          [4, 'Ability Score Improvement', 'Choice: a general feat'],
+          [5, 'Extra Attack, Tactical Shift', 'no choices'],
+        ],
       },
-      {
-        key: 'cleric',
+      cleric: {
         name: 'Cleric',
         die: 8,
-        info: 'd8 · WIS · divine spells',
+        summary: 'd8 · WIS · divine spells',
+        facts: [
+          ['Hit die', 'd8'],
+          ['Primary ability', 'Wisdom'],
+          ['Saving throws', 'WIS, CHA'],
+          ['Armor', 'light, medium, shields'],
+          ['Weapons', 'simple'],
+          ['Subclass', 'level 3'],
+        ],
+        levels: [
+          [1, 'Spellcasting, Divine Order', 'Choices: 3 cantrips, Protector or Thaumaturge'],
+          [2, 'Channel Divinity', 'no choices'],
+          [3, 'Cleric Subclass', 'Choice: Life, Light, Trickery or War Domain'],
+        ],
       },
-      {
-        key: 'rogue',
+      rogue: {
         name: 'Rogue',
         die: 8,
-        info: 'd8 · DEX · sneak attack',
+        summary: 'd8 · DEX · sneak attack',
+        facts: [
+          ['Hit die', 'd8'],
+          ['Primary ability', 'Dexterity'],
+          ['Saving throws', 'DEX, INT'],
+          ['Armor', 'light'],
+          ['Weapons', 'simple, martial with finesse or light'],
+          ['Subclass', 'level 3'],
+        ],
+        levels: [
+          [1, 'Expertise, Sneak Attack, Thieves’ Cant, Weapon Mastery', 'Choices: 4 skills, 2 expertise, 2 masteries'],
+          [2, 'Cunning Action', 'no choices'],
+          [3, 'Rogue Subclass, Steady Aim', 'Choice: Arcane Trickster, Assassin, Soulknife or Thief'],
+        ],
       },
-    ]
+    }
 
-    const wizardSpells = [
-      {
-        key: 'sleep',
+    const spells = {
+      'fire-bolt': {
+        name: 'Fire Bolt',
+        level: 0,
+        school: 'Evocation',
+        time: 'Action',
+        range: '120 feet',
+        components: 'V, S',
+        duration: 'Instantaneous',
+        attack: 'Ranged spell attack',
+        damage: '2d10 fire',
+        lists: 'Sorcerer, Wizard',
+        description: 'You hurl a mote of fire at a creature or object within range. On a hit, the target takes the ' +
+          'fire damage. A flammable object hit by this spell starts burning if it isn’t being worn or carried.',
+        higher: 'The damage increases by 1d10 at character levels 5, 11 and 17 (2d10 for Elara at level 5).',
+      },
+      light: {
+        name: 'Light',
+        level: 0,
+        school: 'Evocation',
+        time: 'Action',
+        range: 'Touch',
+        components: 'V, M (a firefly or phosphorescent moss)',
+        duration: '1 hour',
+        lists: 'Bard, Cleric, Sorcerer, Wizard',
+        description: 'You touch one object no larger than 10 feet in any dimension. It sheds bright light in a ' +
+          '20-foot radius and dim light for an additional 20 feet.',
+      },
+      'mage-hand': {
+        name: 'Mage Hand',
+        level: 0,
+        school: 'Conjuration',
+        time: 'Action',
+        range: '30 feet',
+        components: 'V, S',
+        duration: '1 minute',
+        lists: 'Bard, Sorcerer, Warlock, Wizard',
+        description: 'A spectral, floating hand appears at a point you choose. It can manipulate an object, open an ' +
+          'unlocked door or container, or retrieve an item from an open container.',
+      },
+      sleep: {
         name: 'Sleep',
-        meta: 'Enchantment · 1st · concentration',
+        level: 1,
+        school: 'Enchantment',
+        time: 'Action',
+        range: '60 feet',
+        components: 'V, S, M (a pinch of sand or rose petals)',
+        duration: 'Concentration, up to 1 minute',
+        concentration: true,
+        save: 'Wisdom',
+        lists: 'Bard, Sorcerer, Wizard',
+        description: 'Each creature of your choice in a 5-foot-radius sphere centered on a point within range must ' +
+          'succeed on a Wisdom saving throw or have the Incapacitated condition until the end of its next turn, at ' +
+          'which point it must repeat the save; on a second failure it has the Unconscious condition.',
       },
-      {
-        key: 'magic-missile',
+      'magic-missile': {
         name: 'Magic Missile',
-        meta: 'Evocation · 1st',
+        level: 1,
+        school: 'Evocation',
+        time: 'Action',
+        range: '120 feet',
+        components: 'V, S',
+        duration: 'Instantaneous',
+        damage: '3 × (1d4 + 1) force',
+        lists: 'Sorcerer, Wizard',
+        description: 'You create three glowing darts of magical force. Each dart strikes a creature of your choice ' +
+          'that you can see within range, dealing force damage.',
+        higher: 'One more dart for each spell slot level above 1.',
       },
-      {
-        key: 'find-familiar',
-        name: 'Find Familiar',
-        meta: 'Conjuration · 1st · ritual',
-      },
-      {
-        key: 'shield',
+      shield: {
         name: 'Shield',
-        meta: 'Abjuration · 1st · reaction',
-        disabled: 'The spell is already known',
+        level: 1,
+        school: 'Abjuration',
+        time: 'Reaction, when you are hit by an attack roll or targeted by Magic Missile',
+        range: 'Self',
+        components: 'V, S',
+        duration: '1 round',
+        lists: 'Sorcerer, Wizard',
+        description: 'An imperceptible barrier of magical force protects you. Until the start of your next turn, you ' +
+          'have a +5 bonus to AC, including against the triggering attack, and take no damage from Magic Missile.',
       },
-      {
-        key: 'detect-magic',
+      'detect-magic': {
         name: 'Detect Magic',
-        meta: 'Divination · 1st · ritual',
+        level: 1,
+        school: 'Divination',
+        time: 'Action or Ritual',
+        range: 'Self',
+        components: 'V, S',
+        duration: 'Concentration, up to 10 minutes',
+        concentration: true,
+        ritual: true,
+        lists: 'Bard, Cleric, Druid, Paladin, Ranger, Sorcerer, Wizard',
+        description: 'For the duration, you sense the presence of magical effects within 30 feet of yourself and can ' +
+          'take a Magic action to see a faint aura around any visible creature or object that bears magic.',
+      },
+      thunderwave: {
+        name: 'Thunderwave',
+        level: 1,
+        school: 'Evocation',
+        time: 'Action',
+        range: 'Self (15-foot cube)',
+        components: 'V, S',
+        duration: 'Instantaneous',
+        save: 'Constitution',
+        damage: '2d8 thunder',
+        lists: 'Bard, Druid, Sorcerer, Wizard',
+        description: 'Each creature in a 15-foot cube originating from you makes a Constitution saving throw; on a ' +
+          'failed save it takes the damage and is pushed 10 feet away, on a success half damage and no push.',
+        higher: 'The damage increases by 1d8 for each spell slot level above 1.',
+      },
+      'find-familiar': {
+        name: 'Find Familiar',
+        level: 1,
+        school: 'Conjuration',
+        time: '1 hour or Ritual',
+        range: '10 feet',
+        components: 'V, S, M (burning incense worth 10+ GP, which the spell consumes)',
+        duration: 'Instantaneous',
+        ritual: true,
+        lists: 'Wizard',
+        description: 'You gain the service of a familiar, a spirit that takes an animal form you choose.',
+      },
+      'misty-step': {
+        name: 'Misty Step',
+        level: 2,
+        school: 'Conjuration',
+        time: 'Bonus action',
+        range: 'Self',
+        components: 'V',
+        duration: 'Instantaneous',
+        lists: 'Sorcerer, Warlock, Wizard',
+        description: 'Briefly surrounded by silvery mist, you teleport up to 30 feet to an unoccupied space you can see.',
+      },
+      'scorching-ray': {
+        name: 'Scorching Ray',
+        level: 2,
+        school: 'Evocation',
+        time: 'Action',
+        range: '120 feet',
+        components: 'V, S',
+        duration: 'Instantaneous',
+        attack: 'Ranged spell attack per ray',
+        damage: '3 × 2d6 fire',
+        lists: 'Sorcerer, Wizard',
+        description: 'You hurl three fiery rays. You can hurl them at one target within range or at several. Make a ' +
+          'ranged spell attack for each ray.',
+        higher: 'One more ray for each spell slot level above 2.',
+      },
+      web: {
+        name: 'Web',
+        level: 2,
+        school: 'Conjuration',
+        time: 'Action',
+        range: '60 feet',
+        components: 'V, S, M (a bit of spiderweb)',
+        duration: 'Concentration, up to 1 hour',
+        concentration: true,
+        save: 'Dexterity',
+        lists: 'Sorcerer, Wizard',
+        description: 'You conjure a mass of sticky webbing in a 20-foot cube. The webs are difficult terrain; a ' +
+          'creature entering them or starting its turn there makes a DEX save or has the Restrained condition.',
+      },
+    }
+
+    const features = [
+      {
+        name: 'Arcane Recovery',
+        source: 'Wizard 1',
+        group: 'Wizard',
+        text: 'Once per day after a short rest, recover expended spell slots with a combined level up to half your ' +
+          'wizard level (round up).',
       },
       {
-        key: 'thunderwave',
-        name: 'Thunderwave',
-        meta: 'Evocation · 1st',
+        name: 'Ritual Adept',
+        source: 'Wizard 1',
+        group: 'Wizard',
+        text: 'You can cast any spell in your spellbook with the Ritual tag as a ritual without preparing it.',
+      },
+      {
+        name: 'Scholar',
+        source: 'Wizard 2',
+        group: 'Wizard',
+        text: 'Expertise in Arcana (chosen at level 2).',
+      },
+      {
+        name: 'Evocation Savant',
+        source: 'Evoker 3',
+        group: 'Wizard',
+        text: 'Copying evocation spells into the spellbook costs half the time and gold; add one evocation spell for ' +
+          'free when you gain this feature.',
+      },
+      {
+        name: 'Potent Cantrip',
+        source: 'Evoker 3',
+        group: 'Wizard',
+        text: 'A creature that succeeds on a save against your damaging cantrip still takes half damage.',
+      },
+      {
+        name: 'Second Wind',
+        source: 'Fighter 1',
+        group: 'Fighter',
+        text: 'Bonus action: regain 1d10 + fighter level hit points. Two uses, one regained on a short rest, all on ' +
+          'a long rest.',
+      },
+      {
+        name: 'Weapon Mastery',
+        source: 'Fighter 1',
+        group: 'Fighter',
+        text: 'You can use the mastery properties of 3 kinds of weapons: Longbow (Slow), Quarterstaff (Topple), ' +
+          'Dagger (Nick).',
+      },
+      {
+        name: 'Darkvision',
+        source: 'Elf',
+        group: 'Species & background',
+        text: 'You can see in dim light within 60 feet as if it were bright light.',
+      },
+      {
+        name: 'Fey Ancestry · Trance',
+        source: 'Elf',
+        group: 'Species & background',
+        text: 'Advantage against being Charmed; a long rest takes 4 hours of meditation.',
+      },
+      {
+        name: 'Magic Initiate (Wizard)',
+        source: 'Sage · origin feat',
+        group: 'Species & background',
+        text: 'Light, Mage Hand and Sleep (once per long rest without a slot), INT.',
       },
     ]
 
-    // ---------------------------------------------------------------- state
+    // ---------------------------------------------------------------- character state (mock API answers)
     const state = {
       screen: 'login',
-      device: 'desktop',
+      page: 'sheet',
+      tab: 'overview',
       step: 2,
       species: 'elf',
       background: 'sage',
@@ -1919,98 +2633,248 @@
       spellSearch: '',
       characterClass: '',
       classSkills: [],
-      tab: 'inventory',
       levelClass: 'wizard',
-      hitPoints: 'average',
+      hitPointsMode: 'average',
       coinsCp: 1540,
       acChoice: '',
       mageArmor: false,
       shopSelected: 'longsword',
-      prepared: ['magic-missile', 'shield', 'detect-magic', 'misty-step', 'scorching-ray', 'sleep'],
+      prepared: ['magic-missile', 'shield', 'detect-magic', 'misty-step', 'scorching-ray'],
+      hp: {
+        current: 24,
+        max: 32,
+        temp: 0,
+      },
+      hitDice: [
+        {
+          die: 'd6',
+          max: 4,
+          used: 1,
+        },
+        {
+          die: 'd10',
+          max: 1,
+          used: 0,
+        },
+      ],
+      resources: [
+        {
+          key: 'second-wind',
+          name: 'Second Wind',
+          detail: '1d10 + 1 HP · bonus action',
+          max: 2,
+          used: 1,
+          recharge: 'short',
+        },
+        {
+          key: 'action-surge',
+          name: 'Action Surge',
+          detail: 'one extra action',
+          max: 1,
+          used: 0,
+          recharge: 'short',
+        },
+        {
+          key: 'arcane-recovery',
+          name: 'Arcane Recovery',
+          detail: 'recover slots up to level 2 total',
+          max: 1,
+          used: 0,
+          recharge: 'long',
+        },
+        {
+          key: 'magic-initiate',
+          name: 'Sleep (Magic Initiate)',
+          detail: 'cast without a slot',
+          max: 1,
+          used: 1,
+          recharge: 'long',
+        },
+      ],
+      slots: [
+        {
+          level: '1st',
+          max: 4,
+          used: 1,
+        },
+        {
+          level: '2nd',
+          max: 3,
+          used: 2,
+        },
+        {
+          level: '3rd',
+          max: 0,
+          used: 0,
+        },
+      ],
     }
 
+    const sheetAbilities = {
+      str: 8,
+      dex: 14,
+      con: 14,
+      int: 18,
+      wis: 12,
+      cha: 10,
+    }
+    const proficiencyBonus = 3
+    const saveProficiencies = ['int', 'wis']
+    const skills = {
+      str: [['Athletics', 0]],
+      dex: [['Acrobatics', 0], ['Sleight of Hand', 0], ['Stealth', 0]],
+      con: [],
+      int: [['Arcana', 2], ['History', 1], ['Investigation', 1], ['Nature', 0], ['Religion', 0]],
+      wis: [['Animal Handling', 0], ['Insight', 0], ['Medicine', 0], ['Perception', 1], ['Survival', 0]],
+      cha: [['Deception', 0], ['Intimidation', 0], ['Performance', 0], ['Persuasion', 0]],
+    }
+
+    // inventory: category decides the section; equipped = ready (any number of weapons)
     const items = [
       {
         id: 'leather',
         name: 'Leather armor',
-        kind: 'Armor',
-        detail: 'AC 11 + DEX',
+        category: 'armor',
+        detail: 'Light armor · AC 11 + DEX',
         weight: 10,
-        fits: ['Armor'],
-        slot: 'Armor',
-      },
-      {
-        id: 'staff',
-        name: 'Quarterstaff',
-        kind: 'Weapon',
-        detail: '1d6 bludgeoning · versatile (1d8)',
-        weight: 4,
-        fits: ['MainHand'],
-        slot: 'MainHand',
-      },
-      {
-        id: 'ring',
-        name: 'Ring of Protection',
-        kind: 'Gear',
-        detail: '+1 AC and saving throws',
-        weight: 0,
-        fits: ['Worn'],
-        slot: 'Worn',
-        attunement: true,
-        attuned: true,
-      },
-      {
-        id: 'dagger',
-        name: 'Dagger ×2',
-        kind: 'Weapon',
-        detail: '1d4 piercing · finesse, light, thrown',
-        weight: 1,
-        fits: ['MainHand', 'OffHand'],
-        slot: 'None',
-      },
-      {
-        id: 'shield',
-        name: 'Shield',
-        kind: 'Armor',
-        detail: '+2 AC',
-        weight: 6,
-        fits: ['OffHand'],
-        slot: 'None',
+        cost: 1000,
+        equipped: true,
       },
       {
         id: 'plate',
         name: 'Plate armor',
-        kind: 'Armor',
-        detail: 'AC 18 · STR 15 · stealth disadvantage',
+        category: 'armor',
+        detail: 'Heavy armor · AC 18 · STR 15 · stealth disadvantage',
         weight: 65,
-        fits: ['Armor'],
-        slot: 'None',
+        cost: 150000,
+        equipped: false,
         heavy: true,
+      },
+      {
+        id: 'shield',
+        name: 'Shield',
+        category: 'shield',
+        detail: '+2 AC · uses one hand',
+        weight: 6,
+        cost: 1000,
+        equipped: false,
+      },
+      {
+        id: 'staff',
+        name: 'Quarterstaff',
+        category: 'melee',
+        ability: 'str',
+        die: '1d6',
+        type: 'bludgeoning',
+        properties: ['versatile (1d8)', 'mastery: Topple'],
+        weight: 4,
+        cost: 20,
+        equipped: true,
+      },
+      {
+        id: 'dagger',
+        name: 'Dagger ×2',
+        category: 'melee',
+        ability: 'dex',
+        die: '1d4',
+        type: 'piercing',
+        properties: ['finesse', 'light', 'thrown 20/60', 'mastery: Nick'],
+        weight: 1,
+        cost: 200,
+        equipped: true,
+      },
+      {
+        id: 'greataxe',
+        name: 'Greataxe',
+        category: 'melee',
+        ability: 'str',
+        die: '1d12',
+        type: 'slashing',
+        properties: ['heavy', 'two-handed', 'mastery: Cleave'],
+        weight: 7,
+        cost: 3000,
+        equipped: false,
+        heavy: true,
+        twoHanded: true,
+      },
+      {
+        id: 'shortbow',
+        name: 'Shortbow',
+        category: 'ranged',
+        ability: 'dex',
+        die: '1d6',
+        type: 'piercing',
+        properties: ['ammunition 80/320', 'two-handed', 'mastery: Vex'],
+        weight: 2,
+        cost: 2500,
+        equipped: true,
+        twoHanded: true,
+      },
+      {
+        id: 'longbow',
+        name: 'Longbow',
+        category: 'ranged',
+        ability: 'dex',
+        die: '1d8',
+        type: 'piercing',
+        properties: ['ammunition 150/600', 'heavy', 'two-handed', 'mastery: Slow'],
+        weight: 2,
+        cost: 5000,
+        equipped: false,
+        twoHanded: true,
+      },
+      {
+        id: 'ring',
+        name: 'Ring of Protection',
+        category: 'worn',
+        detail: '+1 AC and saving throws · requires attunement',
+        weight: 0,
+        cost: 0,
+        equipped: true,
+        attunement: true,
+        attuned: true,
+      },
+      {
+        id: 'cloak',
+        name: 'Traveler’s cloak',
+        category: 'worn',
+        detail: 'Clothing',
+        weight: 4,
+        cost: 100,
+        equipped: true,
+      },
+      {
+        id: 'arrows',
+        name: 'Arrows ×20',
+        category: 'gear',
+        detail: 'Ammunition',
+        weight: 1,
+        cost: 100,
       },
       {
         id: 'rope',
         name: 'Rope (50 ft)',
-        kind: 'Gear',
+        category: 'gear',
         detail: 'Hempen',
         weight: 10,
-        fits: [],
-        slot: 'None',
+        cost: 100,
+      },
+      {
+        id: 'potion',
+        name: 'Potion of Healing',
+        category: 'gear',
+        detail: '2d4 + 2 HP · magic',
+        weight: 0.5,
+        cost: 5000,
       },
     ]
-
-    const slotNames = {
-      Armor: 'Armor',
-      MainHand: 'Main hand',
-      OffHand: 'Off hand',
-      Worn: 'Worn',
-    }
 
     const shopItems = [
       {
         key: 'longsword',
         name: 'Longsword',
         kind: 'Weapon',
-        category: 'martial',
+        category: 'martial melee',
         cost: 1500,
         weight: 3,
         detail: '1d8 slashing · versatile (1d10) · mastery: Sap',
@@ -2019,7 +2883,7 @@
         key: 'rapier',
         name: 'Rapier',
         kind: 'Weapon',
-        category: 'martial',
+        category: 'martial melee',
         cost: 2500,
         weight: 2,
         detail: '1d8 piercing · finesse · mastery: Vex',
@@ -2028,7 +2892,7 @@
         key: 'shortsword',
         name: 'Shortsword',
         kind: 'Weapon',
-        category: 'martial',
+        category: 'martial melee',
         cost: 1000,
         weight: 2,
         detail: '1d6 piercing · finesse, light · mastery: Vex',
@@ -2037,16 +2901,16 @@
         key: 'light-crossbow',
         name: 'Light crossbow',
         kind: 'Weapon',
-        category: 'simple',
+        category: 'simple ranged',
         cost: 2500,
         weight: 5,
-        detail: '1d8 piercing · ammunition (80/320), loading, two-handed',
+        detail: '1d8 piercing · ammunition (80/320), loading, two-handed · mastery: Slow',
       },
       {
         key: 'chain-shirt',
         name: 'Chain shirt',
         kind: 'Armor',
-        category: 'medium',
+        category: 'medium armor',
         cost: 5000,
         weight: 20,
         detail: 'AC 13 + DEX (max 2)',
@@ -2081,62 +2945,57 @@
       },
     ]
 
-    const spellbook = [
+    const characters = [
       {
-        key: 'magic-missile',
-        name: 'Magic Missile',
-        meta: '1st · Evocation',
+        name: 'Elara',
+        line: 'Elf · Sage',
+        classes: 'Wizard 4 / Fighter 1',
+        level: 5,
+        badge: 'warning',
       },
       {
-        key: 'shield',
-        name: 'Shield',
-        meta: '1st · Abjuration · reaction',
+        name: 'Borin',
+        line: 'Dwarf · Soldier',
+        classes: 'Fighter 3 (Battle Master)',
+        level: 3,
+        badge: 'complete',
       },
       {
-        key: 'detect-magic',
-        name: 'Detect Magic',
-        meta: '1st · Divination · ritual',
-      },
-      {
-        key: 'sleep',
-        name: 'Sleep',
-        meta: '1st · Enchantment · Magic Initiate',
-        always: true,
-      },
-      {
-        key: 'thunderwave',
-        name: 'Thunderwave',
-        meta: '1st · Evocation',
-      },
-      {
-        key: 'misty-step',
-        name: 'Misty Step',
-        meta: '2nd · Conjuration · bonus action',
-      },
-      {
-        key: 'scorching-ray',
-        name: 'Scorching Ray',
-        meta: '2nd · Evocation',
-      },
-      {
-        key: 'web',
-        name: 'Web',
-        meta: '2nd · Conjuration · concentration',
+        name: 'Nyx',
+        line: 'Tiefling · Criminal',
+        classes: 'no class yet',
+        level: 0,
+        badge: 'draft',
       },
     ]
 
     const preparedLimit = 7
+    const cantrips = ['fire-bolt', 'light', 'mage-hand']
+    const spellbook = ['magic-missile', 'shield', 'detect-magic', 'sleep', 'thunderwave', 'misty-step',
+      'scorching-ray', 'web']
+    const pickerSpells = ['sleep', 'magic-missile', 'find-familiar', 'shield', 'detect-magic', 'thunderwave']
 
     // ---------------------------------------------------------------- helpers
     const $ = (selector, root = document) => root.querySelector(selector)
     const $$ = (selector, root = document) => [...root.querySelectorAll(selector)]
     const modifier = (score) => Math.floor((score - 10) / 2)
     const signed = (value) => (value >= 0 ? `+${value}` : `${value}`)
-    const coins = (cp) => {
+    const ordinal = (level) => (level === 0 ? 'Cantrip' : `${level}${['st', 'nd', 'rd'][level - 1] ?? 'th'} level`)
+    const infoButton = (kind, key) => `<button class='info-button' data-inspect='${kind}:${key}' title='Details'>
+      ${icon('info')}</button>`
+
+    function coins(cp) {
       const gold = Math.floor(cp / 100)
       const silver = Math.floor((cp % 100) / 10)
       const copper = cp % 10
-      return [gold && `${gold} gp`, silver && `${silver} sp`, copper && `${copper} cp`].filter(Boolean).join(' · ') || '0 gp'
+      const parts = [gold && `${gold} gp`, silver && `${silver} sp`, copper && `${copper} cp`]
+      return parts.filter(Boolean).join(' · ') || '0 gp'
+    }
+
+    function fillIcons(root = document) {
+      $$('[data-icon]', root).forEach((element) => {
+        element.innerHTML = icon(element.dataset.icon)
+      })
     }
 
     function toast(message) {
@@ -2146,12 +3005,14 @@
       clearTimeout(toast.timer)
       toast.timer = setTimeout(() => {
         element.hidden = true
-      }, 2200)
+      }, 2600)
     }
 
-    function openDialog(html) {
+    function openDialog(html, drawer = false) {
       $('#dialog').innerHTML = `<div class='grabber'></div>${html}`
+      $('#overlay').classList.toggle('drawer', drawer)
       $('#overlay').hidden = false
+      $('#overlay').style.top = `${$('#device').scrollTop}px`
     }
 
     function closeDialog() {
@@ -2170,13 +3031,16 @@
       $$('#appnav a').forEach((link) => {
         link.classList.toggle('active', link.dataset.go === screen)
       })
-      $('#appnav').hidden = screen === 'login'
-      $('#user').hidden = screen === 'login'
+
+      // signed out: no navigation and no user section
+      const signedIn = screen !== 'login'
+      $('#appnav').hidden = !signedIn
+      $('#user').hidden = !signedIn
+      closeDialog()
       $('#device').scrollTop = 0
     }
 
     function setDevice(device) {
-      state.device = device
       $('#device').classList.toggle('mobile', device === 'mobile')
       $$('#device-switch button').forEach((button) => {
         button.classList.toggle('active', button.dataset.device === device)
@@ -2185,7 +3049,8 @@
 
     function setTheme(theme) {
       document.documentElement.dataset.theme = theme
-      $('#theme-toggle').textContent = theme === 'dark' ? '☀' : '☾'
+      $('#theme-toggle').innerHTML = icon(theme === 'dark' ? 'sun' : 'moon')
+      $('#theme-toggle').title = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'
       try {
         localStorage.setItem('mockup-theme', theme)
       }
@@ -2208,6 +3073,151 @@
       return matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
     }
 
+    function setPage(page) {
+      state.page = page
+      $$('#page-tabs button, #bottom-tabs button').forEach((button) => {
+        button.classList.toggle('active', button.dataset.page === page)
+      })
+      $$('[data-page-panel]').forEach((panel) => {
+        panel.hidden = panel.dataset.pagePanel !== page
+      })
+      if (page === 'level') {
+        renderLevelUp()
+      }
+    }
+
+    function setTab(tab) {
+      state.tab = tab
+      $$('#sheet-tabs button').forEach((button) => {
+        button.classList.toggle('active', button.dataset.tab === tab)
+      })
+      $$('[data-tab-panel]').forEach((panel) => {
+        panel.hidden = panel.dataset.tabPanel !== tab
+      })
+    }
+
+    function openCharacter() {
+      show('character')
+      setPage('sheet')
+      setTab('overview')
+    }
+
+    // ---------------------------------------------------------------- inspect: one detail view for all rule entities
+    function factsGrid(facts) {
+      return `<div class='facts'>${facts.map(([label, value]) => `<div><span>${label}</span>${value}</div>`).join('')}
+        </div>`
+    }
+
+    function featureList(entries) {
+      return entries.map(([name, text]) => `<h4>${name}</h4><p>${text}</p>`).join('')
+    }
+
+    function inspect(kind, key) {
+      let label = ''
+      let title = ''
+      let body = ''
+      let note = ''
+
+      if (kind === 'spell') {
+        const spell = spells[key]
+        const badges = [
+          spell.concentration && `<span class='badge'>Concentration</span>`,
+          spell.ritual && `<span class='badge'>Ritual</span>`,
+        ].filter(Boolean).join('')
+        const facts = [
+          ['Casting time', spell.time],
+          ['Range', spell.range],
+          ['Components', spell.components],
+          ['Duration', spell.duration],
+        ]
+        if (spell.attack) {
+          facts.push(['Attack', spell.attack])
+        }
+        if (spell.save) {
+          facts.push(['Saving throw', spell.save])
+        }
+        if (spell.damage) {
+          facts.push(['Damage', spell.damage])
+        }
+        facts.push(['Spell lists', spell.lists])
+        const forCharacter = spell.save
+          ? `DC 15 ${spell.save} save`
+          : spell.attack
+            ? '+7 to hit'
+            : 'no attack or save'
+        label = `${ordinal(spell.level)} · ${spell.school}`
+        title = spell.name
+        body = `
+          ${badges ? `<div class='row'>${badges}</div>` : ''}
+          ${factsGrid(facts)}
+          <div class='alert info'>${icon('account')}For Elara (Wizard, INT): ${forCharacter}</div>
+          <div class='prose'><p>${spell.description}</p>
+            ${spell.higher ? `<h4>Using a higher-level spell slot</h4><p>${spell.higher}</p>` : ''}</div>`
+        note = `<code>GET /api/rules/spells/${key}</code> (SpellDetailDto)`
+      }
+      else if (kind === 'species') {
+        const entry = species[key]
+        label = 'Species'
+        title = entry.name
+        body = `${factsGrid(entry.facts)}<div class='prose'><h4>Traits</h4>${featureList(entry.features)}</div>`
+        note = `<code>GET /api/rules/species/${key}</code> (features with their choices)`
+      }
+      else if (kind === 'background') {
+        const entry = backgrounds[key]
+        label = 'Background'
+        title = entry.name
+        body = `${factsGrid(entry.facts)}<div class='prose'><p>${entry.description}</p></div>
+          <button class='btn sm' data-inspect='feat:${entry.feat}'>${icon('star')}Origin feat:
+            ${feats[entry.feat].name}</button>`
+        note = `<code>GET /api/rules/backgrounds/${key}</code>`
+      }
+      else if (kind === 'feat') {
+        const entry = feats[key]
+        label = 'Feat'
+        title = entry.name
+        body = `${factsGrid(entry.facts)}<div class='prose'>${featureList(entry.features)}</div>`
+        note = `<code>GET /api/rules/feats/${key}</code>`
+      }
+      else if (kind === 'class') {
+        const entry = classes[key]
+        const rows = entry.levels
+          .map(([level, names, choices]) => `<div class='list-row'><b style='width: 24px'>${level}</b>
+            <span class='grow'>${names}<br><span class='muted small'>${choices}</span></span></div>`)
+          .join('')
+        label = 'Class'
+        title = entry.name
+        body = `${factsGrid(entry.facts)}<h4>Features by level</h4><div class='list'>${rows}</div>`
+        note = `<code>GET /api/rules/classes/${key}</code> (ClassDetailDto, features per level and subclasses)`
+      }
+      else if (kind === 'item') {
+        const item = items.find((entry) => entry.id === key)
+        const facts = [['Category', item.category], ['Weight', `${item.weight} lb`], ['Cost', coins(item.cost)]]
+        if (item.die) {
+          facts.unshift(['Damage', `${item.die} ${signed(modifier(sheetAbilities[item.ability]))} ${item.type}`])
+          facts.push(['Attack', signed(modifier(sheetAbilities[item.ability]) + proficiencyBonus)])
+        }
+        label = 'Item'
+        title = item.name
+        body = `${factsGrid(facts)}<div class='prose'><p>${item.detail ?? item.properties.join(' · ')}</p></div>`
+        note = '<code>GET /api/rules/items/{key}</code> (ItemDetailDto)'
+      }
+      else if (kind === 'feature') {
+        const feature = features.find((entry) => entry.name === key)
+        label = feature.source
+        title = feature.name
+        body = `<div class='prose'><p>${feature.text}</p></div>`
+        note = 'features come with the class / species details and the sheet'
+      }
+
+      openDialog(`
+        <div class='dialog-head'>
+          <div><span class='muted small'>${label}</span><h2>${title}</h2></div>
+          <button class='icon-button' data-close title='Close'>${icon('close')}</button>
+        </div>
+        ${body}
+        <div class='api-note'><b>API:</b> ${note}</div>`, true)
+    }
+
     // ---------------------------------------------------------------- login
     function setLoginMode(mode) {
       $$('#login-tabs button').forEach((button) => {
@@ -2224,20 +3234,26 @@
 
     // ---------------------------------------------------------------- characters
     function renderCharacters() {
-      const cards = characters.map((character) => `
-        <div class='card character-card' data-go='${character.level ? 'manage' : 'creator'}'>
-          <div class='row'>
-            <div class='portrait'>${character.name[0]}</div>
-            <div style='flex: 1'>
-              <h3>${character.name}</h3>
-              <p class='muted small'>${character.line}</p>
+      const badges = {
+        warning: `<span class='badge warning'>${icon('alert')}1 violation</span>`,
+        complete: `<span class='badge success'>${icon('check')}complete</span>`,
+        draft: `<span class='badge brand'>Draft · 3 open choices</span>`,
+      }
+      $('#character-grid').innerHTML = characters
+        .map((character) => `
+          <div class='card character-card' data-open='${character.level ? 'character' : 'creator'}'>
+            <div class='row'>
+              <div class='portrait'>${character.name[0]}</div>
+              <div style='flex: 1'>
+                <h3>${character.name}</h3>
+                <p class='muted small'>${character.line}</p>
+              </div>
+              <span class='badge'>Lvl ${character.level}</span>
             </div>
-            <span class='badge'>Lvl ${character.level}</span>
-          </div>
-          <p>${character.classes}</p>
-          <div><span class='badge ${character.badgeKind}'>${character.badge}</span></div>
-        </div>`)
-      $('#character-grid').innerHTML = cards.join('') + `<div class='new-card' data-go='creator'>+ New character</div>`
+            <p>${character.classes}</p>
+            <div>${badges[character.badge]}</div>
+          </div>`)
+        .join('')
     }
 
     // ---------------------------------------------------------------- creator
@@ -2278,13 +3294,34 @@
       return open
     }
 
+    function choiceBox(title, source, kind, done, body) {
+      return `
+        <div class='choice-box ${done ? 'complete' : ''}'>
+          <header>
+            <div><b>${title}</b> <span class='muted small'>· ${source}</span></div>
+            <span class='badge ${done ? 'success' : ''}'>${kind}${done ? ` · ${icon('check')}` : ''}</span>
+          </header>
+          ${body}
+        </div>`
+    }
+
+    function selectCard(kind, key, title, info, selected) {
+      return `
+        <div class='choice-card ${selected ? 'selected' : ''}' data-${kind}='${key}' role='button' tabindex='0'>
+          <span class='title'>${title}</span>
+          <span class='muted small'>${info}</span>
+          ${infoButton(kind, key)}
+        </div>`
+    }
+
     function renderStepper() {
       $('#stepper').innerHTML = steps
         .map((name, index) => {
           const kind = index < state.step ? 'done' : index === state.step ? 'current' : ''
-          const dot = index < state.step ? '✓' : index + 1
+          const dot = index < state.step ? icon('check') : index + 1
           const line = index < steps.length - 1 ? `<span class='line'></span>` : ''
-          return `<button class='step ${kind}' data-step-to='${index}'><span class='dot'>${dot}</span>${name}</button>${line}`
+          return `<button class='step ${kind}' data-step-to='${index}'><span class='dot'>${dot}</span>${name}</button>
+            ${line}`
         })
         .join('')
       $('#mobile-step-title').textContent = steps[state.step]
@@ -2294,28 +3331,7 @@
         panel.hidden = Number(panel.dataset.step) !== state.step
       })
       $('#back').disabled = state.step === 0
-      $('#next').textContent = state.step === steps.length - 1 ? 'Finish ✓' : 'Next ▸'
-    }
-
-    function renderSpecies() {
-      $('#species-grid').innerHTML = species
-        .map((entry) => `
-          <button class='choice-card ${entry.key === state.species ? 'selected' : ''}' data-species='${entry.key}'>
-            <span class='title'>${entry.name}</span>
-            <span class='muted small'>${entry.info}</span>
-          </button>`)
-        .join('')
-    }
-
-    function renderBackgrounds() {
-      $('#background-grid').innerHTML = backgrounds
-        .map((entry) => `
-          <button class='choice-card ${entry.key === state.background ? 'selected' : ''}' data-background='${entry.key}'>
-            <span class='title'>${entry.name}</span>
-            <span class='small'>Ability scores: ${entry.abilities.map((key) => key.toUpperCase()).join(', ')}</span>
-            <span class='muted small'>${entry.info}</span>
-          </button>`)
-        .join('')
+      $('#next').textContent = state.step === steps.length - 1 ? 'Finish' : 'Next'
     }
 
     function renderAbilityEditor() {
@@ -2343,7 +3359,7 @@
           <div class='stack'>
             <div class='row'><span class='muted small'>Values</span><div class='array-pool'>${pool}</div></div>
             <div class='grid cols-3'>${fields}</div>
-            ${duplicates ? `<div class='alert warning'>⚠ Every value of the standard array can only be used once.</div>` : ''}
+            ${duplicates ? `<div class='alert warning'>${icon('alert')}Every value can only be used once.</div>` : ''}
           </div>`
         return
       }
@@ -2354,14 +3370,15 @@
           .map((key) => {
             const score = state.pointBuy[key]
             const nextCost = (pointCost[score + 1] ?? 99) - pointCost[score]
+            const canRaise = score < 15 && spent + nextCost <= 27
             return `
               <div class='list-row'>
                 <span class='grow'>${abilityNames[key]}</span>
                 <span class='muted small'>${signed(modifier(score))}</span>
                 <span class='counter'>
-                  <button data-point='${key}' data-delta='-1' ${score <= 8 ? 'disabled' : ''}>−</button>
+                  <button data-point='${key}' data-delta='-1' ${score <= 8 ? 'disabled' : ''}>${icon('minus')}</button>
                   <span>${score}</span>
-                  <button data-point='${key}' data-delta='1' ${score >= 15 || spent + nextCost > 27 ? 'disabled' : ''}>+</button>
+                  <button data-point='${key}' data-delta='1' ${canRaise ? '' : 'disabled'}>${icon('plus')}</button>
                 </span>
               </div>`
           })
@@ -2376,30 +3393,20 @@
 
       editor.innerHTML = state.method === 'rolled'
         ? `<div class='stack'>
-            <div class='row'><button class='btn'>🎲 Roll 4d6 × 6</button><span class='muted'>drop the lowest die</span></div>
-            <div class='array-pool'><span class='badge'>16</span><span class='badge'>14</span><span class='badge'>13</span>
-              <span class='badge'>12</span><span class='badge'>11</span><span class='badge'>8</span></div>
+            <div class='row'><button class='btn'>${icon('dice')}Roll 4d6 × 6</button>
+              <span class='muted'>drop the lowest die</span></div>
+            <div class='array-pool'>${[16, 14, 13, 12, 11, 8].map((value) => `<span class='badge'>${value}</span>`).join('')}
+            </div>
             <p class='muted small'>Assign the rolled values like the standard array.</p>
           </div>`
         : `<div class='grid cols-3'>${abilityKeys
-          .map((key) => `<label class='field'>${abilityNames[key]}<input class='input' type='number' min='3' max='18'
-            value='${state.standard[key]}'></label>`)
+          .map((key) => `<label class='field'>${abilityNames[key]}<input class='input' type='number' min='3'
+            max='18' value='${state.standard[key]}'></label>`)
           .join('')}</div>`
     }
 
-    function choiceBox(title, source, kind, done, body) {
-      return `
-        <div class='choice-box ${done ? 'complete' : ''}'>
-          <header>
-            <div><b>${title}</b> <span class='muted small'>· ${source}</span></div>
-            <span class='badge ${done ? 'success' : ''}'>${kind}${done ? ' · ✓' : ''}</span>
-          </header>
-          ${body}
-        </div>`
-    }
-
     function renderOrigin() {
-      const background = backgrounds.find((entry) => entry.key === state.background)
+      const background = backgrounds[state.background]
       const picked = Object.values(state.distribution).reduce((sum, value) => sum + value, 0)
       const distribution = background.abilities
         .map((key) => {
@@ -2408,15 +3415,17 @@
             <div class='item'>
               <b style='width: 34px'>${key.toUpperCase()}</b>
               <span class='counter'>
-                <button data-dist='${key}' data-delta='-1' ${value <= 0 ? 'disabled' : ''}>−</button>
+                <button data-dist='${key}' data-delta='-1' ${value <= 0 ? 'disabled' : ''}>${icon('minus')}</button>
                 <span>${value}</span>
-                <button data-dist='${key}' data-delta='1' ${value >= 2 || picked >= 3 ? 'disabled' : ''}>+</button>
+                <button data-dist='${key}' data-delta='1' ${value >= 2 || picked >= 3 ? 'disabled' : ''}>
+                  ${icon('plus')}</button>
               </span>
             </div>`
         })
         .join('')
+      const twoOne = Object.values(state.distribution).includes(2)
       const pattern = distributionValid()
-        ? `<span class='badge success'>✓ ${picked === 3 && Object.values(state.distribution).includes(2) ? '+2 / +1' : '+1 / +1 / +1'}</span>`
+        ? `<span class='badge success'>${icon('check')}${twoOne ? '+2 / +1' : '+1 / +1 / +1'}</span>`
         : `<span class='muted small'>${3 - picked} left · allowed: +2/+1 or +1/+1/+1</span>`
 
       const senses = ['insight', 'perception', 'survival']
@@ -2430,9 +3439,9 @@
         ['wood-elf', 'Wood Elf', 'Speed 35 ft · Druidcraft'],
       ]
         .map(([key, name, info]) => `
-          <button class='choice-card ${state.lineage === key ? 'selected' : ''}' data-lineage='${key}'>
+          <div class='choice-card ${state.lineage === key ? 'selected' : ''}' data-lineage='${key}' role='button'>
             <span class='title'>${name}</span><span class='muted small'>${info}</span>
-          </button>`)
+          </div>`)
         .join('')
 
       const languages = ['draconic', 'dwarvish', 'giant', 'gnomish', 'goblin', 'orc']
@@ -2444,15 +3453,27 @@
         })
         .join('')
 
-      const spells = wizardSpells
+      const spellRows = pickerSpells
+        .map((key) => ({
+          key,
+          ...spells[key],
+        }))
         .filter((spell) => spell.name.toLowerCase().includes(state.spellSearch.toLowerCase()))
-        .map((spell) => `
-          <label class='list-row ${spell.disabled ? '' : 'clickable'}' style='opacity: ${spell.disabled ? 0.55 : 1}'>
-            <input type='radio' name='mi-spell' value='${spell.key}' ${state.spell === spell.key ? 'checked' : ''}
-              ${spell.disabled ? 'disabled' : ''}>
-            <span class='grow'><b>${spell.name}</b> <span class='muted small'>${spell.meta}</span></span>
-            ${spell.disabled ? `<span class='badge'>⊘ ${spell.disabled}</span>` : ''}
-          </label>`)
+        .map((spell) => {
+          const disabled = spell.key === 'shield' ? 'The spell is already known' : ''
+          const tags = [spell.school, spell.concentration && 'concentration', spell.ritual && 'ritual']
+            .filter(Boolean)
+            .join(' · ')
+          return `
+            <div class='list-row' style='opacity: ${disabled ? 0.6 : 1}'>
+              <input type='radio' name='mi-spell' value='${spell.key}' ${state.spell === spell.key ? 'checked' : ''}
+                ${disabled ? 'disabled' : ''}>
+              <span class='grow'><button class='link' data-inspect='spell:${spell.key}'>${spell.name}</button>
+                <span class='muted small'>${tags}</span></span>
+              ${disabled ? `<span class='badge'>${icon('cancel')}${disabled}</span>` : ''}
+              ${infoButton('spell', spell.key)}
+            </div>`
+        })
         .join('')
 
       $('#origin-choices').innerHTML = [
@@ -2463,44 +3484,46 @@
           distributionValid(),
           `<div class='distribution'>${distribution}</div><div>${pattern}</div>`,
         ),
-        choiceBox('Elven Lineage', 'Elf', 'SingleSelect', Boolean(state.lineage), `<div class='grid cols-3'>${lineages}</div>
-          ${state.lineage ? `<p class='muted small'>↳ follow-up: “Lineage Spellcasting Ability” appears once the lineage
-          is saved</p>` : ''}`),
+        choiceBox(
+          'Elven Lineage',
+          'Elf',
+          'SingleSelect',
+          Boolean(state.lineage),
+          `<div class='grid cols-3'>${lineages}</div>`,
+        ),
         choiceBox('Keen Senses', 'Elf', 'SingleSelect', Boolean(state.senses), `<div class='radio-row'>${senses}</div>`),
         choiceBox(
           'Languages',
           background.name,
           `MultiSelect · ${state.languages.length} / 2`,
           state.languages.length === 2,
-          `<div class='radio-row check-row'>${languages}</div>`,
+          `<div class='radio-row'>${languages}</div>`,
         ),
         choiceBox('Level 1 spell', 'Magic Initiate (Wizard)', 'Spell picker', Boolean(state.spell), `
           <div class='row'>
-            <input class='input' id='spell-search' placeholder='Search spells…' value='${state.spellSearch}' style='flex: 1'>
+            <input class='input' id='spell-search' placeholder='Search spells…' value='${state.spellSearch}'
+              style='flex: 1; min-width: 160px'>
             <select class='select' style='width: 120px'><option>Level 1</option></select>
-            <select class='select hide-mobile' style='width: 140px'><option>Any school</option></select>
+            <select class='select hide-mobile' style='width: 150px'><option>Any school</option></select>
           </div>
-          <div class='list spell-list'>${spells || `<div class='list-row muted'>No spell found</div>`}</div>
-          <div class='row muted small'><span class='grow'>6 of 42 · paged via <code>optionsUrl</code></span>‹ 1 2 3 ›</div>`),
+          <div class='list spell-list'>${spellRows || `<div class='list-row muted'>No spell found</div>`}</div>
+          <div class='row muted small'><span style='flex: 1'>6 of 42 · click a name for all details</span>‹ 1 2 3 ›</div>`),
       ].join('')
 
       const open = openChoices() - (state.characterClass && state.classSkills.length !== 2 ? 1 : 0)
-      $('#origin-progress').textContent = open ? `${open} open` : '✓ all done'
+      $('#origin-progress').textContent = open ? `${open} open` : 'all done'
     }
 
     function renderClassStep() {
-      $('#class-grid').innerHTML = classes
-        .map((entry) => `
-          <button class='choice-card ${entry.key === state.characterClass ? 'selected' : ''}' data-class='${entry.key}'>
-            <span class='title'>${entry.name}</span><span class='muted small'>${entry.info}</span>
-          </button>`)
+      $('#class-grid').innerHTML = Object.entries(classes)
+        .map(([key, entry]) => selectCard('class', key, entry.name, entry.summary, key === state.characterClass))
         .join('')
       if (!state.characterClass) {
         $('#class-choices').innerHTML = `<p class='muted'>Pick a class to see the choices of level 1.</p>`
         return
       }
 
-      const skills = ['arcana', 'history', 'insight', 'investigation', 'medicine', 'religion']
+      const skillOptions = ['arcana', 'history', 'insight', 'investigation', 'medicine', 'religion']
         .map((key) => {
           const checked = state.classSkills.includes(key)
           const disabled = !checked && state.classSkills.length >= 2
@@ -2508,26 +3531,26 @@
             ${checked ? 'checked' : ''} ${disabled ? 'disabled' : ''}> ${key[0].toUpperCase() + key.slice(1)}</label>`
         })
         .join('')
-      const name = classes.find((entry) => entry.key === state.characterClass).name
+      const name = classes[state.characterClass].name
       $('#class-choices').innerHTML = [
         choiceBox(
           'Skill proficiencies',
           `${name} 1`,
           `MultiSelect · ${state.classSkills.length} / 2`,
           state.classSkills.length === 2,
-          `<div class='radio-row check-row'>${skills}</div>`,
+          `<div class='radio-row'>${skillOptions}</div>`,
         ),
-        `<div class='alert info'>ⓘ Cantrips and the spellbook (6 spells) work like the spell picker in step 4.</div>`,
+        `<div class='alert info'>${icon('info')}Cantrips and the spellbook (6 spells) use the same spell picker as
+          step 4.</div>`,
       ].join('')
     }
 
     function renderSummary() {
       const scores = finalScores()
-      const speciesName = species.find((entry) => entry.key === state.species).name
-      const backgroundName = backgrounds.find((entry) => entry.key === state.background).name
-      const classEntry = classes.find((entry) => entry.key === state.characterClass)
+      const classEntry = classes[state.characterClass]
       const open = openChoices()
-      $('#summary-origin').textContent = `${speciesName} · ${backgroundName}${classEntry ? ` · ${classEntry.name} 1` : ' · draft'}`
+      const origin = `${species[state.species].name} · ${backgrounds[state.background].name}`
+      $('#summary-origin').textContent = `${origin}${classEntry ? ` · ${classEntry.name} 1` : ' · draft'}`
       $$('.summary-ac').forEach((element) => {
         element.textContent = 10 + modifier(scores.dex)
       })
@@ -2542,163 +3565,39 @@
           <span class='small'>${signed(modifier(scores[key]))}</span></div>`)
         .join('')
       $('#complete-alert').className = open ? 'alert warning' : 'alert success'
-      $('#complete-alert').textContent = open
-        ? `⚠ ${open} choice${open > 1 ? 's are' : ' is'} still open – the draft is saved, you can finish later.`
-        : '✓ All choices made – the character is complete.'
+      $('#complete-alert').innerHTML = open
+        ? `${icon('alert')}${open} choice${open > 1 ? 's are' : ' is'} still open – the draft is saved, you can finish later.`
+        : `${icon('checkCircle')}All choices made – the character is complete.`
     }
 
     function renderCreator() {
       renderStepper()
-      renderSpecies()
-      renderBackgrounds()
+      $('#species-grid').innerHTML = Object.entries(species)
+        .map(([key, entry]) => selectCard('species', key, entry.name, entry.summary, key === state.species))
+        .join('')
+      $('#background-grid').innerHTML = Object.entries(backgrounds)
+        .map(([key, entry]) => selectCard('background', key, entry.name, entry.summary, key === state.background))
+        .join('')
       renderAbilityEditor()
       renderOrigin()
       renderClassStep()
       renderSummary()
     }
 
-    // ---------------------------------------------------------------- manage: overview
-    const sheetAbilities = [
-      ['str', 8, ['Athletics']],
-      ['dex', 14, ['Acrobatics', 'Sleight of Hand', 'Stealth']],
-      ['con', 14, []],
-      ['int', 18, ['Arcana ★★', 'History ★', 'Investigation', 'Nature', 'Religion']],
-      ['wis', 12, ['Insight', 'Perception ★', 'Survival']],
-      ['cha', 10, ['Deception', 'Persuasion']],
-    ]
-
-    function renderOverview() {
-      $('#ability-grid').innerHTML = sheetAbilities
-        .map(([key, score, skills]) => {
-          const mod = modifier(score)
-          const save = key === 'int' || key === 'wis' ? `save ${signed(mod + 3)} ●` : `save ${signed(mod)}`
-          const list = skills
-            .map((skill) => {
-              const expertise = skill.includes('★★')
-              const proficient = skill.includes('★')
-              const bonus = mod + (expertise ? 6 : proficient ? 3 : 0)
-              return `<div class='skill'><span class='${proficient ? 'prof' : ''}'>${skill.replace(/ ★+/, '')}
-                ${expertise ? '◆' : proficient ? '●' : ''}</span><span>${signed(bonus)}</span></div>`
-            })
-            .join('')
-          return `
-            <div class='card ability-card'>
-              <div class='head'><b>${abilityNames[key]}</b><span class='mod'>${signed(mod)}</span></div>
-              <div class='muted small'>score ${score} · ${save}</div>
-              ${list}
-            </div>`
-        })
-        .join('')
-    }
-
-    // ---------------------------------------------------------------- manage: level up
-    const levelOptions = [
-      {
-        key: 'wizard',
-        name: 'Wizard',
-        from: 4,
-        die: 6,
-        current: true,
-      },
-      {
-        key: 'fighter',
-        name: 'Fighter',
-        from: 1,
-        die: 10,
-        current: true,
-      },
-      {
-        key: 'cleric',
-        name: 'Cleric',
-        from: 0,
-        die: 8,
-        allowed: false,
-        reason: 'needs WIS 13 (has 12)',
-      },
-      {
-        key: 'rogue',
-        name: 'Rogue',
-        from: 0,
-        die: 8,
-        allowed: true,
-        reason: 'DEX 13 ✓',
-      },
-    ]
-
-    function renderLevelUp() {
-      $('#level-cards').innerHTML = levelOptions
-        .map((option) => {
-          const disabled = option.allowed === false
-          const selected = option.key === state.levelClass
-          const title = option.current ? `${option.name} ${option.from} → ${option.from + 1}` : `+ ${option.name} 1`
-          const info = option.current ? `d${option.die} hit die` : `Multiclass · ${option.reason}`
-          return `
-            <button class='choice-card ${selected ? 'selected' : ''} ${disabled ? 'disabled' : ''}'
-              data-level-class='${option.key}' ${disabled ? 'disabled' : ''}>
-              <span class='title'>${title}</span>
-              <span class='muted small'>${disabled ? '✗ ' : ''}${info}</span>
-            </button>`
-        })
-        .join('')
-
-      const option = levelOptions.find((entry) => entry.key === state.levelClass)
-      const average = option.die / 2 + 1 + 2
-      const choices = {
-        wizard: [
-          ['Cantrip', 'Wizard 5', 'pick 1'],
-          ['Spellbook', 'Wizard 5', 'pick 2 (up to 3rd level)'],
-        ],
-        fighter: [['Action Surge, Tactical Mind', 'Fighter 2 · new features, no choices', '—']],
-        rogue: [
-          ['Skill proficiency', 'Rogue 1 (multiclass)', 'pick 1'],
-          ['Expertise', 'Rogue 1', 'pick 2'],
-        ],
-      }[option.key]
-      const choiceRows = choices
-        .map(([name, source, count]) => `
-          <div class='list-row'>
-            <span class='grow'><b>${name}</b> <span class='muted small'>· ${source}</span></span>
-            <span class='muted small'>${count}</span>
-            ${count === '—' ? '' : `<button class='btn sm'>Choose…</button>`}
-          </div>`)
-        .join('')
-      const swap = option.key === 'wizard'
-        ? `<div class='list-row'><span class='grow'>May swap one cantrip <span class='muted small'>(replace: OneOnLevelUp)</span></span>
-            <span>Fire Bolt →</span><button class='btn sm'>Choose…</button></div>`
-        : ''
-
-      $('#level-detail').innerHTML = `
-        <h3>${option.current ? `${option.name} ${option.from + 1}` : `${option.name} 1 (multiclass)`}</h3>
-        <div class='field'>Hit points
-          <div class='radio-row' style='align-items: center'>
-            <label><input type='radio' name='hp' value='average' ${state.hitPoints === 'average' ? 'checked' : ''}>
-              Take average: ${average} (d${option.die}/2 + 1, CON +2)</label>
-            <label><input type='radio' name='hp' value='roll' ${state.hitPoints === 'roll' ? 'checked' : ''}>
-              Roll d${option.die}</label>
-            ${state.hitPoints === 'roll' ? `<input class='input' type='number' min='1' max='${option.die}' value='4'
-              style='width: 80px'> <button class='btn sm'>🎲</button>` : ''}
-          </div>
-        </div>
-        <div class='field'>This level asks for
-          <div class='list'>${choiceRows}${swap}</div>
-        </div>
-        <div class='alert info'>ⓘ Preview after the level: AC ${armorClass().total} · HP ${32 + average} · PB +3 ·
-          character level 6</div>
-        <div class='row' style='justify-content: flex-end'>
-          <button class='btn' id='validate-level'>Validate</button>
-          <button class='btn solid' id='do-level'>Level up ▸</button>
-        </div>`
-    }
-
-    // ---------------------------------------------------------------- manage: inventory
-    function equippedIn(slot) {
-      return items.find((item) => item.slot === slot)
+    // ---------------------------------------------------------------- character: derived values
+    function equipped(category) {
+      return items.filter((item) => item.category === category && item.equipped)
     }
 
     function armorClass() {
-      const dex = 2
-      const armor = equippedIn('Armor')
-      const candidates = [{ label: 'Unarmored', value: 10 + dex }]
+      const dex = modifier(sheetAbilities.dex)
+      const armor = equipped('armor')[0]
+      const candidates = [
+        {
+          label: 'Unarmored',
+          value: 10 + dex,
+        },
+      ]
       if (armor?.id === 'leather') {
         candidates.push({ label: 'Leather armor', value: 11 + dex })
       }
@@ -2709,130 +3608,350 @@
         candidates.push({ label: 'Mage Armor', value: 13 + dex })
       }
 
-      const chosen = candidates.find((candidate) => candidate.label === state.acChoice)
-      const base = chosen ?? candidates.reduce((best, candidate) => (candidate.value > best.value ? candidate : best))
-      const shield = equippedIn('OffHand')?.id === 'shield' ? 2 : 0
-      const ring = items.find((item) => item.id === 'ring' && item.slot === 'Worn' && item.attuned) ? 1 : 0
+      const best = candidates.reduce((top, candidate) => (candidate.value > top.value ? candidate : top))
+      const base = candidates.find((candidate) => candidate.label === state.acChoice) ?? best
+      const shield = equipped('shield').length ? 2 : 0
+      const ring = items.some((item) => item.id === 'ring' && item.equipped && item.attuned) ? 1 : 0
       return {
         candidates,
+        best,
         base,
         total: base.value + shield + ring,
       }
     }
 
-    function renderInventory() {
-      const slots = Object.entries(slotNames)
-        .map(([slot, label]) => {
-          const item = equippedIn(slot)
-          if (!item) {
-            return `
-              <div class='slot empty'>
-                <span class='label'>${label}</span>
-                <span class='muted'>— empty —</span>
-                <div class='actions'><button class='btn sm' data-pick-slot='${slot}'>Equip…</button></div>
-              </div>`
-          }
-
-          const attune = item.attunement
-            ? `<button class='btn sm' data-attune='${item.id}'>${item.attuned ? 'End attunement' : 'Attune'}</button>`
-            : ''
-          return `
-            <div class='slot'>
-              <span class='label'>${label}</span>
-              <span class='name'>${item.name} ${item.attuned ? `<span class='badge brand'>◆ attuned</span>` : ''}</span>
-              <span class='muted small'>${item.detail}</span>
-              <div class='actions'><button class='btn sm' data-unequip='${item.id}'>Unequip</button>${attune}</div>
-            </div>`
-        })
-        .join('')
-      $('#slots').innerHTML = slots
-
-      const attuned = items.filter((item) => item.attuned).length
-      $('#attune-count').textContent = `Attuned ${attuned} / 3`
-
-      const ac = armorClass()
-      $('#ac-select').innerHTML = [`<option value=''>Best (${ac.candidates.reduce((best, candidate) => (candidate.value > best.value ? candidate : best)).label})</option>`]
-        .concat(ac.candidates.map((candidate) => `<option value='${candidate.label}' ${state.acChoice === candidate.label
-          ? 'selected' : ''}>${candidate.label} (${candidate.value})</option>`))
-        .join('')
-      $('#stat-ac').textContent = ac.total
-
-      const heavy = equippedIn('Armor')?.heavy
-      $('#stat-speed').textContent = heavy ? '20' : '30'
-      $('#violation-badge').hidden = !heavy
-      $('#inventory-warnings').innerHTML = heavy
-        ? `<div class='alert warning'>⚠ Plate armor without heavy armor training: disadvantage on STR and DEX tests, no
-          spellcasting. STR 8 is below 15: speed −10 ft.</div>`
-        : ''
-
-      const filter = $('#backpack-filter').value
-      const backpack = items
-        .filter((item) => item.slot === 'None' && (!filter || item.kind === filter))
-        .map((item) => {
-          const warning = item.heavy ? `<span class='badge warning'>⚠ no heavy armor training</span>` : ''
-          const action = item.fits.length
-            ? `<button class='btn sm' data-equip='${item.id}'>Equip…</button>`
-            : `<span class='muted small'>not equippable</span>`
-          return `
-            <div class='list-row'>
-              <span class='grow'><b>${item.name}</b><br><span class='muted small'>${item.kind} · ${item.detail}</span></span>
-              <span class='muted small hide-mobile'>${item.weight} lb</span>
-              ${warning}${action}
-            </div>`
-        })
-        .join('')
-      $('#backpack').innerHTML = backpack || `<div class='list-row muted'>Nothing here</div>`
-    }
-
-    function equipDialog(itemId) {
-      const item = items.find((entry) => entry.id === itemId)
-      const options = item.fits
-        .map((slot, index) => {
-          const current = equippedIn(slot)
-          return `<label class='list-row clickable'><input type='radio' name='equip-slot' value='${slot}'
-            ${index === 0 ? 'checked' : ''}><span class='grow'>${slotNames[slot]}</span>
-            <span class='muted small'>${current ? `replaces ${current.name}` : 'empty'}</span></label>`
-        })
-        .join('')
-      openDialog(`
-        <h3>Equip “${item.name}”</h3>
-        <div class='list'>${options}</div>
-        ${item.heavy ? `<div class='alert warning'>⚠ No heavy armor training – the sheet will show a violation.</div>` : ''}
-        <div class='row' style='justify-content: flex-end'>
-          <button class='btn' data-close>Cancel</button>
-          <button class='btn solid' data-confirm-equip='${item.id}'>Equip</button>
-        </div>`)
-    }
-
-    function slotDialog(slot) {
-      const candidates = items.filter((item) => item.slot === 'None' && item.fits.includes(slot))
-      const options = candidates
-        .map((item, index) => `<label class='list-row clickable'><input type='radio' name='slot-item' value='${item.id}'
-          ${index === 0 ? 'checked' : ''}><span class='grow'>${item.name}</span><span class='muted small'>${item.detail}</span></label>`)
-        .join('')
-      openDialog(`
-        <h3>${slotNames[slot]}</h3>
-        <div class='list'>${options || `<div class='list-row muted'>No item in the backpack fits</div>`}</div>
-        <div class='row' style='justify-content: flex-end'>
-          <button class='btn' data-close>Cancel</button>
-          <button class='btn solid' data-confirm-slot='${slot}' ${candidates.length ? '' : 'disabled'}>Equip</button>
-        </div>`)
-    }
-
-    function equip(itemId, slot) {
-      const current = equippedIn(slot)
-      if (current) {
-        current.slot = 'None'
-        current.attuned = false
+    /** Violations of an item as the sheet would report them ({ severity, text }) */
+    function itemViolations(item) {
+      const found = []
+      if (!item.equipped) {
+        return found
       }
 
-      items.find((item) => item.id === itemId).slot = slot
-      closeDialog()
-      renderInventory()
-      toast(`Equipped in ${slotNames[slot]}`)
+      if (item.id === 'plate') {
+        found.push({
+          severity: 'error',
+          text: 'No heavy armor training: disadvantage on STR and DEX tests, no spellcasting. STR 8 < 15: speed −10 ft.',
+        })
+      }
+      if (item.heavy && item.category === 'melee' && sheetAbilities.str < 13) {
+        found.push({
+          severity: 'warning',
+          text: `Heavy weapon with STR ${sheetAbilities.str} (needs 13): disadvantage on attack rolls.`,
+        })
+      }
+      if (item.twoHanded && equipped('shield').length) {
+        found.push({
+          severity: 'warning',
+          text: 'Two-handed: can’t be used while the shield is in hand.',
+        })
+      }
+
+      return found
     }
 
-    // ---------------------------------------------------------------- manage: shop
+    function allViolations() {
+      return items.flatMap(itemViolations)
+    }
+
+    function renderHeader() {
+      const ac = armorClass()
+      const heavyArmor = equipped('armor').some((item) => item.heavy)
+      const stats = [
+        [ac.total, 'AC'],
+        [`${state.hp.current}/${state.hp.max}`, 'HP'],
+        [signed(proficiencyBonus), 'PB'],
+        [heavyArmor ? 20 : 30, 'Speed'],
+        [signed(modifier(sheetAbilities.dex)), 'Init'],
+        [14, 'Pass. perc.'],
+        [5, 'Level'],
+      ]
+      $('#header-stats').innerHTML = stats.map(([value, label]) => `<div class='stat'><b>${value}</b><span>${label}
+        </span></div>`).join('')
+      const violations = allViolations()
+      $('#violation-badge').hidden = violations.length === 0
+      $('#violation-badge').className = violations.some((entry) => entry.severity === 'error')
+        ? 'badge error'
+        : 'badge warning'
+      $('#violation-badge').innerHTML = `${icon('alert')}${violations.length} violation${violations.length > 1 ? 's' : ''}`
+    }
+
+    // ---------------------------------------------------------------- character sheet: overview
+    function renderAbilities() {
+      $('#ability-grid').innerHTML = abilityKeys
+        .map((key) => {
+          const score = sheetAbilities[key]
+          const mod = modifier(score)
+          const saveProficient = saveProficiencies.includes(key)
+          const skillRows = skills[key]
+            .map(([name, level]) => {
+              const marker = ['', 'proficient', 'expertise'][level]
+              return `<div class='skill'><span class='marker ${marker}'></span>${name}
+                <span class='bonus'>${signed(mod + level * proficiencyBonus)}</span></div>`
+            })
+            .join('')
+          return `
+            <div class='card ability-box'>
+              <div class='score-block'>
+                <span class='label'>${key}</span>
+                <span class='modifier'>${signed(mod)}</span>
+                <span class='score' title='Score'>${score}</span>
+              </div>
+              <div class='ability-detail'>
+                <b>${abilityNames[key]}</b>
+                <div class='save-row'><span class='marker ${saveProficient ? 'proficient' : ''}'></span>Saving throw
+                  <span class='bonus'>${signed(mod + (saveProficient ? proficiencyBonus : 0))}</span></div>
+                ${skillRows ? `<span class='skills-head'>Skills</span>${skillRows}` : `<span class='muted small'>No
+                  skills · hit points and concentration</span>`}
+              </div>
+            </div>`
+        })
+        .join('')
+    }
+
+    function pips(group, index, max, used, square = false) {
+      return Array.from({ length: max }, (_, pip) => `<button class='pip ${pip < max - used ? '' : 'used'}
+        ${square ? 'square' : ''}' data-pip='${group}:${index}:${pip}' title='${pip < max - used ? 'Use' : 'Restore'}'>
+        </button>`).join('')
+    }
+
+    function renderHitPoints() {
+      const dice = state.hitDice
+        .map((entry, index) => `<div class='resource'><span class='grow'>Hit dice ${entry.die}
+          <span class='muted small'>${entry.max - entry.used} / ${entry.max} left</span></span>
+          <span class='pips'>${pips('hitdie', index, entry.max, entry.used, true)}</span></div>`)
+        .join('')
+      $('#hit-points').innerHTML = `
+        <div class='resource'>
+          <span class='grow'><span class='hp-value'>${state.hp.current}</span>
+            <span class='muted'>/ ${state.hp.max}</span>
+            <span class='muted small'>· temp ${state.hp.temp}</span></span>
+          <span class='counter'>
+            <button data-hp='-1' title='Damage'>${icon('minus')}</button>
+            <span>1</span>
+            <button data-hp='1' title='Heal'>${icon('plus')}</button>
+          </span>
+        </div>
+        ${dice}`
+    }
+
+    function renderResources() {
+      $('#resources').innerHTML = state.resources
+        .map((resource, index) => `
+          <div class='resource'>
+            <span class='grow'><b>${resource.name}</b><br><span class='muted small'>${resource.detail} ·
+              ${resource.recharge} rest</span></span>
+            <span class='pips'>${pips('resource', index, resource.max, resource.used)}</span>
+          </div>`)
+        .join('')
+    }
+
+    function renderFeatures() {
+      const groups = [...new Set(features.map((feature) => feature.group))]
+      $('#features').innerHTML = groups
+        .map((group) => `
+          <div class='stack' style='gap: 8px'>
+            <span class='skills-head'>${group}</span>
+            <div class='feature-grid'>${features
+              .filter((feature) => feature.group === group)
+              .map((feature) => `<button class='feature' data-inspect='feature:${feature.name}'><b>${feature.name}</b>
+                <span class='muted small'>${feature.source}</span></button>`)
+              .join('')}</div>
+          </div>`)
+        .join('')
+    }
+
+    // ---------------------------------------------------------------- character sheet: inventory
+    function itemRow(item, extra = '') {
+      const violations = itemViolations(item)
+      const severity = violations.some((entry) => entry.severity === 'error') ? 'error' : 'warning'
+      const marks = violations
+        .map((entry) => `<span class='violation-text'>${icon('alert')}${entry.text}</span>`)
+        .join('')
+      const toggle = item.category === 'gear'
+        ? ''
+        : `<button class='switch ${item.equipped ? 'on' : ''}' data-toggle-item='${item.id}'
+            title='${item.equipped ? 'Unequip' : 'Equip'}'></button>`
+      return `
+        <div class='list-row ${violations.length ? `violation-${severity}` : ''}'>
+          ${toggle}
+          <span class='grow'><button class='link' data-inspect='item:${item.id}'>${item.name}</button><br>
+            <span class='muted small'>${extra || item.detail}</span></span>
+          ${infoButton('item', item.id)}
+          ${marks}
+        </div>`
+    }
+
+    function weaponLine(item) {
+      const mod = modifier(sheetAbilities[item.ability])
+      const attack = signed(mod + proficiencyBonus)
+      return `<b>${attack}</b> to hit · ${item.die} ${signed(mod)} ${item.type} · ${item.properties.join(', ')}`
+    }
+
+    function renderInventory() {
+      const armor = items.filter((item) => item.category === 'armor' || item.category === 'shield')
+      $('#armor-list').innerHTML = armor.map((item) => itemRow(item)).join('')
+
+      for (const category of ['melee', 'ranged']) {
+        const weapons = items.filter((item) => item.category === category)
+        $(`#${category}-list`).innerHTML = weapons.map((item) => itemRow(item, weaponLine(item))).join('')
+        $(`#${category}-count`).textContent = `${weapons.filter((item) => item.equipped).length} of ${weapons.length}
+          equipped`
+      }
+
+      $('#worn-list').innerHTML = items
+        .filter((item) => item.category === 'worn')
+        .map((item) => itemRow(item, `${item.detail}${item.attunement ? ` · <button class='link small'
+          data-attune='${item.id}'>${item.attuned ? 'End attunement' : 'Attune'}</button>` : ''}`))
+        .join('')
+      $('#attune-count').textContent = `Attuned ${items.filter((item) => item.attuned).length} / 3`
+      $('#backpack-list').innerHTML = items
+        .filter((item) => item.category === 'gear')
+        .map((item) => itemRow(item, `${item.detail} · ${item.weight} lb`))
+        .join('')
+
+      const ac = armorClass()
+      $('#ac-value').textContent = ac.total
+      $('#ac-select').innerHTML = [`<option value=''>Best (${ac.best.label}, ${ac.best.value})</option>`]
+        .concat(ac.candidates.map((candidate) => `<option value='${candidate.label}'
+          ${state.acChoice === candidate.label ? 'selected' : ''}>${candidate.label} (${candidate.value})</option>`))
+        .join('')
+      $('#mage-armor').classList.toggle('on', state.mageArmor)
+      renderHeader()
+    }
+
+    // ---------------------------------------------------------------- character sheet: spells
+    function spellRow(key, extra = '') {
+      const spell = spells[key]
+      const tags = [spell.school, spell.time.split(',')[0], spell.concentration && 'concentration',
+        spell.ritual && 'ritual'].filter(Boolean).join(' · ')
+      return `
+        ${extra}
+        <span class='grow'><button class='link' data-inspect='spell:${key}'>${spell.name}</button><br>
+          <span class='muted small'>${ordinal(spell.level)} · ${tags}</span></span>
+        ${spell.damage ? `<span class='badge'>${spell.damage}</span>` : ''}
+        ${infoButton('spell', key)}`
+    }
+
+    function renderSpells() {
+      $('#spell-slots').innerHTML = state.slots
+        .filter((slot) => slot.max > 0)
+        .map((slot, index) => `<div class='resource'><span class='grow'>${slot.level}
+          <span class='muted small'>${slot.max - slot.used} / ${slot.max}</span></span>
+          <span class='pips'>${pips('slot', index, slot.max, slot.used)}</span></div>`)
+        .join('')
+      $('#cantrips').innerHTML = cantrips.map((key) => `<div class='list-row'>${spellRow(key)}</div>`).join('')
+      $('#prepared-count').textContent = `Prepared ${state.prepared.length} / ${preparedLimit}`
+      $('#spellbook').innerHTML = spellbook
+        .map((key) => {
+          const always = key === 'sleep'
+          const checked = always || state.prepared.includes(key)
+          const disabled = always || (!checked && state.prepared.length >= preparedLimit)
+          const box = `<input type='checkbox' data-prepare='${key}' ${checked ? 'checked' : ''}
+            ${disabled ? 'disabled' : ''} title='Prepared'>`
+          const badge = always ? `<span class='badge'>always prepared</span>` : ''
+          return `<div class='list-row'>${spellRow(key, box)}${badge}</div>`
+        })
+        .join('')
+    }
+
+    // ---------------------------------------------------------------- level up
+    const levelOptions = [
+      {
+        key: 'wizard',
+        from: 4,
+        current: true,
+        reason: 'd6 hit die',
+      },
+      {
+        key: 'fighter',
+        from: 1,
+        current: true,
+        reason: 'd10 hit die',
+      },
+      {
+        key: 'cleric',
+        from: 0,
+        allowed: false,
+        reason: 'needs WIS 13 (has 12)',
+      },
+      {
+        key: 'rogue',
+        from: 0,
+        allowed: true,
+        reason: 'DEX 13 ✓',
+      },
+    ]
+
+    function renderLevelUp() {
+      $('#level-cards').innerHTML = levelOptions
+        .map((option) => {
+          const entry = classes[option.key]
+          const disabled = option.allowed === false
+          const title = option.current ? `${entry.name} ${option.from} → ${option.from + 1}` : `+ ${entry.name} 1`
+          const info = option.current ? option.reason : `Multiclass · ${option.reason}`
+          return `
+            <div class='choice-card ${option.key === state.levelClass ? 'selected' : ''} ${disabled ? 'disabled' : ''}'
+              data-level-class='${disabled ? '' : option.key}' role='button'>
+              <span class='title'>${title}</span>
+              <span class='muted small'>${info}</span>
+              ${infoButton('class', option.key)}
+            </div>`
+        })
+        .join('')
+
+      const option = levelOptions.find((entry) => entry.key === state.levelClass)
+      const entry = classes[option.key]
+      const average = entry.die / 2 + 1 + modifier(sheetAbilities.con)
+      const choices = {
+        wizard: [
+          ['Cantrip', 'Wizard 5', 'pick 1'],
+          ['Spellbook', 'Wizard 5', 'pick 2 (up to 3rd level)'],
+        ],
+        fighter: [['Action Surge, Tactical Mind', 'Fighter 2 · new features', '']],
+        rogue: [
+          ['Skill proficiency', 'Rogue 1 (multiclass)', 'pick 1'],
+          ['Weapon Mastery', 'Rogue 1', 'pick 2'],
+        ],
+      }[option.key]
+      const choiceRows = choices
+        .map(([name, source, count]) => `
+          <div class='list-row'>
+            <span class='grow'><b>${name}</b> <span class='muted small'>· ${source}</span></span>
+            <span class='muted small'>${count || 'no choices'}</span>
+            ${count ? `<button class='btn sm'>Choose…</button>` : ''}
+          </div>`)
+        .join('')
+      const swap = option.key === 'wizard'
+        ? `<div class='list-row'><span class='grow'>May swap one cantrip <span class='muted small'>(OneOnLevelUp)
+            </span></span><button class='link' data-inspect='spell:fire-bolt'>Fire Bolt</button> →
+            <button class='btn sm'>Choose…</button></div>`
+        : ''
+
+      $('#level-detail').innerHTML = `
+        <div class='row'><h3 style='flex: 1'>${option.current ? `${entry.name} ${option.from + 1}` :
+          `${entry.name} 1 (multiclass)`}</h3>${infoButton('class', option.key)}</div>
+        <div class='field'>Hit points
+          <div class='radio-row' style='align-items: center'>
+            <label><input type='radio' name='hp-mode' value='average' ${state.hitPointsMode === 'average' ? 'checked' : ''}>
+              Take average: ${average} (d${entry.die}/2 + 1, CON +2)</label>
+            <label><input type='radio' name='hp-mode' value='roll' ${state.hitPointsMode === 'roll' ? 'checked' : ''}>
+              Roll d${entry.die}</label>
+            ${state.hitPointsMode === 'roll' ? `<input class='input' type='number' min='1' max='${entry.die}' value='4'
+              style='width: 80px'><button class='btn sm'>${icon('dice')}</button>` : ''}
+          </div>
+        </div>
+        <div class='field'>This level asks for
+          <div class='list'>${choiceRows}${swap}</div>
+        </div>
+        <div class='alert info'>${icon('info')}Preview after the level: AC ${armorClass().total} ·
+          HP ${state.hp.max + average} · PB +3 · character level 6</div>
+        <div class='row' style='justify-content: flex-end'>
+          <button class='btn' id='validate-level'>Validate</button>
+          <button class='btn solid' id='do-level'>${icon('levelUp')}Level up</button>
+        </div>`
+    }
+
+    // ---------------------------------------------------------------- shop
     function renderShop() {
       const search = $('#shop-search').value.toLowerCase()
       const kind = $('#shop-kind').value
@@ -2851,8 +3970,8 @@
               <span class='grow'><b>${item.name}</b> ${item.magic ? `<span class='badge brand'>magic</span>` : ''}<br>
                 <span class='muted small'>${item.category} · ${item.weight} lb</span></span>
               <b>${coins(item.cost)}</b>
-              <button class='btn sm ${tooExpensive ? '' : 'solid'}' data-buy='${item.key}' ${tooExpensive ? 'disabled' : ''}
-                title='${tooExpensive ? 'Not enough coins' : ''}'>Buy</button>
+              <button class='btn sm ${tooExpensive ? '' : 'solid'}' data-buy='${item.key}'
+                ${tooExpensive ? 'disabled title="Not enough coins"' : ''}>${icon('cart')}Buy</button>
             </div>`
         })
         .join('')
@@ -2862,72 +3981,168 @@
       $('#shop-detail').innerHTML = `
         <div><span class='muted small'>${selected.kind} · ${selected.category}</span><h3>${selected.name}</h3></div>
         <p>${selected.detail}</p>
-        <div class='list'>
-          <div class='list-row'><span class='grow muted'>Cost</span><b>${coins(selected.cost)}</b></div>
-          <div class='list-row'><span class='grow muted'>Weight</span><b>${selected.weight} lb</b></div>
-        </div>
+        ${factsGrid([['Cost', coins(selected.cost)], ['Weight', `${selected.weight} lb`]])}
         <button class='btn solid block' data-buy='${selected.key}' ${selected.cost > state.coinsCp ? 'disabled' : ''}>
-          Buy for ${coins(selected.cost)}</button>`
+          ${icon('cart')}Buy for ${coins(selected.cost)}</button>`
     }
 
     function buy(key) {
       const item = shopItems.find((entry) => entry.key === key)
+      const category = item.kind === 'Weapon'
+        ? (item.category.includes('ranged') ? 'ranged' : 'melee')
+        : item.kind === 'Armor' ? 'armor' : 'gear'
       state.coinsCp -= item.cost
       items.push({
         id: `${key}-${Date.now()}`,
         name: item.name,
-        kind: item.kind,
+        category,
         detail: item.detail,
+        ability: 'dex',
+        die: item.detail.split(' ')[0],
+        type: item.detail.split(' ')[1],
+        properties: item.detail.split(' · ').slice(1),
         weight: item.weight,
-        fits: item.kind === 'Weapon' ? ['MainHand', 'OffHand'] : item.kind === 'Armor' ? ['Armor'] : [],
-        slot: 'None',
+        cost: item.cost,
+        equipped: false,
       })
       renderShop()
       renderInventory()
-      toast(`${item.name} added to the backpack`)
+      toast(`${item.name} added to the inventory`)
     }
 
-    // ---------------------------------------------------------------- manage: spells
-    function renderSpells() {
-      $('#prepared-count').textContent = `Prepared ${state.prepared.length} / ${preparedLimit}`
-      $('#spellbook').innerHTML = spellbook
-        .map((spell) => {
-          const checked = spell.always || state.prepared.includes(spell.key)
-          const disabled = spell.always || (!checked && state.prepared.length >= preparedLimit)
-          return `
-            <label class='list-row clickable' style='opacity: ${disabled && !spell.always ? 0.55 : 1}'>
-              <input type='checkbox' data-prepare='${spell.key}' ${checked ? 'checked' : ''} ${disabled ? 'disabled' : ''}>
-              <span class='grow'><b>${spell.name}</b> <span class='muted small'>${spell.meta}</span></span>
-              ${spell.always ? `<span class='badge'>always prepared</span>` : ''}
-            </label>`
-        })
+    // ---------------------------------------------------------------- rests
+    function shortRest() {
+      const restored = state.resources.filter((resource) => resource.recharge === 'short' && resource.used > 0)
+      const dice = state.hitDice
+        .map((entry, index) => `<div class='list-row'><span class='grow'>${entry.die}
+          <span class='muted small'>${entry.max - entry.used} left</span></span>
+          <span class='counter'><button data-spend='${index}:-1'>${icon('minus')}</button>
+          <span id='spend-${index}'>0</span><button data-spend='${index}:1'>${icon('plus')}</button></span></div>`)
         .join('')
+      openDialog(`
+        <div class='dialog-head'><h3>${icon('coffee')} Short rest</h3>
+          <button class='icon-button' data-close>${icon('close')}</button></div>
+        <p class='muted'>Restores: ${restored.map((resource) => resource.name).join(', ') || 'nothing to restore'}.
+          Arcane Recovery can be used after this rest.</p>
+        <div class='field'>Spend hit dice (roll + CON +2 each)<div class='list'>${dice}</div></div>
+        <div class='row' style='justify-content: flex-end'>
+          <button class='btn' data-close>Cancel</button>
+          <button class='btn solid' id='confirm-short-rest'>Take short rest</button>
+        </div>`)
     }
 
-    // ---------------------------------------------------------------- manage: tabs
-    function setTab(tab) {
-      state.tab = tab
-      $$('#manage-tabs button, #bottom-tabs button').forEach((button) => {
-        button.classList.toggle('active', button.dataset.tab === tab)
+    function confirmShortRest() {
+      let healed = 0
+      state.hitDice.forEach((entry, index) => {
+        const spend = Number($(`#spend-${index}`).textContent)
+        entry.used += spend
+        healed += spend * (Number(entry.die.slice(1)) / 2 + 1 + modifier(sheetAbilities.con))
       })
-      $$('[data-tab-panel]').forEach((panel) => {
-        panel.hidden = panel.dataset.tabPanel !== tab
+      state.hp.current = Math.min(state.hp.max, state.hp.current + healed)
+      state.resources
+        .filter((resource) => resource.recharge === 'short')
+        .forEach((resource) => {
+          resource.used = 0
+        })
+      closeDialog()
+      renderSheet()
+      toast(`Short rest: short-rest resources restored${healed ? `, +${healed} HP` : ''}`)
+    }
+
+    function longRest() {
+      openDialog(`
+        <div class='dialog-head'><h3>${icon('bed')} Long rest</h3>
+          <button class='icon-button' data-close>${icon('close')}</button></div>
+        <p class='muted'>Regain all hit points, all spent hit dice, all spell slots and every resource. Prepared
+          spells can be changed afterwards.</p>
+        <div class='row' style='justify-content: flex-end'>
+          <button class='btn' data-close>Cancel</button>
+          <button class='btn solid' id='confirm-long-rest'>Take long rest</button>
+        </div>`)
+    }
+
+    function confirmLongRest() {
+      state.hp.current = state.hp.max
+      state.hitDice.forEach((entry) => {
+        entry.used = 0
       })
+      state.slots.forEach((slot) => {
+        slot.used = 0
+      })
+      state.resources.forEach((resource) => {
+        resource.used = 0
+      })
+      closeDialog()
+      renderSheet()
+      toast('Long rest: everything restored')
+    }
+
+    function usePip(group, index, pip) {
+      const target = {
+        resource: state.resources,
+        slot: state.slots,
+        hitdie: state.hitDice,
+      }[group][index]
+      const available = target.max - target.used
+
+      // clicking a full pip uses one, clicking an empty one restores one
+      target.used = pip < available ? target.used + 1 : target.used - 1
+      renderSheet()
+    }
+
+    function renderSheet() {
+      renderHeader()
+      renderAbilities()
+      renderHitPoints()
+      renderResources()
+      renderFeatures()
+      renderInventory()
+      renderSpells()
     }
 
     // ---------------------------------------------------------------- events
     document.addEventListener('click', (event) => {
-      const target = event.target.closest('button, [data-go], [data-shop-item]')
+      const target = event.target.closest('button, [data-go], [data-open], [role=button], [data-shop-item]')
       if (!target) {
         return
       }
 
       const data = target.dataset
+
+      // the info buttons open the detail view and never select the card they sit on
+      if (data.inspect) {
+        event.stopPropagation()
+        const [kind, ...key] = data.inspect.split(':')
+        inspect(kind, key.join(':'))
+        return
+      }
+
+      if (data.close !== undefined) {
+        closeDialog()
+        if (data.undo !== undefined) {
+          toast('Level 5 removed – Elara is Wizard 4')
+        }
+        return
+      }
+
       if (data.go) {
         show(data.go)
       }
+      else if (data.open) {
+        if (data.open === 'character') {
+          openCharacter()
+        }
+        else {
+          show('creator')
+        }
+      }
       else if (data.screen && target.closest('#screen-switch')) {
-        show(data.screen)
+        if (data.screen === 'character') {
+          openCharacter()
+        }
+        else {
+          show(data.screen)
+        }
       }
       else if (data.device) {
         setDevice(data.device)
@@ -2948,7 +4163,7 @@
       }
       else if (target.id === 'next') {
         if (state.step === steps.length - 1) {
-          show('manage')
+          openCharacter()
           toast('Character saved')
         }
         else {
@@ -2965,8 +4180,7 @@
       }
       else if (data.background) {
         state.background = data.background
-        const keys = backgrounds.find((entry) => entry.key === data.background).abilities
-        state.distribution = Object.fromEntries(keys.map((key) => [key, 0]))
+        state.distribution = Object.fromEntries(backgrounds[data.background].abilities.map((key) => [key, 0]))
         renderCreator()
       }
       else if (data.method) {
@@ -2990,16 +4204,18 @@
         state.classSkills = []
         renderCreator()
       }
+      else if (data.page) {
+        setPage(data.page)
+      }
       else if (data.tab) {
         setTab(data.tab)
-        renderLevelUp()
       }
       else if (data.levelClass) {
         state.levelClass = data.levelClass
         renderLevelUp()
       }
       else if (target.id === 'validate-level') {
-        toast('✓ Valid – 2 choices still open (saved as open choices)')
+        toast('Valid – 2 choices still open (they stay open choices of the level)')
       }
       else if (target.id === 'do-level') {
         toast('Elara is now level 6')
@@ -3013,29 +4229,57 @@
             <button class='btn solid' data-close data-undo>Undo level</button>
           </div>`)
       }
-      else if (data.unequip) {
-        const item = items.find((entry) => entry.id === data.unequip)
-        item.slot = 'None'
-        item.attuned = false
+      else if (data.toggleItem) {
+        const item = items.find((entry) => entry.id === data.toggleItem)
+        item.equipped = !item.equipped
+        if (item.equipped && item.category === 'armor') {
+          // only one suit of armor can be worn
+          items
+            .filter((entry) => entry.category === 'armor' && entry !== item)
+            .forEach((entry) => {
+              entry.equipped = false
+            })
+        }
+        if (!item.equipped) {
+          item.attuned = false
+        }
         renderInventory()
-        toast(`${item.name} unequipped`)
       }
       else if (data.attune) {
         const item = items.find((entry) => entry.id === data.attune)
         item.attuned = !item.attuned
         renderInventory()
       }
-      else if (data.equip) {
-        equipDialog(data.equip)
+      else if (target.id === 'mage-armor') {
+        state.mageArmor = !state.mageArmor
+        renderInventory()
       }
-      else if (data.pickSlot) {
-        slotDialog(data.pickSlot)
+      else if (data.pip) {
+        const [group, index, pip] = data.pip.split(':')
+        usePip(group, Number(index), Number(pip))
       }
-      else if (data.confirmEquip) {
-        equip(data.confirmEquip, $('input[name=equip-slot]:checked').value)
+      else if (data.hp) {
+        state.hp.current = Math.max(0, Math.min(state.hp.max, state.hp.current + Number(data.hp)))
+        renderHeader()
+        renderHitPoints()
       }
-      else if (data.confirmSlot) {
-        equip($('input[name=slot-item]:checked').value, data.confirmSlot)
+      else if (target.id === 'short-rest') {
+        shortRest()
+      }
+      else if (target.id === 'long-rest') {
+        longRest()
+      }
+      else if (data.spend) {
+        const [index, delta] = data.spend.split(':').map(Number)
+        const entry = state.hitDice[index]
+        const element = $(`#spend-${index}`)
+        element.textContent = Math.max(0, Math.min(entry.max - entry.used, Number(element.textContent) + delta))
+      }
+      else if (target.id === 'confirm-short-rest') {
+        confirmShortRest()
+      }
+      else if (target.id === 'confirm-long-rest') {
+        confirmLongRest()
       }
       else if (data.buy) {
         event.stopPropagation()
@@ -3044,13 +4288,6 @@
       else if (data.shopItem) {
         state.shopSelected = data.shopItem
         renderShop()
-      }
-
-      if (data.close !== undefined) {
-        closeDialog()
-        if (data.undo !== undefined) {
-          toast('Level 5 removed – Elara is Wizard 4')
-        }
       }
     })
 
@@ -3086,19 +4323,12 @@
           : state.classSkills.filter((key) => key !== target.dataset.skill)
         renderCreator()
       }
-      else if (target.name === 'hp') {
-        state.hitPoints = target.value
+      else if (target.name === 'hp-mode') {
+        state.hitPointsMode = target.value
         renderLevelUp()
       }
       else if (target.id === 'ac-select') {
         state.acChoice = target.value
-        renderInventory()
-      }
-      else if (target.id === 'mage-armor') {
-        state.mageArmor = target.checked
-        renderInventory()
-      }
-      else if (target.id === 'backpack-filter') {
         renderInventory()
       }
       else if (target.id === 'shop-kind' || target.id === 'shop-sort' || target.id === 'shop-magic') {
@@ -3138,19 +4368,19 @@
       }
     }).observe($('#device'))
 
-    // ---------------------------------------------------------------- start
+    // ---------------------------------------------------------------- start (?screen=&device=&page=&tab= for links)
+    const params = new URLSearchParams(location.search)
+    fillIcons()
     setTheme(initialTheme())
-    setDevice(new URLSearchParams(location.search).get('device') ?? 'desktop')
+    setDevice(params.get('device') ?? 'desktop')
     setLoginMode('signin')
     renderCharacters()
     renderCreator()
-    renderOverview()
-    renderLevelUp()
-    renderInventory()
+    renderSheet()
     renderShop()
-    renderSpells()
-    setTab(state.tab)
-    show(new URLSearchParams(location.search).get('screen') ?? 'login')
+    show(params.get('screen') ?? 'login')
+    setPage(params.get('page') ?? 'sheet')
+    setTab(params.get('tab') ?? 'overview')
   </script>
 </body>
 </html>

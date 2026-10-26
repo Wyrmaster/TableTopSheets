@@ -27,10 +27,14 @@ Start the API with `dotnet run --project Api/TableTopSheets.Api` from the reposi
 
 ## Mockups
 
-`mockups/ui-mockups.html` shows the planned screens (login, character list, creator, character management with level
-up, inventory, shop and spells) with mock data. Open the file in a browser; the toolbar switches screens, desktop /
-mobile (390 px phone frame) and the app's ☀/☾ toggle switches light / dark. Dashed boxes note the API routes behind a
-screen and the gaps (coins, removing items). Links: `?screen=creator&device=mobile`.
+`mockups/ui-mockups.html` shows the planned screens with mock data: login, character list, creator and a character
+with **Character sheet** (Overview with abilities, saving throws, skills, hit points, clickable resource charges and
+features · Inventory with armor, melee and ranged weapons, worn items and violations · Spells; short and long rest),
+**Level up** and **Shop**. Every spell, species, background, class, feat, feature and item opens a detail view.
+Icons are Material Design Icons (inline SVG). Open the file in a browser; the toolbar switches screens and desktop /
+mobile (390 px phone frame), the title bar toggle switches light / dark. Dashed boxes note the API routes behind a
+screen and the gaps (multiple equipped weapons, coins, removing items, play state). Links:
+`?screen=character&page=sheet&tab=inventory&device=mobile`.
 
 ## Code style
 
