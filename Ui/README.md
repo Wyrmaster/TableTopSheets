@@ -25,6 +25,35 @@ Start the API with `dotnet run --project Api/TableTopSheets.Api` from the reposi
 | `src/styles/global.scss` | global styles not covered by Chakra's reset |
 | `src/*.module.scss` | component styles as CSS modules |
 
+## App structure
+
+| Route | Page |
+|---|---|
+| `/login` | sign in / register (`pages/LoginPage.tsx`) |
+| `/characters` | the user's characters (`pages/CharactersPage.tsx`) |
+| `/characters/new`, `/characters/new/:id` | creator; steps 1–3 local, then a saved draft (`pages/creator`) |
+| `/characters/:id/sheet/:tab` | character sheet: `overview`, `inventory`, `spells` (`pages/character`) |
+| `/characters/:id/level-up` | open choices, gain a level, undo |
+| `/characters/:id/shop` | item catalog, add to the inventory |
+
+| Path | Purpose |
+|---|---|
+| `src/App.tsx` | router; `RequireAuth` guards everything but `/login` |
+| `src/app/AppShell.tsx` | title bar (navigation and user section only when signed in, API hint toggle, theme) and the toaster |
+| `src/app/settings` | user settings in local storage (`useSettings`, e.g. `showApiHints`) |
+| `src/hooks/useIntentQuery.ts` | load data: executes an intent per key, cancels outdated requests, `reload` / `setData` |
+| `src/hooks/useApiAction.ts` | writes: runs an intent, shows API errors (and optional success) as toasts |
+| `src/components/inspector` | detail view of spells, species, backgrounds, classes, feats, items, features (`useInspector().inspect(…)`) |
+| `src/components/choices` | `ChoiceCard` / `ChoiceList`: any pending choice rendered from its metadata |
+| `src/components/Icon.tsx`, `icons.ts` | Material Design Icons (`@mdi/js`); add new icons to `icons.ts` |
+| `src/components/ApiHint.tsx` | dashed developer hint with the API route, shown only when the setting is on |
+| `src/pages/character/CharacterLayout.tsx` | loads state + sheet into `useCharacter()`; `applyState(state)` after writes |
+| `src/pages/character/playState.ts` | current HP, charges, hit dice and slots per character in local storage (not stored by the API yet) |
+
+**API gaps the UI works around** (see the hints in the app): any number of equipped weapons (one item per hand today),
+coins for buying, removing or selling items, storing play state (HP, charges, rests), and listing the spellbook and the
+current loadout per class (needed for preparing spells after a long rest).
+
 ## Mockups
 
 `mockups/ui-mockups.html` shows the planned screens with mock data: login, character list, creator and a character

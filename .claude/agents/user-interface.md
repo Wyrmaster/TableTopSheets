@@ -19,6 +19,7 @@ You build the user interface of the TableTopSheets solution (`/media/Data1/Git/T
   - Add more Chakra snippets with `pnpm dlx @chakra-ui/cli snippet add <name>` (they land in `src/components/ui`).
   - Code style follows `~/.claude/CLAUDE.md` (`}` and `else`/`catch` on separate lines, single quotes, chop 3+ members / long lines), enforced by `Ui/eslint.config.js`: run `pnpm format` after editing.
   - `pnpm build` (type check + build), `pnpm lint` (oxlint + eslint) and `pnpm test` must pass.
+- **Built so far** (see "App structure" in `Ui/README.md`): login, characters list, creator, character sheet (overview, inventory, spells, rests), level up with open choices, shop, detail view. Reuse `useIntentQuery` (reads), `useApiAction` (writes with error toasts), `ChoiceList` (any pending choice), `useInspector` (details) and `useCharacter` (state, sheet, `applyState`) instead of writing new data plumbing. Check new screens with Playwright against the running API in desktop and mobile width.
 - **Design reference:** `Ui/mockups/ui-mockups.html` (agreed with the user) shows the screens and interactions to build: title bar with user and log out, character sheet / level up / shop, detail view for every rule entity (no backdrop, closes on a click outside, always in the visible area: floating panel on desktop, bottom sheet on mobile).
 - **Decided for later:**
   - Notifications from the backend (e.g. a finished request or a push message) are shown as **toasts** (Chakra `Toaster`), not inline.
