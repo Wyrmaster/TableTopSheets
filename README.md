@@ -515,8 +515,11 @@ The database enforces the same: deleting a level cascades to its selections and 
 
 ## Equipment, toggles and Armor Class
 
-- **Items:** `AddItemAsync`, `EquipAsync(characterItemId, EquipSlot)` (Armor, MainHand, OffHand, Worn, None) and
+- **Items:** `AddItemAsync`, `EquipAsync(characterItemId, EquipSlot)` (Armor, MainHand, OffHand, Worn, Ready, None) and
   `AttuneAsync` (maximum 3).
+- **Equipped weapons:** any number of weapons can be `Ready` (equipped, not held); armor and each hand hold one item.
+  Taking a weapon into an occupied hand puts the weapon held there back to `Ready`. The sheet lists the equipped weapons
+  (ready or in hand) as attacks.
 - **Armor rules are built in:**
   - base AC + DEX up to the armor's cap
   - Speed −10 if Strength is below the armor's requirement
@@ -669,6 +672,7 @@ sequenceDiagram
 | DELETE | `/api/characters/{id}/levels/last` | undo the highest level |
 | POST / PUT | `/api/characters/{id}/items`, `/items/{itemId}/slot`, `/items/{itemId}/attunement` | inventory, equip, attune |
 | PUT | `/api/characters/{id}/toggles/{featureKey}`, `/armor-class` | toggles (Rage, Mage Armor …), AC calculation |
+| GET | `/api/characters/{id}/spells` | per spellcasting class: spellbook, prepared and always prepared spells, limits, pool, highest level; plus spells from species and feats |
 | PUT / POST | `/api/characters/{id}/prepared-spells/{classKey}`, `/spellbook` | long rest loadout, copy a spell into the spellbook |
 
 ### Paging, search, filters and sorting

@@ -39,6 +39,12 @@ public sealed class ApiClient(HttpClient http)
     return await Read<T>(response);
   }
 
+  public async Task<T> PutAsync<T>(string url, object body)
+  {
+    HttpResponseMessage response = await this.Http.PutAsJsonAsync(url, body, Json);
+    return await Read<T>(response);
+  }
+
   public async Task<T> DeleteAsync<T>(string url)
   {
     HttpResponseMessage response = await this.Http.DeleteAsync(url);

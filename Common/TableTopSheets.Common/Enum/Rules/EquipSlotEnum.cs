@@ -10,4 +10,8 @@ public enum EquipSlotEnum
   ///   Worn items such as rings, cloaks or amulets
   /// </summary>
   Worn = 4,
+  /// <summary>
+  ///   Weapon that is equipped and ready (on the belt, on the back) but not held; any number of weapons can be ready
+  /// </summary>
+  Ready = 5,
 }

@@ -218,7 +218,8 @@ public static class CharacterSheetBuilder
     int dexterity = evaluation.Modifier("dex");
     bool meleeDexterity = evaluation.Stat("attack.melee.dex") > 0;
 
-    foreach (Weapon weapon in evaluation.Character.Items.Select(entry => evaluation.Catalog.Items[entry.ItemId]).OfType<Weapon>().DistinctBy(entry => entry.Id))
+    // equipped weapons only: ready ones and the ones in hand
+    foreach (Weapon weapon in evaluation.EquippedItems.Select(entry => evaluation.Catalog.Items[entry.ItemId]).OfType<Weapon>().DistinctBy(entry => entry.Id))
     {
       bool finesse = weapon.Properties.HasFlag(WeaponPropertyEnum.Finesse);
       int modifier = weapon.Ranged

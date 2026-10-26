@@ -554,7 +554,8 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
   }
 
   /// <summary>
-  ///   Don, doff, wield or stow an item. Equipping into an occupied slot stows the previous item
+  ///   Don, doff, wield, ready or stow an item. Any number of weapons can be ready; armor and each hand hold one item.
+  ///   Equipping into an occupied hand puts a weapon held there back to ready (other items are stowed)
   /// </summary>
   public async Task<CharacterEvaluation> EquipAsync(Guid characterId, Guid characterItemId, EquipSlotEnum slot, CancellationToken cancellationToken = default)
   {
@@ -569,6 +570,7 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
       EquipSlotEnum.Armor => item is Armor { Category: not Common.Enum.Item.ArmorEnum.Shield },
       EquipSlotEnum.MainHand => item is not Armor,
       EquipSlotEnum.OffHand => item is not Armor { Category: not Common.Enum.Item.ArmorEnum.Shield },
+      EquipSlotEnum.Ready => item is Weapon,
       _ => false,
     };
     if (!allowed)
@@ -578,9 +580,11 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
 
     if (slot is EquipSlotEnum.Armor or EquipSlotEnum.MainHand or EquipSlotEnum.OffHand)
     {
+      List<Guid> others = character.Items.Where(other => other.EquipSlot == slot && other.Id != entry.Id).Select(other => other.ItemId).ToList();
+      Dictionary<Guid, Item> displaced = await context.Items.AsNoTracking().Where(rule => others.Contains(rule.Id)).ToDictionaryAsync(rule => rule.Id, cancellationToken);
       foreach (CharacterItem other in character.Items.Where(other => other.EquipSlot == slot && other.Id != entry.Id))
       {
-        other.EquipSlot = EquipSlotEnum.None;
+        other.EquipSlot = slot != EquipSlotEnum.Armor && displaced[other.ItemId] is Weapon ? EquipSlotEnum.Ready : EquipSlotEnum.None;
       }
     }
 
