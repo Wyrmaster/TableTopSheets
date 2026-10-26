@@ -1,0 +1,3 @@
+allowBuilds:
+  # optional file watcher of sass; ships prebuilt binaries, its build script is only a fallback
+  '@parcel/watcher': false

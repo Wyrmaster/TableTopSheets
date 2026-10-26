@@ -42,6 +42,12 @@ The quickest way to try it is the REST API. It creates, migrates and seeds a loc
 dotnet run --project Api/TableTopSheets.Api      # Swagger UI at http://localhost:5180/swagger
 ```
 
+The user interface is a React app in `Ui/` (pnpm); its dev server proxies `/api` to the API:
+
+```bash
+cd Ui && pnpm install && pnpm dev                # http://localhost:5173
+```
+
 `Api/TableTopSheets.Api/TableTopSheets.Api.http` walks through a whole character. See [REST API](#rest-api).
 
 ### Docker
@@ -137,6 +143,7 @@ foreach (PendingChoice pending in ChoiceService.Pending(evaluation))
 | `Api/TableTopSheets.Api` | ASP.NET Core minimal API: rules catalog, characters, the choice loop, level up, sheet and PDF |
 | `Tests/TableTopSheets.Engine.Tests` | Tests for everything above, including migrations and PDF output |
 | `Tests/TableTopSheets.Api.Tests` | End to end tests of the REST API (`WebApplicationFactory`, in-memory SQLite) |
+| `Ui` | User interface: React, TypeScript, Vite, Chakra UI v3 and SCSS, pnpm; light and dark mode (see `Ui/README.md`) |
 | `.claude/agents/pdf-library.md` | Claude Code sub agent specialised on the PDF library |
 | `.claude/agents/user-interface.md` | Claude Code sub agent for the user interface: API reference, authentication, creation and level up workflows |
 

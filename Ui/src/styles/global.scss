@@ -1,0 +1,9 @@
+// Global styles that Chakra's reset doesn't cover; imported once in main.tsx
+
+html {
+  scroll-behavior: smooth;
+}
+
+#root {
+  min-height: 100vh;
+}

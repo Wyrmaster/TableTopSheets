@@ -12,7 +12,12 @@ You build the user interface of the TableTopSheets solution (`/media/Data1/Git/T
 - **Every write answers with `CharacterStateDto`.** Replace your local state with it; don't patch it by hand. Follow-up choices, new violations and changed AC/HP all arrive that way.
 - **The source of truth for the contract** is the code, not this file: `Api/TableTopSheets.Api/Contracts/*.cs` (DTOs), `Endpoints/*.cs` (routes), `Authentication/*.cs`, and the generated document at `GET /openapi/v1.json`. When they disagree with this file, trust the code and update this file.
 - **Walkthroughs to copy from:** `Api/TableTopSheets.Api/TableTopSheets.Api.http` (a whole elf sage wizard step by step), `Tests/TableTopSheets.Api.Tests/ApiClient.cs` (`AnswerAllAsync` answers any character from metadata alone, the way a generic GUI does), `Tests/TableTopSheets.Api.Tests/CharacterFlowTests.cs` and `AuthTests.cs`. The README sections *Choices*, *Level up, multiclassing and undo* and *REST API* explain the concepts.
-- **Where the UI lives:** look for an existing UI project first (`git ls-files`, `TableTopSheets.slnx`) and follow its stack and conventions. If there is none yet, don't pick a framework silently: report back to the caller which stack you propose and why, unless the task names one. Put a new project in its own top-level folder (e.g. `Ui/`) and, if it's .NET, add it to `TableTopSheets.slnx`.
+- **Where the UI lives:** `Ui/`, a React 19 + TypeScript app built with Vite, **Chakra UI v3** for components and **SCSS** (CSS modules, `*.module.scss`) for custom styles, managed with **pnpm** (never npm/yarn; `pnpm add`, commit `pnpm-lock.yaml`). `Ui/README.md` describes the layout. Conventions:
+  - Import from `src` with the `@/` alias. Prefer Chakra components and style props; use SCSS for layout and things Chakra doesn't cover, with variables from `src/styles/_variables.scss`.
+  - Theme changes go to `src/theme.ts` (`createSystem`; semantic tokens with `_light` / `_dark` values, e.g. the `brand` palette used via `colorPalette="brand"` or `color="brand.fg"`).
+  - Light/dark mode comes from `@/components/ui/color-mode` (`useColorMode`, `useColorModeValue`, `ColorModeButton`, next-themes with `class="light|dark"` on `<html>`). Never add a second theme state. In SCSS use Chakra's CSS variables (`var(--chakra-colors-fg)`, `var(--chakra-colors-bg-subtle)` …), and `:global(.dark) & { … }` for mode specific rules. Check every new screen in both modes.
+  - Add more Chakra snippets with `pnpm dlx @chakra-ui/cli snippet add <name>` (they land in `src/components/ui`).
+  - `pnpm build` (type check + build) and `pnpm lint` (oxlint) must pass.
 - **Typed client:** generate it from `/openapi/v1.json` (NSwag, Kiota or openapi-generator for TS) instead of hand-writing DTOs. Every endpoint has an `operationId` (`CreateCharacter`, `GetPendingChoices`, `SelectOptions`, `GetChoiceOptions`, `PreviewLevelUp`, `LevelUp`, `UndoLevel` …). Regenerate after API changes; commit the generator config so it's repeatable.
 
 ## Running the API
@@ -25,7 +30,7 @@ dotnet test Tests/TableTopSheets.Api.Tests        # end to end tests of the API
 
 The API creates, migrates and seeds a local SQLite database on start. In Development the JWT signing key is random per start, so **tokens become invalid when the API restarts**: handle 401 by sending the user back to sign in.
 
-**CORS is not configured** (`Program.cs` has no `AddCors`). A browser UI on another origin will fail. Either serve the UI from the same origin / use the dev server's proxy to `http://localhost:5180`, or add a CORS policy to `Program.cs` with the allowed origins from configuration (e.g. `Cors:Origins`), never `AllowAnyOrigin` together with credentials. If you change the API, add or extend a test in `Tests/TableTopSheets.Api.Tests` and run them.
+**CORS is not configured** (`Program.cs` has no `AddCors`). A browser UI on another origin will fail. In development `Ui/vite.config.ts` proxies `/api` to `http://localhost:5180`, so call the API with relative URLs (`/api/...`). For a deployed UI on another origin, serve it behind the same host or add a CORS policy to `Program.cs` with the allowed origins from configuration (e.g. `Cors:Origins`), never `AllowAnyOrigin` together with credentials. If you change the API, add or extend a test in `Tests/TableTopSheets.Api.Tests` and run them.
 
 JSON: camelCase, **enums as strings** (`JsonStringEnumConverter`), ids are GUIDs, dates are ISO 8601 UTC.
 
