@@ -33,7 +33,7 @@ public static class ChoiceEndpoints
 
   public static RouteGroupBuilder MapChoiceEndpoints(this IEndpointRouteBuilder routes)
   {
-    RouteGroupBuilder group = routes.MapGroup("/api/characters/{id:guid}").WithTags("Choices").WithCharacterProblems();
+    RouteGroupBuilder group = routes.MapGroup("/api/characters/{id:guid}").WithTags("Choices").WithCharacterProblems().RequireUser();
 
     group.MapGet("/choices", Pending).WithName("GetPendingChoices").WithSummary("Choices that still need selections");
     group.MapPost("/choices", Select).WithName("SelectOptions")

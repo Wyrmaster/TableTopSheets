@@ -14,7 +14,7 @@ public static class InventoryEndpoints
 
   public static RouteGroupBuilder MapInventoryEndpoints(this IEndpointRouteBuilder routes)
   {
-    RouteGroupBuilder group = routes.MapGroup("/api/characters/{id:guid}").WithTags("Inventory").WithCharacterProblems();
+    RouteGroupBuilder group = routes.MapGroup("/api/characters/{id:guid}").WithTags("Inventory").WithCharacterProblems().RequireUser();
 
     group.MapPost("/items", AddItem).WithName("AddItem").WithSummary("Add an item to the inventory");
     group.MapPut("/items/{itemId:guid}/slot", Equip).WithName("EquipItem").WithSummary("Equip an item (slot None unequips it)");

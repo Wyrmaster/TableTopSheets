@@ -15,9 +15,9 @@ namespace TableTopSheets.Engine.Services;
 
 /// <summary>
 ///   All changes to a character go through this service. Every change is validated against a fresh evaluation and either
-///   applied completely or not at all
+///   applied completely or not at all. Only the characters of the current user are visible
 /// </summary>
-public sealed class CharacterService(TableTopSheetsContext context, RulesCatalogLoader rules)
+public sealed class CharacterService(TableTopSheetsContext context, RulesCatalogLoader rules, ICurrentUser user)
 {
   #region Constants
 
@@ -43,7 +43,7 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
          .Include(entry => entry.PreparedSpells)
          .Include(entry => entry.SpellbookEntries)
          .Include(entry => entry.ResourceUsages)
-         .SingleOrDefaultAsync(entry => entry.Id == characterId, cancellationToken)
+         .SingleOrDefaultAsync(entry => entry.Id == characterId && entry.OwnerId == user.UserId, cancellationToken)
        ?? throw new CharacterNotFoundException(characterId);
 
   /// <summary>
@@ -77,6 +77,7 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
     Character character = new()
     {
       Id = Guid.NewGuid(),
+      OwnerId = user.UserId,
       Name = request.Name,
       SpeciesId = species.Id,
       BackgroundId = background.Id,

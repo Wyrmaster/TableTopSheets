@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
+using TableTopSheets.Api.Authentication;
 using TableTopSheets.Api.Configuration;
 using TableTopSheets.Api.Endpoints;
 using TableTopSheets.Api.Errors;
@@ -32,10 +33,13 @@ builder.Services.AddDbContext<TableTopSheetsContext>(options =>
 builder.Services.AddScoped<RulesCatalogLoader>();
 builder.Services.AddScoped<CharacterService>();
 
+// Authentication:Provider switches between the database users and an OIDC identity provider
+builder.AddTableTopSheetsAuthentication();
+
 builder.Services.ConfigureHttpJsonOptions(options => options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<ApiExceptionHandler>();
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(options => options.AddBearerScheme());
 
 WebApplication app = builder.Build();
 
@@ -43,6 +47,8 @@ await DatabaseInitializer.InitializeAsync(app.Services);
 
 app.UseExceptionHandler();
 app.UseStatusCodePages();
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapOpenApi();
 app.UseSwaggerUI(options =>
 {
@@ -52,9 +58,11 @@ app.UseSwaggerUI(options =>
   options.DocumentTitle = "TableTopSheets API";
   options.DisplayOperationId();
   options.EnableTryItOutByDefault();
+  options.EnablePersistAuthorization();
 });
 app.MapGet("/", () => Results.Redirect("/swagger")).ExcludeFromDescription();
 
+app.MapAuthEndpoints();
 app.MapRulesEndpoints();
 app.MapCharacterEndpoints();
 app.MapChoiceEndpoints();

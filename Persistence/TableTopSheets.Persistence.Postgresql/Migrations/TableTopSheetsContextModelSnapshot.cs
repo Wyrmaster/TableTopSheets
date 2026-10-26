@@ -76,6 +76,9 @@ namespace TableTopSheets.Persistence.Postgresql.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
 
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid?>("SpeciesId")
                         .HasColumnType("uuid");
 
@@ -88,6 +91,8 @@ namespace TableTopSheets.Persistence.Postgresql.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("BackgroundId");
+
+                    b.HasIndex("OwnerId");
 
                     b.HasIndex("SpeciesId");
 
@@ -1097,6 +1102,46 @@ namespace TableTopSheets.Persistence.Postgresql.Migrations
                     b.ToTable("WeaponMasteries");
                 });
 
+            modelBuilder.Entity("TableTopSheets.Persistence.Entity.Users.User", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("ExternalIssuer")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<string>("ExternalSubject")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("PasswordHash")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserName")
+                        .IsUnique();
+
+                    b.HasIndex("ExternalIssuer", "ExternalSubject")
+                        .IsUnique();
+
+                    b.ToTable("Users");
+                });
+
             modelBuilder.Entity("TableTopSheets.Persistence.Entity.Rules.Items.Armor", b =>
                 {
                     b.HasBaseType("TableTopSheets.Persistence.Entity.Rules.Items.Item");
@@ -1183,6 +1228,12 @@ namespace TableTopSheets.Persistence.Postgresql.Migrations
                         .HasForeignKey("BackgroundId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("TableTopSheets.Persistence.Entity.Users.User", "Owner")
+                        .WithMany("Characters")
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("TableTopSheets.Persistence.Entity.Rules.Species", "Species")
                         .WithMany()
                         .HasForeignKey("SpeciesId")
@@ -1233,6 +1284,8 @@ namespace TableTopSheets.Persistence.Postgresql.Migrations
                         });
 
                     b.Navigation("Background");
+
+                    b.Navigation("Owner");
 
                     b.Navigation("PlayState")
                         .IsRequired();
@@ -1703,6 +1756,11 @@ namespace TableTopSheets.Persistence.Postgresql.Migrations
             modelBuilder.Entity("TableTopSheets.Persistence.Entity.Rules.Subclass", b =>
                 {
                     b.Navigation("Features");
+                });
+
+            modelBuilder.Entity("TableTopSheets.Persistence.Entity.Users.User", b =>
+                {
+                    b.Navigation("Characters");
                 });
 #pragma warning restore 612, 618
         }

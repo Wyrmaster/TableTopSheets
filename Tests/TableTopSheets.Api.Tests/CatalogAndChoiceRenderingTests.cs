@@ -4,11 +4,19 @@ using TableTopSheets.Api.Contracts;
 
 namespace TableTopSheets.Api.Tests;
 
-public sealed class CatalogAndChoiceRenderingTests(ApiFactory factory): IClassFixture<ApiFactory>
+public sealed class CatalogAndChoiceRenderingTests(ApiFactory factory): IClassFixture<ApiFactory>, IAsyncLifetime
 {
   #region Fields
 
   private readonly ApiClient _api = new(factory.CreateClient());
+
+  #endregion
+
+  #region IAsyncLifetime
+
+  public Task InitializeAsync() => this._api.SignInAsync();
+
+  public Task DisposeAsync() => Task.CompletedTask;
 
   #endregion
 

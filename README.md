@@ -56,8 +56,8 @@ dotnet ef database update --project Persistence/TableTopSheets.Persistence.Postg
 ```csharp
 await using TableTopSheetsContext context = PostgresqlContextFactory.Create(connectionString);
 await SeedWriter.SeedAsync(context);                          // repeatable; ids are deterministic
-RulesCatalog catalog = await RulesCatalog.LoadAsync(context); // load once, share
-CharacterService service = new(context, catalog);
+// characters belong to a user; ICurrentUser tells the service whose characters it may see
+CharacterService service = new(context, new RulesCatalogLoader(context), currentUser);
 ```
 
 Build a character and print it:
@@ -545,7 +545,33 @@ dotnet run --project Api/TableTopSheets.Api
 | `Database:SeedOnStartup` | `true` | write the rules seed on start (idempotent upsert) |
 
 The rules catalog is loaded once on startup and shared. A request gets its own `TableTopSheetsContext` and
-`CharacterService`. There is no authentication; the API is meant for a local or single-user deployment.
+`CharacterService`.
+
+### Users and authentication
+
+Every character belongs to a user (`Users` table, `Characters.OwnerId`). All `/api/characters/**` endpoints need an
+`Authorization: Bearer <token>` header and only see the characters of that user. Another user's character answers
+**404**, and a missing or invalid token answers **401**. `/api/rules` stays anonymous.
+
+`Authentication:Provider` chooses the implementation of `IAuthenticationProvider` (`Api/TableTopSheets.Api/Authentication`):
+
+| Provider | Sign in | Users |
+|---|---|---|
+| `Database` (default) | `POST /api/auth/register`, `POST /api/auth/login` return a JWT signed by the API | stored with a salted PBKDF2 hash (`PasswordHasher`) |
+| `Oidc` | at the identity provider (Keycloak, Entra ID, Auth0 …); the API validates its access tokens | created on the first request and matched by `iss` + `sub` |
+
+| Setting | Default | Meaning |
+|---|---|---|
+| `Authentication:Provider` | `Database` | `Database` or `Oidc` |
+| `Authentication:Jwt:SigningKey` | – | at least 32 characters; required outside Development (Development generates one per start) |
+| `Authentication:Jwt:Issuer` / `Audience` / `Lifetime` | `TableTopSheets` / `TableTopSheets` / `08:00:00` | tokens issued by the database provider |
+| `Authentication:Database:MinimumPasswordLength` | `8` | |
+| `Authentication:Database:AllowRegistration` | `true` | map `POST /api/auth/register` |
+| `Authentication:Oidc:Authority` | – | issuer url of the identity provider (keys come from its discovery document) |
+| `Authentication:Oidc:Audience` | – | expected `aud` (not checked when empty) |
+| `Authentication:Oidc:UserNameClaim` / `EmailClaim` | `preferred_username` / `email` | used when the user row is created |
+
+`GET /api/users/me` returns the signed in user. In the Swagger UI, **Authorize** takes the token.
 
 ### The choice loop
 
@@ -599,9 +625,11 @@ sequenceDiagram
 
 | Method | Route | Purpose |
 |---|---|---|
+| POST | `/api/auth/register`, `/api/auth/login` | database authentication: create a user / sign in; both return `{ accessToken, expiresAt, user }` |
+| GET | `/api/users/me` | the signed in user and the number of their characters |
 | GET | `/api/rules/{species,backgrounds,classes,feats,spells,items}` | catalog lists (paged, filterable) |
 | GET | `/api/rules/{…}/{key}` | details: full text, features with their choice definitions; classes with features per level and subclasses |
-| GET / POST | `/api/characters` | list (filter `class`, `species`, `minLevel`, `maxLevel`) / create a draft |
+| GET / POST | `/api/characters` | list of the user's characters (filter `class`, `species`, `minLevel`, `maxLevel`) / create a draft |
 | GET / PATCH / DELETE | `/api/characters/{id}` | state / name, alignment, appearance, backstory, experience / delete |
 | GET | `/api/characters/{id}/sheet`, `/sheet.pdf` | the computed `CharacterSheet` / the printable PDF |
 | GET / POST | `/api/characters/{id}/choices` | pending choices / answer them |
@@ -648,7 +676,8 @@ The OpenAPI document (`/openapi/v1.json`) has:
   `PreviewLevelUp`, `LevelUp`, `UndoLevel` …)
 - enums as strings
 - XML documentation as descriptions
-- the 400/404/422 problem responses
+- the 400/401/404/422 problem responses
+- the bearer security scheme
 
 `openapi-generator`, NSwag or Kiota produce a typed client from it. `Tests/TableTopSheets.Api.Tests/ApiClient.cs`
 (`AnswerAllAsync`) is an example of a generic client: it completes any character using only `input`, `constraints`,

@@ -1,3 +1,5 @@
+using TableTopSheets.Api.Authentication;
+
 namespace TableTopSheets.Api.Endpoints;
 
 public static class EndpointConventions
@@ -21,6 +23,17 @@ public static class EndpointConventions
   {
     group.WithRuleProblems();
     group.ProducesProblem(StatusCodes.Status404NotFound);
+    return group;
+  }
+
+  /// <summary>
+  ///   Require a bearer token and resolve its user (401 otherwise); character endpoints only see the characters of that user
+  /// </summary>
+  public static RouteGroupBuilder RequireUser(this RouteGroupBuilder group)
+  {
+    group.RequireAuthorization();
+    group.AddEndpointFilter<CurrentUserFilter>();
+    group.ProducesProblem(StatusCodes.Status401Unauthorized);
     return group;
   }
 

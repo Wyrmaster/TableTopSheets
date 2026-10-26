@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -55,6 +56,25 @@ public sealed class ApiClient(HttpClient http)
 
     return (await response.Content.ReadFromJsonAsync<T>(Json))!;
   }
+
+  #endregion
+
+  #region Authentication
+
+  public const string Password = "correct horse battery staple";
+
+  /// <summary>
+  ///   Register a user (unique name by default) and send its token with every following request
+  /// </summary>
+  public async Task<TokenDto> SignInAsync(string? userName = null)
+  {
+    TokenDto token = await this.PostAsync<TokenDto>("/api/auth/register", new RegisterDto(userName ?? $"user-{Guid.NewGuid():N}", Password));
+    this.UseToken(token.AccessToken);
+    return token;
+  }
+
+  public void UseToken(string? accessToken)
+    => this.Http.DefaultRequestHeaders.Authorization = accessToken == null ? null : new AuthenticationHeaderValue("Bearer", accessToken);
 
   #endregion
 

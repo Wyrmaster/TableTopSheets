@@ -10,6 +10,7 @@ public class CharacterConfiguration: IEntityTypeConfiguration<Character>
   {
     builder.Property(entity => entity.Name).HasMaxLength(256);
     builder.OwnsOne(entity => entity.PlayState);
+    builder.HasIndex(entity => entity.OwnerId);
     builder.HasOne(entity => entity.Species).WithMany().HasForeignKey(entity => entity.SpeciesId).OnDelete(DeleteBehavior.Restrict);
     builder.HasOne(entity => entity.Background).WithMany().HasForeignKey(entity => entity.BackgroundId).OnDelete(DeleteBehavior.Restrict);
     builder.HasMany(entity => entity.Levels).WithOne(entity => entity.Character).HasForeignKey(entity => entity.CharacterId).OnDelete(DeleteBehavior.Cascade);

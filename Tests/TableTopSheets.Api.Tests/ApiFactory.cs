@@ -7,8 +7,14 @@ namespace TableTopSheets.Api.Tests;
 /// <summary>
 ///   API host on a seeded in-memory SQLite database shared by the tests of a class
 /// </summary>
-public sealed class ApiFactory: WebApplicationFactory<Program>
+public class ApiFactory: WebApplicationFactory<Program>
 {
+  #region Constants
+
+  public const string SigningKey = "api-tests-signing-key-with-at-least-32-characters";
+
+  #endregion
+
   #region Fields
 
   private readonly string _connectionString = $"Data Source=file:api-tests-{Guid.NewGuid():N}?mode=memory&cache=shared";
@@ -35,6 +41,8 @@ public sealed class ApiFactory: WebApplicationFactory<Program>
     builder.UseEnvironment("Development");
     builder.UseSetting("Database:Provider", "Sqlite");
     builder.UseSetting("ConnectionStrings:TableTopSheets", this._connectionString);
+    builder.UseSetting("Authentication:Provider", "Database");
+    builder.UseSetting("Authentication:Jwt:SigningKey", SigningKey);
   }
 
   protected override void Dispose(bool disposing)

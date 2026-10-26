@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
+using TableTopSheets.Api.Authentication;
 using TableTopSheets.Api.Contracts;
 using TableTopSheets.Api.Mapping;
 using TableTopSheets.Api.Querying;
@@ -30,9 +31,9 @@ public static class CharacterEndpoints
 
   public static RouteGroupBuilder MapCharacterEndpoints(this IEndpointRouteBuilder routes)
   {
-    RouteGroupBuilder group = routes.MapGroup("/api/characters").WithTags("Characters").WithCharacterProblems();
+    RouteGroupBuilder group = routes.MapGroup("/api/characters").WithTags("Characters").WithCharacterProblems().RequireUser();
 
-    group.MapGet("/", List).WithName("ListCharacters").WithSummary("List characters");
+    group.MapGet("/", List).WithName("ListCharacters").WithSummary("List the characters of the signed in user");
     group.MapPost("/", Create).WithName("CreateCharacter")
       .WithSummary("Create a character from its origin (species, background, ability scores)")
       .WithDescription("Saves the character even when origin choices are open (unless allowIncomplete is false). The answer lists the pending choices.");
@@ -48,6 +49,7 @@ public static class CharacterEndpoints
   private static async Task<PagedResult<CharacterSummaryDto>> List
   (
     TableTopSheetsContext context,
+    CurrentUser currentUser,
     [AsParameters] ListQuery query,
     [AsParameters] CharacterFilter filter,
     CancellationToken cancellationToken
@@ -58,6 +60,7 @@ public static class CharacterEndpoints
     List<Character> characters = await context.Characters
       .AsNoTracking()
       .Include(entry => entry.Levels)
+      .Where(entry => entry.OwnerId == currentUser.UserId)
       .WhereIf(species != null, entry => entry.Species != null && entry.Species.Key.ToLower() == species)
       .ToListAsync(cancellationToken);
     Dictionary<Guid, CharacterClass> classes = await context.Classes.AsNoTracking().Include(entry => entry.Subclasses).ToDictionaryAsync(entry => entry.Id, cancellationToken);

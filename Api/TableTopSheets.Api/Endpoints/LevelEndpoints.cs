@@ -19,7 +19,7 @@ public static class LevelEndpoints
 
   public static RouteGroupBuilder MapLevelEndpoints(this IEndpointRouteBuilder routes)
   {
-    RouteGroupBuilder group = routes.MapGroup("/api/characters/{id:guid}").WithTags("Levels").WithCharacterProblems();
+    RouteGroupBuilder group = routes.MapGroup("/api/characters/{id:guid}").WithTags("Levels").WithCharacterProblems().RequireUser();
 
     group.MapGet("/level-up/preview", Preview).WithName("PreviewLevelUp")
       .WithSummary("Choices a level in the class would open (nothing is saved)")

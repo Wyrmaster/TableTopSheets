@@ -4,6 +4,7 @@ using TableTopSheets.Persistence.Entity;
 using TableTopSheets.Persistence.Entity.Characters;
 using TableTopSheets.Persistence.Entity.Rules;
 using TableTopSheets.Persistence.Entity.Rules.Items;
+using TableTopSheets.Persistence.Entity.Users;
 
 namespace TableTopSheets.Persistence;
 
@@ -55,6 +56,12 @@ public class TableTopSheetsContext: DbContext
   public DbSet<WeaponMastery> WeaponMasteries => this.Set<WeaponMastery>();
 
   public DbSet<Item> Items => this.Set<Item>();
+
+  #endregion
+
+  #region Users
+
+  public DbSet<User> Users => this.Set<User>();
 
   #endregion
 

@@ -1,6 +1,7 @@
 using TableTopSheets.Common.Enum;
 using TableTopSheets.Common.Enum.Rules;
 using TableTopSheets.Persistence.Entity.Rules;
+using TableTopSheets.Persistence.Entity.Users;
 
 namespace TableTopSheets.Persistence.Entity.Characters;
 
@@ -10,6 +11,10 @@ namespace TableTopSheets.Persistence.Entity.Characters;
 public class Character: BaseEntity
 {
   #region Properties
+
+  public required Guid OwnerId { get; set; }
+
+  public User? Owner { get; set; }
 
   public required string Name { get; set; }
 

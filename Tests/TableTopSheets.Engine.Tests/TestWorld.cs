@@ -9,6 +9,7 @@ using TableTopSheets.Engine.Services;
 using TableTopSheets.Engine.Sheet;
 using TableTopSheets.Persistence;
 using TableTopSheets.Persistence.Entity.Characters;
+using TableTopSheets.Persistence.Entity.Users;
 using TableTopSheets.Seed;
 
 namespace TableTopSheets.Engine.Tests;
@@ -19,6 +20,15 @@ namespace TableTopSheets.Engine.Tests;
 /// </summary>
 public sealed class TestWorld: IAsyncDisposable
 {
+  #region Constants
+
+  /// <summary>
+  ///   Owner of every character the tests create
+  /// </summary>
+  public static readonly Guid UserId = Guid.Parse("00000000-0000-0000-0000-00000000a11c");
+
+  #endregion
+
   #region Fields
 
   private readonly SqliteConnection _connection;
@@ -45,7 +55,7 @@ public sealed class TestWorld: IAsyncDisposable
   /// </summary>
   public RulesCatalog Catalog { get; }
 
-  public CharacterService Service => new(this.Context, new RulesCatalogLoader(this.Context));
+  public CharacterService Service => new(this.Context, new RulesCatalogLoader(this.Context), new FixedUser(UserId));
 
   #endregion
 
@@ -58,6 +68,8 @@ public sealed class TestWorld: IAsyncDisposable
     TableTopSheetsContext context = CreateContext(connection);
     await context.Database.EnsureCreatedAsync();
     await SeedWriter.WriteAsync(context, SeedBuilder.Build(SeedLoader.Load()));
+    context.Users.Add(new User { Id = UserId, UserName = "tester", CreatedAt = DateTime.UtcNow });
+    await context.SaveChangesAsync();
     RulesCatalog catalog = await RulesCatalog.LoadAsync(context);
     return new TestWorld(connection, context, catalog);
   }
@@ -188,6 +200,12 @@ public sealed class TestWorld: IAsyncDisposable
     await this.Context.DisposeAsync();
     await this._connection.DisposeAsync();
   }
+
+  #endregion
+
+  #region Nested Types
+
+  private sealed record FixedUser(Guid UserId): ICurrentUser;
 
   #endregion
 }

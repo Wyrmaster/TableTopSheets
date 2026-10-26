@@ -14,7 +14,7 @@ public static class SpellEndpoints
 
   public static RouteGroupBuilder MapSpellEndpoints(this IEndpointRouteBuilder routes)
   {
-    RouteGroupBuilder group = routes.MapGroup("/api/characters/{id:guid}").WithTags("Spells").WithCharacterProblems();
+    RouteGroupBuilder group = routes.MapGroup("/api/characters/{id:guid}").WithTags("Spells").WithCharacterProblems().RequireUser();
 
     group.MapPut("/prepared-spells/{classKey}", Prepare).WithName("SetPreparedSpells").WithSummary("Replace the prepared spells of a class (long rest)");
     group.MapPost("/spellbook", CopyToSpellbook).WithName("CopyToSpellbook").WithSummary("Copy a spell into the spellbook");
