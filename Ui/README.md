@@ -55,8 +55,12 @@ a hand, "Stow" puts it back. Only equipped weapons are attacks on the sheet. **S
 `GET /api/characters/{id}/spells` (per class: spellbook, prepared and always prepared spells, limits); classes that
 prepare after a long rest get the loadout editor, spellbook classes "Copy into spellbook".
 
-**API gaps the UI still works around** (see the hints in the app): coins for buying, removing or selling items, and
-storing play state (HP, charges, rests).
+**Coins and items:** the shop's "Buy" pays with the character's coins (`purchase: true`, change comes back), "Add free"
+doesn't. The inventory's coins card edits the coins and pays amounts; each item's menu sells (half the cost) or removes
+one piece or the whole stack.
+
+**API gap the UI still works around** (see the hints in the app): storing play state (current HP, charges, hit dice,
+rests) – it lives in local storage.
 
 ## Mockups
 

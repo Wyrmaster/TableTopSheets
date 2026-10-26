@@ -31,6 +31,7 @@ import type {
   FeatureDto,
   ChoiceDefinitionDto,
 } from './dtos/rules'
+import type { CoinsDto } from './dtos/inventory'
 import type { AbilitySheet, CharacterSheet, Coins, SkillSheet } from './dtos/sheet'
 import type { CharacterSpellsDto, KnownSpellDto, SpellcastingClassDto } from './dtos/spells'
 import type { CurrentUserDto, TokenDto, UserDto } from './dtos/user'
@@ -43,7 +44,14 @@ import {
   ListCharactersIntent,
 } from './intents/characters'
 import { GetChoiceOptionsIntent, GetSelectionsIntent, SelectOptionsIntent } from './intents/choices'
-import { AddItemIntent, EquipItemIntent } from './intents/inventory'
+import {
+  AddItemIntent,
+  ChangeCoinsIntent,
+  EquipItemIntent,
+  PayCoinsIntent,
+  RemoveItemIntent,
+  SetCoinsIntent,
+} from './intents/inventory'
 import { LevelUpIntent, PreviewLevelUpIntent, UndoLevelIntent } from './intents/levels'
 import { GetSpellsIntent } from './intents/spells'
 import {
@@ -202,6 +210,7 @@ const Shapes = {
     hitPointMaximum: true,
     armorClass: true,
     items: true,
+    coins: true,
     complete: true,
     pendingChoices: true,
     violations: true,
@@ -376,6 +385,13 @@ const Shapes = {
     gold: true,
     platinum: true,
   }),
+  coinsDto: keys<CoinsDto>({
+    copper: true,
+    silver: true,
+    electrum: true,
+    gold: true,
+    platinum: true,
+  }),
   spells: keys<CharacterSpellsDto>({
     classes: true,
     other: true,
@@ -510,6 +526,7 @@ describe.skipIf(!apiUrl)('API integration', () => {
     }))
     expectShape(state, Shapes.state)
     expectShape(state.abilities[0], Shapes.ability)
+    expectShape(state.coins, Shapes.coinsDto)
     expect(state.complete).toBe(false)
     state = await answerAll(state)
     expect(state.complete).toBe(true)
@@ -540,6 +557,34 @@ describe.skipIf(!apiUrl)('API integration', () => {
     expectShape(state.items[0], Shapes.item_)
     state = await ok(new EquipItemIntent(state.id, state.items[0].id, { slot: 'MainHand' }))
     expect(state.items[0].slot).toBe('MainHand')
+
+    // coins: buy a longsword (15 gp), sell it for half, pay 5 sp
+    state = await ok(new SetCoinsIntent(state.id, {
+      copper: 0,
+      silver: 0,
+      electrum: 0,
+      gold: 20,
+      platinum: 0,
+    }))
+    state = await ok(new AddItemIntent(state.id, {
+      itemKey: 'longsword',
+      purchase: true,
+    }))
+    expect(state.coins.gold).toBe(5)
+    const longsword = state.items.find((item) => item.itemKey === 'longsword')!
+    state = await ok(new RemoveItemIntent(state.id, longsword.id, { sell: true }))
+    expect(state.items.some((item) => item.itemKey === 'longsword')).toBe(false)
+    expect(state.coins).toEqual({
+      copper: 0,
+      silver: 5,
+      electrum: 0,
+      gold: 12,
+      platinum: 0,
+    })
+    state = await ok(new PayCoinsIntent(state.id, { amountCp: 50 }))
+    expect(state.coins.silver).toBe(0)
+    state = await ok(new ChangeCoinsIntent(state.id, { platinum: 1 }))
+    expect(state.coins.platinum).toBe(1)
 
     // sheet and pdf
     const sheet = await ok(new GetCharacterSheetIntent(state.id))

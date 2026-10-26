@@ -18,6 +18,7 @@ export {
   mdiClose as closeIcon,
   mdiCoffee as shortRestIcon,
   mdiDelete as deleteIcon,
+  mdiDotsVertical as moreIcon,
   mdiDiceD20 as diceIcon,
   mdiEye as eyeIcon,
   mdiEyeOff as eyeOffIcon,

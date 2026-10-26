@@ -10,6 +10,7 @@ import type {
   ReplacePolicyEnum,
   ViolationSeverityEnum,
 } from './enums'
+import type { CoinsDto } from './inventory'
 import type { SubclassSummaryDto } from './rules'
 
 /** Levels of a character in one class */
@@ -74,6 +75,7 @@ export interface CharacterStateDto {
   hitPointMaximum: number
   armorClass: number
   items: CharacterItemDto[]
+  coins: CoinsDto
   /** true when no required choice is open */
   complete: boolean
   /** choices that still need selections (follow-up choices appear here after their parent was selected) */

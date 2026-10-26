@@ -21,19 +21,18 @@ import { InfoButton } from '@/components/InfoButton'
 import { useInspector } from '@/components/inspector/useInspector'
 import { useApiAction } from '@/hooks/useApiAction'
 import { useIntentQuery } from '@/hooks/useIntentQuery'
+import { coinValue, formatCoins, formatPrice } from './coins'
 import { useCharacter } from './useCharacter'
 
 const PageSize = 25
 
-const price = (cp: number) => (cp >= 100 ? `${cp / 100} gp` : cp >= 10 ? `${cp / 10} sp` : `${cp} cp`)
-
 /**
- * Item catalog with search, filters and paging; "Add" puts the item into the inventory
+ * Item catalog with search, filters and paging; "Buy" pays with the character's coins, "Add free" doesn't
  */
 export function ShopPage() {
   const {
     id,
-    sheet,
+    state,
     applyState,
   } = useCharacter()
   const { inspect } = useInspector()
@@ -56,23 +55,26 @@ export function ShopPage() {
     `${search}|${kind}|${magic}|${sort}|${page}`,
   )
 
-  const add = async (item: ItemSummaryDto) => {
+  // a purchase pays the cost (the API returns change); without it the item is free (starting equipment, loot)
+  const add = async (item: ItemSummaryDto, purchase: boolean) => {
     const result = await run(
-      new AddItemIntent(id, { itemKey: item.key }),
-      { success: `${item.name} added to the inventory` },
+      new AddItemIntent(id, {
+        itemKey: item.key,
+        purchase,
+      }),
+      {
+        success: purchase
+          ? `Bought ${item.name} for ${formatPrice(item.costCp)}`
+          : `${item.name} added to the inventory`,
+      },
     )
     if (result.ok) {
       applyState(result.data)
     }
   }
 
-  const coins = sheet.coins
-  const purse = [
-    coins.platinum && `${coins.platinum} pp`,
-    `${coins.gold} gp`,
-    coins.silver && `${coins.silver} sp`,
-    coins.copper && `${coins.copper} cp`,
-  ].filter(Boolean).join(' · ')
+  const purse = formatCoins(state.coins)
+  const wealth = coinValue(state.coins)
 
   return (
     <Stack gap='4'>
@@ -188,22 +190,36 @@ export function ShopPage() {
                 {[item.kind, item.category, `${item.weight} lb`].filter(Boolean).join(' · ')}
               </Text>
             </Box>
-            <Text fontWeight='semibold'>{price(item.costCp)}</Text>
+            <Text fontWeight='semibold'>{formatPrice(item.costCp)}</Text>
             <InfoButton target={{
               kind: 'item',
               key: item.key,
             }}
             />
             <Button
-              size='sm'
-              colorPalette='brand'
+              size='xs'
+              variant='ghost'
+              hideBelow='md'
+              title='Add without paying (starting equipment, loot)'
               onClick={(event) => {
                 event.stopPropagation()
-                add(item)
+                add(item, false)
+              }}
+            >
+              Add free
+            </Button>
+            <Button
+              size='sm'
+              colorPalette='brand'
+              disabled={item.costCp > wealth}
+              title={item.costCp > wealth ? 'Not enough coins' : undefined}
+              onClick={(event) => {
+                event.stopPropagation()
+                add(item, true)
               }}
             >
               <Icon path={shopIcon} />
-              Add
+              Buy
             </Button>
           </Flex>
         ))}
@@ -238,8 +254,8 @@ export function ShopPage() {
       )}
       <ApiHint>
         <code>GET /api/rules/items?search=&amp;kind=&amp;magic=&amp;sort=&amp;page=</code>,
-        <code> POST /api/characters/{'{id}'}/items</code>.
-        Adding doesn't charge coins yet – the API has no route to change coins (API gap)
+        <code> POST /api/characters/{'{id}'}/items</code> with <code>purchase: true</code> (pays with change, 422 when
+        the coins are not enough) or without it (free)
       </ApiHint>
     </Stack>
   )

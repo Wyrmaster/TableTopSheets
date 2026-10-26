@@ -6,6 +6,22 @@ export interface AddItemDto {
   itemKey: string
   /** default 1 */
   quantity?: number
+  /** pay the cost from the coins (with change); 422 when not enough */
+  purchase?: boolean
+}
+
+/** Coins of a character, or for a change the coins added (positive) or removed (negative) per kind */
+export interface CoinsDto {
+  copper: number
+  silver: number
+  electrum: number
+  gold: number
+  platinum: number
+}
+
+/** An amount to pay in copper pieces (1 gp = 100 cp); coins are spent and change is returned */
+export interface CoinPaymentDto {
+  amountCp: number
 }
 
 /** Put an item into a slot (`None` unequips it) */

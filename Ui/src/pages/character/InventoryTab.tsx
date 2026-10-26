@@ -7,7 +7,10 @@ import {
   Flex,
   Heading,
   HStack,
+  IconButton,
+  Menu,
   NativeSelect,
+  Portal,
   SimpleGrid,
   Stack,
   Switch,
@@ -22,13 +25,25 @@ import {
   type EquipSlotEnum,
   EquipItemIntent,
   type ItemDetailDto,
+  RemoveItemIntent,
 } from '@/api'
 import { ApiHint } from '@/components/ApiHint'
 import { Icon } from '@/components/Icon'
-import { alertIcon, armorIcon, bagIcon, meleeIcon, rangedIcon, ringIcon, shieldIcon } from '@/components/icons'
+import {
+  alertIcon,
+  armorIcon,
+  bagIcon,
+  meleeIcon,
+  moreIcon,
+  rangedIcon,
+  ringIcon,
+  shieldIcon,
+} from '@/components/icons'
 import { InfoButton } from '@/components/InfoButton'
 import { useApiAction } from '@/hooks/useApiAction'
 import { useItemDetails } from '@/hooks/useItemDetails'
+import { formatPrice } from './coins'
+import { CoinsCard } from './CoinsCard'
 import { useCharacter } from './useCharacter'
 
 type Section = 'armor' | 'melee' | 'ranged' | 'worn' | 'backpack'
@@ -154,6 +169,18 @@ export function InventoryTab() {
     .filter((violation) => violation.message.includes(item.name))
   const attack = (item: CharacterItemDto) => sheet.attacks.find((entry) => entry.name === item.name)
 
+  // sell credits half the cost per piece; remove throws the item away
+  const remove = async (item: CharacterItemDto, options: { quantity?: number, sell?: boolean }) => {
+    const pieces = options.quantity ?? item.quantity
+    const result = await run(
+      new RemoveItemIntent(id, item.id, options),
+      { success: `${options.sell ? 'Sold' : 'Removed'} ${pieces > 1 ? `${pieces} × ` : ''}${item.name}` },
+    )
+    if (result.ok) {
+      applyState(result.data)
+    }
+  }
+
   const rows = (items: CharacterItemDto[], extra?: (item: CharacterItemDto) => ReactNode) => items.map((item) => (
     <ItemRow
       key={item.id}
@@ -162,7 +189,16 @@ export function InventoryTab() {
       attack={attack(item)}
       violations={itemViolations(item).map((violation) => violation.message)}
       onToggle={item.kind === 'Gear' && !item.requiresAttunement ? undefined : () => toggle(item)}
-      extra={extra?.(item)}
+      extra={(
+        <>
+          {extra?.(item)}
+          <ItemMenu
+            item={item}
+            costCp={details.get(item.itemKey)?.item.costCp}
+            onRemove={(options) => remove(item, options)}
+          />
+        </>
+      )}
     />
   ))
 
@@ -185,6 +221,7 @@ export function InventoryTab() {
         minChildWidth='320px'
         gap='4'
       >
+        <CoinsCard />
         <Section
           icon={armorIcon}
           title='Armor & shield'
@@ -437,5 +474,68 @@ function ItemRow({
         </HStack>
       ))}
     </Flex>
+  )
+}
+
+/**
+ * Sell or remove an item: one piece of a stack, or all of it; selling credits half the cost
+ */
+function ItemMenu({
+  item,
+  costCp,
+  onRemove,
+}: {
+  item: CharacterItemDto
+  costCp?: number
+  onRemove: (options: { quantity?: number, sell?: boolean }) => void
+}) {
+  const sellPrice = costCp === undefined ? 0 : Math.floor(costCp / 2)
+  const stack = item.quantity > 1
+  const actions: Record<string, { quantity?: number, sell?: boolean }> = {
+    'sell-one': {
+      quantity: 1,
+      sell: true,
+    },
+    'sell-all': { sell: true },
+    'remove-one': { quantity: 1 },
+    'remove-all': {},
+  }
+
+  return (
+    <Menu.Root onSelect={(details) => onRemove(actions[details.value])}>
+      <Menu.Trigger asChild>
+        <IconButton
+          size='xs'
+          variant='ghost'
+          aria-label={`More actions for ${item.name}`}
+          title='Sell or remove'
+        >
+          <Icon path={moreIcon} />
+        </IconButton>
+      </Menu.Trigger>
+      <Portal>
+        <Menu.Positioner>
+          <Menu.Content>
+            {sellPrice > 0 && (
+              <Menu.Item value={stack ? 'sell-one' : 'sell-all'}>
+                Sell {stack ? 'one ' : ''}for {formatPrice(sellPrice)}
+              </Menu.Item>
+            )}
+            {sellPrice > 0 && stack && (
+              <Menu.Item value='sell-all'>
+                Sell all {item.quantity} for {formatPrice(sellPrice * item.quantity)}
+              </Menu.Item>
+            )}
+            {stack && <Menu.Item value='remove-one'>Remove one</Menu.Item>}
+            <Menu.Item
+              value='remove-all'
+              color='fg.error'
+            >
+              {stack ? `Remove all ${item.quantity}` : 'Remove'}
+            </Menu.Item>
+          </Menu.Content>
+        </Menu.Positioner>
+      </Portal>
+    </Menu.Root>
   )
 }
