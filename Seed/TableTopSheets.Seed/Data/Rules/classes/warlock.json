@@ -326,6 +326,294 @@
       ],
       "subclasses": [
         {
+          "key": "archfey-patron",
+          "name": "Archfey Patron",
+          "description": "<p>Bargain with whimsical Fey. Your pact draws on the power of the Feywild. You might make a deal with an archfey, such as the Prince of Frost; the Queen of Air and Darkness, ruler of the Gloaming Court; Titania of the Summer Court; or an ancient hag. Whoever they are, your patron is often inscrutable and whimsical.</p>",
+          "features": [
+            {
+              "key": "archfey-patron.archfey-spells",
+              "name": "Archfey Spells",
+              "level": 3,
+              "description": "<p>The magic of your patron ensures you always have certain spells ready; when you reach a Warlock level specified in the Archfey Spells table, you thereafter always have the listed spells prepared.</p><table><tr><th>Warlock Level</th><th>Spells</th></tr><tr><td>3</td><td>Calm Emotions, Faerie Fire, Misty Step, Phantasmal Force, Sleep</td></tr><tr><td>5</td><td>Blink, Plant Growth</td></tr><tr><td>7</td><td>Dominate Beast, Greater Invisibility</td></tr><tr><td>9</td><td>Dominate Person, Seeming</td></tr></table>",
+              "effects": [
+                {
+                  "target": "spell.calm-emotions",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('warlock') >= 3",
+                  "label": "Archfey Spells"
+                },
+                {
+                  "target": "spell.faerie-fire",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('warlock') >= 3",
+                  "label": "Archfey Spells"
+                },
+                {
+                  "target": "spell.misty-step",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('warlock') >= 3",
+                  "label": "Archfey Spells"
+                },
+                {
+                  "target": "spell.phantasmal-force",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('warlock') >= 3",
+                  "label": "Archfey Spells"
+                },
+                {
+                  "target": "spell.sleep",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('warlock') >= 3",
+                  "label": "Archfey Spells"
+                },
+                {
+                  "target": "spell.blink",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('warlock') >= 5",
+                  "label": "Archfey Spells"
+                },
+                {
+                  "target": "spell.plant-growth",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('warlock') >= 5",
+                  "label": "Archfey Spells"
+                },
+                {
+                  "target": "spell.dominate-beast",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('warlock') >= 7",
+                  "label": "Archfey Spells"
+                },
+                {
+                  "target": "spell.greater-invisibility",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('warlock') >= 7",
+                  "label": "Archfey Spells"
+                },
+                {
+                  "target": "spell.dominate-person",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('warlock') >= 9",
+                  "label": "Archfey Spells"
+                },
+                {
+                  "target": "spell.seeming",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('warlock') >= 9",
+                  "label": "Archfey Spells"
+                }
+              ]
+            },
+            {
+              "key": "archfey-patron.steps-of-the-fey",
+              "name": "Steps of the Fey",
+              "level": 3,
+              "description": "<p>Your patron grants you the ability to move between the boundaries of the planes. You can cast Misty Step without expending a spell slot a number of times equal to your Charisma modifier (minimum of once), and you regain all expended uses when you finish a Long Rest.</p><p>In addition, whenever you cast that spell, you can choose one of the following additional effects.</p><p><strong><em>Refreshing Step.</em></strong> Immediately after you teleport, you or one creature you can see within 10 feet of yourself gains 1d10 Temporary Hit Points.</p><p><strong><em>Taunting Step.</em></strong> Creatures within 5 feet of the space you left must succeed on a Wisdom saving throw against your spell save DC or have Disadvantage on attack rolls against creatures other than you until the start of your next turn.</p>",
+              "resources": [
+                {
+                  "key": "steps-of-the-fey",
+                  "name": "Steps of the Fey",
+                  "max": "max(1, mod('cha'))",
+                  "recharge": "LongRest"
+                }
+              ]
+            },
+            {
+              "key": "archfey-patron.misty-escape",
+              "name": "Misty Escape",
+              "level": 6,
+              "description": "<p>You can cast Misty Step as a Reaction in response to taking damage.</p><p>In addition, the following effects are now among your Steps of the Fey options.</p><p><strong><em>Disappearing Step.</em></strong> You have the Invisible condition until the start of your next turn or until immediately after you make an attack roll, deal damage, or cast a spell.</p><p><strong><em>Dreadful Step.</em></strong> Creatures within 5 feet of the space you left or the space you appear in (your choice) must succeed on a Wisdom saving throw against your spell save DC or take 2d10 Psychic damage.</p>"
+            },
+            {
+              "key": "archfey-patron.beguiling-defenses",
+              "name": "Beguiling Defenses",
+              "level": 10,
+              "description": "<p>Your patron teaches you how to guard your mind and body. You are immune to the Charmed condition.</p><p>In addition, immediately after a creature you can see hits you with an attack roll, you can take a Reaction to reduce the damage you take by half (round down), and you can force the attacker to make a Wisdom saving throw against your spell save DC. On a failed save, the attacker takes Psychic damage equal to the damage you take. Once you use this Reaction, you can’t use it again until you finish a Long Rest unless you expend a Pact Magic spell slot (no action required) to restore your use of it.</p>",
+              "effects": [
+                {
+                  "target": "condition.immune.charmed",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Beguiling Defenses"
+                }
+              ],
+              "resources": [
+                {
+                  "key": "beguiling-defenses",
+                  "name": "Beguiling Defenses",
+                  "max": "1",
+                  "recharge": "LongRest"
+                }
+              ]
+            },
+            {
+              "key": "archfey-patron.bewitching-magic",
+              "name": "Bewitching Magic",
+              "level": 14,
+              "description": "<p>Your patron grants you the ability to weave your magic with teleportation. Immediately after you cast an Enchantment or Illusion spell using an action and a spell slot, you can cast Misty Step as part of the same action and without expending a spell slot.</p>"
+            }
+          ]
+        },
+        {
+          "key": "celestial-patron",
+          "name": "Celestial Patron",
+          "description": "<p>Call on the power of the heavens. Your pact draws on the Upper Planes, the realms of everlasting bliss. You might enter an agreement with an empyrean, a couatl, a sphinx, a unicorn, or another heavenly entity. Your pact allows you to experience a hint of the holy light that illuminates the multiverse.</p>",
+          "features": [
+            {
+              "key": "celestial-patron.celestial-spells",
+              "name": "Celestial Spells",
+              "level": 3,
+              "description": "<p>The magic of your patron ensures you always have certain spells ready; when you reach a Warlock level specified in the Celestial Spells table, you thereafter always have the listed spells prepared.</p><table><tr><th>Warlock Level</th><th>Spells</th></tr><tr><td>3</td><td>Aid, Cure Wounds, Guiding Bolt, Lesser Restoration, Light, Sacred Flame</td></tr><tr><td>5</td><td>Daylight, Revivify</td></tr><tr><td>7</td><td>Guardian of Faith, Wall of Fire</td></tr><tr><td>9</td><td>Greater Restoration, Summon Celestial</td></tr></table>",
+              "effects": [
+                {
+                  "target": "spell.aid",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('warlock') >= 3",
+                  "label": "Celestial Spells"
+                },
+                {
+                  "target": "spell.cure-wounds",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('warlock') >= 3",
+                  "label": "Celestial Spells"
+                },
+                {
+                  "target": "spell.guiding-bolt",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('warlock') >= 3",
+                  "label": "Celestial Spells"
+                },
+                {
+                  "target": "spell.lesser-restoration",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('warlock') >= 3",
+                  "label": "Celestial Spells"
+                },
+                {
+                  "target": "spell.light",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('warlock') >= 3",
+                  "label": "Celestial Spells"
+                },
+                {
+                  "target": "spell.sacred-flame",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('warlock') >= 3",
+                  "label": "Celestial Spells"
+                },
+                {
+                  "target": "spell.daylight",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('warlock') >= 5",
+                  "label": "Celestial Spells"
+                },
+                {
+                  "target": "spell.revivify",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('warlock') >= 5",
+                  "label": "Celestial Spells"
+                },
+                {
+                  "target": "spell.guardian-of-faith",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('warlock') >= 7",
+                  "label": "Celestial Spells"
+                },
+                {
+                  "target": "spell.wall-of-fire",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('warlock') >= 7",
+                  "label": "Celestial Spells"
+                },
+                {
+                  "target": "spell.greater-restoration",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('warlock') >= 9",
+                  "label": "Celestial Spells"
+                },
+                {
+                  "target": "spell.summon-celestial",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('warlock') >= 9",
+                  "label": "Celestial Spells"
+                }
+              ]
+            },
+            {
+              "key": "celestial-patron.healing-light",
+              "name": "Healing Light",
+              "level": 3,
+              "description": "<p>You gain the ability to channel celestial energy to heal wounds. You have a pool of d6s to fuel this healing. The number of dice in the pool equals 1 plus your Warlock level.</p><p>As a Bonus Action, you can heal yourself or one creature you can see within 60 feet of yourself, expending dice from the pool. The maximum number of dice you can expend at once equals your Charisma modifier (minimum of one die). Roll the dice you expend, and restore a number of Hit Points equal to the roll’s total. Your pool regains all expended dice when you finish a Long Rest.</p>",
+              "resources": [
+                {
+                  "key": "healing-light",
+                  "name": "Healing Light",
+                  "max": "1 + classLevel('warlock')",
+                  "die": "1d6",
+                  "recharge": "LongRest"
+                }
+              ]
+            },
+            {
+              "key": "celestial-patron.radiant-soul",
+              "name": "Radiant Soul",
+              "level": 6,
+              "description": "<p>Your link to your patron allows you to serve as a conduit for radiant energy. You have Resistance to Radiant damage. Once per turn, when a spell you cast deals Radiant or Fire damage, you can add your Charisma modifier to that spell’s damage against one of the spell’s targets.</p>",
+              "effects": [
+                {
+                  "target": "damage.resist.radiant",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Radiant Soul"
+                }
+              ]
+            },
+            {
+              "key": "celestial-patron.celestial-resilience",
+              "name": "Celestial Resilience",
+              "level": 10,
+              "description": "<p>You gain Temporary Hit Points whenever you use your Magical Cunning feature or finish a Short or Long Rest. These Temporary Hit Points equal your Warlock level plus your Charisma modifier. Additionally, choose up to five creatures you can see when you gain the points. Those creatures each gain Temporary Hit Points equal to half your Warlock level plus your Charisma modifier.</p>"
+            },
+            {
+              "key": "celestial-patron.searing-vengeance",
+              "name": "Searing Vengeance",
+              "level": 14,
+              "description": "<p>When you or an ally within 60 feet of you is about to make a Death Saving Throw, you can unleash radiant energy to save the creature. The creature regains Hit Points equal to half its Hit Point maximum and can end the Prone condition on itself. Each creature of your choice that is within 30 feet of the creature takes Radiant damage equal to 2d8 plus your Charisma modifier, and each has the Blinded condition until the end of the current turn.</p><p>Once you use this feature, you can’t use it again until you finish a Long Rest.</p>",
+              "resources": [
+                {
+                  "key": "searing-vengeance",
+                  "name": "Searing Vengeance",
+                  "max": "1",
+                  "recharge": "LongRest"
+                }
+              ]
+            }
+          ]
+        },
+        {
           "key": "fiend-patron",
           "name": "Fiend Patron",
           "features": [
@@ -504,6 +792,151 @@
               "name": "Hurl Through Hell",
               "level": 14,
               "description": "<p>Once per turn when you hit a creature with an attack roll, you can try to instantly transport the target through the Lower Planes (Charisma save, 8d10 Psychic damage). Once per Long Rest, or by expending a Pact Magic spell slot.</p>"
+            }
+          ]
+        },
+        {
+          "key": "great-old-one-patron",
+          "name": "Great Old One Patron",
+          "description": "<p>Unearth forbidden lore of ineffable beings. You might bind yourself to an unspeakable being from the Far Realm or an elder god—a being such as Tharizdun, the Chained God; Zargon, the Returner; Hadar, the Dark Hunger; or Great Cthulhu. The motives of these beings are incomprehensible, but the secrets you’ve learned allow you to draw strange magic from it.</p>",
+          "features": [
+            {
+              "key": "great-old-one-patron.awakened-mind",
+              "name": "Awakened Mind",
+              "level": 3,
+              "description": "<p>You can form a telepathic connection between your mind and the mind of another. As a Bonus Action, choose one creature you can see within 30 feet of yourself. You and the chosen creature can communicate telepathically with each other while the two of you are within a number of miles of each other equal to your Charisma modifier (minimum of 1 mile). To understand each other, you each must mentally use a language the other knows.</p><p>The telepathic connection lasts for a number of minutes equal to your Warlock level. It ends early if you use this feature to connect with a different creature.</p>"
+            },
+            {
+              "key": "great-old-one-patron.great-old-one-spells",
+              "name": "Great Old One Spells",
+              "level": 3,
+              "description": "<p>The magic of your patron ensures you always have certain spells ready; when you reach a Warlock level specified in the Great Old One Spells table, you thereafter always have the listed spells prepared.</p><table><tr><th>Warlock Level</th><th>Spells</th></tr><tr><td>3</td><td>Detect Thoughts, Dissonant Whispers, Phantasmal Force, Tasha’s Hideous Laughter</td></tr><tr><td>5</td><td>Clairvoyance, Hunger of Hadar</td></tr><tr><td>7</td><td>Confusion, Summon Aberration</td></tr><tr><td>9</td><td>Modify Memory, Telekinesis</td></tr></table>",
+              "effects": [
+                {
+                  "target": "spell.detect-thoughts",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('warlock') >= 3",
+                  "label": "Great Old One Spells"
+                },
+                {
+                  "target": "spell.dissonant-whispers",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('warlock') >= 3",
+                  "label": "Great Old One Spells"
+                },
+                {
+                  "target": "spell.phantasmal-force",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('warlock') >= 3",
+                  "label": "Great Old One Spells"
+                },
+                {
+                  "target": "spell.tashas-hideous-laughter",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('warlock') >= 3",
+                  "label": "Great Old One Spells"
+                },
+                {
+                  "target": "spell.clairvoyance",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('warlock') >= 5",
+                  "label": "Great Old One Spells"
+                },
+                {
+                  "target": "spell.hunger-of-hadar",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('warlock') >= 5",
+                  "label": "Great Old One Spells"
+                },
+                {
+                  "target": "spell.confusion",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('warlock') >= 7",
+                  "label": "Great Old One Spells"
+                },
+                {
+                  "target": "spell.summon-aberration",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('warlock') >= 7",
+                  "label": "Great Old One Spells"
+                },
+                {
+                  "target": "spell.modify-memory",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('warlock') >= 9",
+                  "label": "Great Old One Spells"
+                },
+                {
+                  "target": "spell.telekinesis",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('warlock') >= 9",
+                  "label": "Great Old One Spells"
+                }
+              ]
+            },
+            {
+              "key": "great-old-one-patron.psychic-spells",
+              "name": "Psychic Spells",
+              "level": 3,
+              "description": "<p>When you cast a Warlock spell that deals damage, you can change its damage type to Psychic. In addition, when you cast a Warlock spell that is an Enchantment or Illusion, you can do so without Verbal or Somatic components.</p>"
+            },
+            {
+              "key": "great-old-one-patron.clairvoyant-combatant",
+              "name": "Clairvoyant Combatant",
+              "level": 6,
+              "description": "<p>When you form a telepathic bond with a creature using your Awakened Mind, you can force that creature to make a Wisdom saving throw against your spell save DC. On a failed save, the creature has Disadvantage on attack rolls against you, and you have Advantage on attack rolls against that creature for the duration of the bond.</p><p>Once you use this feature, you can’t use it again until you finish a Short or Long Rest unless you expend a Pact Magic spell slot (no action required) to restore your use of it.</p>",
+              "resources": [
+                {
+                  "key": "clairvoyant-combatant",
+                  "name": "Clairvoyant Combatant",
+                  "max": "1",
+                  "recharge": "ShortRest"
+                }
+              ]
+            },
+            {
+              "key": "great-old-one-patron.eldritch-hex",
+              "name": "Eldritch Hex",
+              "level": 10,
+              "description": "<p>Your alien patron grants you a powerful curse. You always have the Hex spell prepared. When you cast Hex and choose an ability, the target also has Disadvantage on saving throws of the chosen ability for the duration of the spell.</p>",
+              "effects": [
+                {
+                  "target": "spell.hex",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Eldritch Hex"
+                }
+              ]
+            },
+            {
+              "key": "great-old-one-patron.thought-shield",
+              "name": "Thought Shield",
+              "level": 10,
+              "description": "<p>Your thoughts can’t be read by telepathy or other means unless you allow it. You also have Resistance to Psychic damage, and whenever a creature deals Psychic damage to you, that creature takes the same amount of damage that you take.</p>",
+              "effects": [
+                {
+                  "target": "damage.resist.psychic",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Thought Shield"
+                }
+              ]
+            },
+            {
+              "key": "great-old-one-patron.create-thrall",
+              "name": "Create Thrall",
+              "level": 14,
+              "description": "<p>When you cast Summon Aberration, you can modify it so that it doesn’t require Concentration. If you do so, the spell’s duration becomes 1 minute for that casting, and when summoned, the Aberration has a number of Temporary Hit Points equal to your Warlock level plus your Charisma modifier.</p><p>In addition, the first time each turn the Aberration hits a creature under the effect of your Hex, the Aberration deals extra Psychic damage to the target equal to the bonus damage of that spell.</p>"
             }
           ]
         }
