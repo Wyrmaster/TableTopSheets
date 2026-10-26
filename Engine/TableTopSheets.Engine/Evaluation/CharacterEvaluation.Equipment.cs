@@ -21,9 +21,10 @@ public sealed partial class CharacterEvaluation
     .FirstOrDefault(entry => entry.Category != ArmorEnum.Shield);
 
   /// <summary>
-  ///   Shield that is currently wielded
+  ///   Shield that is currently wielded (held in a hand; a shield carried as <c>Worn</c> doesn't count)
   /// </summary>
-  public Armor? WieldedShield => this.EquippedItems
+  public Armor? WieldedShield => this.Character.Items
+    .Where(entry => entry.EquipSlot is EquipSlotEnum.MainHand or EquipSlotEnum.OffHand)
     .Select(entry => this.Catalog.Items[entry.ItemId])
     .OfType<Armor>()
     .FirstOrDefault(entry => entry.Category == ArmorEnum.Shield);

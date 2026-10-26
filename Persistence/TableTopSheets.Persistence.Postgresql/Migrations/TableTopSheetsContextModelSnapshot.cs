@@ -46,9 +46,6 @@ namespace TableTopSheets.Persistence.Postgresql.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("ArmorClassChoice")
-                        .HasColumnType("text");
-
                     b.Property<string>("BackgroundEquipment")
                         .HasMaxLength(16)
                         .HasColumnType("character varying(16)");

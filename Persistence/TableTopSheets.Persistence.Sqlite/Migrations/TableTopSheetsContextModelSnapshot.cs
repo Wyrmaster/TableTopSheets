@@ -40,9 +40,6 @@ namespace TableTopSheets.Persistence.Sqlite.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("ArmorClassChoice")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("BackgroundEquipment")
                         .HasMaxLength(16)
                         .HasColumnType("TEXT");

@@ -91,7 +91,6 @@ Base `http://localhost:5180`. All character routes are below `/api/characters/{i
 | PUT | `/{id}/items/{itemId}/slot` | `{ slot: None \| Armor \| MainHand \| OffHand \| Worn }` | `CharacterStateDto` |
 | PUT | `/{id}/items/{itemId}/attunement` | `{ attuned }` (max 3) | `CharacterStateDto` |
 | PUT | `/{id}/toggles/{featureKey}` | `{ active }` (Rage, Mage Armor, Innate Sorcery …) | `CharacterStateDto` |
-| PUT | `/{id}/armor-class` | `{ label }` (`null` = best) | `CharacterStateDto` |
 | PUT | `/{id}/prepared-spells/{classKey}` | `{ spellKeys }` (long rest loadout) | `CharacterStateDto` |
 | POST | `/{id}/spellbook` | `{ spellKey, note? }` | `CharacterStateDto` |
 
@@ -182,7 +181,7 @@ The character is saved as a **draft** after step 3 (`allowIncomplete` defaults t
 ## Playing with the sheet
 
 - **Equipment:** slot changes and attunement immediately change AC, speed and violations (armor without training, more than 3 attuned items).
-- **Armor Class:** the API picks the best formula; `PUT /armor-class { label }` lets the player choose another (labels like "Unarmored Defense (Monk)" come from the sheet), `{ label: null }` returns to the best.
+- **Armor Class:** not a player choice; the equipment decides the formula (no armor → 10 + DEX, overridden by a feature like "Unarmored Defense (Monk)"; armor → the armor formula). Show `armorClassSources` (applied formula + bonuses) as the breakdown, e.g. the popover on the header AC tile.
 - **Toggles:** `PUT /toggles/{featureKey}` for toggleable features and spell effects (Rage, Mage Armor, Shield).
 - **Spells:** a Wizard prepares from the spellbook on a long rest (`PUT /prepared-spells/wizard { spellKeys }`) and copies scrolls with `POST /spellbook`; classes that change prepared spells on level up do it through choices. Rest swaps (`replacePolicy` `OnLongRest`/`OnShortRest`, e.g. a Wizard cantrip) use `POST /selections/{selectionId}/rest-replace`.
 - **Violations** are not errors: list them with their severity (`Info`, `Warning`, `Error`) and keep the sheet usable.

@@ -61,11 +61,6 @@ public class Character: BaseEntity
   /// </summary>
   public List<string> ActiveToggles { get; set; } = [];
 
-  /// <summary>
-  ///   Key of the effect label chosen when several Armor Class calculations apply (null = best)
-  /// </summary>
-  public string? ArmorClassChoice { get; set; }
-
   public CharacterPlayState PlayState { get; set; } = new();
 
   /// <summary>

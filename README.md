@@ -201,7 +201,7 @@ An effect targets a **stat key** and has an **operation**:
 | `Max` / `Min` | raises / lowers the final value | Body and Mind: DEX max 25 |
 | `Proficiency` | proficiency level, the highest wins: `half`, `proficient`, `expertise` | `skill.arcana.prof` = `expertise` |
 | `Grant` | yes/no flag | `proficiency.armor.heavy`, `damage.resist.fire`, `language.elvish` |
-| `Candidate` | an alternative formula; only one applies (best, or the player's pick) | Armor Class calculations |
+| `Candidate` | an alternative formula; only one applies (a feature's formula overrides the core default) | Armor Class calculations |
 
 `condition` is re-evaluated on every calculation. That's why taking off armor or picking up a shield immediately changes
 Unarmored Defense, Martial Arts and Unarmored Movement.
@@ -530,10 +530,12 @@ The database enforces the same: deleting a level cascades to its selections and 
   - Speed −10 if Strength is below the armor's requirement
   - Stealth Disadvantage
   - without training: Disadvantage on STR/DEX tests and no spellcasting (reported as a violation)
-  - a shield only adds AC with shield training
-- **Only one base AC formula applies.** Armor, unarmored (10 + DEX) and every `Candidate` effect (Unarmored Defense,
-  Draconic Resilience, Mage Armor) are compared, and the best wins. `ChooseArmorClassAsync(label)` lets the player pick
-  one instead. `ac.bonus` effects (shield, Defense style, Shield spell) add on top.
+  - a shield only adds AC with shield training, and only while held (`MainHand`/`OffHand`, not `Worn`)
+- **Only one base AC formula applies, and the equipment decides which.** The core rules give armor (armor + DEX up to
+  the cap) or unarmored (10 + DEX). A `Candidate` effect of a feature whose condition holds (Unarmored Defense,
+  Draconic Resilience, Mage Armor) overrides that default; if several hold at once the highest is used, they never
+  stack. There is no player choice. `ac.bonus` effects (shield, Defense style, Shield spell) add on top, and the sheet
+  lists the applied formula and every bonus in `ArmorClassSources`.
 - **Toggles:** features marked `toggleable` (Innate Sorcery, Dragon Wings, Draconic Flight) and spell effects (Mage Armor,
   Shield, Shield of Faith) only apply while switched on with `ToggleAsync`.
 - **Magic items** are items with features. A feature can require attunement (`attunement: true`), which means it only
@@ -679,7 +681,7 @@ sequenceDiagram
 | DELETE | `/api/characters/{id}/items/{itemId}?quantity=&sell=` | remove an item or part of a stack; `sell=true` credits half the cost |
 | GET / POST | `/api/characters/{id}/starting-equipment`, `/starting-equipment/{background\|class}` | starting equipment alternatives ("Choose A or B") of the background and first class; take one once (`optionKey`, `picks` per entry). Creation takes it as `startingEquipment` too |
 | PUT / POST | `/api/characters/{id}/coins`, `/coins/change`, `/coins/payments` | set the coins, add / remove coins per kind, pay an amount in copper (with change) |
-| PUT | `/api/characters/{id}/toggles/{featureKey}`, `/armor-class` | toggles (Rage, Mage Armor …), AC calculation |
+| PUT | `/api/characters/{id}/toggles/{featureKey}` | toggles (Rage, Mage Armor …) |
 | GET | `/api/characters/{id}/spells` | per spellcasting class: spellbook, prepared and always prepared spells, limits, pool, highest level; plus spells from species and feats |
 | PUT / POST | `/api/characters/{id}/prepared-spells/{classKey}`, `/spellbook` | long rest loadout, copy a spell into the spellbook |
 

@@ -943,15 +943,6 @@ public sealed class CharacterService(TableTopSheetsContext context, IRulesCatalo
     return await this.EvaluateAsync(character, cancellationToken);
   }
 
-  /// <inheritdoc />
-  public async Task<CharacterEvaluation> ChooseArmorClassAsync(Guid characterId, string? label, CancellationToken cancellationToken = default)
-  {
-    Character character = await this.LoadAsync(characterId, cancellationToken);
-    character.ArmorClassChoice = label;
-    await context.SaveChangesAsync(cancellationToken);
-    return await this.EvaluateAsync(character, cancellationToken);
-  }
-
   #endregion
 
   #region Private Methods

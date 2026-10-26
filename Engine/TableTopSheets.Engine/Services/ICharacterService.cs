@@ -165,9 +165,4 @@ public interface ICharacterService
   ///   Switch a toggleable feature (Rage, Mage Armor ...) on or off
   /// </summary>
   Task<CharacterEvaluation> ToggleAsync(Guid characterId, string featureKey, bool active, CancellationToken cancellationToken = default);
-
-  /// <summary>
-  ///   Pick the Armor Class calculation by its label (null = best)
-  /// </summary>
-  Task<CharacterEvaluation> ChooseArmorClassAsync(Guid characterId, string? label, CancellationToken cancellationToken = default);
 }

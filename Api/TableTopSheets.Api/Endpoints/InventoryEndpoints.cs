@@ -72,10 +72,6 @@ public static class InventoryEndpoints
       .MapPut("/toggles/{featureKey}", Toggle)
       .WithName("ToggleFeature")
       .WithSummary("Switch a toggleable feature on or off");
-    group
-      .MapPut("/armor-class", ArmorClass)
-      .WithName("ChooseArmorClass")
-      .WithSummary("Choose the armor class calculation");
     return group;
   }
 
@@ -152,9 +148,6 @@ public static class InventoryEndpoints
 
   private static async Task<Ok<CharacterStateDto>> Toggle(ICharacterService service, Guid id, string featureKey, ToggleDto dto, CancellationToken cancellationToken)
     => TypedResults.Ok(StateMapper.State(await service.ToggleAsync(id, featureKey, dto.Active, cancellationToken)));
-
-  private static async Task<Ok<CharacterStateDto>> ArmorClass(ICharacterService service, Guid id, ArmorClassDto dto, CancellationToken cancellationToken)
-    => TypedResults.Ok(StateMapper.State(await service.ChooseArmorClassAsync(id, dto.Label, cancellationToken)));
 
   #endregion
 }

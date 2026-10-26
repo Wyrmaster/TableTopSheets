@@ -1,4 +1,17 @@
-import { Badge, Box, Button, Flex, Grid, Heading, HStack, Spinner, Stack, Text } from '@chakra-ui/react'
+import {
+  Badge,
+  Box,
+  Button,
+  Flex,
+  Grid,
+  Heading,
+  HStack,
+  Popover,
+  Portal,
+  Spinner,
+  Stack,
+  Text,
+} from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { NavLink, Outlet, useLocation, useParams } from 'react-router'
 import {
@@ -227,34 +240,20 @@ function Header({
         overflowX='auto'
         pb='1'
       >
-        {stats.map(([value, label]) => (
-          <Grid
-            key={label}
-            placeItems='center'
-            minW='70px'
-            px='3'
-            py='2'
-            borderWidth='1px'
-            rounded='md'
-            bg='bg.subtle'
-          >
-            <Text
-              fontSize='xl'
-              fontWeight='bold'
-              lineHeight='short'
-            >
-              {value}
-            </Text>
-            <Text
-              fontSize='2xs'
-              color='fg.muted'
-              textTransform='uppercase'
-              whiteSpace='nowrap'
-            >
-              {label}
-            </Text>
-          </Grid>
-        ))}
+        {stats.map(([value, label]) => label === 'AC'
+          ? (
+            <ArmorClassStat
+              key={label}
+              sheet={sheet}
+            />
+          )
+          : (
+            <Stat
+              key={label}
+              value={value}
+              label={label}
+            />
+          ))}
       </HStack>
 
       <HStack
@@ -343,5 +342,93 @@ function MobileNavigation() {
         </NavLink>
       ))}
     </Grid>
+  )
+}
+
+function Stat({ value, label }: { value: string | number, label: string }) {
+  return (
+    <Grid
+      placeItems='center'
+      minW='70px'
+      px='3'
+      py='2'
+      borderWidth='1px'
+      rounded='md'
+      bg='bg.subtle'
+    >
+      <Text
+        fontSize='xl'
+        fontWeight='bold'
+        lineHeight='short'
+      >
+        {value}
+      </Text>
+      <Text
+        fontSize='2xs'
+        color='fg.muted'
+        textTransform='uppercase'
+        whiteSpace='nowrap'
+      >
+        {label}
+      </Text>
+    </Grid>
+  )
+}
+
+/** Armor Class with its breakdown: the calculation the current equipment uses, then every bonus */
+function ArmorClassStat({ sheet }: { sheet: CharacterSheet }) {
+  const signed = (value: number) => (value >= 0 ? `+${value}` : `${value}`)
+  const breakdown = sheet.armorClassSources
+    .map((source, index) => `${source.label} ${index === 0 ? source.value : signed(source.value)}`)
+    .join(' · ')
+
+  return (
+    <Popover.Root positioning={{ placement: 'bottom-start' }}>
+      <Popover.Trigger asChild>
+        <Box
+          as='button'
+          cursor='pointer'
+          title={breakdown}
+        >
+          <Stat
+            value={sheet.armorClass}
+            label='AC'
+          />
+        </Box>
+      </Popover.Trigger>
+      <Portal>
+        <Popover.Positioner>
+          <Popover.Content width='auto'>
+            <Popover.Arrow />
+            <Popover.Body>
+              <Stack gap='1'>
+                {sheet.armorClassSources.map((source, index) => (
+                  <HStack
+                    key={source.label}
+                    justify='space-between'
+                    gap='6'
+                    fontSize='sm'
+                  >
+                    <Text>{source.label}</Text>
+                    <Text fontWeight='medium'>{index === 0 ? source.value : signed(source.value)}</Text>
+                  </HStack>
+                ))}
+                <HStack
+                  justify='space-between'
+                  gap='6'
+                  fontSize='sm'
+                  fontWeight='bold'
+                  borderTopWidth='1px'
+                  pt='1'
+                >
+                  <Text>Armor Class</Text>
+                  <Text>{sheet.armorClass}</Text>
+                </HStack>
+              </Stack>
+            </Popover.Body>
+          </Popover.Content>
+        </Popover.Positioner>
+      </Portal>
+    </Popover.Root>
   )
 }

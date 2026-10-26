@@ -367,7 +367,6 @@ const Shapes = {
     abilities: true,
     armorClass: true,
     shieldEquipped: true,
-    armorClassOptions: true,
     armorClassSources: true,
     hitPointMaximum: true,
     currentHitPoints: true,

@@ -47,10 +47,8 @@ public sealed record CharacterSheet
   public bool ShieldEquipped { get; init; }
 
   /// <summary>
-  ///   Available Armor Class calculations (only one applies at a time)
+  ///   The base calculation that applies with the current equipment, followed by every bonus (shield, Defense ...)
   /// </summary>
-  public IReadOnlyList<SourceValue> ArmorClassOptions { get; init; } = [];
-
   public IReadOnlyList<SourceValue> ArmorClassSources { get; init; } = [];
 
   public int HitPointMaximum { get; init; }

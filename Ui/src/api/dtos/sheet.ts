@@ -144,8 +144,7 @@ export interface CharacterSheet {
 
   armorClass: number
   shieldEquipped: boolean
-  /** available Armor Class calculations (only one applies at a time) */
-  armorClassOptions: SourceValue[]
+  /** the base calculation that applies with the current equipment, followed by every bonus (shield, Defense …) */
   armorClassSources: SourceValue[]
   hitPointMaximum: number
   currentHitPoints: number | null

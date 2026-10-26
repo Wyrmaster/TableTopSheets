@@ -66,15 +66,16 @@ public sealed partial class CharacterEvaluation
       .Order();
 
   /// <summary>
-  ///   Applicable <see cref="EffectOperationEnum.Candidate"/> formulas of a stat
+  ///   Applicable <see cref="EffectOperationEnum.Candidate"/> formulas of a stat; <c>Core</c> marks the default formulas of
+  ///   the core rules, which a formula of any other feature overrides
   /// </summary>
-  public IEnumerable<(string Label, double Value)> Candidates(string key)
+  public IEnumerable<(string Label, double Value, bool Core)> Candidates(string key)
     => this
       .ApplicableEffects(key)
       .Where(entry => entry.Effect.Operation == EffectOperationEnum.Candidate)
       .Select(entry => (entry.Label, Expression
         .Parse(entry.ValueExpr)
-        .EvaluateNumber(this)));
+        .EvaluateNumber(this), entry.Owner.Feature.OwnerType == OwnerTypeEnum.Core));
 
   public int Score(string ability) => (int)this.Stat($"ability.{ability}.score");
 

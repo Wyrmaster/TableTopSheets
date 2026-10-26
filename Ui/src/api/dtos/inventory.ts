@@ -44,11 +44,6 @@ export interface ToggleDto {
   active: boolean
 }
 
-/** Select the armor class calculation by its label; null takes the highest */
-export interface ArmorClassDto {
-  label: string | null
-}
-
 /** Long rest loadout of prepared spells of a class */
 export interface PreparedSpellsDto {
   spellKeys: string[]

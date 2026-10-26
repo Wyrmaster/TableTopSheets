@@ -42,6 +42,34 @@ public class EquipmentTests
   }
 
   [Fact]
+  public async Task UnarmoredDefenseOverridesTheDefaultForAFighterMonk()
+  {
+    await using TestWorld world = await TestWorld.CreateAsync();
+    Guid id = await world.CreateCharacterAsync(TestWorld.Scores(8, 14, 13, 10, 12, 10), "farmer", "con", "con", "wis");
+    await world.LevelUpAsync(id, "fighter");
+    await world.LevelUpAsync(id, "monk");
+
+    // 10 + Dexterity (+2) + Wisdom (13: +1) instead of 10 + Dexterity; the two never stack
+    CharacterSheet unarmored = await world.SheetAsync(id);
+    Assert.Equal(13, unarmored.ArmorClass);
+    Assert.Equal([new SourceValue("Unarmored Defense (Monk)", 13)], unarmored.ArmorClassSources);
+
+    CharacterItem leather = await world.Service.AddItemAsync(id, "leather-armor");
+    await world.Service.EquipAsync(id, leather.Id, EquipSlotEnum.Armor);
+    Assert.Equal(11 + 2, (await world.SheetAsync(id)).ArmorClass);
+
+    // with a shield in hand Unarmored Defense ends and the fighter's shield training adds the shield
+    await world.Service.EquipAsync(id, leather.Id, EquipSlotEnum.None);
+    CharacterItem shield = await world.Service.AddItemAsync(id, "shield");
+    await world.Service.EquipAsync(id, shield.Id, EquipSlotEnum.OffHand);
+    Assert.Equal(10 + 2 + 2, (await world.SheetAsync(id)).ArmorClass);
+
+    // a shield carried on the back isn't wielded
+    await world.Service.EquipAsync(id, shield.Id, EquipSlotEnum.Worn);
+    Assert.Equal(13, (await world.SheetAsync(id)).ArmorClass);
+  }
+
+  [Fact]
   public async Task OnlyOneArmorClassCalculationApplies()
   {
     await using TestWorld world = await TestWorld.CreateAsync();
@@ -55,14 +83,16 @@ public class EquipmentTests
     await world.Service.ToggleAsync(id, "spell-effect.mage-armor", true);
     CharacterSheet mageArmor = await world.SheetAsync(id);
     Assert.Equal(15, mageArmor.ArmorClass);
-    Assert.Contains(mageArmor.ArmorClassOptions, entry => entry.Label == "Mage Armor" && entry.Value == 15);
+    Assert.Single(mageArmor.ArmorClassSources);
 
     // shield spell adds to whichever calculation is used; it doesn't stack two base calculations
     await world.Service.ToggleAsync(id, "spell-effect.shield", true);
     Assert.Equal(20, (await world.SheetAsync(id)).ArmorClass);
 
-    await world.Service.ChooseArmorClassAsync(id, "Unarmored");
-    Assert.Equal(12 + 5, (await world.SheetAsync(id)).ArmorClass);
+    // armor ends both feature formulas
+    CharacterItem leather = await world.Service.AddItemAsync(id, "leather-armor");
+    await world.Service.EquipAsync(id, leather.Id, EquipSlotEnum.Armor);
+    Assert.Equal(11 + 2 + 5, (await world.SheetAsync(id)).ArmorClass);
   }
 
   [Fact]
@@ -145,7 +175,7 @@ public class EquipmentTests
     CharacterSheet sheet = await world.SheetAsync(id);
 
     Assert.Equal(14 + 3, sheet.ArmorClass);
-    Assert.Contains(sheet.ArmorClassOptions, entry => entry.Label == "Armor" && entry.Value == 14 + 3);
+    Assert.Contains(sheet.ArmorClassSources, entry => entry.Label == "Armor" && entry.Value == 14 + 3);
 
     // heavy armor still adds no Dexterity
     CharacterItem chainMail = await world.Service.AddItemAsync(id, "chain-mail");

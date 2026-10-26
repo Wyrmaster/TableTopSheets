@@ -5,7 +5,6 @@ import type { Guid } from '../dtos/common'
 import type {
   AddItemDto,
   AddToStackDto,
-  ArmorClassDto,
   AttuneDto,
   CoinPaymentDto,
   CoinsDto,
@@ -271,26 +270,5 @@ export class ToggleFeatureIntent extends BodyIntent<ToggleDto, CharacterStateDto
   /** Route of the intent */
   get path() {
     return characterPath(this.characterId, `/toggles/${segment(this.featureKey)}`)
-  }
-}
-
-/** PUT /api/characters/{id}/armor-class: choose the armor class calculation by label (null = the best) */
-export class ChooseArmorClassIntent extends BodyIntent<ArmorClassDto, CharacterStateDto> {
-  readonly method = 'PUT'
-
-  readonly characterId: Guid
-
-  /**
-   * @param characterId id of the character
-   * @param body label of the calculation (from `armorClassOptions` of the sheet), or null for the best one
-   */
-  constructor(characterId: Guid, body: ArmorClassDto) {
-    super(body)
-    this.characterId = characterId
-  }
-
-  /** Route of the intent */
-  get path() {
-    return characterPath(this.characterId, '/armor-class')
   }
 }

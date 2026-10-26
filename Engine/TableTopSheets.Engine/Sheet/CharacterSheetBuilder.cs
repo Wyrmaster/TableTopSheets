@@ -25,7 +25,7 @@ public static class CharacterSheetBuilder
   {
     Character character = evaluation.Character;
     List<ClassLevelSheet> classLevels = ClassLevels(evaluation);
-    (int armorClass, List<SourceValue> armorClassOptions, List<SourceValue> armorClassSources) = ArmorClass(evaluation);
+    (int armorClass, List<SourceValue> armorClassSources) = ArmorClass(evaluation);
 
     return new CharacterSheet
     {
@@ -43,7 +43,6 @@ public static class CharacterSheetBuilder
       Abilities = Abilities(evaluation),
 
       ArmorClass = armorClass,
-      ArmorClassOptions = armorClassOptions,
       ArmorClassSources = armorClassSources,
       ShieldEquipped = evaluation.WieldedShield != null,
       HitPointMaximum = HitPointMaximum(evaluation),
@@ -177,23 +176,29 @@ public static class CharacterSheetBuilder
   }
 
   /// <summary>
-  ///   Only one base Armor Class calculation (<c>ac.base</c> candidate) applies at a time: armor, unarmored or a feature formula
-  ///   (Unarmored Defense, Mage Armor ...). Shields and other bonuses are <c>ac.bonus</c> effects; all of them are rule data
+  ///   Only one base Armor Class calculation (<c>ac.base</c> candidate) applies at a time and the equipment decides which:
+  ///   the core rules give armor or unarmored (10 + Dexterity), and a feature formula whose condition holds (Unarmored
+  ///   Defense, Mage Armor ...) overrides that default. Should several feature formulas hold, the highest is used; they
+  ///   never stack. Shields and other bonuses are <c>ac.bonus</c> effects; all of them are rule data
   /// </summary>
-  private static (int ArmorClass, List<SourceValue> Options, List<SourceValue> Sources) ArmorClass(CharacterEvaluation evaluation)
+  private static (int ArmorClass, List<SourceValue> Sources) ArmorClass(CharacterEvaluation evaluation)
   {
-    List<SourceValue> options = evaluation
+    List<(string Label, double Value, bool Core)> candidates = evaluation
       .Candidates("ac.base")
-      .Select(entry => new SourceValue(entry.Label, (int)entry.Value))
+      .ToList();
+    List<(string Label, double Value, bool Core)> features = candidates
+      .Where(entry => !entry.Core)
       .ToList();
 
-    SourceValue? @base = options.FirstOrDefault(entry => entry.Label == evaluation.Character.ArmorClassChoice)
-                         ?? options.MaxBy(entry => entry.Value);
-    List<SourceValue> sources = @base == null ? [] : [@base];
+    List<SourceValue> sources = (features.Count > 0 ? features : candidates)
+      .OrderByDescending(entry => entry.Value)
+      .Take(1)
+      .Select(entry => new SourceValue(entry.Label, (int)entry.Value))
+      .ToList();
     sources.AddRange(evaluation
       .Sources("ac.bonus")
       .Select(entry => new SourceValue(entry.Label, (int)entry.Value)));
-    return (sources.Sum(entry => entry.Value), options, sources);
+    return (sources.Sum(entry => entry.Value), sources);
   }
 
   /// <summary>
