@@ -1,0 +1,653 @@
+{
+  // Rogue (Player's Handbook 2024). Features without authored mechanics (Cunning Action, Cunning Strike, Evasion ...)
+  // are added from Data/Extracted/class-features.json as text
+  "classes": [
+    {
+      "key": "rogue",
+      "name": "Rogue",
+      "hitDie": "D8",
+      "primaryAbilities": [
+        "dex"
+      ],
+      "primaryAbilityMode": "All",
+      "subclassLevel": 3,
+      "startingEquipment": [
+        {
+          "key": "a",
+          "items": [
+            {
+              "item": "leather-armor"
+            },
+            {
+              "item": "dagger",
+              "quantity": 2
+            },
+            {
+              "item": "shortsword"
+            },
+            {
+              "item": "shortbow"
+            },
+            {
+              "item": "arrows",
+              "quantity": 20
+            },
+            {
+              "item": "quiver"
+            },
+            {
+              "item": "thieves-tools"
+            },
+            {
+              "item": "burglars-pack"
+            }
+          ],
+          "gold": 8
+        },
+        {
+          "key": "b",
+          "gold": 100
+        }
+      ],
+      "scales": {
+        "rogue.sneak-attack": "1d6,1d6,2d6,2d6,3d6,3d6,4d6,4d6,5d6,5d6,6d6,6d6,7d6,7d6,8d6,8d6,9d6,9d6,10d6,10d6"
+      },
+      "features": [
+        {
+          "key": "rogue.proficiencies",
+          "name": "Proficiencies",
+          "level": 1,
+          "grantMode": "FirstClassOnly",
+          "sheetSection": "Hidden",
+          "effects": [
+            {
+              "target": "save.dex.prof",
+              "op": "Proficiency",
+              "value": "proficient"
+            },
+            {
+              "target": "save.int.prof",
+              "op": "Proficiency",
+              "value": "proficient"
+            },
+            {
+              "target": "proficiency.weapon.simple",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "proficiency.weapon.rapier",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "proficiency.weapon.scimitar",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "proficiency.weapon.shortsword",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "proficiency.weapon.whip",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "proficiency.weapon.hand-crossbow",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "proficiency.armor.light",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "proficiency.tool.thieves-tools",
+              "op": "Proficiency",
+              "value": "proficient"
+            }
+          ],
+          "choices": [
+            {
+              "key": "rogue.skills",
+              "name": "Skill Proficiencies",
+              "count": "4",
+              "source": "Skill",
+              "replace": "Never",
+              "filter": "oneOf(option.key, 'acrobatics', 'athletics', 'deception', 'insight', 'intimidation', 'investigation', 'perception', 'persuasion', 'sleight-of-hand', 'stealth')",
+              "effects": [
+                {
+                  "target": "skill.$option.prof",
+                  "op": "Proficiency",
+                  "value": "proficient"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "rogue.multiclass-proficiencies",
+          "name": "Multiclass Proficiencies",
+          "level": 1,
+          "grantMode": "MulticlassOnly",
+          "sheetSection": "Hidden",
+          "effects": [
+            {
+              "target": "proficiency.armor.light",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "proficiency.tool.thieves-tools",
+              "op": "Proficiency",
+              "value": "proficient"
+            }
+          ],
+          "choices": [
+            {
+              "key": "rogue.multiclass-skill",
+              "name": "Skill Proficiency",
+              "count": "1",
+              "source": "Skill",
+              "replace": "Never",
+              "filter": "oneOf(option.key, 'acrobatics', 'athletics', 'deception', 'insight', 'intimidation', 'investigation', 'perception', 'persuasion', 'sleight-of-hand', 'stealth')",
+              "effects": [
+                {
+                  "target": "skill.$option.prof",
+                  "op": "Proficiency",
+                  "value": "proficient"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "rogue.expertise",
+          "name": "Expertise",
+          "level": 1,
+          "choices": [
+            {
+              "key": "rogue.expertise",
+              "name": "Expertise",
+              "count": "2",
+              "source": "Skill",
+              "replace": "Never",
+              "filter": "skillProficiency(option.key) >= proficient",
+              "effects": [
+                {
+                  "target": "skill.$option.prof",
+                  "op": "Proficiency",
+                  "value": "expertise"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          // the damage dice are noted in the description and the rogue.sneak-attack scale, they aren't calculated
+          "key": "rogue.sneak-attack",
+          "name": "Sneak Attack",
+          "level": 1
+        },
+        {
+          "key": "rogue.thieves-cant",
+          "name": "Thieves' Cant",
+          "level": 1,
+          "effects": [
+            {
+              "target": "language.thieves-cant",
+              "op": "Grant",
+              "value": "1",
+              "label": "Thieves’ Cant"
+            }
+          ],
+          "choices": [
+            {
+              "key": "rogue.thieves-cant.language",
+              "name": "Language",
+              "count": "1",
+              "source": "Language",
+              "replace": "Never",
+              "filter": "option.key != 'common' && option.key != 'thieves-cant'",
+              "effects": [
+                {
+                  "target": "language.$option",
+                  "op": "Grant",
+                  "value": "1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "rogue.weapon-mastery",
+          "name": "Weapon Mastery",
+          "level": 1,
+          "choices": [
+            {
+              "key": "rogue.weapon-mastery",
+              "name": "Weapon Mastery",
+              "count": "2",
+              "source": "Weapon",
+              "replace": "OnLongRest",
+              "filter": "option.category == 'simple' || option.category == 'martial'",
+              "effects": [
+                {
+                  "target": "mastery.$option",
+                  "op": "Grant",
+                  "value": "1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "rogue.expertise-6",
+          "name": "Expertise",
+          "level": 6,
+          "choices": [
+            {
+              "key": "rogue.expertise-6",
+              "name": "Expertise",
+              "count": "2",
+              "source": "Skill",
+              "replace": "Never",
+              "filter": "skillProficiency(option.key) >= proficient",
+              "effects": [
+                {
+                  "target": "skill.$option.prof",
+                  "op": "Proficiency",
+                  "value": "expertise"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "rogue.slippery-mind",
+          "name": "Slippery Mind",
+          "level": 15,
+          "effects": [
+            {
+              "target": "save.wis.prof",
+              "op": "Proficiency",
+              "value": "proficient"
+            },
+            {
+              "target": "save.cha.prof",
+              "op": "Proficiency",
+              "value": "proficient"
+            }
+          ]
+        },
+        {
+          "key": "rogue.stroke-of-luck",
+          "name": "Stroke of Luck",
+          "level": 20,
+          "resources": [
+            {
+              "key": "stroke-of-luck",
+              "name": "Stroke of Luck",
+              "max": "1",
+              "recharge": "ShortRest"
+            }
+          ]
+        },
+        {
+          "key": "rogue.ability-score-improvement-4",
+          "name": "Ability Score Improvement",
+          "level": 4,
+          "choices": [
+            {
+              "key": "rogue.ability-score-improvement-4",
+              "name": "Feat",
+              "count": "1",
+              "source": "Feat",
+              "replace": "Never",
+              "filter": "option.category == 'general'"
+            }
+          ]
+        },
+        {
+          "key": "rogue.ability-score-improvement-8",
+          "name": "Ability Score Improvement",
+          "level": 8,
+          "choices": [
+            {
+              "key": "rogue.ability-score-improvement-8",
+              "name": "Feat",
+              "count": "1",
+              "source": "Feat",
+              "replace": "Never",
+              "filter": "option.category == 'general'"
+            }
+          ]
+        },
+        {
+          "key": "rogue.ability-score-improvement-10",
+          "name": "Ability Score Improvement",
+          "level": 10,
+          "choices": [
+            {
+              "key": "rogue.ability-score-improvement-10",
+              "name": "Feat",
+              "count": "1",
+              "source": "Feat",
+              "replace": "Never",
+              "filter": "option.category == 'general'"
+            }
+          ]
+        },
+        {
+          "key": "rogue.ability-score-improvement-12",
+          "name": "Ability Score Improvement",
+          "level": 12,
+          "choices": [
+            {
+              "key": "rogue.ability-score-improvement-12",
+              "name": "Feat",
+              "count": "1",
+              "source": "Feat",
+              "replace": "Never",
+              "filter": "option.category == 'general'"
+            }
+          ]
+        },
+        {
+          "key": "rogue.ability-score-improvement-16",
+          "name": "Ability Score Improvement",
+          "level": 16,
+          "choices": [
+            {
+              "key": "rogue.ability-score-improvement-16",
+              "name": "Feat",
+              "count": "1",
+              "source": "Feat",
+              "replace": "Never",
+              "filter": "option.category == 'general'"
+            }
+          ]
+        },
+        {
+          "key": "rogue.epic-boon",
+          "name": "Epic Boon",
+          "level": 19,
+          "choices": [
+            {
+              "key": "rogue.epic-boon",
+              "name": "Epic Boon",
+              "count": "1",
+              "source": "Feat",
+              "replace": "Never",
+              "filter": "option.category == 'epic-boon' || option.category == 'general'"
+            }
+          ]
+        }
+      ],
+      "subclasses": [
+        {
+          "key": "arcane-trickster",
+          "name": "Arcane Trickster",
+          "description": "<p>Enhance stealth with arcane spells. Some Rogues enhance their fine-honed skills of stealth and agility with spells, learning magical tricks to aid them in their trade. Some Arcane Tricksters use their talents as pickpockets and burglars, while others are pranksters.</p>",
+          "scales": {
+            "arcane-trickster.cantrips": "0,0,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4",
+            "arcane-trickster.prepared": "0,0,3,4,4,4,5,6,6,7,8,8,9,10,10,11,11,11,12,13"
+          },
+          "features": [
+            {
+              "key": "arcane-trickster.spellcasting",
+              "name": "Spellcasting",
+              "level": 3,
+              "description": "<p>You have learned to cast spells. You know Mage Hand and two other Wizard cantrips, and you prepare Wizard spells as shown in the Arcane Trickster Spellcasting table. Intelligence is your spellcasting ability, and you can use an Arcane Focus as a Spellcasting Focus for your Wizard spells. Whenever you gain a Rogue level, you can replace one cantrip (other than Mage Hand) and one prepared spell. You gain another Wizard cantrip of your choice at Rogue level 10.</p>",
+              "spellcasting": {
+                "ability": "int",
+                "progression": "Third",
+                "slotTable": "arcane-trickster",
+                "spellList": "wizard",
+                "prepared": "arcane-trickster.prepared",
+                "cantrips": "arcane-trickster.cantrips",
+                "class": "rogue",
+                "pool": "ClassList",
+                "prepareChange": "LevelUp",
+                "ritual": "None",
+                "focus": "Arcane Focus"
+              },
+              "effects": [
+                {
+                  "target": "spell.mage-hand",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Arcane Trickster"
+                }
+              ],
+              "choices": [
+                {
+                  "key": "arcane-trickster.cantrips",
+                  "name": "Cantrips",
+                  "count": "scale('arcane-trickster.cantrips') - 1",
+                  "source": "Spell",
+                  "replace": "OneOnLevelUp",
+                  "filter": "onList('wizard') && option.level == 0 && option.key != 'mage-hand'",
+                  "category": "cantrip"
+                },
+                {
+                  "key": "arcane-trickster.prepared",
+                  "name": "Prepared Spells",
+                  "count": "scale('arcane-trickster.prepared')",
+                  "source": "Spell",
+                  "replace": "OneOnLevelUp",
+                  "filter": "onList('wizard') && option.level >= 1 && option.level <= maxSpellLevel('rogue')",
+                  "category": "prepared"
+                }
+              ]
+            },
+            {
+              "key": "arcane-trickster.mage-hand-legerdemain",
+              "name": "Mage Hand Legerdemain",
+              "level": 3,
+              "description": "<p>When you cast Mage Hand, you can cast it as a Bonus Action, and you can make the spectral hand Invisible. You can control the hand as a Bonus Action, and through it, you can make Dexterity (Sleight of Hand) checks.</p>"
+            },
+            {
+              "key": "arcane-trickster.magical-ambush",
+              "name": "Magical Ambush",
+              "level": 9,
+              "description": "<p>If you have the Invisible condition when you cast a spell on a creature, it has Disadvantage on any saving throw it makes against the spell on the same turn.</p>"
+            },
+            {
+              "key": "arcane-trickster.versatile-trickster",
+              "name": "Versatile Trickster",
+              "level": 13,
+              "description": "<p>You gain the ability to distract targets with your Mage Hand. When you use the Trip option of your Cunning Strike on a creature, you can also use that option on another creature within 5 feet of the spectral hand.</p>"
+            },
+            {
+              "key": "arcane-trickster.spell-thief",
+              "name": "Spell Thief",
+              "level": 17,
+              "description": "<p>You gain the ability to magically steal the knowledge of how to cast a spell from another spellcaster.</p><p>Immediately after a creature casts a spell that targets you or includes you in its area of effect, you can take a Reaction to force the creature to make an Intelligence saving throw. The DC equals your spell save DC. On a failed save, you negate the spell’s effect against you, and you steal the knowledge of the spell if it is at least level 1 and of a level you can cast (it doesn’t need to be a Wizard spell). For the next 8 hours, you have the spell prepared. The creature can’t cast it until the 8 hours have passed.</p><p>Once you steal a spell with this feature, you can’t use this feature again until you finish a Long Rest.</p>",
+              "resources": [
+                {
+                  "key": "spell-thief",
+                  "name": "Spell Thief",
+                  "max": "1",
+                  "recharge": "LongRest"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "assassin",
+          "name": "Assassin",
+          "description": "<p>Practice the grim art of death. An Assassin’s training focuses on using stealth, poison, and disguise to eliminate foes with deadly efficiency. While some Rogues who follow this path are hired killers, spies, or bounty hunters, the capabilities of this subclass are equally useful to adventurers facing a variety of monstrous enemies.</p>",
+          "features": [
+            {
+              "key": "assassin.assassinate",
+              "name": "Assassinate",
+              "level": 3,
+              "description": "<p>You’re adept at ambushing a target, granting you the following benefits.</p><p><strong><em>Initiative.</em></strong> You have Advantage on Initiative rolls.</p><p><strong><em>Surprising Strikes.</em></strong> During the first round of each combat, you have Advantage on attack rolls against any creature that hasn’t taken a turn. If your Sneak Attack hits any target during that round, the target takes extra damage of the weapon’s type equal to your Rogue level.</p>",
+              "effects": [
+                {
+                  "target": "initiative.advantage",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Assassinate"
+                }
+              ]
+            },
+            {
+              "key": "assassin.assassins-tools",
+              "name": "Assassin’s Tools",
+              "level": 3,
+              "description": "<p>You gain a Disguise Kit and a Poisoner’s Kit, and you have proficiency with them.</p>",
+              "effects": [
+                {
+                  "target": "proficiency.tool.disguise-kit",
+                  "op": "Proficiency",
+                  "value": "proficient"
+                },
+                {
+                  "target": "proficiency.tool.poisoners-kit",
+                  "op": "Proficiency",
+                  "value": "proficient"
+                }
+              ]
+            },
+            {
+              "key": "assassin.infiltration-expertise",
+              "name": "Infiltration Expertise",
+              "level": 9,
+              "description": "<p>You are expert at the following techniques that aid your infiltrations.</p><p><strong><em>Masterful Mimicry.</em></strong> You can unerringly mimic another person’s speech, handwriting, or both if you have spent at least 1 hour studying them.</p><p><strong><em>Roving Aim.</em></strong> Your Speed isn’t reduced to 0 by using Steady Aim.</p>"
+            },
+            {
+              "key": "assassin.envenom-weapons",
+              "name": "Envenom Weapons",
+              "level": 13,
+              "description": "<p>When you use the Poison option of your Cunning Strike, the target also takes 2d6 Poison damage whenever it fails the saving throw. This damage ignores Resistance to Poison damage.</p>"
+            },
+            {
+              "key": "assassin.death-strike",
+              "name": "Death Strike",
+              "level": 17,
+              "description": "<p>When you hit with your Sneak Attack on the first round of a combat, the target must succeed on a Constitution saving throw (DC 8 plus your Dexterity modifier and Proficiency Bonus), or the attack’s damage is doubled against the target.</p>"
+            }
+          ]
+        },
+        {
+          "key": "soulknife",
+          "name": "Soulknife",
+          "description": "<p>Strike foes with psionic blades. A Soulknife invades minds with psionic power, cutting through barriers both physical and psychic. These Rogues discover psionic power within themselves and channel it to do their roguish work.</p>",
+          "scales": {
+            "soulknife.energy-dice": "0,0,4,4,6,6,6,6,8,8,8,8,10,10,10,10,12,12,12,12",
+            "soulknife.energy-die": "1d6,1d6,1d6,1d6,1d8,1d8,1d8,1d8,1d8,1d8,1d10,1d10,1d10,1d10,1d10,1d10,1d12,1d12,1d12,1d12"
+          },
+          "features": [
+            {
+              "key": "soulknife.psionic-power",
+              "name": "Psionic Power",
+              "level": 3,
+              "description": "<p>You harbor a wellspring of psionic energy within yourself. It is represented by your Psionic Energy Dice, which fuel powers you have from this subclass. The number and size of these dice increase as you gain Rogue levels: four d6s at level 3, six d8s at level 5, eight d8s at level 9, eight d10s at level 11, ten d10s at level 13, and twelve d12s at level 17.</p><p>You regain one of your expended Psionic Energy Dice when you finish a Short Rest, and you regain all of them when you finish a Long Rest.</p><p><strong><em>Psi-Bolstered Knack.</em></strong> If you fail an ability check using a skill or tool with which you have proficiency, you can roll one Psionic Energy Die and add the number rolled to the check, potentially turning failure into success. The die is expended only if the roll then succeeds.</p><p><strong><em>Psychic Whispers.</em></strong> You can establish telepathic communication between yourself and others. As a Magic action, choose one or more creatures you can see, up to a number of creatures equal to your Proficiency Bonus, and then roll one Psionic Energy Die. For a number of hours equal to the number rolled, the chosen creatures can speak telepathically with you, and you can speak telepathically with them. The first time you use this power after each Long Rest, you don’t expend the Psionic Energy Die. All other times you use the power, you expend the die.</p>",
+              "resources": [
+                {
+                  "key": "soulknife-energy-dice",
+                  "name": "Psionic Energy Dice",
+                  "max": "scale('soulknife.energy-dice')",
+                  "die": "scale('soulknife.energy-die')",
+                  "recharge": "ShortRest"
+                }
+              ]
+            },
+            {
+              "key": "soulknife.psychic-blades",
+              "name": "Psychic Blades",
+              "level": 3,
+              "description": "<p>You can manifest shimmering blades of psychic energy. Whenever you take the Attack action or make an Opportunity Attack, you can manifest a Psychic Blade in your free hand and make the attack with that blade. The blade is a Simple Melee weapon with the Finesse and Thrown properties (range 60/120 feet), deals 1d6 Psychic damage on a hit plus the ability modifier used for the attack roll, and has the Vex mastery property. The blade vanishes immediately after it hits or misses its target.</p><p>After you attack with the blade on your turn, you can make a melee or ranged attack with a second psychic blade as a Bonus Action on the same turn if your other hand is free to create it. The damage die of this bonus attack is 1d4 instead of 1d6.</p>"
+            },
+            {
+              "key": "soulknife.soul-blades",
+              "name": "Soul Blades",
+              "level": 9,
+              "description": "<p>You can now use the following powers with your Psychic Blades.</p><p><strong><em>Homing Strikes.</em></strong> If you make an attack roll with your Psychic Blade and miss the target, you can roll one Psionic Energy Die and add the number rolled to the attack roll. If this causes the attack to hit, the die is expended.</p><p><strong><em>Psychic Teleportation.</em></strong> As a Bonus Action, you manifest a Psychic Blade, expend one Psionic Energy Die and roll it, and throw the blade at an unoccupied space you can see up to a number of feet away equal to 10 times the number rolled. You then teleport to that space, and the blade vanishes.</p>"
+            },
+            {
+              "key": "soulknife.psychic-veil",
+              "name": "Psychic Veil",
+              "level": 13,
+              "description": "<p>You can weave a veil of psychic static to mask yourself. As a Magic action, you gain the Invisible condition for 1 hour or until you dismiss this effect (no action required). This invisibility ends early immediately after you deal damage to a creature or you force a creature to make a saving throw.</p><p>Once you use this feature, you can’t do so again until you finish a Long Rest unless you expend a Psionic Energy Die (no action required) to restore your use of it.</p>",
+              "resources": [
+                {
+                  "key": "psychic-veil",
+                  "name": "Psychic Veil",
+                  "max": "1",
+                  "recharge": "LongRest"
+                }
+              ]
+            },
+            {
+              "key": "soulknife.rend-mind",
+              "name": "Rend Mind",
+              "level": 17,
+              "description": "<p>You can sweep your Psychic Blade through a creature’s mind. When you use your Psychic Blade to deal Sneak Attack damage to a creature, you can force that target to make a Wisdom saving throw (DC 8 plus your Dexterity modifier and Proficiency Bonus). If the save fails, the target has the Stunned condition for 1 minute. The Stunned target repeats the save at the end of each of its turns, ending the effect on itself on a success.</p><p>Once you use this feature, you can’t do so again until you finish a Long Rest unless you expend three Psionic Energy Dice (no action required) to restore your use of it.</p>",
+              "resources": [
+                {
+                  "key": "rend-mind",
+                  "name": "Rend Mind",
+                  "max": "1",
+                  "recharge": "LongRest"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "thief",
+          "name": "Thief",
+          "description": "<p>Hunt for treasure as a classic adventurer. A mix of burglar, treasure hunter, and explorer, you are the epitome of an adventurer. In addition to improving your agility and stealth, you gain abilities useful for delving into ruins and getting maximum benefit from the magic items you find there.</p>",
+          "features": [
+            {
+              "key": "thief.fast-hands",
+              "name": "Fast Hands",
+              "level": 3,
+              "description": "<p>As a Bonus Action, you can do one of the following.</p><p><strong><em>Sleight of Hand.</em></strong> Make a Dexterity (Sleight of Hand) check to pick a lock or disarm a trap with Thieves’ Tools or to pick a pocket.</p><p><strong><em>Use an Object.</em></strong> Take the Utilize action, or take the Magic action to use a magic item that requires that action.</p>"
+            },
+            {
+              "key": "thief.second-story-work",
+              "name": "Second-Story Work",
+              "level": 3,
+              "description": "<p>You’ve trained to get into especially hard-to-reach places, granting you these benefits.</p><p><strong><em>Climber.</em></strong> You gain a Climb Speed equal to your Speed.</p><p><strong><em>Jumper.</em></strong> You can determine your jump distance using your Dexterity rather than your Strength.</p>",
+              "effects": [
+                {
+                  "target": "speed.climb",
+                  "op": "Set",
+                  "value": "stat('speed.walk')",
+                  "label": "Second-Story Work"
+                }
+              ]
+            },
+            {
+              "key": "thief.supreme-sneak",
+              "name": "Supreme Sneak",
+              "level": 9,
+              "description": "<p>You gain the following Cunning Strike option.</p><p><strong><em>Stealth Attack (Cost: 1d6).</em></strong> If you have the Hide action’s Invisible condition, this attack doesn’t end that condition on you if you end the turn behind Three-Quarters Cover or Total Cover.</p>"
+            },
+            {
+              "key": "thief.use-magic-device",
+              "name": "Use Magic Device",
+              "level": 13,
+              "description": "<p>You’ve learned how to maximize use of magic items, granting you the following benefits.</p><p><strong><em>Attunement.</em></strong> You can attune to up to four magic items at once.</p><p><strong><em>Charges.</em></strong> Whenever you use a magic item property that expends charges, roll 1d6. On a roll of 6, you use the property without expending the charges.</p><p><strong><em>Scrolls.</em></strong> You can use any Spell Scroll, using Intelligence as your spellcasting ability for the spell. If the spell is a cantrip or a level 1 spell, you can cast it reliably. If the scroll contains a higher-level spell, you must first succeed on an Intelligence (Arcana) check (DC 10 plus the spell’s level). On a successful check, you cast the spell from the scroll. On a failed check, the scroll disintegrates.</p>"
+            },
+            {
+              "key": "thief.thiefs-reflexes",
+              "name": "Thief’s Reflexes",
+              "level": 17,
+              "description": "<p>You are adept at laying ambushes and quickly escaping danger. You can take two turns during the first round of any combat. You take your first turn at your normal Initiative and your second turn at your Initiative minus 10.</p>"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
