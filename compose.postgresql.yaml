@@ -9,6 +9,7 @@ services:
     extends:
       file: compose.api.yaml
       service: api
+    pull_policy: build
     environment:
       Database__Provider: Postgresql
       ConnectionStrings__TableTopSheets: "Host=postgres;Port=5432;Database=${POSTGRES_DB:-tabletopsheets};Username=${POSTGRES_USER:-tabletopsheets};Password=${POSTGRES_PASSWORD:-tabletopsheets}"

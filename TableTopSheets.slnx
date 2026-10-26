@@ -22,6 +22,7 @@
   </Folder>
   <Folder Name="/SolutionFiles/">
     <File Path=".dockerignore" />
+    <File Path=".env" />
     <File Path=".env.example" />
     <File Path="compose.api.yaml" />
     <File Path="compose.postgresql.yaml" />

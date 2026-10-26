@@ -4,6 +4,26 @@
 ARG DOTNET_VERSION=10.0
 ARG NODE_VERSION=24
 
+# runtime image; first stage, so IDE fast-mode debugging (which builds only the first stage) gets a dotnet runtime
+FROM mcr.microsoft.com/dotnet/aspnet:${DOTNET_VERSION} AS base
+WORKDIR /app
+
+# Npgsql loads the GSSAPI library when it connects (logs an error without it)
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libgssapi-krb5-2 \
+    && rm -rf /var/lib/apt/lists/*
+
+# SQLite database lives here; mount a volume to keep it
+RUN mkdir -p /app/data && chown $APP_UID /app/data
+VOLUME /app/data
+
+ENV ASPNETCORE_HTTP_PORTS=8080 \
+    Database__Provider=Sqlite \
+    ConnectionStrings__TableTopSheets="Data Source=/app/data/tabletopsheets.db"
+
+USER $APP_UID
+EXPOSE 8080
+
 FROM node:${NODE_VERSION}-slim AS ui
 WORKDIR /ui
 
@@ -41,26 +61,10 @@ RUN dotnet publish Api/TableTopSheets.Api/TableTopSheets.Api.csproj \
       --output /app/publish \
       /p:UseAppHost=false
 
-FROM mcr.microsoft.com/dotnet/aspnet:${DOTNET_VERSION} AS final
-WORKDIR /app
-
-# Npgsql loads the GSSAPI library when it connects (logs an error without it)
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends libgssapi-krb5-2 \
-    && rm -rf /var/lib/apt/lists/*
-
-# SQLite database lives here; mount a volume to keep it
-RUN mkdir -p /app/data && chown $APP_UID /app/data
-VOLUME /app/data
+FROM base AS final
 
 COPY --from=build /app/publish .
 # served by the API from its web root, same origin as /api
 COPY --from=ui /ui/dist ./wwwroot
 
-ENV ASPNETCORE_HTTP_PORTS=8080 \
-    Database__Provider=Sqlite \
-    ConnectionStrings__TableTopSheets="Data Source=/app/data/tabletopsheets.db"
-
-USER $APP_UID
-EXPOSE 8080
 ENTRYPOINT ["dotnet", "TableTopSheets.Api.dll"]

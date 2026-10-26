@@ -30,8 +30,10 @@ builder.Services.AddDbContext<TableTopSheetsContext>(options =>
 });
 
 // rules are read from the database per request; the loader reuses what it read within the request
-builder.Services.AddScoped<RulesCatalogLoader>();
-builder.Services.AddScoped<CharacterService>();
+builder
+  .Services
+  .AddScoped<RulesCatalogLoader>()
+  .AddScoped<CharacterService>();
 
 // Authentication:Provider switches between the database users and an OIDC identity provider
 builder.AddTableTopSheetsAuthentication();
@@ -45,10 +47,10 @@ WebApplication app = builder.Build();
 
 await DatabaseInitializer.InitializeAsync(app.Services);
 
-app.UseExceptionHandler();
-app.UseStatusCodePages();
-app.UseAuthentication();
-app.UseAuthorization();
+app.UseExceptionHandler()
+  .UseStatusCodePages()
+  .UseAuthentication()
+  .UseAuthorization();
 app.MapOpenApi();
 app.UseSwaggerUI(options =>
 {
@@ -73,6 +75,7 @@ else
   app.MapGet("/", () => Results.Redirect("/swagger")).ExcludeFromDescription();
 }
 
+// each returns its own route group, so they must not be chained (that would nest the groups)
 app.MapAuthEndpoints();
 app.MapRulesEndpoints();
 app.MapCharacterEndpoints();
@@ -90,7 +93,3 @@ if (hostsUi)
 
 app.Run();
 
-/// <summary>
-///   Entry point type (used by integration tests)
-/// </summary>
-public partial class Program;
