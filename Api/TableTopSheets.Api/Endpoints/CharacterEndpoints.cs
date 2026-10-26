@@ -75,28 +75,28 @@ public static class CharacterEndpoints
       .ToPaged(query, Sorts, entry => [entry.Name]);
   }
 
-  private static async Task<Created<CharacterStateDto>> Create(CharacterService service, CreateCharacterDto dto, CancellationToken cancellationToken)
+  private static async Task<Created<CharacterStateDto>> Create(ICharacterService service, CreateCharacterDto dto, CancellationToken cancellationToken)
   {
     Character character = await service.CreateAsync(RequestMapper.Create(dto), cancellationToken);
     return TypedResults.Created($"/api/characters/{character.Id}", StateMapper.State(await service.EvaluateAsync(character, cancellationToken)));
   }
 
-  private static async Task<Ok<CharacterStateDto>> Get(CharacterService service, Guid id, CancellationToken cancellationToken)
+  private static async Task<Ok<CharacterStateDto>> Get(ICharacterService service, Guid id, CancellationToken cancellationToken)
     => TypedResults.Ok(StateMapper.State(await service.EvaluateAsync(await service.LoadAsync(id, cancellationToken), cancellationToken)));
 
-  private static async Task<Ok<CharacterStateDto>> Update(CharacterService service, Guid id, UpdateCharacterDto dto, CancellationToken cancellationToken)
+  private static async Task<Ok<CharacterStateDto>> Update(ICharacterService service, Guid id, UpdateCharacterDto dto, CancellationToken cancellationToken)
     => TypedResults.Ok(StateMapper.State(await service.UpdateDetailsAsync(id, RequestMapper.Details(dto), cancellationToken)));
 
-  private static async Task<NoContent> Delete(CharacterService service, Guid id, CancellationToken cancellationToken)
+  private static async Task<NoContent> Delete(ICharacterService service, Guid id, CancellationToken cancellationToken)
   {
     await service.DeleteAsync(id, cancellationToken);
     return TypedResults.NoContent();
   }
 
-  private static async Task<Ok<CharacterSheet>> Sheet(CharacterService service, Guid id, CancellationToken cancellationToken)
+  private static async Task<Ok<CharacterSheet>> Sheet(ICharacterService service, Guid id, CancellationToken cancellationToken)
     => TypedResults.Ok(await service.BuildSheetAsync(id, cancellationToken));
 
-  private static async Task<FileContentHttpResult> Pdf(CharacterService service, Guid id, CancellationToken cancellationToken)
+  private static async Task<FileContentHttpResult> Pdf(ICharacterService service, Guid id, CancellationToken cancellationToken)
   {
     CharacterSheet sheet = await service.BuildSheetAsync(id, cancellationToken);
     using MemoryStream stream = new();

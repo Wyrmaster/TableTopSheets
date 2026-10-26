@@ -55,7 +55,7 @@ public sealed class TestWorld: IAsyncDisposable
   /// </summary>
   public RulesCatalog Catalog { get; }
 
-  public CharacterService Service => new(this.Context, new RulesCatalogLoader(this.Context), new FixedUser(UserId));
+  public ICharacterService Service => new CharacterService(this.Context, new RulesCatalogLoader(this.Context), new FixedUser(UserId));
 
   #endregion
 
@@ -109,7 +109,7 @@ public sealed class TestWorld: IAsyncDisposable
     params string[] backgroundIncreases
   )
   {
-    CharacterService service = this.Service;
+    ICharacterService service = this.Service;
     Character character = await service.CreateAsync(new CreateCharacterRequest
     {
       Name = "Test",
@@ -137,7 +137,7 @@ public sealed class TestWorld: IAsyncDisposable
     IReadOnlyList<ReplacementRequest>? replacements = null
   )
   {
-    CharacterService service = this.Service;
+    ICharacterService service = this.Service;
     Character character = await service.LoadAsync(characterId);
     await service.LevelUpAsync(character, new LevelUpRequest
     {
@@ -166,7 +166,7 @@ public sealed class TestWorld: IAsyncDisposable
     return evaluation;
   }
 
-  public async Task AutoCompleteAsync(CharacterService service, Character character)
+  public async Task AutoCompleteAsync(ICharacterService service, Character character)
   {
     while (true)
     {
@@ -187,7 +187,7 @@ public sealed class TestWorld: IAsyncDisposable
 
   public async Task<CharacterEvaluation> EvaluateAsync(Guid characterId)
   {
-    CharacterService service = this.Service;
+    ICharacterService service = this.Service;
     return await service.EvaluateAsync(await service.LoadAsync(characterId));
   }
 

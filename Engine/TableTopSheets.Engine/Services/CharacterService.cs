@@ -17,7 +17,7 @@ namespace TableTopSheets.Engine.Services;
 ///   All changes to a character go through this service. Every change is validated against a fresh evaluation and either
 ///   applied completely or not at all. Only the characters of the current user are visible
 /// </summary>
-public sealed class CharacterService(TableTopSheetsContext context, RulesCatalogLoader rules, ICurrentUser user)
+public sealed class CharacterService(TableTopSheetsContext context, IRulesCatalogLoader rules, ICurrentUser user): ICharacterService
 {
   #region Constants
 
@@ -34,6 +34,7 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
 
   #region Loading
 
+  /// <inheritdoc />
   public async Task<Character> LoadAsync(Guid characterId, CancellationToken cancellationToken = default)
     => await context.Characters
          .AsSplitQuery()
@@ -46,9 +47,7 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
          .SingleOrDefaultAsync(entry => entry.Id == characterId && entry.OwnerId == user.UserId, cancellationToken)
        ?? throw new CharacterNotFoundException(characterId);
 
-  /// <summary>
-  ///   Evaluate a character against the rules it needs, including the descriptions of the options its pending choices embed
-  /// </summary>
+  /// <inheritdoc />
   public async Task<CharacterEvaluation> EvaluateAsync(Character character, CancellationToken cancellationToken = default)
   {
     CharacterEvaluation evaluation = await this.EvaluateRulesAsync(character, cancellationToken);
@@ -56,6 +55,7 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
     return evaluation;
   }
 
+  /// <inheritdoc />
   public async Task<CharacterSheet> BuildSheetAsync(Guid characterId, CancellationToken cancellationToken = default)
     => CharacterSheetBuilder.Build(await this.EvaluateRulesAsync(await this.LoadAsync(characterId, cancellationToken), cancellationToken));
 
@@ -63,6 +63,7 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
 
   #region Creation
 
+  /// <inheritdoc />
   public async Task<Character> CreateAsync(CreateCharacterRequest request, CancellationToken cancellationToken = default)
   {
     Species species = await context.Species.AsNoTracking().SingleOrDefaultAsync(entry => entry.Key == request.SpeciesKey, cancellationToken)
@@ -107,9 +108,7 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
     return character;
   }
 
-  /// <summary>
-  ///   Change the descriptive fields of a character (null keeps the current value); nothing rule relevant changes
-  /// </summary>
+  /// <inheritdoc />
   public async Task<CharacterEvaluation> UpdateDetailsAsync(Guid characterId, CharacterDetailsUpdate update, CancellationToken cancellationToken = default)
   {
     Character character = await this.LoadAsync(characterId, cancellationToken);
@@ -131,6 +130,7 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
     return await this.EvaluateAsync(character, cancellationToken);
   }
 
+  /// <inheritdoc />
   public async Task DeleteAsync(Guid characterId, CancellationToken cancellationToken = default)
   {
     Character character = await this.LoadAsync(characterId, cancellationToken);
@@ -138,10 +138,7 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
     await context.SaveChangesAsync(cancellationToken);
   }
 
-  /// <summary>
-  ///   Answer open choices. The selections belong to the latest level (origin when the character has no level yet),
-  ///   so undoing that level removes them as well
-  /// </summary>
+  /// <inheritdoc />
   public async Task<CharacterEvaluation> SelectAsync(Guid characterId, IReadOnlyList<SelectionRequest> selections, CancellationToken cancellationToken = default)
   {
     Character character = await this.LoadAsync(characterId, cancellationToken);
@@ -150,31 +147,22 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
     return await this.EvaluateAsync(character, cancellationToken);
   }
 
-  /// <summary>
-  ///   Answer open choices of a loaded character (in memory, saved by the caller)
-  /// </summary>
+  /// <inheritdoc />
   public Task SelectAsync(Character character, IReadOnlyList<SelectionRequest> selections, CancellationToken cancellationToken = default)
   {
     Guid? levelId = character.Levels.MaxBy(entry => entry.Number)?.Id;
     return this.TransactionAsync(character, () => this.ApplySelectionsAsync(character, levelId, selections, cancellationToken));
   }
 
-  /// <summary>
-  ///   Throw when required choices are still open
-  /// </summary>
+  /// <inheritdoc />
   public async Task EnsureCompleteAsync(Character character, CancellationToken cancellationToken = default)
     => EnsureComplete(await this.EvaluateRulesAsync(character, cancellationToken));
 
-  /// <summary>
-  ///   Validate selections without saving them; throws <see cref="RuleViolationException"/> when the rules are violated
-  /// </summary>
+  /// <inheritdoc />
   public Task<T> ValidateSelectionsAsync<T>(Guid characterId, IReadOnlyList<SelectionRequest> selections, Func<CharacterEvaluation, T> project, CancellationToken cancellationToken = default)
     => this.DryRunAsync(characterId, character => this.SelectAsync(character, selections, cancellationToken), project, cancellationToken);
 
-  /// <summary>
-  ///   Take back a selection (and the selections scoped to it). Only selections of the latest level (or of the origin when the
-  ///   character has no level) can be removed; older ones are removed by undoing levels
-  /// </summary>
+  /// <inheritdoc />
   public async Task<CharacterEvaluation> DeselectAsync(Guid characterId, Guid selectionId, CancellationToken cancellationToken = default)
   {
     Character character = await this.LoadAsync(characterId, cancellationToken);
@@ -209,15 +197,11 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
 
   #region Level Up
 
-  /// <summary>
-  ///   Choices the character will have to answer when gaining a level in the class (nothing is saved)
-  /// </summary>
+  /// <inheritdoc />
   public async Task<IReadOnlyList<PendingChoice>> PreviewLevelUpAsync(Guid characterId, string classKey, string? subclassKey = null, CancellationToken cancellationToken = default)
     => await this.PreviewLevelUpAsync(characterId, classKey, subclassKey, evaluation => ChoiceService.Pending(evaluation).ToList(), cancellationToken);
 
-  /// <summary>
-  ///   Evaluate the character as if it gained a level in the class and project the result (nothing is saved)
-  /// </summary>
+  /// <inheritdoc />
   public Task<T> PreviewLevelUpAsync<T>(Guid characterId, string classKey, string? subclassKey, Func<CharacterEvaluation, T> project, CancellationToken cancellationToken = default)
     => this.DryRunAsync
     (
@@ -227,12 +211,11 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
       cancellationToken
     );
 
-  /// <summary>
-  ///   Validate a level up without saving it; throws <see cref="RuleViolationException"/> when the rules are violated
-  /// </summary>
+  /// <inheritdoc />
   public Task<T> ValidateLevelUpAsync<T>(Guid characterId, LevelUpRequest request, Func<CharacterEvaluation, T> project, CancellationToken cancellationToken = default)
     => this.DryRunAsync(characterId, character => this.LevelUpAsync(character, request, cancellationToken), project, cancellationToken);
 
+  /// <inheritdoc />
   public async Task<CharacterEvaluation> LevelUpAsync(Guid characterId, LevelUpRequest request, CancellationToken cancellationToken = default)
   {
     Character character = await this.LoadAsync(characterId, cancellationToken);
@@ -241,9 +224,7 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
     return await this.EvaluateAsync(character, cancellationToken);
   }
 
-  /// <summary>
-  ///   Apply a level up to a loaded character (in memory, saved by the caller)
-  /// </summary>
+  /// <inheritdoc />
   public async Task LevelUpAsync(Character character, LevelUpRequest request, CancellationToken cancellationToken = default)
   {
     CharacterLevel level = await this.CreateLevelAsync(character, request, cancellationToken);
@@ -382,10 +363,7 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
 
   #region Undo
 
-  /// <summary>
-  ///   Remove the highest level: its selections are deleted and selections it replaced become active again.
-  ///   Loadouts that became invalid are reported as violations of the returned evaluation
-  /// </summary>
+  /// <inheritdoc />
   public async Task<CharacterEvaluation> UndoLastLevelAsync(Guid characterId, CancellationToken cancellationToken = default)
   {
     Character character = await this.LoadAsync(characterId, cancellationToken);
@@ -418,9 +396,7 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
 
   #region Rest Changes
 
-  /// <summary>
-  ///   Change a selection in place when its choice allows changes on a rest (Wizard cantrips ...)
-  /// </summary>
+  /// <inheritdoc />
   public async Task<CharacterEvaluation> ReplaceOnRestAsync(Guid characterId, Guid selectionId, string optionKey, CancellationToken cancellationToken = default)
   {
     Character character = await this.LoadAsync(characterId, cancellationToken);
@@ -464,9 +440,7 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
     return await this.EvaluateAsync(character, cancellationToken);
   }
 
-  /// <summary>
-  ///   Replace the long rest prepared spell list of a class
-  /// </summary>
+  /// <inheritdoc />
   public async Task<CharacterEvaluation> SetPreparedSpellsAsync(Guid characterId, string classKey, IReadOnlyList<string> spellKeys, CancellationToken cancellationToken = default)
   {
     Character character = await this.LoadAsync(characterId, cancellationToken);
@@ -533,9 +507,7 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
     return await this.EvaluateAsync(character, cancellationToken);
   }
 
-  /// <summary>
-  ///   Copy a spell into the spellbook (scroll or another book)
-  /// </summary>
+  /// <inheritdoc />
   public async Task<CharacterEvaluation> CopyToSpellbookAsync(Guid characterId, string spellKey, string? note = null, CancellationToken cancellationToken = default)
   {
     Character character = await this.LoadAsync(characterId, cancellationToken);
@@ -563,9 +535,7 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
 
   #region Inventory
 
-  /// <summary>
-  ///   Add an item to the inventory; a purchase pays its cost from the character's coins (with change)
-  /// </summary>
+  /// <inheritdoc />
   public async Task<CharacterItem> AddItemAsync(Guid characterId, string itemKey, int quantity = 1, CancellationToken cancellationToken = default, bool purchase = false)
   {
     if (quantity < 1)
@@ -588,11 +558,7 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
     return entry;
   }
 
-  /// <summary>
-  ///   Remove an item (or part of a stack) from the inventory; selling credits half of its cost
-  /// </summary>
-  /// <param name="quantity">how many to remove; null removes the whole stack</param>
-  /// <param name="sell">credit half of the item's cost per piece to the coins (the usual selling price)</param>
+  /// <inheritdoc />
   public async Task<CharacterEvaluation> RemoveItemAsync(Guid characterId, Guid characterItemId, int? quantity = null, bool sell = false, CancellationToken cancellationToken = default)
   {
     Character character = await this.LoadAsync(characterId, cancellationToken);
@@ -629,9 +595,7 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
 
   #region Starting Equipment
 
-  /// <summary>
-  ///   Starting equipment the character can take: from the background, and from the first class once it has a level
-  /// </summary>
+  /// <inheritdoc />
   public async Task<IReadOnlyList<StartingEquipmentOffer>> GetStartingEquipmentAsync(Guid characterId, CancellationToken cancellationToken = default)
   {
     Character character = await this.LoadAsync(characterId, cancellationToken);
@@ -657,10 +621,7 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
     return offers;
   }
 
-  /// <summary>
-  ///   Take one alternative of the starting equipment of the background or the first class: its items are added to the
-  ///   inventory and its coins to the purse. Each source gives its equipment once
-  /// </summary>
+  /// <inheritdoc />
   public async Task<CharacterEvaluation> TakeStartingEquipmentAsync(
     Guid characterId,
     StartingEquipmentSourceEnum source,
@@ -812,21 +773,15 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
 
   #region Coins
 
-  /// <summary>
-  ///   Replace all coins of the character
-  /// </summary>
+  /// <inheritdoc />
   public Task<CharacterEvaluation> SetCoinsAsync(Guid characterId, int copper, int silver, int electrum, int gold, int platinum, CancellationToken cancellationToken = default)
     => this.UpdatePurseAsync(characterId, purse => Purse.Set(purse, copper, silver, electrum, gold, platinum), cancellationToken);
 
-  /// <summary>
-  ///   Add (positive) or remove (negative) coins of each kind
-  /// </summary>
+  /// <inheritdoc />
   public Task<CharacterEvaluation> ChangeCoinsAsync(Guid characterId, int copper, int silver, int electrum, int gold, int platinum, CancellationToken cancellationToken = default)
     => this.UpdatePurseAsync(characterId, purse => Purse.Change(purse, copper, silver, electrum, gold, platinum), cancellationToken);
 
-  /// <summary>
-  ///   Pay an amount in copper pieces; coins are spent and change is returned
-  /// </summary>
+  /// <inheritdoc />
   public Task<CharacterEvaluation> PayAsync(Guid characterId, long amountCp, CancellationToken cancellationToken = default)
     => this.UpdatePurseAsync(characterId, purse => Purse.Pay(purse, amountCp), cancellationToken);
 
@@ -842,10 +797,7 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
 
   #region Equipment and Toggles
 
-  /// <summary>
-  ///   Don, doff, wield, ready or stow an item. Any number of weapons can be ready; armor and each hand hold one item.
-  ///   Equipping into an occupied hand puts a weapon held there back to ready (other items are stowed)
-  /// </summary>
+  /// <inheritdoc />
   public async Task<CharacterEvaluation> EquipAsync(Guid characterId, Guid characterItemId, EquipSlotEnum slot, CancellationToken cancellationToken = default)
   {
     Character character = await this.LoadAsync(characterId, cancellationToken);
@@ -882,6 +834,7 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
     return await this.EvaluateAsync(character, cancellationToken);
   }
 
+  /// <inheritdoc />
   public async Task<CharacterEvaluation> AttuneAsync(Guid characterId, Guid characterItemId, bool attuned, CancellationToken cancellationToken = default)
   {
     Character character = await this.LoadAsync(characterId, cancellationToken);
@@ -903,9 +856,7 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
     return await this.EvaluateAsync(character, cancellationToken);
   }
 
-  /// <summary>
-  ///   Switch a toggleable feature (Rage, Mage Armor ...) on or off
-  /// </summary>
+  /// <inheritdoc />
   public async Task<CharacterEvaluation> ToggleAsync(Guid characterId, string featureKey, bool active, CancellationToken cancellationToken = default)
   {
     Character character = await this.LoadAsync(characterId, cancellationToken);
@@ -929,9 +880,7 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
     return await this.EvaluateAsync(character, cancellationToken);
   }
 
-  /// <summary>
-  ///   Pick the Armor Class calculation by its label (null = best)
-  /// </summary>
+  /// <inheritdoc />
   public async Task<CharacterEvaluation> ChooseArmorClassAsync(Guid characterId, string? label, CancellationToken cancellationToken = default)
   {
     Character character = await this.LoadAsync(characterId, cancellationToken);

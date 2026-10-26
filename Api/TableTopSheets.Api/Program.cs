@@ -32,8 +32,8 @@ builder.Services.AddDbContext<TableTopSheetsContext>(options =>
 // rules are read from the database per request; the loader reuses what it read within the request
 builder
   .Services
-  .AddScoped<RulesCatalogLoader>()
-  .AddScoped<CharacterService>();
+  .AddScoped<IRulesCatalogLoader, RulesCatalogLoader>()
+  .AddScoped<ICharacterService, CharacterService>();
 
 // Authentication:Provider switches between the database users and an OIDC identity provider
 builder.AddTableTopSheetsAuthentication();

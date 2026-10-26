@@ -58,7 +58,7 @@ public class RulesCatalogLoaderTests
     await world.Service.EquipAsync(id, breastplate.Id, Common.Enum.Rules.EquipSlotEnum.Armor);
 
     // a level with open choices: the options of pending choices come from the option lists of the slice
-    CharacterService service = world.Service;
+    ICharacterService service = world.Service;
     Character character = await service.LoadAsync(id);
     await service.LevelUpAsync(character, new LevelUpRequest { ClassKey = "wizard", AllowIncomplete = true });
     await world.Context.SaveChangesAsync();
@@ -72,7 +72,7 @@ public class RulesCatalogLoaderTests
   /// </summary>
   private static async Task<CharacterEvaluation> AssertSameAsFullCatalogAsync(TestWorld world, Guid id)
   {
-    CharacterService service = world.Service;
+    ICharacterService service = world.Service;
     Character character = await service.LoadAsync(id);
     CharacterEvaluation slice = await service.EvaluateAsync(character);
     CharacterEvaluation full = new(world.Catalog, character);

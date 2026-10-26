@@ -49,13 +49,13 @@ public static class ChoiceEndpoints
     return group;
   }
 
-  private static async Task<Ok<IReadOnlyList<PendingChoiceDto>>> Pending(CharacterService service, Guid id, CancellationToken cancellationToken)
+  private static async Task<Ok<IReadOnlyList<PendingChoiceDto>>> Pending(ICharacterService service, Guid id, CancellationToken cancellationToken)
     => TypedResults.Ok(ChoiceMapper.Pending(await service.EvaluateAsync(await service.LoadAsync(id, cancellationToken), cancellationToken)));
 
-  private static async Task<Ok<CharacterStateDto>> Select(CharacterService service, Guid id, SelectionsDto dto, CancellationToken cancellationToken)
+  private static async Task<Ok<CharacterStateDto>> Select(ICharacterService service, Guid id, SelectionsDto dto, CancellationToken cancellationToken)
     => TypedResults.Ok(StateMapper.State(await service.SelectAsync(id, RequestMapper.Selections(dto.Selections), cancellationToken)));
 
-  private static async Task<Ok<ValidationResultDto>> ValidateSelections(CharacterService service, Guid id, SelectionsDto dto, CancellationToken cancellationToken)
+  private static async Task<Ok<ValidationResultDto>> ValidateSelections(ICharacterService service, Guid id, SelectionsDto dto, CancellationToken cancellationToken)
     => TypedResults.Ok(await Validate(() => service.ValidateSelectionsAsync(id, RequestMapper.Selections(dto.Selections), evaluation => StateMapper.State(evaluation), cancellationToken)));
 
   /// <summary>
@@ -75,8 +75,8 @@ public static class ChoiceEndpoints
 
   private static async Task<Ok<PagedResult<OptionDto>>> Options
   (
-    CharacterService service,
-    RulesCatalogLoader rules,
+    ICharacterService service,
+    IRulesCatalogLoader rules,
     TableTopSheetsContext context,
     Guid id,
     string choiceKey,
@@ -134,13 +134,13 @@ public static class ChoiceEndpoints
     return new ChoiceOptions(evaluation.Catalog, choice, ChoiceService.EvaluateOptions(evaluation, choice, owner).ToList());
   }
 
-  private static async Task<Ok<IReadOnlyList<SelectionInfoDto>>> Selections(CharacterService service, Guid id, CancellationToken cancellationToken)
+  private static async Task<Ok<IReadOnlyList<SelectionInfoDto>>> Selections(ICharacterService service, Guid id, CancellationToken cancellationToken)
     => TypedResults.Ok(StateMapper.Selections(await service.EvaluateAsync(await service.LoadAsync(id, cancellationToken), cancellationToken)));
 
-  private static async Task<Ok<CharacterStateDto>> Deselect(CharacterService service, Guid id, Guid selectionId, CancellationToken cancellationToken)
+  private static async Task<Ok<CharacterStateDto>> Deselect(ICharacterService service, Guid id, Guid selectionId, CancellationToken cancellationToken)
     => TypedResults.Ok(StateMapper.State(await service.DeselectAsync(id, selectionId, cancellationToken)));
 
-  private static async Task<Ok<CharacterStateDto>> RestReplace(CharacterService service, Guid id, Guid selectionId, RestReplaceDto dto, CancellationToken cancellationToken)
+  private static async Task<Ok<CharacterStateDto>> RestReplace(ICharacterService service, Guid id, Guid selectionId, RestReplaceDto dto, CancellationToken cancellationToken)
     => TypedResults.Ok(StateMapper.State(await service.ReplaceOnRestAsync(id, selectionId, dto.OptionKey, cancellationToken)));
 
   #endregion

@@ -35,7 +35,7 @@ public static class LevelEndpoints
 
   private static async Task<Ok<LevelUpPreviewDto>> Preview
   (
-    CharacterService service,
+    ICharacterService service,
     TableTopSheetsContext context,
     Guid id,
     string @class,
@@ -72,13 +72,13 @@ public static class LevelEndpoints
     return TypedResults.Ok(result);
   }
 
-  private static async Task<Ok<CharacterStateDto>> LevelUp(CharacterService service, Guid id, LevelUpDto dto, CancellationToken cancellationToken)
+  private static async Task<Ok<CharacterStateDto>> LevelUp(ICharacterService service, Guid id, LevelUpDto dto, CancellationToken cancellationToken)
     => TypedResults.Ok(StateMapper.State(await service.LevelUpAsync(id, RequestMapper.LevelUp(dto), cancellationToken)));
 
-  private static async Task<Ok<ValidationResultDto>> ValidateLevelUp(CharacterService service, Guid id, LevelUpDto dto, CancellationToken cancellationToken)
+  private static async Task<Ok<ValidationResultDto>> ValidateLevelUp(ICharacterService service, Guid id, LevelUpDto dto, CancellationToken cancellationToken)
     => TypedResults.Ok(await ChoiceEndpoints.Validate(() => service.ValidateLevelUpAsync(id, RequestMapper.LevelUp(dto), evaluation => StateMapper.State(evaluation), cancellationToken)));
 
-  private static async Task<Ok<CharacterStateDto>> Undo(CharacterService service, Guid id, CancellationToken cancellationToken)
+  private static async Task<Ok<CharacterStateDto>> Undo(ICharacterService service, Guid id, CancellationToken cancellationToken)
     => TypedResults.Ok(StateMapper.State(await service.UndoLastLevelAsync(id, cancellationToken)));
 
   #endregion

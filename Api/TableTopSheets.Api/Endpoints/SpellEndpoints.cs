@@ -24,13 +24,13 @@ public static class SpellEndpoints
     return group;
   }
 
-  private static async Task<Ok<CharacterSpellsDto>> Spells(CharacterService service, Guid id, CancellationToken cancellationToken)
+  private static async Task<Ok<CharacterSpellsDto>> Spells(ICharacterService service, Guid id, CancellationToken cancellationToken)
     => TypedResults.Ok(SpellMapper.Spells(await service.EvaluateAsync(await service.LoadAsync(id, cancellationToken), cancellationToken)));
 
-  private static async Task<Ok<CharacterStateDto>> Prepare(CharacterService service, Guid id, string classKey, PreparedSpellsDto dto, CancellationToken cancellationToken)
+  private static async Task<Ok<CharacterStateDto>> Prepare(ICharacterService service, Guid id, string classKey, PreparedSpellsDto dto, CancellationToken cancellationToken)
     => TypedResults.Ok(StateMapper.State(await service.SetPreparedSpellsAsync(id, classKey, dto.SpellKeys, cancellationToken)));
 
-  private static async Task<Ok<CharacterStateDto>> CopyToSpellbook(CharacterService service, Guid id, SpellbookEntryDto dto, CancellationToken cancellationToken)
+  private static async Task<Ok<CharacterStateDto>> CopyToSpellbook(ICharacterService service, Guid id, SpellbookEntryDto dto, CancellationToken cancellationToken)
     => TypedResults.Ok(StateMapper.State(await service.CopyToSpellbookAsync(id, dto.SpellKey, dto.Note, cancellationToken)));
 
   #endregion

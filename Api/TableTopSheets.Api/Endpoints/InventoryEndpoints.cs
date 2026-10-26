@@ -46,7 +46,7 @@ public static class InventoryEndpoints
 
   private static async Task<Ok<IReadOnlyList<StartingEquipmentDto>>> GetStartingEquipment
   (
-    CharacterService service,
+    ICharacterService service,
     TableTopSheetsContext context,
     Guid id,
     CancellationToken cancellationToken
@@ -72,7 +72,7 @@ public static class InventoryEndpoints
   /// <param name="source"><c>background</c> or <c>class</c> (any case)</param>
   private static async Task<Results<Ok<CharacterStateDto>, NotFound>> TakeStartingEquipment
   (
-    CharacterService service,
+    ICharacterService service,
     Guid id,
     string source,
     TakeStartingEquipmentDto dto,
@@ -88,34 +88,34 @@ public static class InventoryEndpoints
     return TypedResults.Ok(StateMapper.State(evaluation));
   }
 
-  private static async Task<Ok<CharacterStateDto>> AddItem(CharacterService service, Guid id, AddItemDto dto, CancellationToken cancellationToken)
+  private static async Task<Ok<CharacterStateDto>> AddItem(ICharacterService service, Guid id, AddItemDto dto, CancellationToken cancellationToken)
   {
     await service.AddItemAsync(id, dto.ItemKey, dto.Quantity, cancellationToken, dto.Purchase);
     return TypedResults.Ok(StateMapper.State(await service.EvaluateAsync(await service.LoadAsync(id, cancellationToken), cancellationToken)));
   }
 
-  private static async Task<Ok<CharacterStateDto>> RemoveItem(CharacterService service, Guid id, Guid itemId, int? quantity, bool? sell, CancellationToken cancellationToken)
+  private static async Task<Ok<CharacterStateDto>> RemoveItem(ICharacterService service, Guid id, Guid itemId, int? quantity, bool? sell, CancellationToken cancellationToken)
     => TypedResults.Ok(StateMapper.State(await service.RemoveItemAsync(id, itemId, quantity, sell == true, cancellationToken)));
 
-  private static async Task<Ok<CharacterStateDto>> SetCoins(CharacterService service, Guid id, CoinsDto dto, CancellationToken cancellationToken)
+  private static async Task<Ok<CharacterStateDto>> SetCoins(ICharacterService service, Guid id, CoinsDto dto, CancellationToken cancellationToken)
     => TypedResults.Ok(StateMapper.State(await service.SetCoinsAsync(id, dto.Copper, dto.Silver, dto.Electrum, dto.Gold, dto.Platinum, cancellationToken)));
 
-  private static async Task<Ok<CharacterStateDto>> ChangeCoins(CharacterService service, Guid id, CoinsDto dto, CancellationToken cancellationToken)
+  private static async Task<Ok<CharacterStateDto>> ChangeCoins(ICharacterService service, Guid id, CoinsDto dto, CancellationToken cancellationToken)
     => TypedResults.Ok(StateMapper.State(await service.ChangeCoinsAsync(id, dto.Copper, dto.Silver, dto.Electrum, dto.Gold, dto.Platinum, cancellationToken)));
 
-  private static async Task<Ok<CharacterStateDto>> Pay(CharacterService service, Guid id, CoinPaymentDto dto, CancellationToken cancellationToken)
+  private static async Task<Ok<CharacterStateDto>> Pay(ICharacterService service, Guid id, CoinPaymentDto dto, CancellationToken cancellationToken)
     => TypedResults.Ok(StateMapper.State(await service.PayAsync(id, dto.AmountCp, cancellationToken)));
 
-  private static async Task<Ok<CharacterStateDto>> Equip(CharacterService service, Guid id, Guid itemId, EquipDto dto, CancellationToken cancellationToken)
+  private static async Task<Ok<CharacterStateDto>> Equip(ICharacterService service, Guid id, Guid itemId, EquipDto dto, CancellationToken cancellationToken)
     => TypedResults.Ok(StateMapper.State(await service.EquipAsync(id, itemId, dto.Slot, cancellationToken)));
 
-  private static async Task<Ok<CharacterStateDto>> Attune(CharacterService service, Guid id, Guid itemId, AttuneDto dto, CancellationToken cancellationToken)
+  private static async Task<Ok<CharacterStateDto>> Attune(ICharacterService service, Guid id, Guid itemId, AttuneDto dto, CancellationToken cancellationToken)
     => TypedResults.Ok(StateMapper.State(await service.AttuneAsync(id, itemId, dto.Attuned, cancellationToken)));
 
-  private static async Task<Ok<CharacterStateDto>> Toggle(CharacterService service, Guid id, string featureKey, ToggleDto dto, CancellationToken cancellationToken)
+  private static async Task<Ok<CharacterStateDto>> Toggle(ICharacterService service, Guid id, string featureKey, ToggleDto dto, CancellationToken cancellationToken)
     => TypedResults.Ok(StateMapper.State(await service.ToggleAsync(id, featureKey, dto.Active, cancellationToken)));
 
-  private static async Task<Ok<CharacterStateDto>> ArmorClass(CharacterService service, Guid id, ArmorClassDto dto, CancellationToken cancellationToken)
+  private static async Task<Ok<CharacterStateDto>> ArmorClass(ICharacterService service, Guid id, ArmorClassDto dto, CancellationToken cancellationToken)
     => TypedResults.Ok(StateMapper.State(await service.ChooseArmorClassAsync(id, dto.Label, cancellationToken)));
 
   #endregion

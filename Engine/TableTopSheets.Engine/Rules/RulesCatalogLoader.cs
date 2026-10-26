@@ -13,7 +13,7 @@ namespace TableTopSheets.Engine.Rules;
 ///   Reads the rules a character needs from the database. Rows that were read are reused for the lifetime of the loader
 ///   (one request), so evaluating the character again after a change only reads what the change added
 /// </summary>
-public sealed class RulesCatalogLoader(TableTopSheetsContext context)
+public sealed class RulesCatalogLoader(TableTopSheetsContext context): IRulesCatalogLoader
 {
   #region Fields
 
@@ -37,10 +37,7 @@ public sealed class RulesCatalogLoader(TableTopSheetsContext context)
 
   #region Methods
 
-  /// <summary>
-  ///   Rules the character reaches: its species, background, classes and items, every feature granted by them or by its
-  ///   selections, and the options of the choices of those features
-  /// </summary>
+  /// <inheritdoc />
   public async Task<RulesCatalog> LoadAsync(Character character, CancellationToken cancellationToken = default)
   {
     SmallTables small = this._small ??= await SmallTables.LoadAsync(context, cancellationToken);
@@ -157,9 +154,7 @@ public sealed class RulesCatalogLoader(TableTopSheetsContext context)
     );
   }
 
-  /// <summary>
-  ///   Read the descriptions of options the catalog doesn't know yet (option html is not part of the option lists)
-  /// </summary>
+  /// <inheritdoc />
   public async Task DescribeAsync(RulesCatalog catalog, IEnumerable<(Choice Choice, string Key)> options, CancellationToken cancellationToken = default)
   {
     List<(Choice Choice, string Key)> missing = options.Distinct().Where(entry => !catalog.TryDescribe(entry.Choice, entry.Key, out _)).ToList();
@@ -207,9 +202,7 @@ public sealed class RulesCatalogLoader(TableTopSheetsContext context)
     }
   }
 
-  /// <summary>
-  ///   Read the descriptions of the options a pending choice of the evaluation embeds (see <see cref="ChoiceService.EmbeddedOptionLimit"/>)
-  /// </summary>
+  /// <inheritdoc />
   public Task DescribePendingAsync(CharacterEvaluation evaluation, CancellationToken cancellationToken = default)
     => this.DescribeAsync
     (
