@@ -1,0 +1,858 @@
+{
+  // Cleric (Player's Handbook 2024). Features without authored mechanics (Sear Undead, Improved Blessed Strikes,
+  // Greater Divine Intervention ...) are added from Data/Extracted/class-features.json as text
+  "classes": [
+    {
+      "key": "cleric",
+      "name": "Cleric",
+      "hitDie": "D8",
+      "primaryAbilities": [
+        "wis"
+      ],
+      "primaryAbilityMode": "All",
+      "subclassLevel": 3,
+      "startingEquipment": [
+        {
+          "key": "a",
+          "items": [
+            {
+              "item": "chain-shirt"
+            },
+            {
+              "item": "shield"
+            },
+            {
+              "item": "mace"
+            },
+            {
+              "choose": [
+                "holy-symbol"
+              ],
+              "name": "Holy Symbol"
+            },
+            {
+              "item": "priests-pack"
+            }
+          ],
+          "gold": 7
+        },
+        {
+          "key": "b",
+          "gold": 110
+        }
+      ],
+      "scales": {
+        "cleric.cantrips": "3,3,3,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5,5,5",
+        "cleric.prepared": "4,5,6,7,9,10,11,12,14,15,16,16,17,17,18,18,19,20,21,22",
+        "cleric.channel-divinity": "0,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3,4,4,4"
+      },
+      "features": [
+        {
+          "key": "cleric.proficiencies",
+          "name": "Proficiencies",
+          "level": 1,
+          "grantMode": "FirstClassOnly",
+          "sheetSection": "Hidden",
+          "effects": [
+            {
+              "target": "save.wis.prof",
+              "op": "Proficiency",
+              "value": "proficient"
+            },
+            {
+              "target": "save.cha.prof",
+              "op": "Proficiency",
+              "value": "proficient"
+            },
+            {
+              "target": "proficiency.weapon.simple",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "proficiency.armor.light",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "proficiency.armor.medium",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "proficiency.armor.shield",
+              "op": "Grant",
+              "value": "1"
+            }
+          ],
+          "choices": [
+            {
+              "key": "cleric.skills",
+              "name": "Skill Proficiencies",
+              "count": "2",
+              "source": "Skill",
+              "replace": "Never",
+              "filter": "oneOf(option.key, 'history', 'insight', 'medicine', 'persuasion', 'religion')",
+              "effects": [
+                {
+                  "target": "skill.$option.prof",
+                  "op": "Proficiency",
+                  "value": "proficient"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "cleric.multiclass-proficiencies",
+          "name": "Multiclass Proficiencies",
+          "level": 1,
+          "grantMode": "MulticlassOnly",
+          "sheetSection": "Hidden",
+          "effects": [
+            {
+              "target": "proficiency.armor.light",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "proficiency.armor.medium",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "proficiency.armor.shield",
+              "op": "Grant",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "key": "cleric.spellcasting",
+          "name": "Spellcasting",
+          "level": 1,
+          "spellcasting": {
+            "ability": "wis",
+            "progression": "Full",
+            "spellList": "cleric",
+            "prepared": "cleric.prepared",
+            "cantrips": "cleric.cantrips",
+            "pool": "ClassList",
+            "prepareChange": "LongRest",
+            "ritual": "None",
+            "focus": "Holy Symbol"
+          },
+          "choices": [
+            {
+              "key": "cleric.cantrips",
+              "name": "Cantrips",
+              "count": "scale('cleric.cantrips') + (has('cleric.divine-order.thaumaturge') ? 1 : 0)",
+              "source": "Spell",
+              "replace": "OneOnLevelUp",
+              "filter": "onList('cleric') && option.level == 0",
+              "category": "cantrip"
+            }
+          ]
+        },
+        {
+          "key": "cleric.divine-order",
+          "name": "Divine Order",
+          "level": 1,
+          "choices": [
+            {
+              "key": "cleric.divine-order",
+              "name": "Divine Order",
+              "count": "1",
+              "source": "Static",
+              "replace": "Never",
+              "options": [
+                {
+                  "key": "protector",
+                  "name": "Protector",
+                  "feature": {
+                    "key": "cleric.divine-order.protector",
+                    "name": "Protector",
+                    "sheetSection": "Hidden",
+                    "effects": [
+                      {
+                        "target": "proficiency.weapon.martial",
+                        "op": "Grant",
+                        "value": "1"
+                      },
+                      {
+                        "target": "proficiency.armor.heavy",
+                        "op": "Grant",
+                        "value": "1"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "thaumaturge",
+                  "name": "Thaumaturge",
+                  "feature": {
+                    "key": "cleric.divine-order.thaumaturge",
+                    "name": "Thaumaturge",
+                    "sheetSection": "Hidden",
+                    "effects": [
+                      {
+                        "target": "skill.arcana.bonus",
+                        "op": "Add",
+                        "value": "max(1, mod('wis'))",
+                        "label": "Thaumaturge"
+                      },
+                      {
+                        "target": "skill.religion.bonus",
+                        "op": "Add",
+                        "value": "max(1, mod('wis'))",
+                        "label": "Thaumaturge"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "cleric.channel-divinity",
+          "name": "Channel Divinity",
+          "level": 2,
+          "resources": [
+            {
+              "key": "channel-divinity",
+              "name": "Channel Divinity",
+              "max": "scale('cleric.channel-divinity')",
+              "recharge": "ShortRest"
+            }
+          ]
+        },
+        {
+          "key": "cleric.blessed-strikes",
+          "name": "Blessed Strikes",
+          "level": 7,
+          "choices": [
+            {
+              "key": "cleric.blessed-strikes",
+              "name": "Blessed Strikes",
+              "count": "1",
+              "source": "Static",
+              "replace": "Never",
+              "options": [
+                {
+                  "key": "divine-strike",
+                  "name": "Divine Strike",
+                  "feature": {
+                    "key": "cleric.blessed-strikes.divine-strike",
+                    "name": "Divine Strike",
+                    "sheetSection": "Hidden"
+                  }
+                },
+                {
+                  "key": "potent-spellcasting",
+                  "name": "Potent Spellcasting",
+                  "feature": {
+                    "key": "cleric.blessed-strikes.potent-spellcasting",
+                    "name": "Potent Spellcasting",
+                    "sheetSection": "Hidden",
+                    "effects": [
+                      {
+                        "target": "damage.spell.sacred-flame",
+                        "op": "Add",
+                        "value": "mod('wis')",
+                        "label": "Potent Spellcasting"
+                      },
+                      {
+                        "target": "damage.spell.toll-the-dead",
+                        "op": "Add",
+                        "value": "mod('wis')",
+                        "label": "Potent Spellcasting"
+                      },
+                      {
+                        "target": "damage.spell.word-of-radiance",
+                        "op": "Add",
+                        "value": "mod('wis')",
+                        "label": "Potent Spellcasting"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "cleric.divine-intervention",
+          "name": "Divine Intervention",
+          "level": 10,
+          "resources": [
+            {
+              "key": "divine-intervention",
+              "name": "Divine Intervention",
+              "max": "1",
+              "recharge": "LongRest"
+            }
+          ]
+        },
+        {
+          "key": "cleric.ability-score-improvement-4",
+          "name": "Ability Score Improvement",
+          "level": 4,
+          "choices": [
+            {
+              "key": "cleric.ability-score-improvement-4",
+              "name": "Feat",
+              "count": "1",
+              "source": "Feat",
+              "replace": "Never",
+              "filter": "option.category == 'general'"
+            }
+          ]
+        },
+        {
+          "key": "cleric.ability-score-improvement-8",
+          "name": "Ability Score Improvement",
+          "level": 8,
+          "choices": [
+            {
+              "key": "cleric.ability-score-improvement-8",
+              "name": "Feat",
+              "count": "1",
+              "source": "Feat",
+              "replace": "Never",
+              "filter": "option.category == 'general'"
+            }
+          ]
+        },
+        {
+          "key": "cleric.ability-score-improvement-12",
+          "name": "Ability Score Improvement",
+          "level": 12,
+          "choices": [
+            {
+              "key": "cleric.ability-score-improvement-12",
+              "name": "Feat",
+              "count": "1",
+              "source": "Feat",
+              "replace": "Never",
+              "filter": "option.category == 'general'"
+            }
+          ]
+        },
+        {
+          "key": "cleric.ability-score-improvement-16",
+          "name": "Ability Score Improvement",
+          "level": 16,
+          "choices": [
+            {
+              "key": "cleric.ability-score-improvement-16",
+              "name": "Feat",
+              "count": "1",
+              "source": "Feat",
+              "replace": "Never",
+              "filter": "option.category == 'general'"
+            }
+          ]
+        },
+        {
+          "key": "cleric.epic-boon",
+          "name": "Epic Boon",
+          "level": 19,
+          "choices": [
+            {
+              "key": "cleric.epic-boon",
+              "name": "Epic Boon",
+              "count": "1",
+              "source": "Feat",
+              "replace": "Never",
+              "filter": "option.category == 'epic-boon' || option.category == 'general'"
+            }
+          ]
+        }
+      ],
+      "subclasses": [
+        {
+          "key": "life-domain",
+          "name": "Life Domain",
+          "description": "<p>Soothe the hurts of the world. The Life Domain focuses on the positive energy that helps sustain all life in the multiverse. Clerics who tap into this domain are masters of healing, using that life force to cure many hurts.</p>",
+          "features": [
+            {
+              "key": "life-domain.disciple-of-life",
+              "name": "Disciple of Life",
+              "level": 3,
+              "description": "<p>When a spell you cast with a spell slot restores Hit Points to a creature, that creature regains additional Hit Points on the turn you cast the spell. The additional Hit Points equal 2 plus the spell slot’s level.</p>"
+            },
+            {
+              "key": "life-domain.domain-spells",
+              "name": "Life Domain Spells",
+              "level": 3,
+              "description": "<p>Your connection to this divine domain ensures you always have certain spells ready. When you reach a Cleric level specified in the Life Domain Spells table, you thereafter always have the listed spells prepared.</p><ul><li>Level 3: Aid, Bless, Cure Wounds, Lesser Restoration</li><li>Level 5: Mass Healing Word, Revivify</li><li>Level 7: Aura of Life, Death Ward</li><li>Level 9: Greater Restoration, Mass Cure Wounds</li></ul>",
+              "effects": [
+                {
+                  "target": "spell.aid",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('cleric') >= 3",
+                  "label": "Life Domain Spells"
+                },
+                {
+                  "target": "spell.bless",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('cleric') >= 3",
+                  "label": "Life Domain Spells"
+                },
+                {
+                  "target": "spell.cure-wounds",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('cleric') >= 3",
+                  "label": "Life Domain Spells"
+                },
+                {
+                  "target": "spell.lesser-restoration",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('cleric') >= 3",
+                  "label": "Life Domain Spells"
+                },
+                {
+                  "target": "spell.mass-healing-word",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('cleric') >= 5",
+                  "label": "Life Domain Spells"
+                },
+                {
+                  "target": "spell.revivify",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('cleric') >= 5",
+                  "label": "Life Domain Spells"
+                },
+                {
+                  "target": "spell.aura-of-life",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('cleric') >= 7",
+                  "label": "Life Domain Spells"
+                },
+                {
+                  "target": "spell.death-ward",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('cleric') >= 7",
+                  "label": "Life Domain Spells"
+                },
+                {
+                  "target": "spell.greater-restoration",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('cleric') >= 9",
+                  "label": "Life Domain Spells"
+                },
+                {
+                  "target": "spell.mass-cure-wounds",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('cleric') >= 9",
+                  "label": "Life Domain Spells"
+                }
+              ]
+            },
+            {
+              "key": "life-domain.preserve-life",
+              "name": "Preserve Life",
+              "level": 3,
+              "description": "<p>As a Magic action, you present your Holy Symbol and expend a use of your Channel Divinity to evoke healing energy that can restore a number of Hit Points equal to five times your Cleric level. Choose Bloodied creatures within 30 feet of yourself (which can include you), and divide those Hit Points among them. This feature can restore a creature to no more than half its Hit Point maximum.</p>"
+            },
+            {
+              "key": "life-domain.blessed-healer",
+              "name": "Blessed Healer",
+              "level": 6,
+              "description": "<p>The healing spells you cast on others heal you as well. Immediately after you cast a spell with a spell slot that restores Hit Points to one or more creatures other than yourself, you regain Hit Points equal to 2 plus the spell slot’s level.</p>"
+            },
+            {
+              "key": "life-domain.supreme-healing",
+              "name": "Supreme Healing",
+              "level": 17,
+              "description": "<p>When you would normally roll one or more dice to restore Hit Points to a creature with a spell or Channel Divinity, don’t roll those dice for the healing; instead use the highest number possible for each die. For example, instead of restoring 2d6 Hit Points to a creature with a spell, you restore 12.</p>"
+            }
+          ]
+        },
+        {
+          "key": "light-domain",
+          "name": "Light Domain",
+          "description": "<p>Bring light to banish darkness. The Light Domain emphasizes the divine power to bring about blazing fire and revelation. Clerics who wield this power are enlightened souls infused with radiance and the power of their deities’ discerning vision, charged with chasing away lies and burning away darkness.</p>",
+          "features": [
+            {
+              "key": "light-domain.domain-spells",
+              "name": "Light Domain Spells",
+              "level": 3,
+              "description": "<p>Your connection to this divine domain ensures you always have certain spells ready. When you reach a Cleric level specified in the Light Domain Spells table, you thereafter always have the listed spells prepared.</p><ul><li>Level 3: Burning Hands, Faerie Fire, Scorching Ray, See Invisibility</li><li>Level 5: Daylight, Fireball</li><li>Level 7: Arcane Eye, Wall of Fire</li><li>Level 9: Flame Strike, Scrying</li></ul>",
+              "effects": [
+                {
+                  "target": "spell.burning-hands",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('cleric') >= 3",
+                  "label": "Light Domain Spells"
+                },
+                {
+                  "target": "spell.faerie-fire",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('cleric') >= 3",
+                  "label": "Light Domain Spells"
+                },
+                {
+                  "target": "spell.scorching-ray",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('cleric') >= 3",
+                  "label": "Light Domain Spells"
+                },
+                {
+                  "target": "spell.see-invisibility",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('cleric') >= 3",
+                  "label": "Light Domain Spells"
+                },
+                {
+                  "target": "spell.daylight",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('cleric') >= 5",
+                  "label": "Light Domain Spells"
+                },
+                {
+                  "target": "spell.fireball",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('cleric') >= 5",
+                  "label": "Light Domain Spells"
+                },
+                {
+                  "target": "spell.arcane-eye",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('cleric') >= 7",
+                  "label": "Light Domain Spells"
+                },
+                {
+                  "target": "spell.wall-of-fire",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('cleric') >= 7",
+                  "label": "Light Domain Spells"
+                },
+                {
+                  "target": "spell.flame-strike",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('cleric') >= 9",
+                  "label": "Light Domain Spells"
+                },
+                {
+                  "target": "spell.scrying",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('cleric') >= 9",
+                  "label": "Light Domain Spells"
+                }
+              ]
+            },
+            {
+              "key": "light-domain.radiance-of-the-dawn",
+              "name": "Radiance of the Dawn",
+              "level": 3,
+              "description": "<p>As a Magic action, you present your Holy Symbol and expend a use of your Channel Divinity to emit a flash of light in a 30-foot Emanation originating from yourself. Any magical Darkness—such as that created by the Darkness spell—in that area is dispelled. Additionally, each creature of your choice in that area must make a Constitution saving throw, taking Radiant damage equal to 2d10 plus your Cleric level on a failed save or half as much damage on a successful one.</p>"
+            },
+            {
+              "key": "light-domain.warding-flare",
+              "name": "Warding Flare",
+              "level": 3,
+              "description": "<p>When a creature that you can see within 30 feet of yourself makes an attack roll, you can take a Reaction to impose Disadvantage on the attack roll, causing light to flare before it hits or misses.</p><p>You can use this feature a number of times equal to your Wisdom modifier (minimum of once). You regain all expended uses when you finish a Long Rest.</p>",
+              "resources": [
+                {
+                  "key": "warding-flare",
+                  "name": "Warding Flare",
+                  "max": "max(1, mod('wis'))",
+                  "recharge": "LongRest",
+                  "shortRest": "classLevel('cleric') >= 6"
+                }
+              ]
+            },
+            {
+              "key": "light-domain.improved-warding-flare",
+              "name": "Improved Warding Flare",
+              "level": 6,
+              "description": "<p>You regain all expended uses of your Warding Flare when you finish a Short or Long Rest.</p><p>In addition, whenever you use Warding Flare, you can give the target of the triggering attack a number of Temporary Hit Points equal to 2d6 plus your Wisdom modifier.</p>"
+            },
+            {
+              "key": "light-domain.corona-of-light",
+              "name": "Corona of Light",
+              "level": 17,
+              "description": "<p>As a Magic action, you cause yourself to emit an aura of sunlight that lasts for 1 minute or until you dismiss it (no action required). You emit Bright Light in a 60-foot radius and Dim Light for an additional 30 feet. Your enemies in the Bright Light have Disadvantage on saving throws against your Radiance of the Dawn and any spell that deals Fire or Radiant damage.</p><p>You can use this feature a number of times equal to your Wisdom modifier (minimum of once), and you regain all expended uses when you finish a Long Rest.</p>",
+              "resources": [
+                {
+                  "key": "corona-of-light",
+                  "name": "Corona of Light",
+                  "max": "max(1, mod('wis'))",
+                  "recharge": "LongRest"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "trickery-domain",
+          "name": "Trickery Domain",
+          "description": "<p>Make mischief and challenge authority. The Trickery Domain offers magic of deception, illusion, and stealth. Clerics who wield this magic are a disruptive force in the world, puncturing pride, mocking tyrants, freeing captives, and flouting hollow traditions.</p>",
+          "features": [
+            {
+              "key": "trickery-domain.blessing-of-the-trickster",
+              "name": "Blessing of the Trickster",
+              "level": 3,
+              "description": "<p>As a Magic action, you can choose yourself or a willing creature within 30 feet of yourself to have Advantage on Dexterity (Stealth) checks. This blessing lasts until you finish a Long Rest or you use this feature again.</p>"
+            },
+            {
+              "key": "trickery-domain.invoke-duplicity",
+              "name": "Invoke Duplicity",
+              "level": 3,
+              "description": "<p>As a Bonus Action, you can expend one use of your Channel Divinity to create a perfect visual illusion of yourself in an unoccupied space you can see within 30 feet of yourself. The illusion is intangible and doesn’t occupy its space. It lasts for 1 minute, but it ends early if you dismiss it (no action required) or have the Incapacitated condition. The illusion is animated and mimics your expressions and gestures. While it persists, you gain the following benefits.</p><p><strong><em>Cast Spells.</em></strong> You can cast spells as though you were in the illusion’s space, but you must use your own senses.</p><p><strong><em>Distract.</em></strong> When both you and your illusion are within 5 feet of a creature that can see the illusion, you have Advantage on attack rolls against that creature, given how distracting the illusion is to the target.</p><p><strong><em>Move.</em></strong> As a Bonus Action, you can move the illusion up to 30 feet to an unoccupied space you can see that is within 120 feet of yourself.</p>"
+            },
+            {
+              "key": "trickery-domain.domain-spells",
+              "name": "Trickery Domain Spells",
+              "level": 3,
+              "description": "<p>Your connection to this divine domain ensures you always have certain spells ready. When you reach a Cleric level specified in the Trickery Domain Spells table, you thereafter always have the listed spells prepared.</p><ul><li>Level 3: Charm Person, Disguise Self, Invisibility, Pass without Trace</li><li>Level 5: Hypnotic Pattern, Nondetection</li><li>Level 7: Confusion, Dimension Door</li><li>Level 9: Dominate Person, Modify Memory</li></ul>",
+              "effects": [
+                {
+                  "target": "spell.charm-person",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('cleric') >= 3",
+                  "label": "Trickery Domain Spells"
+                },
+                {
+                  "target": "spell.disguise-self",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('cleric') >= 3",
+                  "label": "Trickery Domain Spells"
+                },
+                {
+                  "target": "spell.invisibility",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('cleric') >= 3",
+                  "label": "Trickery Domain Spells"
+                },
+                {
+                  "target": "spell.pass-without-trace",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('cleric') >= 3",
+                  "label": "Trickery Domain Spells"
+                },
+                {
+                  "target": "spell.hypnotic-pattern",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('cleric') >= 5",
+                  "label": "Trickery Domain Spells"
+                },
+                {
+                  "target": "spell.nondetection",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('cleric') >= 5",
+                  "label": "Trickery Domain Spells"
+                },
+                {
+                  "target": "spell.confusion",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('cleric') >= 7",
+                  "label": "Trickery Domain Spells"
+                },
+                {
+                  "target": "spell.dimension-door",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('cleric') >= 7",
+                  "label": "Trickery Domain Spells"
+                },
+                {
+                  "target": "spell.dominate-person",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('cleric') >= 9",
+                  "label": "Trickery Domain Spells"
+                },
+                {
+                  "target": "spell.modify-memory",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('cleric') >= 9",
+                  "label": "Trickery Domain Spells"
+                }
+              ]
+            },
+            {
+              "key": "trickery-domain.tricksters-transposition",
+              "name": "Trickster’s Transposition",
+              "level": 6,
+              "description": "<p>Whenever you take the Bonus Action to create or move the illusion of your Invoke Duplicity, you can teleport, swapping places with the illusion.</p>"
+            },
+            {
+              "key": "trickery-domain.improved-duplicity",
+              "name": "Improved Duplicity",
+              "level": 17,
+              "description": "<p>The illusion of your Invoke Duplicity has grown more powerful in the following ways.</p><p><strong><em>Shared Distraction.</em></strong> When you and your allies make attack rolls against a creature within 5 feet of the illusion, the attack rolls have Advantage.</p><p><strong><em>Healing Illusion.</em></strong> When the illusion ends, you or a creature of your choice within 5 feet of it regains a number of Hit Points equal to your Cleric level.</p>"
+            }
+          ]
+        },
+        {
+          "key": "war-domain",
+          "name": "War Domain",
+          "description": "<p>Inspire valor and smite foes. War has many manifestations. It can make heroes of ordinary people. Clerics who tap into the magic of the War Domain excel in battle, inspiring others to fight the good fight or offering acts of violence as prayers.</p>",
+          "features": [
+            {
+              "key": "war-domain.guided-strike",
+              "name": "Guided Strike",
+              "level": 3,
+              "description": "<p>When you or a creature within 30 feet of you misses with an attack roll, you can expend one use of your Channel Divinity and give that roll a +10 bonus, potentially causing it to hit. When you use this feature to benefit another creature’s attack roll, you must take a Reaction to do so.</p>"
+            },
+            {
+              "key": "war-domain.domain-spells",
+              "name": "War Domain Spells",
+              "level": 3,
+              "description": "<p>Your connection to this divine domain ensures you always have certain spells ready. When you reach a Cleric level specified in the War Domain Spells table, you thereafter always have the listed spells prepared.</p><ul><li>Level 3: Guiding Bolt, Magic Weapon, Shield of Faith, Spiritual Weapon</li><li>Level 5: Crusader’s Mantle, Spirit Guardians</li><li>Level 7: Fire Shield, Freedom of Movement</li><li>Level 9: Hold Monster, Steel Wind Strike</li></ul>",
+              "effects": [
+                {
+                  "target": "spell.guiding-bolt",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('cleric') >= 3",
+                  "label": "War Domain Spells"
+                },
+                {
+                  "target": "spell.magic-weapon",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('cleric') >= 3",
+                  "label": "War Domain Spells"
+                },
+                {
+                  "target": "spell.shield-of-faith",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('cleric') >= 3",
+                  "label": "War Domain Spells"
+                },
+                {
+                  "target": "spell.spiritual-weapon",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('cleric') >= 3",
+                  "label": "War Domain Spells"
+                },
+                {
+                  "target": "spell.crusaders-mantle",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('cleric') >= 5",
+                  "label": "War Domain Spells"
+                },
+                {
+                  "target": "spell.spirit-guardians",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('cleric') >= 5",
+                  "label": "War Domain Spells"
+                },
+                {
+                  "target": "spell.fire-shield",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('cleric') >= 7",
+                  "label": "War Domain Spells"
+                },
+                {
+                  "target": "spell.freedom-of-movement",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('cleric') >= 7",
+                  "label": "War Domain Spells"
+                },
+                {
+                  "target": "spell.hold-monster",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('cleric') >= 9",
+                  "label": "War Domain Spells"
+                },
+                {
+                  "target": "spell.steel-wind-strike",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('cleric') >= 9",
+                  "label": "War Domain Spells"
+                }
+              ]
+            },
+            {
+              "key": "war-domain.war-priest",
+              "name": "War Priest",
+              "level": 3,
+              "description": "<p>As a Bonus Action, you can make one attack with a weapon or an Unarmed Strike. You can use this Bonus Action a number of times equal to your Wisdom modifier (minimum of once). You regain all expended uses when you finish a Short or Long Rest.</p>",
+              "resources": [
+                {
+                  "key": "war-priest",
+                  "name": "War Priest",
+                  "max": "max(1, mod('wis'))",
+                  "recharge": "ShortRest"
+                }
+              ]
+            },
+            {
+              "key": "war-domain.war-gods-blessing",
+              "name": "War God’s Blessing",
+              "level": 6,
+              "description": "<p>You can expend a use of your Channel Divinity to cast Shield of Faith or Spiritual Weapon rather than expending a spell slot. When you cast either spell in this way, the spell doesn’t require Concentration. Instead the spell lasts for 1 minute, but it ends early if you cast that spell again, have the Incapacitated condition, or die.</p>"
+            },
+            {
+              "key": "war-domain.avatar-of-battle",
+              "name": "Avatar of Battle",
+              "level": 17,
+              "description": "<p>You gain Resistance to Bludgeoning, Piercing, and Slashing damage.</p>",
+              "effects": [
+                {
+                  "target": "damage.resist.bludgeoning",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Avatar of Battle"
+                },
+                {
+                  "target": "damage.resist.piercing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Avatar of Battle"
+                },
+                {
+                  "target": "damage.resist.slashing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Avatar of Battle"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
