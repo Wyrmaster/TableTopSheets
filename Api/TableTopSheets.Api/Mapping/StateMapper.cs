@@ -45,17 +45,35 @@ public static class StateMapper
     };
   }
 
-  public static CharacterSummaryDto Summary(CharacterEvaluation evaluation)
+  /// <summary>
+  ///   Summary of a character with its levels; the names come from the given rule rows instead of an evaluation
+  /// </summary>
+  public static CharacterSummaryDto Summary
+  (
+    Character character,
+    IReadOnlyDictionary<Guid, CharacterClass> classes,
+    IReadOnlyDictionary<Guid, string> species,
+    IReadOnlyDictionary<Guid, string> backgrounds
+  )
   {
-    Character character = evaluation.Character;
+    List<CharacterLevel> levels = character.Levels.OrderBy(entry => entry.Number).ToList();
     return new CharacterSummaryDto
     (
       character.Id,
       character.Name,
-      evaluation.TotalLevel,
-      character.SpeciesId is { } species ? evaluation.Catalog.Species[species].Name : string.Empty,
-      character.BackgroundId is { } background ? evaluation.Catalog.Backgrounds[background].Name : string.Empty,
-      Classes(evaluation)
+      levels.Count,
+      character.SpeciesId is { } speciesId ? species[speciesId] : string.Empty,
+      character.BackgroundId is { } backgroundId ? backgrounds[backgroundId] : string.Empty,
+      levels
+        .GroupBy(entry => entry.ClassId)
+        .Select(group =>
+        {
+          CharacterClass @class = classes[group.Key];
+          Guid? subclassId = group.Select(entry => entry.SubclassId).LastOrDefault(entry => entry != null);
+          string? subclass = subclassId is { } id ? @class.Subclasses.Single(entry => entry.Id == id).Key : null;
+          return new ClassLevelDto(@class.Key, @class.Name, group.Count(), subclass);
+        })
+        .ToList()
     );
   }
 

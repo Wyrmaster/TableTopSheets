@@ -28,9 +28,8 @@ builder.Services.AddDbContext<TableTopSheetsContext>(options =>
   }
 });
 
-// the catalog is loaded once on startup (see below) and shared; it is immutable
-builder.Services.AddSingleton<RulesCatalogHolder>();
-builder.Services.AddSingleton<RulesCatalog>(services => services.GetRequiredService<RulesCatalogHolder>().Catalog);
+// rules are read from the database per request; the loader reuses what it read within the request
+builder.Services.AddScoped<RulesCatalogLoader>();
 builder.Services.AddScoped<CharacterService>();
 
 builder.Services.ConfigureHttpJsonOptions(options => options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
@@ -40,7 +39,7 @@ builder.Services.AddOpenApi();
 
 WebApplication app = builder.Build();
 
-app.Services.GetRequiredService<RulesCatalogHolder>().Catalog = await DatabaseInitializer.InitializeAsync(app.Services);
+await DatabaseInitializer.InitializeAsync(app.Services);
 
 app.UseExceptionHandler();
 app.UseStatusCodePages();

@@ -4,7 +4,6 @@ using TableTopSheets.Engine.Evaluation;
 using TableTopSheets.Engine.Expressions;
 using TableTopSheets.Engine.Rules;
 using TableTopSheets.Persistence.Entity.Rules;
-using TableTopSheets.Persistence.Entity.Rules.Items;
 
 namespace TableTopSheets.Engine.Choices;
 
@@ -20,6 +19,11 @@ public static class ChoiceService
   ///   at all, unlike options that are merely unavailable right now
   /// </summary>
   public const string NotPartOfChoice = "Not part of this choice";
+
+  /// <summary>
+  ///   Choices with at most this many available options embed them in the pending choice
+  /// </summary>
+  public const int EmbeddedOptionLimit = 30;
 
   #endregion
 
@@ -69,29 +73,7 @@ public static class ChoiceService
     OptionSourceEnum.Static => choice.Options.Select(entry => new OptionDescriptor(entry.Key, entry.Name, Value: entry.Value, PrerequisiteExpr: entry.PrerequisiteExpr)),
     OptionSourceEnum.Ability => RuleKeys.Abilities.Select(entry => new OptionDescriptor(entry, Naming.Title(entry))),
     OptionSourceEnum.Skill => RuleKeys.Skills.Select(entry => new OptionDescriptor(entry, Naming.Title(entry))),
-    OptionSourceEnum.Tool => catalog.Items.Values.OfType<Tool>().Select(entry => new OptionDescriptor(entry.Key, entry.Name, Category: entry.Group)),
-    OptionSourceEnum.Language => catalog.Languages.Values.Select(entry => new OptionDescriptor(entry.Key, entry.Name, Category: entry.Rare ? "rare" : "standard")),
-    OptionSourceEnum.Spell => catalog.Spells.Values.Select(entry => new OptionDescriptor
-    (
-      entry.Key,
-      entry.Name,
-      entry.Level,
-      entry.School.ToString().ToLowerInvariant(),
-      entry.Ritual,
-      Damage: entry.Damage != null
-    ) { Lists = entry.Lists }),
-    OptionSourceEnum.Feat => catalog.Feats.Values.Select(entry => new OptionDescriptor
-    (
-      entry.Key,
-      entry.Name,
-      Category: FeatCategoryKey(entry.Category),
-      Repeatable: entry.Repeatable,
-      PrerequisiteExpr: entry.PrerequisiteExpr
-    )),
-    OptionSourceEnum.FeatureCategory => catalog.FeaturesByCategory.GetValueOrDefault(choice.Category ?? string.Empty, [])
-      .Select(entry => new OptionDescriptor(entry.Key, entry.Name, entry.Level ?? 0, Category: entry.Category, PrerequisiteExpr: entry.PrerequisiteExpr)),
-    OptionSourceEnum.Item => catalog.Items.Values.Select(entry => new OptionDescriptor(entry.Key, entry.Name, Category: entry.Kind.ToString().ToLowerInvariant())),
-    OptionSourceEnum.Weapon => catalog.Items.Values.OfType<Weapon>().Select(entry => new OptionDescriptor(entry.Key, entry.Name, Category: entry.Category.ToString().ToLowerInvariant())),
+    _ when OptionProjections.FromTable(choice.OptionSource) => catalog.OptionList(choice),
     _ => [],
   };
 

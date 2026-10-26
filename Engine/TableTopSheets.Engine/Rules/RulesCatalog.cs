@@ -1,4 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using TableTopSheets.Common.Enum.Rules;
+using TableTopSheets.Engine.Choices;
+using TableTopSheets.Engine.Evaluation;
 using TableTopSheets.Persistence;
 using TableTopSheets.Persistence.Entity.Rules;
 using TableTopSheets.Persistence.Entity.Rules.Items;
@@ -6,12 +9,28 @@ using TableTopSheets.Persistence.Entity.Rules.Items;
 namespace TableTopSheets.Engine.Rules;
 
 /// <summary>
-///   Complete, read only snapshot of the rule tables. Loaded once and shared by every evaluation
+///   Rules an evaluation works with. Either the rules one character needs (read per request by <see cref="RulesCatalogLoader"/>)
+///   or every rule (seed validation, <see cref="LoadAsync"/>)
 /// </summary>
 public sealed class RulesCatalog
 {
+  #region Fields
+
+  private static readonly OptionText NoText = new(null, []);
+
+  private readonly bool _complete;
+  private readonly Dictionary<string, IReadOnlyList<OptionDescriptor>> _optionLists;
+  private readonly Dictionary<(Guid ChoiceId, string Key), OptionText> _texts = new();
+
+  #endregion
+
   #region Constructor
 
+  /// <param name="optionLists">
+  ///   options of the choices whose options come from a rule table (see <see cref="OptionProjections.ListKey"/>); null when the
+  ///   catalog holds every rule, the options are then built from the given entities
+  /// </param>
+  /// <param name="extraChoices">choices that are not part of the given features (names of orphaned selections)</param>
   public RulesCatalog
   (
     IEnumerable<CharacterClass> classes,
@@ -24,7 +43,9 @@ public sealed class RulesCatalog
     IEnumerable<Spell> spells,
     IEnumerable<Item> items,
     IEnumerable<Language> languages,
-    IEnumerable<WeaponMastery> masteries
+    IEnumerable<WeaponMastery> masteries,
+    IReadOnlyDictionary<string, IReadOnlyList<OptionDescriptor>>? optionLists = null,
+    IEnumerable<Choice>? extraChoices = null
   )
   {
     this.Classes = classes.ToDictionary(entry => entry.Id);
@@ -44,7 +65,13 @@ public sealed class RulesCatalog
     this.FeaturesByKey = this.Features.Values.ToDictionary(entry => entry.Key);
     this.SpellsByKey = this.Spells.Values.ToDictionary(entry => entry.Key);
     this.ItemsByKey = this.Items.Values.ToDictionary(entry => entry.Key);
-    this.Choices = this.Features.Values.SelectMany(entry => entry.Choices).ToDictionary(entry => entry.Id);
+    Dictionary<Guid, Choice> choices = this.Features.Values.SelectMany(entry => entry.Choices).ToDictionary(entry => entry.Id);
+    foreach (Choice choice in extraChoices ?? [])
+    {
+      choices.TryAdd(choice.Id, choice);
+    }
+
+    this.Choices = choices;
     this.ChoicesByKey = this.Choices.Values.ToDictionary(entry => entry.Key);
     this.Resources = this.Features.Values.SelectMany(entry => entry.Resources).ToList();
     this.FeaturesByCategory = this.Features.Values
@@ -78,6 +105,9 @@ public sealed class RulesCatalog
             }
           )
       );
+
+    this._complete = optionLists == null;
+    this._optionLists = optionLists?.ToDictionary() ?? this.BuildOptionLists();
   }
 
   #endregion
@@ -136,7 +166,7 @@ public sealed class RulesCatalog
   #region Methods
 
   /// <summary>
-  ///   Load the complete rule set from the database
+  ///   Load every rule from the database (seed validation; evaluations use <see cref="RulesCatalogLoader"/>)
   /// </summary>
   public static async Task<RulesCatalog> LoadAsync(TableTopSheetsContext context, CancellationToken cancellationToken = default)
   {
@@ -198,5 +228,81 @@ public sealed class RulesCatalog
     return feature.SubclassId is { } subclassId ? this.Classes[this.Subclasses[subclassId].ClassId] : null;
   }
 
+  /// <summary>
+  ///   Every option of a choice whose options come from a rule table (see <see cref="OptionProjections.FromTable"/>)
+  /// </summary>
+  public IReadOnlyList<OptionDescriptor> OptionList(Choice choice)
+    => this._optionLists.TryGetValue(OptionProjections.ListKey(choice), out IReadOnlyList<OptionDescriptor>? options)
+      ? options
+      : this._complete
+        ? []
+        : throw new InvalidOperationException($"The options of '{choice.Key}' were not loaded");
+
+  /// <summary>
+  ///   Option lists the catalog holds
+  /// </summary>
+  public bool HasOptionList(string listKey) => this._optionLists.ContainsKey(listKey);
+
+  /// <summary>
+  ///   Description and granted feature names of an option; false when the catalog doesn't know them yet
+  ///   (<see cref="RulesCatalogLoader.DescribeAsync"/> reads them)
+  /// </summary>
+  public bool TryDescribe(Choice choice, string optionKey, out OptionText text)
+  {
+    if (this._texts.TryGetValue((choice.Id, optionKey), out OptionText? stored))
+    {
+      text = stored;
+      return true;
+    }
+
+    OptionText? found = choice.OptionSource switch
+    {
+      OptionSourceEnum.Static => choice.Options.FirstOrDefault(entry => entry.Key == optionKey)?.GrantsFeatureId is { } featureId
+        ? this.Features.TryGetValue(featureId, out Feature? granted) ? new OptionText(granted.DescriptionHtml, [granted.Name]) : null
+        : NoText,
+      OptionSourceEnum.Spell => this.SpellsByKey.TryGetValue(optionKey, out Spell? spell) ? new OptionText(spell.DescriptionHtml, []) : null,
+      OptionSourceEnum.Feat => this.FeatsByKey.TryGetValue(optionKey, out Feat? feat) ? new OptionText(feat.DescriptionHtml, []) : null,
+      OptionSourceEnum.FeatureCategory => this.FeaturesByKey.TryGetValue(optionKey, out Feature? feature) ? new OptionText(feature.DescriptionHtml, []) : null,
+      OptionSourceEnum.Tool or OptionSourceEnum.Item or OptionSourceEnum.Weapon
+        => this.ItemsByKey.TryGetValue(optionKey, out Item? item) ? new OptionText(item.DescriptionHtml, []) : null,
+      OptionSourceEnum.Language => this.Languages.TryGetValue(optionKey, out Language? language) ? new OptionText(language.DescriptionHtml, []) : null,
+      _ => NoText,
+    };
+
+    text = found ?? NoText;
+    return found != null || this._complete;
+  }
+
+  /// <summary>
+  ///   Description and granted feature names of an option (empty when unknown)
+  /// </summary>
+  public OptionText Describe(Choice choice, string optionKey) => this.TryDescribe(choice, optionKey, out OptionText text) ? text : NoText;
+
+  internal void AddText(Guid choiceId, string optionKey, OptionText text) => this._texts[(choiceId, optionKey)] = text;
+
+  private Dictionary<string, IReadOnlyList<OptionDescriptor>> BuildOptionLists()
+  {
+    Dictionary<string, IReadOnlyList<OptionDescriptor>> lists = new()
+    {
+      [nameof(OptionSourceEnum.Tool)] = this.Items.Values.OfType<Tool>().Select(OptionProjections.ToolOption).ToList(),
+      [nameof(OptionSourceEnum.Language)] = this.Languages.Values.Select(OptionProjections.LanguageOption).ToList(),
+      [nameof(OptionSourceEnum.Spell)] = this.Spells.Values.Select(OptionProjections.SpellOption).ToList(),
+      [nameof(OptionSourceEnum.Feat)] = this.Feats.Values.Select(OptionProjections.FeatOption).ToList(),
+      [nameof(OptionSourceEnum.Item)] = this.Items.Values.Select(OptionProjections.ItemOption).ToList(),
+      [nameof(OptionSourceEnum.Weapon)] = this.Items.Values.OfType<Weapon>().Select(OptionProjections.WeaponOption).ToList(),
+    };
+    foreach ((string category, IReadOnlyList<Feature> features) in this.FeaturesByCategory)
+    {
+      lists[$"{OptionSourceEnum.FeatureCategory}:{category}"] = features.Select(OptionProjections.FeatureOption).ToList();
+    }
+
+    return lists;
+  }
+
   #endregion
 }
+
+/// <summary>
+///   Description html of an option and the names of the features it grants
+/// </summary>
+public sealed record OptionText(string? Html, IReadOnlyList<string> Grants);

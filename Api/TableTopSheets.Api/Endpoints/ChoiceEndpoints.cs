@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
 using TableTopSheets.Api.Contracts;
 using TableTopSheets.Api.Mapping;
 using TableTopSheets.Api.Querying;
@@ -6,6 +7,7 @@ using TableTopSheets.Engine.Choices;
 using TableTopSheets.Engine.Evaluation;
 using TableTopSheets.Engine.Rules;
 using TableTopSheets.Engine.Services;
+using TableTopSheets.Persistence;
 using TableTopSheets.Persistence.Entity.Rules;
 
 namespace TableTopSheets.Api.Endpoints;
@@ -48,7 +50,7 @@ public static class ChoiceEndpoints
   }
 
   private static async Task<Ok<IReadOnlyList<PendingChoiceDto>>> Pending(CharacterService service, Guid id, CancellationToken cancellationToken)
-    => TypedResults.Ok(ChoiceMapper.Pending(service.Evaluate(await service.LoadAsync(id, cancellationToken))));
+    => TypedResults.Ok(ChoiceMapper.Pending(await service.EvaluateAsync(await service.LoadAsync(id, cancellationToken), cancellationToken)));
 
   private static async Task<Ok<CharacterStateDto>> Select(CharacterService service, Guid id, SelectionsDto dto, CancellationToken cancellationToken)
     => TypedResults.Ok(StateMapper.State(await service.SelectAsync(id, RequestMapper.Selections(dto.Selections), cancellationToken)));
@@ -74,7 +76,8 @@ public static class ChoiceEndpoints
   private static async Task<Ok<PagedResult<OptionDto>>> Options
   (
     CharacterService service,
-    RulesCatalog catalog,
+    RulesCatalogLoader rules,
+    TableTopSheetsContext context,
     Guid id,
     string choiceKey,
     [AsParameters] OptionQuery filter,
@@ -82,25 +85,29 @@ public static class ChoiceEndpoints
     CancellationToken cancellationToken
   )
   {
-    Choice choice = catalog.ChoicesByKey.GetValueOrDefault(choiceKey) ?? throw new RuleViolationException($"Unknown choice '{choiceKey}'");
+    if (!await context.Choices.AnyAsync(entry => entry.Key == choiceKey, cancellationToken))
+    {
+      throw new RuleViolationException($"Unknown choice '{choiceKey}'");
+    }
+
     Guid? parent = null;
     if (filter.ParentRef != null)
     {
       parent = Guid.TryParse(filter.ParentRef, out Guid value) ? value : throw new QueryException("parentRef", "parentRef has to be the id of a selection");
     }
 
-    List<OptionAvailability> options;
+    ChoiceOptions options;
     if (filter.Preview != null)
     {
       (string classKey, string? subclassKey) = RequestMapper.Preview(filter.Preview);
-      options = await service.PreviewLevelUpAsync(id, classKey, subclassKey, evaluation => Evaluate(evaluation, choice, parent), cancellationToken);
+      options = await service.PreviewLevelUpAsync(id, classKey, subclassKey, evaluation => Evaluate(evaluation, choiceKey, parent), cancellationToken);
     }
     else
     {
-      options = Evaluate(service.Evaluate(await service.LoadAsync(id, cancellationToken)), choice, parent);
+      options = Evaluate(await service.EvaluateAsync(await service.LoadAsync(id, cancellationToken), cancellationToken), choiceKey, parent);
     }
 
-    return TypedResults.Ok(options
+    PagedResult<OptionAvailability> page = options.Options
       .Where(entry => entry.Reason != ChoiceService.NotPartOfChoice)
       .WhereIf(filter.IncludeDisabled != true, entry => entry.Available)
       .WhereIf(filter.Level != null, entry => entry.Option.Level == filter.Level)
@@ -110,25 +117,40 @@ public static class ChoiceEndpoints
       .WhereIf(filter.Ritual != null, entry => entry.Option.Ritual == filter.Ritual)
       .WhereIf(filter.Damage != null, entry => entry.Option.Damage == filter.Damage)
       .WhereIf(filter.Category != null, entry => string.Equals(entry.Option.Category, filter.Category, StringComparison.OrdinalIgnoreCase))
-      .ToPaged(query, OptionSorts, entry => [entry.Option.Name, entry.Option.Key], defaultSort: null)
-      .Select(entry => ChoiceMapper.Option(catalog, choice, entry.Option, entry.Reason, filter.IncludeDescriptions == true)));
+      .ToPaged(query, OptionSorts, entry => [entry.Option.Name, entry.Option.Key], defaultSort: null);
+
+    // descriptions are only read for the options of the page
+    await rules.DescribeAsync(options.Catalog, page.Items.Select(entry => (options.Choice, entry.Option.Key)), cancellationToken);
+    return TypedResults.Ok(page.Select(entry => ChoiceMapper.Option(options.Catalog, options.Choice, entry.Option, entry.Reason, filter.IncludeDescriptions == true)));
   }
 
-  private static List<OptionAvailability> Evaluate(CharacterEvaluation evaluation, Choice choice, Guid? parent)
+  private static ChoiceOptions Evaluate(CharacterEvaluation evaluation, string choiceKey, Guid? parent)
   {
+    string scope = parent == null ? string.Empty : $" for selection {parent}";
+    Choice choice = evaluation.Catalog.ChoicesByKey.GetValueOrDefault(choiceKey)
+                    ?? throw new RuleViolationException($"'{choiceKey}' is not an available choice{scope}");
     FeatureInstance owner = ChoiceService.FindOwner(evaluation, choice, parent)
-                            ?? throw new RuleViolationException($"'{choice.Key}' is not an available choice{(parent == null ? string.Empty : $" for selection {parent}")}");
-    return ChoiceService.EvaluateOptions(evaluation, choice, owner).ToList();
+                            ?? throw new RuleViolationException($"'{choice.Key}' is not an available choice{scope}");
+    return new ChoiceOptions(evaluation.Catalog, choice, ChoiceService.EvaluateOptions(evaluation, choice, owner).ToList());
   }
 
   private static async Task<Ok<IReadOnlyList<SelectionInfoDto>>> Selections(CharacterService service, Guid id, CancellationToken cancellationToken)
-    => TypedResults.Ok(StateMapper.Selections(service.Evaluate(await service.LoadAsync(id, cancellationToken))));
+    => TypedResults.Ok(StateMapper.Selections(await service.EvaluateAsync(await service.LoadAsync(id, cancellationToken), cancellationToken)));
 
   private static async Task<Ok<CharacterStateDto>> Deselect(CharacterService service, Guid id, Guid selectionId, CancellationToken cancellationToken)
     => TypedResults.Ok(StateMapper.State(await service.DeselectAsync(id, selectionId, cancellationToken)));
 
   private static async Task<Ok<CharacterStateDto>> RestReplace(CharacterService service, Guid id, Guid selectionId, RestReplaceDto dto, CancellationToken cancellationToken)
     => TypedResults.Ok(StateMapper.State(await service.ReplaceOnRestAsync(id, selectionId, dto.OptionKey, cancellationToken)));
+
+  #endregion
+
+  #region Nested Types
+
+  /// <summary>
+  ///   Options of a choice instance with the rules they were evaluated against
+  /// </summary>
+  private sealed record ChoiceOptions(RulesCatalog Catalog, Choice Choice, List<OptionAvailability> Options);
 
   #endregion
 }

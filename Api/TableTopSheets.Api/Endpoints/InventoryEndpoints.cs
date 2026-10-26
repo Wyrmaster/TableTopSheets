@@ -27,7 +27,7 @@ public static class InventoryEndpoints
   private static async Task<Ok<CharacterStateDto>> AddItem(CharacterService service, Guid id, AddItemDto dto, CancellationToken cancellationToken)
   {
     await service.AddItemAsync(id, dto.ItemKey, dto.Quantity, cancellationToken);
-    return TypedResults.Ok(StateMapper.State(service.Evaluate(await service.LoadAsync(id, cancellationToken))));
+    return TypedResults.Ok(StateMapper.State(await service.EvaluateAsync(await service.LoadAsync(id, cancellationToken), cancellationToken)));
   }
 
   private static async Task<Ok<CharacterStateDto>> Equip(CharacterService service, Guid id, Guid itemId, EquipDto dto, CancellationToken cancellationToken)

@@ -17,7 +17,7 @@ namespace TableTopSheets.Engine.Services;
 ///   All changes to a character go through this service. Every change is validated against a fresh evaluation and either
 ///   applied completely or not at all
 /// </summary>
-public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog catalog)
+public sealed class CharacterService(TableTopSheetsContext context, RulesCatalogLoader rules)
 {
   #region Constants
 
@@ -46,10 +46,18 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
          .SingleOrDefaultAsync(entry => entry.Id == characterId, cancellationToken)
        ?? throw new CharacterNotFoundException(characterId);
 
-  public CharacterEvaluation Evaluate(Character character) => new(catalog, character);
+  /// <summary>
+  ///   Evaluate a character against the rules it needs, including the descriptions of the options its pending choices embed
+  /// </summary>
+  public async Task<CharacterEvaluation> EvaluateAsync(Character character, CancellationToken cancellationToken = default)
+  {
+    CharacterEvaluation evaluation = await this.EvaluateRulesAsync(character, cancellationToken);
+    await rules.DescribePendingAsync(evaluation, cancellationToken);
+    return evaluation;
+  }
 
   public async Task<CharacterSheet> BuildSheetAsync(Guid characterId, CancellationToken cancellationToken = default)
-    => CharacterSheetBuilder.Build(this.Evaluate(await this.LoadAsync(characterId, cancellationToken)));
+    => CharacterSheetBuilder.Build(await this.EvaluateRulesAsync(await this.LoadAsync(characterId, cancellationToken), cancellationToken));
 
   #endregion
 
@@ -57,9 +65,9 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
 
   public async Task<Character> CreateAsync(CreateCharacterRequest request, CancellationToken cancellationToken = default)
   {
-    Species species = catalog.Species.Values.SingleOrDefault(entry => entry.Key == request.SpeciesKey)
+    Species species = await context.Species.AsNoTracking().SingleOrDefaultAsync(entry => entry.Key == request.SpeciesKey, cancellationToken)
                       ?? throw new RuleViolationException($"Unknown species '{request.SpeciesKey}'");
-    Background background = catalog.Backgrounds.Values.SingleOrDefault(entry => entry.Key == request.BackgroundKey)
+    Background background = await context.Backgrounds.AsNoTracking().SingleOrDefaultAsync(entry => entry.Key == request.BackgroundKey, cancellationToken)
                             ?? throw new RuleViolationException($"Unknown background '{request.BackgroundKey}'");
 
     byte Score(string ability) => request.Abilities.TryGetValue(ability, out byte score)
@@ -82,10 +90,10 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
       Charisma = Score("cha"),
     };
 
-    this.ApplySelections(character, null, request.Selections);
+    await this.ApplySelectionsAsync(character, null, request.Selections, cancellationToken);
     if (!request.AllowIncomplete)
     {
-      EnsureComplete(this.Evaluate(character));
+      EnsureComplete(await this.EvaluateRulesAsync(character, cancellationToken));
     }
 
     context.Characters.Add(character);
@@ -114,7 +122,7 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
     character.Backstory = update.Backstory ?? character.Backstory;
     character.Experience = update.Experience ?? character.Experience;
     await context.SaveChangesAsync(cancellationToken);
-    return this.Evaluate(character);
+    return await this.EvaluateAsync(character, cancellationToken);
   }
 
   public async Task DeleteAsync(Guid characterId, CancellationToken cancellationToken = default)
@@ -131,30 +139,31 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
   public async Task<CharacterEvaluation> SelectAsync(Guid characterId, IReadOnlyList<SelectionRequest> selections, CancellationToken cancellationToken = default)
   {
     Character character = await this.LoadAsync(characterId, cancellationToken);
-    this.Select(character, selections);
+    await this.SelectAsync(character, selections, cancellationToken);
     await context.SaveChangesAsync(cancellationToken);
-    return this.Evaluate(character);
+    return await this.EvaluateAsync(character, cancellationToken);
   }
 
   /// <summary>
   ///   Answer open choices of a loaded character (in memory, saved by the caller)
   /// </summary>
-  public void Select(Character character, IReadOnlyList<SelectionRequest> selections)
+  public Task SelectAsync(Character character, IReadOnlyList<SelectionRequest> selections, CancellationToken cancellationToken = default)
   {
     Guid? levelId = character.Levels.MaxBy(entry => entry.Number)?.Id;
-    this.Transaction(character, () => this.ApplySelections(character, levelId, selections));
+    return this.TransactionAsync(character, () => this.ApplySelectionsAsync(character, levelId, selections, cancellationToken));
   }
 
   /// <summary>
   ///   Throw when required choices are still open
   /// </summary>
-  public void EnsureComplete(Character character) => EnsureComplete(this.Evaluate(character));
+  public async Task EnsureCompleteAsync(Character character, CancellationToken cancellationToken = default)
+    => EnsureComplete(await this.EvaluateRulesAsync(character, cancellationToken));
 
   /// <summary>
   ///   Validate selections without saving them; throws <see cref="RuleViolationException"/> when the rules are violated
   /// </summary>
   public Task<T> ValidateSelectionsAsync<T>(Guid characterId, IReadOnlyList<SelectionRequest> selections, Func<CharacterEvaluation, T> project, CancellationToken cancellationToken = default)
-    => this.DryRunAsync(characterId, character => this.Select(character, selections), project, cancellationToken);
+    => this.DryRunAsync(characterId, character => this.SelectAsync(character, selections, cancellationToken), project, cancellationToken);
 
   /// <summary>
   ///   Take back a selection (and the selections scoped to it). Only selections of the latest level (or of the origin when the
@@ -187,7 +196,7 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
 
     RemoveSelection(character, selection);
     await context.SaveChangesAsync(cancellationToken);
-    return this.Evaluate(character);
+    return await this.EvaluateAsync(character, cancellationToken);
   }
 
   #endregion
@@ -204,29 +213,35 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
   ///   Evaluate the character as if it gained a level in the class and project the result (nothing is saved)
   /// </summary>
   public Task<T> PreviewLevelUpAsync<T>(Guid characterId, string classKey, string? subclassKey, Func<CharacterEvaluation, T> project, CancellationToken cancellationToken = default)
-    => this.DryRunAsync(characterId, character => character.Levels.Add(this.CreateLevel(character, new LevelUpRequest { ClassKey = classKey, SubclassKey = subclassKey })), project, cancellationToken);
+    => this.DryRunAsync
+    (
+      characterId,
+      async character => character.Levels.Add(await this.CreateLevelAsync(character, new LevelUpRequest { ClassKey = classKey, SubclassKey = subclassKey }, cancellationToken)),
+      project,
+      cancellationToken
+    );
 
   /// <summary>
   ///   Validate a level up without saving it; throws <see cref="RuleViolationException"/> when the rules are violated
   /// </summary>
   public Task<T> ValidateLevelUpAsync<T>(Guid characterId, LevelUpRequest request, Func<CharacterEvaluation, T> project, CancellationToken cancellationToken = default)
-    => this.DryRunAsync(characterId, character => this.LevelUp(character, request), project, cancellationToken);
+    => this.DryRunAsync(characterId, character => this.LevelUpAsync(character, request, cancellationToken), project, cancellationToken);
 
   public async Task<CharacterEvaluation> LevelUpAsync(Guid characterId, LevelUpRequest request, CancellationToken cancellationToken = default)
   {
     Character character = await this.LoadAsync(characterId, cancellationToken);
-    this.LevelUp(character, request);
+    await this.LevelUpAsync(character, request, cancellationToken);
     await context.SaveChangesAsync(cancellationToken);
-    return this.Evaluate(character);
+    return await this.EvaluateAsync(character, cancellationToken);
   }
 
   /// <summary>
   ///   Apply a level up to a loaded character (in memory, saved by the caller)
   /// </summary>
-  public void LevelUp(Character character, LevelUpRequest request)
+  public async Task LevelUpAsync(Character character, LevelUpRequest request, CancellationToken cancellationToken = default)
   {
-    CharacterLevel level = this.CreateLevel(character, request);
-    this.Transaction(character, () =>
+    CharacterLevel level = await this.CreateLevelAsync(character, request, cancellationToken);
+    await this.TransactionAsync(character, async () =>
     {
       if (request.Replacements
           .GroupBy(entry => character.Choices.SingleOrDefault(choice => choice.Id == entry.SelectionId)?.ChoiceId)
@@ -236,39 +251,39 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
       }
 
       character.Levels.Add(level);
-      CharacterEvaluation evaluation = this.Evaluate(character);
+      CharacterEvaluation evaluation = await this.EvaluateRulesAsync(character, cancellationToken);
 
       foreach (ReplacementRequest replacement in request.Replacements)
       {
-        this.Replace(character, level, replacement, evaluation);
-        evaluation = this.Evaluate(character);
+        await this.ReplaceAsync(character, level, replacement, evaluation, cancellationToken);
+        evaluation = await this.EvaluateRulesAsync(character, cancellationToken);
       }
 
-      this.ApplySelections(character, level.Id, request.Selections);
+      await this.ApplySelectionsAsync(character, level.Id, request.Selections, cancellationToken);
       if (!request.AllowIncomplete)
       {
-        EnsureComplete(this.Evaluate(character));
+        EnsureComplete(await this.EvaluateRulesAsync(character, cancellationToken));
       }
     });
   }
 
-  private CharacterLevel CreateLevel(Character character, LevelUpRequest request)
+  private async Task<CharacterLevel> CreateLevelAsync(Character character, LevelUpRequest request, CancellationToken cancellationToken)
   {
-    CharacterClass @class = catalog.ClassesByKey.GetValueOrDefault(request.ClassKey)
+    CharacterEvaluation current = await this.EvaluateRulesAsync(character, cancellationToken);
+    CharacterClass @class = current.Catalog.ClassesByKey.GetValueOrDefault(request.ClassKey)
                             ?? throw new RuleViolationException($"Unknown class '{request.ClassKey}'");
     if (character.Levels.Count >= MaxLevel)
     {
       throw new RuleViolationException($"A character can't exceed level {MaxLevel}");
     }
 
-    CharacterEvaluation current = this.Evaluate(character);
     int classLevel = current.ClassLevel(@class.Id) + 1;
 
     // multiclassing: 13+ in the primary abilities of every current class and of the new class
     if (classLevel == 1 && current.TotalLevel > 0)
     {
       List<string> errors = current.ClassLevels.Keys
-        .Select(id => catalog.Classes[id])
+        .Select(id => current.Catalog.Classes[id])
         .Append(@class)
         .Where(entry => !MeetsPrimaryAbilities(current, entry))
         .Select(entry => $"Multiclassing requires {string.Join(entry.PrimaryAbilityMode == PrimaryAbilityModeEnum.Any ? " or " : " and ", entry.PrimaryAbilities.Select(Naming.Title))} {MulticlassMinimumScore}+ ({entry.Name})")
@@ -284,7 +299,7 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
     {
       subclass = request.SubclassKey == null
         ? throw new RuleViolationException($"{@class.Name} level {classLevel} requires a subclass")
-        : catalog.SubclassesByKey.GetValueOrDefault(request.SubclassKey);
+        : current.Catalog.SubclassesByKey.GetValueOrDefault(request.SubclassKey);
       if (subclass == null || subclass.ClassId != @class.Id)
       {
         throw new RuleViolationException($"'{request.SubclassKey}' is not a {@class.Name} subclass");
@@ -312,7 +327,7 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
     };
   }
 
-  private void Replace(Character character, CharacterLevel level, ReplacementRequest replacement, CharacterEvaluation evaluation)
+  private async Task ReplaceAsync(Character character, CharacterLevel level, ReplacementRequest replacement, CharacterEvaluation evaluation, CancellationToken cancellationToken)
   {
     SelectionInstance selection = evaluation.Selections.FirstOrDefault(entry => entry.Selection.Id == replacement.SelectionId)
                                   ?? throw new RuleViolationException($"Selection {replacement.SelectionId} is not active");
@@ -327,7 +342,7 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
     }
 
     selection.Selection.SupersededByLevelId = level.Id;
-    CharacterEvaluation withoutOld = this.Evaluate(character);
+    CharacterEvaluation withoutOld = await this.EvaluateRulesAsync(character, cancellationToken);
     FeatureInstance owner = ChoiceService.FindOwner(withoutOld, selection.Choice, selection.Selection.ParentId)
                             ?? throw new RuleViolationException($"'{selection.Choice.Name}' is not available");
     if (ChoiceService.Validate(withoutOld, selection.Choice, owner, replacement.OptionKey) is { } error)
@@ -374,7 +389,7 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
     character.Levels.Remove(level);
     context.CharacterLevels.Remove(level);
     await context.SaveChangesAsync(cancellationToken);
-    return this.Evaluate(character);
+    return await this.EvaluateAsync(character, cancellationToken);
   }
 
   #endregion
@@ -387,7 +402,7 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
   public async Task<CharacterEvaluation> ReplaceOnRestAsync(Guid characterId, Guid selectionId, string optionKey, CancellationToken cancellationToken = default)
   {
     Character character = await this.LoadAsync(characterId, cancellationToken);
-    CharacterEvaluation evaluation = this.Evaluate(character);
+    CharacterEvaluation evaluation = await this.EvaluateRulesAsync(character, cancellationToken);
     SelectionInstance selection = evaluation.Selections.FirstOrDefault(entry => entry.Selection.Id == selectionId)
                                   ?? throw new RuleViolationException($"Selection {selectionId} is not active");
     if (selection.Choice.ReplacePolicy is not (ReplacePolicyEnum.OnLongRest or ReplacePolicyEnum.OnShortRest))
@@ -401,7 +416,7 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
     selection.Selection.SupersededByLevelId = Guid.Empty;
     try
     {
-      CharacterEvaluation withoutOld = this.Evaluate(character);
+      CharacterEvaluation withoutOld = await this.EvaluateRulesAsync(character, cancellationToken);
       FeatureInstance owner = ChoiceService.FindOwner(withoutOld, selection.Choice, selection.Selection.ParentId)!;
       if (ChoiceService.Validate(withoutOld, selection.Choice, owner, optionKey) is { } error)
       {
@@ -424,7 +439,7 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
     }
 
     await context.SaveChangesAsync(cancellationToken);
-    return this.Evaluate(character);
+    return await this.EvaluateAsync(character, cancellationToken);
   }
 
   /// <summary>
@@ -433,8 +448,8 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
   public async Task<CharacterEvaluation> SetPreparedSpellsAsync(Guid characterId, string classKey, IReadOnlyList<string> spellKeys, CancellationToken cancellationToken = default)
   {
     Character character = await this.LoadAsync(characterId, cancellationToken);
-    CharacterEvaluation evaluation = this.Evaluate(character);
-    CharacterClass @class = catalog.ClassesByKey.GetValueOrDefault(classKey) ?? throw new RuleViolationException($"Unknown class '{classKey}'");
+    CharacterEvaluation evaluation = await this.EvaluateRulesAsync(character, cancellationToken);
+    CharacterClass @class = evaluation.Catalog.ClassesByKey.GetValueOrDefault(classKey) ?? throw new RuleViolationException($"Unknown class '{classKey}'");
     SpellcastingProfile profile = evaluation.SpellcastingProfiles.FirstOrDefault(entry => entry.ClassId == @class.Id && entry.PrepareChange == PrepareChangeEnum.LongRest)
                                   ?? throw new RuleViolationException($"The character doesn't prepare {@class.Name} spells on a long rest");
 
@@ -452,10 +467,12 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
 
     int maxLevel = evaluation.MaxSpellLevel(profile);
     IReadOnlySet<Guid> spellbook = evaluation.SpellbookSpellIds();
+    List<string> keys = spellKeys.Distinct().ToList();
+    Dictionary<string, Spell> known = await context.Spells.AsNoTracking().Where(entry => keys.Contains(entry.Key)).ToDictionaryAsync(entry => entry.Key, cancellationToken);
     List<Spell> spells = new();
     foreach (string key in spellKeys)
     {
-      if (!catalog.SpellsByKey.TryGetValue(key, out Spell? spell))
+      if (!known.TryGetValue(key, out Spell? spell))
       {
         errors.Add($"Unknown spell '{key}'");
         continue;
@@ -491,7 +508,7 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
     }
 
     await context.SaveChangesAsync(cancellationToken);
-    return this.Evaluate(character);
+    return await this.EvaluateAsync(character, cancellationToken);
   }
 
   /// <summary>
@@ -500,10 +517,11 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
   public async Task<CharacterEvaluation> CopyToSpellbookAsync(Guid characterId, string spellKey, string? note = null, CancellationToken cancellationToken = default)
   {
     Character character = await this.LoadAsync(characterId, cancellationToken);
-    CharacterEvaluation evaluation = this.Evaluate(character);
+    CharacterEvaluation evaluation = await this.EvaluateRulesAsync(character, cancellationToken);
     SpellcastingProfile profile = evaluation.SpellcastingProfiles.FirstOrDefault(entry => entry.Pool == SpellPoolEnum.Spellbook)
                                   ?? throw new RuleViolationException("The character has no spellbook");
-    Spell spell = catalog.SpellsByKey.GetValueOrDefault(spellKey) ?? throw new RuleViolationException($"Unknown spell '{spellKey}'");
+    Spell spell = await context.Spells.AsNoTracking().SingleOrDefaultAsync(entry => entry.Key == spellKey, cancellationToken)
+                  ?? throw new RuleViolationException($"Unknown spell '{spellKey}'");
     if (spell.Level == 0 || spell.Level > evaluation.MaxSpellLevel(profile) || !spell.Lists.Contains(profile.SpellListKey))
     {
       throw new RuleViolationException($"{spell.Name} can't be copied into the spellbook");
@@ -516,7 +534,7 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
 
     character.SpellbookEntries.Add(new CharacterSpellbookEntry { Id = Guid.NewGuid(), CharacterId = character.Id, SpellId = spell.Id, Note = note });
     await context.SaveChangesAsync(cancellationToken);
-    return this.Evaluate(character);
+    return await this.EvaluateAsync(character, cancellationToken);
   }
 
   #endregion
@@ -526,7 +544,8 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
   public async Task<CharacterItem> AddItemAsync(Guid characterId, string itemKey, int quantity = 1, CancellationToken cancellationToken = default)
   {
     Character character = await this.LoadAsync(characterId, cancellationToken);
-    Item item = catalog.ItemsByKey.GetValueOrDefault(itemKey) ?? throw new RuleViolationException($"Unknown item '{itemKey}'");
+    Item item = await context.Items.AsNoTracking().SingleOrDefaultAsync(entry => entry.Key == itemKey, cancellationToken)
+                ?? throw new RuleViolationException($"Unknown item '{itemKey}'");
     CharacterItem entry = new() { Id = Guid.NewGuid(), CharacterId = character.Id, ItemId = item.Id, Quantity = quantity };
     character.Items.Add(entry);
     await context.SaveChangesAsync(cancellationToken);
@@ -541,7 +560,7 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
     Character character = await this.LoadAsync(characterId, cancellationToken);
     CharacterItem entry = character.Items.SingleOrDefault(item => item.Id == characterItemId)
                           ?? throw new RuleViolationException($"Item {characterItemId} doesn't belong to the character");
-    Item item = catalog.Items[entry.ItemId];
+    Item item = await context.Items.AsNoTracking().SingleAsync(rule => rule.Id == entry.ItemId, cancellationToken);
 
     bool allowed = slot switch
     {
@@ -566,7 +585,7 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
 
     entry.EquipSlot = slot;
     await context.SaveChangesAsync(cancellationToken);
-    return this.Evaluate(character);
+    return await this.EvaluateAsync(character, cancellationToken);
   }
 
   public async Task<CharacterEvaluation> AttuneAsync(Guid characterId, Guid characterItemId, bool attuned, CancellationToken cancellationToken = default)
@@ -574,9 +593,10 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
     Character character = await this.LoadAsync(characterId, cancellationToken);
     CharacterItem entry = character.Items.SingleOrDefault(item => item.Id == characterItemId)
                           ?? throw new RuleViolationException($"Item {characterItemId} doesn't belong to the character");
-    if (attuned && !catalog.Items[entry.ItemId].RequiresAttunement)
+    Item item = await context.Items.AsNoTracking().SingleAsync(rule => rule.Id == entry.ItemId, cancellationToken);
+    if (attuned && !item.RequiresAttunement)
     {
-      throw new RuleViolationException($"{catalog.Items[entry.ItemId].Name} doesn't require attunement");
+      throw new RuleViolationException($"{item.Name} doesn't require attunement");
     }
 
     if (attuned && character.Items.Count(item => item.Attuned && item.Id != entry.Id) >= ViolationChecker.AttunementLimit)
@@ -586,7 +606,7 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
 
     entry.Attuned = attuned;
     await context.SaveChangesAsync(cancellationToken);
-    return this.Evaluate(character);
+    return await this.EvaluateAsync(character, cancellationToken);
   }
 
   /// <summary>
@@ -595,14 +615,15 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
   public async Task<CharacterEvaluation> ToggleAsync(Guid characterId, string featureKey, bool active, CancellationToken cancellationToken = default)
   {
     Character character = await this.LoadAsync(characterId, cancellationToken);
-    Feature feature = catalog.FeaturesByKey.GetValueOrDefault(featureKey) ?? throw new RuleViolationException($"Unknown feature '{featureKey}'");
+    Feature feature = await context.Features.AsNoTracking().SingleOrDefaultAsync(entry => entry.Key == featureKey, cancellationToken)
+                      ?? throw new RuleViolationException($"Unknown feature '{featureKey}'");
     if (!feature.Toggleable)
     {
       throw new RuleViolationException($"{feature.Name} can't be toggled");
     }
 
     // spell effects can be toggled by anyone (cast on the character), other features only when the character has them
-    if (feature.OwnerType != OwnerTypeEnum.Spell && this.Evaluate(character).Features.All(entry => entry.Feature.Id != feature.Id))
+    if (feature.OwnerType != OwnerTypeEnum.Spell && (await this.EvaluateRulesAsync(character, cancellationToken)).Features.All(entry => entry.Feature.Id != feature.Id))
     {
       throw new RuleViolationException($"The character doesn't have {feature.Name}");
     }
@@ -611,7 +632,7 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
       ? character.ActiveToggles.Append(feature.Key).Distinct().ToList()
       : character.ActiveToggles.Where(entry => entry != feature.Key).ToList();
     await context.SaveChangesAsync(cancellationToken);
-    return this.Evaluate(character);
+    return await this.EvaluateAsync(character, cancellationToken);
   }
 
   /// <summary>
@@ -622,23 +643,26 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
     Character character = await this.LoadAsync(characterId, cancellationToken);
     character.ArmorClassChoice = label;
     await context.SaveChangesAsync(cancellationToken);
-    return this.Evaluate(character);
+    return await this.EvaluateAsync(character, cancellationToken);
   }
 
   #endregion
 
   #region Private Methods
 
+  private async Task<CharacterEvaluation> EvaluateRulesAsync(Character character, CancellationToken cancellationToken)
+    => new(await rules.LoadAsync(character, cancellationToken), character);
+
   /// <summary>
   ///   Apply a change to a loaded character, project the evaluation and forget the change (nothing reaches the database)
   /// </summary>
-  private async Task<T> DryRunAsync<T>(Guid characterId, Action<Character> change, Func<CharacterEvaluation, T> project, CancellationToken cancellationToken)
+  private async Task<T> DryRunAsync<T>(Guid characterId, Func<Character, Task> change, Func<CharacterEvaluation, T> project, CancellationToken cancellationToken)
   {
     Character character = await this.LoadAsync(characterId, cancellationToken);
     try
     {
-      change(character);
-      return project(this.Evaluate(character));
+      await change(character);
+      return project(await this.EvaluateAsync(character, cancellationToken));
     }
     finally
     {
@@ -650,14 +674,22 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
   ///   Apply selections one after another; each selection is validated against an evaluation that includes the previous ones,
   ///   so nested choices (the abilities of a feat chosen in the same request) work
   /// </summary>
-  private void ApplySelections(Character character, Guid? levelId, IReadOnlyList<SelectionRequest> requests)
+  private async Task ApplySelectionsAsync(Character character, Guid? levelId, IReadOnlyList<SelectionRequest> requests, CancellationToken cancellationToken)
   {
     List<SelectionRequest> pending = requests.ToList();
     Dictionary<string, Guid> references = new();
 
+    // a choice of a feature granted by an earlier selection is only part of the rules once that selection is made
+    List<string> choiceKeys = pending.Select(entry => entry.ChoiceKey).Distinct().ToList();
+    HashSet<string> known = (await context.Choices.Where(entry => choiceKeys.Contains(entry.Key)).Select(entry => entry.Key).ToListAsync(cancellationToken)).ToHashSet();
+    if (choiceKeys.FirstOrDefault(entry => !known.Contains(entry)) is { } unknown)
+    {
+      throw new RuleViolationException($"Unknown choice '{unknown}'");
+    }
+
     while (pending.Count > 0)
     {
-      CharacterEvaluation evaluation = this.Evaluate(character);
+      CharacterEvaluation evaluation = await this.EvaluateRulesAsync(character, cancellationToken);
       SelectionRequest? applied = null;
 
       foreach (SelectionRequest request in pending)
@@ -679,10 +711,9 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
           }
         }
 
-        Choice choice = catalog.ChoicesByKey.GetValueOrDefault(request.ChoiceKey)
-                        ?? throw new RuleViolationException($"Unknown choice '{request.ChoiceKey}'");
-        FeatureInstance? owner = ChoiceService.FindOwner(evaluation, choice, parentId);
-        if (owner == null)
+        Choice? choice = evaluation.Catalog.ChoicesByKey.GetValueOrDefault(request.ChoiceKey);
+        FeatureInstance? owner = choice == null ? null : ChoiceService.FindOwner(evaluation, choice, parentId);
+        if (choice == null || owner == null)
         {
           continue;
         }
@@ -752,14 +783,14 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
   /// <summary>
   ///   Run changes on the in memory character and restore it when the rules are violated
   /// </summary>
-  private void Transaction(Character character, Action action)
+  private async Task TransactionAsync(Character character, Func<Task> action)
   {
     List<CharacterLevel> levels = character.Levels.ToList();
     List<CharacterChoice> choices = character.Choices.ToList();
     Dictionary<Guid, Guid?> superseded = choices.ToDictionary(entry => entry.Id, entry => entry.SupersededByLevelId);
     try
     {
-      action();
+      await action();
     }
     catch
     {

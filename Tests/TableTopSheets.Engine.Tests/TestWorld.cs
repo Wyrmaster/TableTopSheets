@@ -14,7 +14,8 @@ using TableTopSheets.Seed;
 namespace TableTopSheets.Engine.Tests;
 
 /// <summary>
-///   Seeded in-memory SQLite database with a character service
+///   Seeded in-memory SQLite database with a character service. Every <see cref="Service"/> call gets a new service (and rule
+///   loader), like every API request does
 /// </summary>
 public sealed class TestWorld: IAsyncDisposable
 {
@@ -31,7 +32,6 @@ public sealed class TestWorld: IAsyncDisposable
     this._connection = connection;
     this.Context = context;
     this.Catalog = catalog;
-    this.Service = new CharacterService(context, catalog);
   }
 
   #endregion
@@ -40,9 +40,12 @@ public sealed class TestWorld: IAsyncDisposable
 
   public TableTopSheetsContext Context { get; }
 
+  /// <summary>
+  ///   Every rule, for looking up keys in tests (evaluations read their rules from the database)
+  /// </summary>
   public RulesCatalog Catalog { get; }
 
-  public CharacterService Service { get; }
+  public CharacterService Service => new(this.Context, new RulesCatalogLoader(this.Context));
 
   #endregion
 
@@ -94,7 +97,8 @@ public sealed class TestWorld: IAsyncDisposable
     params string[] backgroundIncreases
   )
   {
-    Character character = await this.Service.CreateAsync(new CreateCharacterRequest
+    CharacterService service = this.Service;
+    Character character = await service.CreateAsync(new CreateCharacterRequest
     {
       Name = "Test",
       SpeciesKey = species,
@@ -103,8 +107,8 @@ public sealed class TestWorld: IAsyncDisposable
       Selections = backgroundIncreases.Select(entry => new SelectionRequest($"{background}.ability-scores", entry)).Concat(originSelections).ToList(),
       AllowIncomplete = true,
     });
-    this.AutoComplete(character);
-    this.Service.EnsureComplete(character);
+    await this.AutoCompleteAsync(service, character);
+    await service.EnsureCompleteAsync(character);
     await this.Context.SaveChangesAsync();
     return character.Id;
   }
@@ -121,8 +125,9 @@ public sealed class TestWorld: IAsyncDisposable
     IReadOnlyList<ReplacementRequest>? replacements = null
   )
   {
-    Character character = await this.Service.LoadAsync(characterId);
-    this.Service.LevelUp(character, new LevelUpRequest
+    CharacterService service = this.Service;
+    Character character = await service.LoadAsync(characterId);
+    await service.LevelUpAsync(character, new LevelUpRequest
     {
       ClassKey = classKey,
       SubclassKey = subclassKey,
@@ -130,15 +135,15 @@ public sealed class TestWorld: IAsyncDisposable
       Replacements = replacements ?? [],
       AllowIncomplete = true,
     });
-    this.AutoComplete(character);
-    this.Service.EnsureComplete(character);
+    await this.AutoCompleteAsync(service, character);
+    await service.EnsureCompleteAsync(character);
     await this.Context.SaveChangesAsync();
-    return this.Service.Evaluate(character);
+    return await service.EvaluateAsync(character);
   }
 
   public async Task<CharacterEvaluation> LevelUpManyAsync(Guid characterId, string classKey, int levels, string? subclassKey = null)
   {
-    CharacterEvaluation evaluation = this.Service.Evaluate(await this.Service.LoadAsync(characterId));
+    CharacterEvaluation evaluation = await this.EvaluateAsync(characterId);
     for (int index = 0; index < levels; index++)
     {
       int next = evaluation.ClassLevel(classKey) + 1;
@@ -149,11 +154,11 @@ public sealed class TestWorld: IAsyncDisposable
     return evaluation;
   }
 
-  public void AutoComplete(Character character)
+  public async Task AutoCompleteAsync(CharacterService service, Character character)
   {
     while (true)
     {
-      CharacterEvaluation evaluation = this.Service.Evaluate(character);
+      CharacterEvaluation evaluation = await service.EvaluateAsync(character);
       PendingChoice? pending = ChoiceService.Pending(evaluation).FirstOrDefault(entry => !entry.Choice.Optional);
       if (pending == null)
       {
@@ -162,13 +167,17 @@ public sealed class TestWorld: IAsyncDisposable
 
       OptionDescriptor option = ChoiceService.AvailableOptions(evaluation, pending.Choice, pending.Owner).FirstOrDefault()
                                 ?? throw new InvalidOperationException($"No option left for '{pending.Choice.Key}'");
-      this.Service.Select(character, [new SelectionRequest(pending.Choice.Key, option.Key, ParentRef: pending.ParentSelectionId?.ToString())]);
+      await service.SelectAsync(character, [new SelectionRequest(pending.Choice.Key, option.Key, ParentRef: pending.ParentSelectionId?.ToString())]);
     }
   }
 
   public async Task<CharacterSheet> SheetAsync(Guid characterId) => await this.Service.BuildSheetAsync(characterId);
 
-  public async Task<CharacterEvaluation> EvaluateAsync(Guid characterId) => this.Service.Evaluate(await this.Service.LoadAsync(characterId));
+  public async Task<CharacterEvaluation> EvaluateAsync(Guid characterId)
+  {
+    CharacterService service = this.Service;
+    return await service.EvaluateAsync(await service.LoadAsync(characterId));
+  }
 
   #endregion
 

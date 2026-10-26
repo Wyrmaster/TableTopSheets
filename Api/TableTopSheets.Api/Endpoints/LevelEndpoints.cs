@@ -1,10 +1,11 @@
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
 using TableTopSheets.Api.Contracts;
 using TableTopSheets.Api.Mapping;
 using TableTopSheets.Common.Enum.Rules;
 using TableTopSheets.Engine.Evaluation;
-using TableTopSheets.Engine.Rules;
 using TableTopSheets.Engine.Services;
+using TableTopSheets.Persistence;
 using TableTopSheets.Persistence.Entity.Rules;
 
 namespace TableTopSheets.Api.Endpoints;
@@ -35,18 +36,19 @@ public static class LevelEndpoints
   private static async Task<Ok<LevelUpPreviewDto>> Preview
   (
     CharacterService service,
-    RulesCatalog catalog,
+    TableTopSheetsContext context,
     Guid id,
     string @class,
     string? subclass,
     CancellationToken cancellationToken
   )
   {
-    CharacterClass characterClass = catalog.ClassesByKey.GetValueOrDefault(@class) ?? throw new RuleViolationException($"Unknown class '{@class}'");
-    CharacterEvaluation current = service.Evaluate(await service.LoadAsync(id, cancellationToken));
+    CharacterClass characterClass = await context.Classes.AsNoTracking().Include(entry => entry.Subclasses).FirstOrDefaultAsync(entry => entry.Key == @class, cancellationToken)
+                                    ?? throw new RuleViolationException($"Unknown class '{@class}'");
+    CharacterEvaluation current = await service.EvaluateAsync(await service.LoadAsync(id, cancellationToken), cancellationToken);
     int classLevel = current.ClassLevel(characterClass.Id) + 1;
     bool requiresSubclass = classLevel == characterClass.SubclassLevel;
-    IReadOnlyList<SubclassSummaryDto> subclasses = requiresSubclass ? RuleMapper.Subclasses(characterClass, catalog) : [];
+    IReadOnlyList<SubclassSummaryDto> subclasses = requiresSubclass ? RuleMapper.Subclasses(characterClass) : [];
 
     if (requiresSubclass && subclass == null)
     {

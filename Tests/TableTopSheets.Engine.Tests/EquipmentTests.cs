@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using TableTopSheets.Common.Enum.Rules;
 using TableTopSheets.Common.Sheet;
 using TableTopSheets.Engine.Services;
@@ -124,7 +125,7 @@ public class EquipmentTests
     Assert.Equal(16, await ArmorClassWith("chain-mail"));
 
     // a special medium armor without a cap adds the full modifier
-    ((Armor)world.Catalog.ItemsByKey["breastplate"]).DexCap = null;
+    await world.Context.Items.OfType<Armor>().Where(entry => entry.Key == "breastplate").ExecuteUpdateAsync(setters => setters.SetProperty(entry => entry.DexCap, (byte?)null));
     Assert.Equal(14 + 3, await ArmorClassWith("breastplate"));
   }
 

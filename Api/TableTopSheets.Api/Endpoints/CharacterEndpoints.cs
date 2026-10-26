@@ -4,12 +4,11 @@ using TableTopSheets.Api.Contracts;
 using TableTopSheets.Api.Mapping;
 using TableTopSheets.Api.Querying;
 using TableTopSheets.Common.Sheet;
-using TableTopSheets.Engine.Evaluation;
-using TableTopSheets.Engine.Rules;
 using TableTopSheets.Engine.Services;
 using TableTopSheets.Pdf;
 using TableTopSheets.Persistence;
 using TableTopSheets.Persistence.Entity.Characters;
+using TableTopSheets.Persistence.Entity.Rules;
 
 namespace TableTopSheets.Api.Endpoints;
 
@@ -49,22 +48,24 @@ public static class CharacterEndpoints
   private static async Task<PagedResult<CharacterSummaryDto>> List
   (
     TableTopSheetsContext context,
-    RulesCatalog catalog,
     [AsParameters] ListQuery query,
     [AsParameters] CharacterFilter filter,
     CancellationToken cancellationToken
   )
   {
+    // the summary only needs names, so the characters are not evaluated
+    string? species = filter.Species?.ToLowerInvariant();
     List<Character> characters = await context.Characters
       .AsNoTracking()
-      .AsSplitQuery()
       .Include(entry => entry.Levels)
-      .Include(entry => entry.Choices)
+      .WhereIf(species != null, entry => entry.Species != null && entry.Species.Key.ToLower() == species)
       .ToListAsync(cancellationToken);
+    Dictionary<Guid, CharacterClass> classes = await context.Classes.AsNoTracking().Include(entry => entry.Subclasses).ToDictionaryAsync(entry => entry.Id, cancellationToken);
+    Dictionary<Guid, string> speciesNames = await context.Species.ToDictionaryAsync(entry => entry.Id, entry => entry.Name, cancellationToken);
+    Dictionary<Guid, string> backgroundNames = await context.Backgrounds.ToDictionaryAsync(entry => entry.Id, entry => entry.Name, cancellationToken);
 
     return characters
-      .WhereIf(filter.Species != null, entry => entry.SpeciesId is { } species && string.Equals(catalog.Species[species].Key, filter.Species, StringComparison.OrdinalIgnoreCase))
-      .Select(entry => StateMapper.Summary(new CharacterEvaluation(catalog, entry)))
+      .Select(entry => StateMapper.Summary(entry, classes, speciesNames, backgroundNames))
       .WhereIf(filter.Class != null, entry => entry.Classes.Any(@class => string.Equals(@class.Key, filter.Class, StringComparison.OrdinalIgnoreCase)))
       .WhereIf(filter.MinLevel != null, entry => entry.Level >= filter.MinLevel)
       .WhereIf(filter.MaxLevel != null, entry => entry.Level <= filter.MaxLevel)
@@ -74,11 +75,11 @@ public static class CharacterEndpoints
   private static async Task<Created<CharacterStateDto>> Create(CharacterService service, CreateCharacterDto dto, CancellationToken cancellationToken)
   {
     Character character = await service.CreateAsync(RequestMapper.Create(dto), cancellationToken);
-    return TypedResults.Created($"/api/characters/{character.Id}", StateMapper.State(service.Evaluate(character)));
+    return TypedResults.Created($"/api/characters/{character.Id}", StateMapper.State(await service.EvaluateAsync(character, cancellationToken)));
   }
 
   private static async Task<Ok<CharacterStateDto>> Get(CharacterService service, Guid id, CancellationToken cancellationToken)
-    => TypedResults.Ok(StateMapper.State(service.Evaluate(await service.LoadAsync(id, cancellationToken))));
+    => TypedResults.Ok(StateMapper.State(await service.EvaluateAsync(await service.LoadAsync(id, cancellationToken), cancellationToken)));
 
   private static async Task<Ok<CharacterStateDto>> Update(CharacterService service, Guid id, UpdateCharacterDto dto, CancellationToken cancellationToken)
     => TypedResults.Ok(StateMapper.State(await service.UpdateDetailsAsync(id, RequestMapper.Details(dto), cancellationToken)));

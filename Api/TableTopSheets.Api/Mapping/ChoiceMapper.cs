@@ -19,7 +19,7 @@ public static class ChoiceMapper
   /// <summary>
   ///   Choices with at most this many available options embed them in the pending choice
   /// </summary>
-  public const int EmbeddedOptionLimit = 30;
+  public const int EmbeddedOptionLimit = ChoiceService.EmbeddedOptionLimit;
 
   private const int SummaryLength = 160;
 
@@ -156,7 +156,7 @@ public static class ChoiceMapper
   /// </summary>
   public static OptionDto Option(RulesCatalog catalog, Choice choice, OptionDescriptor option, string? reason, bool includeDescription)
   {
-    (string? html, IReadOnlyList<string> grants) = Describe(catalog, choice, option);
+    (string? html, IReadOnlyList<string> grants) = catalog.Describe(choice, option.Key);
     string? plain = html == null ? null : HtmlText.ToPlain(html);
     return new OptionDto
     {
@@ -180,36 +180,6 @@ public static class ChoiceMapper
         option.Lists.Count > 0 ? option.Lists : null
       ),
     };
-  }
-
-  /// <summary>
-  ///   Description html and names of granted features of an option
-  /// </summary>
-  private static (string? Html, IReadOnlyList<string> Grants) Describe(RulesCatalog catalog, Choice choice, OptionDescriptor option)
-  {
-    switch (choice.OptionSource)
-    {
-      case OptionSourceEnum.Static:
-        ChoiceOption? authored = choice.Options.FirstOrDefault(entry => entry.Key == option.Key);
-        if (authored?.GrantsFeatureId is { } featureId && catalog.Features.TryGetValue(featureId, out Feature? granted))
-        {
-          return (granted.DescriptionHtml, [granted.Name]);
-        }
-
-        return (null, []);
-      case OptionSourceEnum.Spell:
-        return (catalog.SpellsByKey.GetValueOrDefault(option.Key)?.DescriptionHtml, []);
-      case OptionSourceEnum.Feat:
-        return (catalog.FeatsByKey.GetValueOrDefault(option.Key)?.DescriptionHtml, []);
-      case OptionSourceEnum.FeatureCategory:
-        return (catalog.FeaturesByKey.GetValueOrDefault(option.Key)?.DescriptionHtml, []);
-      case OptionSourceEnum.Tool or OptionSourceEnum.Item or OptionSourceEnum.Weapon:
-        return (catalog.ItemsByKey.GetValueOrDefault(option.Key)?.DescriptionHtml, []);
-      case OptionSourceEnum.Language:
-        return (catalog.Languages.GetValueOrDefault(option.Key)?.DescriptionHtml, []);
-      default:
-        return (null, []);
-    }
   }
 
   /// <summary>

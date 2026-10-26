@@ -1,7 +1,6 @@
 using System.Globalization;
 using TableTopSheets.Api.Contracts;
 using TableTopSheets.Engine.Choices;
-using TableTopSheets.Engine.Rules;
 using TableTopSheets.Engine.Sheet;
 using TableTopSheets.Persistence.Entity.Rules;
 using TableTopSheets.Persistence.Entity.Rules.Items;
@@ -9,7 +8,7 @@ using TableTopSheets.Persistence.Entity.Rules.Items;
 namespace TableTopSheets.Api.Mapping;
 
 /// <summary>
-///   Maps rule entities of the catalog to API contracts
+///   Maps rule entities to API contracts; related rows (subclasses, origin feat, mastery) have to be loaded with the entity
 /// </summary>
 public static class RuleMapper
 {
@@ -17,10 +16,10 @@ public static class RuleMapper
 
   public static SpeciesSummaryDto Summary(Species species) => new(species.Key, species.Name, species.CreatureType);
 
-  public static BackgroundSummaryDto Summary(Background background, RulesCatalog catalog)
-    => new(background.Key, background.Name, background.AbilityOptions, background.OriginFeatId is { } id ? catalog.Feats[id].Key : null);
+  public static BackgroundSummaryDto Summary(Background background)
+    => new(background.Key, background.Name, background.AbilityOptions, background.OriginFeat?.Key);
 
-  public static ClassSummaryDto Summary(CharacterClass @class, RulesCatalog catalog) => new
+  public static ClassSummaryDto Summary(CharacterClass @class) => new
   (
     @class.Key,
     @class.Name,
@@ -28,12 +27,11 @@ public static class RuleMapper
     @class.PrimaryAbilities,
     @class.PrimaryAbilityMode,
     @class.SubclassLevel,
-    Subclasses(@class, catalog)
+    Subclasses(@class)
   );
 
-  public static IReadOnlyList<SubclassSummaryDto> Subclasses(CharacterClass @class, RulesCatalog catalog)
-    => catalog.Subclasses.Values
-      .Where(entry => entry.ClassId == @class.Id)
+  public static IReadOnlyList<SubclassSummaryDto> Subclasses(CharacterClass @class)
+    => @class.Subclasses
       .OrderBy(entry => entry.Name, StringComparer.Ordinal)
       .Select(entry => new SubclassSummaryDto(entry.Key, entry.Name))
       .ToList();
@@ -97,15 +95,16 @@ public static class RuleMapper
   public static RuleDetailDto Detail(RuleEntity entity, IEnumerable<Feature> features)
     => new(entity.Key, entity.Name, HtmlText.ToPlain(entity.DescriptionHtml), Features(features));
 
-  public static ClassDetailDto Detail(CharacterClass @class, RulesCatalog catalog) => new
+  /// <param name="class">class with its subclasses</param>
+  /// <param name="features">features of the class and of its subclasses</param>
+  public static ClassDetailDto Detail(CharacterClass @class, IReadOnlyList<Feature> features) => new
   (
-    Summary(@class, catalog),
+    Summary(@class),
     HtmlText.ToPlain(@class.DescriptionHtml),
-    Features(catalog.Features.Values.Where(entry => entry.ClassId == @class.Id && entry.SubclassId == null)),
-    catalog.Subclasses.Values
-      .Where(entry => entry.ClassId == @class.Id)
+    Features(features.Where(entry => entry.ClassId == @class.Id && entry.SubclassId == null)),
+    @class.Subclasses
       .OrderBy(entry => entry.Name, StringComparer.Ordinal)
-      .Select(entry => Detail(entry, catalog.Features.Values.Where(feature => feature.SubclassId == entry.Id)))
+      .Select(entry => Detail(entry, features.Where(feature => feature.SubclassId == entry.Id)))
       .ToList()
   );
 
@@ -120,12 +119,14 @@ public static class RuleMapper
     HtmlText.ToPlain(spell.DescriptionHtml)
   );
 
-  public static ItemDetailDto Detail(Item item, RulesCatalog catalog) => new
+  /// <param name="item">item (with the mastery of a weapon)</param>
+  /// <param name="features">features of the item</param>
+  public static ItemDetailDto Detail(Item item, IEnumerable<Feature> features) => new
   (
     Summary(item),
     HtmlText.ToPlain(item.DescriptionHtml),
-    Properties(item, catalog),
-    Features(catalog.Features.Values.Where(entry => entry.ItemId == item.Id))
+    Properties(item),
+    Features(features)
   );
 
   /// <summary>
@@ -134,7 +135,7 @@ public static class RuleMapper
   public static IReadOnlyList<FeatureDto> Features(IEnumerable<Feature> features)
     => features.OrderBy(entry => entry.Level ?? 0).ThenBy(entry => entry.Order).Select(Feature).ToList();
 
-  private static Dictionary<string, string> Properties(Item item, RulesCatalog catalog)
+  private static Dictionary<string, string> Properties(Item item)
   {
     Dictionary<string, string> properties = new();
     switch (item)
@@ -154,9 +155,9 @@ public static class RuleMapper
           properties["range"] = $"{weapon.RangeNormal}/{weapon.RangeLong}";
         }
 
-        if (weapon.MasteryId is { } mastery)
+        if (weapon.Mastery is { } mastery)
         {
-          properties["mastery"] = catalog.Masteries[mastery].Name;
+          properties["mastery"] = mastery.Name;
         }
 
         break;
