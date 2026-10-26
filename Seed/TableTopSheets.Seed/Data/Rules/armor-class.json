@@ -1,0 +1,33 @@
+{
+  "features": [
+    {
+      "key": "core.armor-class",
+      "name": "Armor Class",
+      "ownerType": "Core",
+      "sheetSection": "Hidden",
+      "effects": [
+        {
+          "target": "ac.base",
+          "op": "Candidate",
+          "value": "10 + mod('dex')",
+          "condition": "!wearing('armor')",
+          "label": "Unarmored"
+        },
+        {
+          "target": "ac.base",
+          "op": "Candidate",
+          "value": "armor.ac + min(mod('dex'), stat('ac.dexcap'))",
+          "condition": "wearing('armor')",
+          "label": "Armor"
+        },
+        {
+          "target": "ac.bonus",
+          "op": "Add",
+          "value": "shield.ac",
+          "condition": "wielding('shield') && proficient('armor.shield')",
+          "label": "Shield"
+        }
+      ]
+    }
+  ]
+}

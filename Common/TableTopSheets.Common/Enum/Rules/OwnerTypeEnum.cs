@@ -19,4 +19,8 @@ public enum OwnerTypeEnum
   ///   Effects of a spell that can be toggled on (Mage Armor, Shield ...)
   /// </summary>
   Spell = 7,
+  /// <summary>
+  ///   Base rules that apply to every character (armor and unarmored Armor Class ...)
+  /// </summary>
+  Core = 8,
 }

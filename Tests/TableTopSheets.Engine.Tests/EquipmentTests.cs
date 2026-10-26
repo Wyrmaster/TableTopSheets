@@ -1,6 +1,8 @@
 using TableTopSheets.Common.Enum.Rules;
 using TableTopSheets.Common.Sheet;
+using TableTopSheets.Engine.Services;
 using TableTopSheets.Persistence.Entity.Characters;
+using TableTopSheets.Persistence.Entity.Rules.Items;
 
 namespace TableTopSheets.Engine.Tests;
 
@@ -98,5 +100,52 @@ public class EquipmentTests
     Assert.Equal(4, attack.AttackBonus);
     Assert.Equal("1d8+4", attack.Damage);
     Assert.Contains("Mastery: Sap", attack.Notes);
+  }
+
+  [Fact]
+  public async Task ArmorLimitsTheDexterityModifierByItsDexCap()
+  {
+    await using TestWorld world = await TestWorld.CreateAsync();
+    // Dexterity 17: +3
+    Guid id = await world.CreateCharacterAsync(TestWorld.Scores(10, 15, 13, 8, 14, 12), "entertainer", "dex", "dex", "str");
+    await world.LevelUpAsync(id, "fighter");
+
+    async Task<int> ArmorClassWith(string key)
+    {
+      CharacterItem armor = await world.Service.AddItemAsync(id, key);
+      await world.Service.EquipAsync(id, armor.Id, EquipSlotEnum.Armor);
+      int armorClass = (await world.SheetAsync(id)).ArmorClass;
+      await world.Service.EquipAsync(id, armor.Id, EquipSlotEnum.None);
+      return armorClass;
+    }
+
+    Assert.Equal(11 + 3, await ArmorClassWith("leather-armor"));
+    Assert.Equal(14 + 2, await ArmorClassWith("breastplate"));
+    Assert.Equal(16, await ArmorClassWith("chain-mail"));
+
+    // a special medium armor without a cap adds the full modifier
+    ((Armor)world.Catalog.ItemsByKey["breastplate"]).DexCap = null;
+    Assert.Equal(14 + 3, await ArmorClassWith("breastplate"));
+  }
+
+  [Fact]
+  public async Task MediumArmorMasterRaisesTheDexCap()
+  {
+    await using TestWorld world = await TestWorld.CreateAsync();
+    Guid id = await world.CreateCharacterAsync(TestWorld.Scores(10, 15, 13, 8, 14, 12), "entertainer", "dex", "dex", "str");
+    await world.LevelUpManyAsync(id, "fighter", 3, "eldritch-knight");
+    await world.LevelUpAsync(id, "fighter", selections: [new SelectionRequest("fighter.ability-score-improvement-4", "medium-armor-master")]);
+    CharacterItem breastplate = await world.Service.AddItemAsync(id, "breastplate");
+    await world.Service.EquipAsync(id, breastplate.Id, EquipSlotEnum.Armor);
+
+    CharacterSheet sheet = await world.SheetAsync(id);
+
+    Assert.Equal(14 + 3, sheet.ArmorClass);
+    Assert.Contains(sheet.ArmorClassOptions, entry => entry.Label == "Armor" && entry.Value == 14 + 3);
+
+    // heavy armor still adds no Dexterity
+    CharacterItem chainMail = await world.Service.AddItemAsync(id, "chain-mail");
+    await world.Service.EquipAsync(id, chainMail.Id, EquipSlotEnum.Armor);
+    Assert.Equal(16, (await world.SheetAsync(id)).ArmorClass);
   }
 }

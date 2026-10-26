@@ -140,7 +140,11 @@ public sealed class RulesCatalog
   /// </summary>
   public static async Task<RulesCatalog> LoadAsync(TableTopSheetsContext context, CancellationToken cancellationToken = default)
   {
-    List<CharacterClass> classes = await context.Classes.AsNoTracking().Include(entry => entry.Subclasses).ToListAsync(cancellationToken);
+    List<CharacterClass> classes = await context
+      .Classes
+      .AsNoTracking()
+      .Include(entry => entry.Subclasses)
+      .ToListAsync(cancellationToken);
     List<Feature> features = await context.Features
       .AsNoTracking()
       .AsSplitQuery()

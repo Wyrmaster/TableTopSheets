@@ -142,15 +142,13 @@ public static class ChoiceService
       return maximum == 1 ? "Already selected" : $"Already selected {count} time(s)";
     }
 
-    if (choice.OptionSource == OptionSourceEnum.Feat && !option.Repeatable && feats.Contains(option.Key))
+    switch (choice.OptionSource)
     {
-      return "The character already has this feat";
-    }
-
-    // an option feature granted elsewhere (another instance of the choice) can't be taken twice
-    if (choice.OptionSource == OptionSourceEnum.FeatureCategory && count == 0 && evaluation.Features.Any(entry => entry.Feature.Key == option.Key))
-    {
-      return "The character already has this feature";
+      case OptionSourceEnum.Feat when !option.Repeatable && feats.Contains(option.Key):
+        return "The character already has this feat";
+      // an option feature granted elsewhere (another instance of the choice) can't be taken twice
+      case OptionSourceEnum.FeatureCategory when count == 0 && evaluation.Features.Any(entry => entry.Feature.Key == option.Key):
+        return "The character already has this feature";
     }
 
     if (count == 0 && knownSpells.Contains(option.Key))

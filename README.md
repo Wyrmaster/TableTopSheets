@@ -556,7 +556,7 @@ sequenceDiagram
   GUI->>API: POST /api/characters (species, background, scores)
   API-->>GUI: state + pendingChoices
   loop until complete
-    GUI->>API: GET optionsUrl (only for large choices; paged, filtered)
+    GUI->>API: GET optionsUrl (only for large choices, paged, filtered)
     GUI->>API: POST /choices/validate (optional live feedback)
     GUI->>API: POST /choices (the user's answers)
     API-->>GUI: state + pendingChoices (follow-up choices appear here)

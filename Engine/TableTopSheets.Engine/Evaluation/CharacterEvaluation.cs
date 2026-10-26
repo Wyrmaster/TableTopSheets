@@ -181,6 +181,11 @@ public sealed partial class CharacterEvaluation
       }
     }
 
+    foreach (Feature feature in this.Catalog.Features.Values.Where(entry => entry.OwnerType == OwnerTypeEnum.Core))
+    {
+      Add(feature, null, "Rules");
+    }
+
     // effects of spells (Mage Armor, Shield of Faith ...) only exist while toggled on
     foreach (Feature feature in this.Catalog.Features.Values.Where(entry => entry.OwnerType == OwnerTypeEnum.Spell && this.Character.ActiveToggles.Contains(entry.Key)))
     {

@@ -19,7 +19,7 @@ public static class StatKeys
     new($@"^save\.({Ability}|all)\.(prof|bonus|advantage)$"),
     new($@"^skill\.({Skill}|all)\.(prof|bonus|advantage|disadvantage)$"),
     new(@"^check\.(all|str|dex|con|int|wis|cha)\.(bonus|advantage|disadvantage)$"),
-    new(@"^ac\.(base|bonus)$"),
+    new(@"^ac\.(base|bonus|dexcap)$"),
     new(@"^initiative\.(bonus|advantage)$"),
     new(@"^speed\.(walk|fly|swim|climb|burrow)$"),
     new(@"^hp\.(perLevel|bonus)$"),

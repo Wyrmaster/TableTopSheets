@@ -8,6 +8,11 @@ public sealed partial class CharacterEvaluation
 {
   #region Fields
 
+  /// <summary>
+  ///   Value of <c>ac.dexcap</c> when the worn armor doesn't limit the Dexterity modifier
+  /// </summary>
+  public const int NoDexCap = 99;
+
   private readonly Dictionary<string, double> _statCache = new();
   private readonly Dictionary<string, List<StatSource>> _statSources = new();
   private readonly HashSet<string> _inProgress = new();
@@ -95,6 +100,7 @@ public sealed partial class CharacterEvaluation
         _ => 10,
       },
       ["ability", _, "max"] => 20,
+      ["ac", "dexcap"] => this.WornArmor?.DexCap ?? NoDexCap,
       ["size"] => (double)Common.Enum.SizeEnum.Medium,
       _ => 0,
     };

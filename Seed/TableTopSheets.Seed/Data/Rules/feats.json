@@ -58,6 +58,41 @@
       ]
     },
     {
+      "key": "medium-armor-master",
+      "features": [
+        {
+          "key": "feat.medium-armor-master",
+          "name": "Medium Armor Master",
+          "choices": [
+            {
+              "key": "medium-armor-master.ability",
+              "name": "Ability Score Increase",
+              "count": "1",
+              "source": "Ability",
+              "replace": "Never",
+              "filter": "oneOf(option.key, 'str', 'dex')",
+              "effects": [
+                {
+                  "target": "ability.$option.score",
+                  "op": "Add",
+                  "value": "1"
+                }
+              ]
+            }
+          ],
+          "effects": [
+            {
+              "target": "ac.dexcap",
+              "op": "Max",
+              "value": "3",
+              "condition": "wearing('medium') && score('dex') >= 16",
+              "label": "Dexterous Wearer"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "key": "tough",
       "features": [
         {

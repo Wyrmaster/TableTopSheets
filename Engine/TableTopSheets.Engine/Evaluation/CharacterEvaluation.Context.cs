@@ -16,7 +16,7 @@ public sealed partial class CharacterEvaluation: IExpressionContext
   /// </summary>
   public static readonly IReadOnlySet<string> KnownIdentifiers = new HashSet<string>
   {
-    "level", "pb", "half", "proficient", "expertise", "spellcaster", "true", "false",
+    "level", "pb", "half", "proficient", "expertise", "spellcaster", "true", "false", "armor.ac", "shield.ac",
   };
 
   /// <summary>
@@ -41,6 +41,8 @@ public sealed partial class CharacterEvaluation: IExpressionContext
     "proficient" => ExprValue.Of(10),
     "expertise" => ExprValue.Of(20),
     "spellcaster" => ExprValue.Of(this.SpellcastingProfiles.Count > 0),
+    "armor.ac" => ExprValue.Of(this.WornArmor?.BaseAc ?? 0),
+    "shield.ac" => ExprValue.Of(this.WieldedShield?.BaseAc ?? 0),
     _ => throw new ExpressionException($"Unknown identifier '{identifier}'"),
   };
 

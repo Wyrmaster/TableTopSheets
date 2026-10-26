@@ -164,33 +164,16 @@ public static class CharacterSheetBuilder
   }
 
   /// <summary>
-  ///   Only one base Armor Class calculation applies at a time: armor, unarmored or a feature formula (Unarmored Defense, Mage Armor ...)
+  ///   Only one base Armor Class calculation (<c>ac.base</c> candidate) applies at a time: armor, unarmored or a feature formula
+  ///   (Unarmored Defense, Mage Armor ...). Shields and other bonuses are <c>ac.bonus</c> effects; all of them are rule data
   /// </summary>
   private static (int ArmorClass, List<SourceValue> Options, List<SourceValue> Sources) ArmorClass(CharacterEvaluation evaluation)
   {
-    int dexterity = evaluation.Modifier("dex");
-    List<SourceValue> options = new();
+    List<SourceValue> options = evaluation.Candidates("ac.base").Select(entry => new SourceValue(entry.Label, (int)entry.Value)).ToList();
 
-    if (evaluation.WornArmor is { } armor)
-    {
-      options.Add(new(armor.Name, armor.BaseAc + (armor.DexCap is { } cap ? Math.Min(dexterity, cap) : dexterity)));
-    }
-    else
-    {
-      options.Add(new("Unarmored", 10 + dexterity));
-    }
-
-    options.AddRange(evaluation.Candidates("ac.base").Select(entry => new SourceValue(entry.Label, (int)entry.Value)));
-
-    SourceValue @base = options.FirstOrDefault(entry => entry.Label == evaluation.Character.ArmorClassChoice)
-                        ?? options.MaxBy(entry => entry.Value)!;
-    List<SourceValue> sources = [@base];
-
-    if (evaluation.WieldedShield is { } shield && evaluation.HasArmorTraining(ArmorEnum.Shield))
-    {
-      sources.Add(new(shield.Name, shield.BaseAc));
-    }
-
+    SourceValue? @base = options.FirstOrDefault(entry => entry.Label == evaluation.Character.ArmorClassChoice)
+                         ?? options.MaxBy(entry => entry.Value);
+    List<SourceValue> sources = @base == null ? [] : [@base];
     sources.AddRange(evaluation.Sources("ac.bonus").Select(entry => new SourceValue(entry.Label, (int)entry.Value)));
     return (sources.Sum(entry => entry.Value), options, sources);
   }
