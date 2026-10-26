@@ -138,6 +138,7 @@ foreach (PendingChoice pending in ChoiceService.Pending(evaluation))
 | `Tests/TableTopSheets.Engine.Tests` | Tests for everything above, including migrations and PDF output |
 | `Tests/TableTopSheets.Api.Tests` | End to end tests of the REST API (`WebApplicationFactory`, in-memory SQLite) |
 | `.claude/agents/pdf-library.md` | Claude Code sub agent specialised on the PDF library |
+| `.claude/agents/user-interface.md` | Claude Code sub agent for the user interface: API reference, authentication, creation and level up workflows |
 
 ```mermaid
 flowchart LR
