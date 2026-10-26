@@ -45,7 +45,13 @@ export function AppShell() {
             whiteSpace='nowrap'
           >
             <Icon path={diceIcon} />
-            TableTopSheets
+            {/* narrow screens: the icon alone, so the title bar keeps room for the actions */}
+            <Text
+              as='span'
+              hideBelow={accessToken ? 'sm' : undefined}
+            >
+              TableTopSheets
+            </Text>
           </HStack>
         </NavLink>
         {accessToken && <MainNavigation />}

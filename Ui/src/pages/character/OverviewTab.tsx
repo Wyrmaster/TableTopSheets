@@ -403,6 +403,8 @@ function FeatureButton({ feature }: { feature: FeatureSheet }) {
       px='3'
       justifyContent='start'
       textAlign='left'
+      whiteSpace='normal'
+      minW='0'
       onClick={() => inspect({
         kind: 'feature',
         name: feature.name,
@@ -410,7 +412,7 @@ function FeatureButton({ feature }: { feature: FeatureSheet }) {
         description: feature.description,
       })}
     >
-      <Box>
+      <Box minW='0'>
         <Text fontWeight='semibold'>{feature.name}</Text>
         <Text
           fontSize='xs'

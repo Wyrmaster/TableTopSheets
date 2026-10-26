@@ -210,6 +210,9 @@ export function ChoiceCard({
         )}
 
         <Box
+          role='listbox'
+          aria-label={choice.name}
+          aria-multiselectable={!single}
           borderWidth='1px'
           rounded='md'
           overflow='hidden'
@@ -309,6 +312,10 @@ function OptionRow({
 
   return (
     <Flex
+      role='option'
+      aria-label={option.name}
+      aria-selected={selected}
+      aria-disabled={option.disabled}
       align='center'
       gap='3'
       px='3'
