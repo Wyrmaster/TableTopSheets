@@ -9,6 +9,38 @@
       ],
       "primaryAbilityMode": "All",
       "subclassLevel": 3,
+      "startingEquipment": [
+        {
+          "key": "a",
+          "items": [
+            {
+              "item": "leather-armor"
+            },
+            {
+              "item": "sickle"
+            },
+            {
+              "item": "dagger",
+              "quantity": 2
+            },
+            {
+              "item": "arcane-focus-orb"
+            },
+            {
+              "item": "book",
+              "note": "occult lore"
+            },
+            {
+              "item": "scholars-pack"
+            }
+          ],
+          "gold": 15
+        },
+        {
+          "key": "b",
+          "gold": 100
+        }
+      ],
       "scales": {
         "warlock.cantrips": "2,2,2,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4",
         "warlock.prepared": "2,3,4,5,6,7,8,9,10,10,11,11,12,12,13,13,14,14,15,15",

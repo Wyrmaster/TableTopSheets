@@ -77,9 +77,17 @@ public static class RulesEndpoints
     => context.Backgrounds.Include(entry => entry.OriginFeat).ToPagedAsync(query, BackgroundSorts, cancellationToken: cancellationToken).Select(RuleMapper.Summary);
 
   private static async Task<Results<Ok<RuleDetailDto>, NotFound>> GetBackground(TableTopSheetsContext context, string key, CancellationToken cancellationToken)
-    => await context.Backgrounds.AsNoTracking().FirstOrDefaultAsync(entry => entry.Key == key, cancellationToken) is { } background
-      ? TypedResults.Ok(RuleMapper.Detail(background, await Features(context).Where(entry => entry.BackgroundId == background.Id).ToListAsync(cancellationToken)))
-      : TypedResults.NotFound();
+  {
+    Background? background = await context.Backgrounds.AsNoTracking().FirstOrDefaultAsync(entry => entry.Key == key, cancellationToken);
+    if (background == null)
+    {
+      return TypedResults.NotFound();
+    }
+
+    List<Feature> features = await Features(context).Where(entry => entry.BackgroundId == background.Id).ToListAsync(cancellationToken);
+    IReadOnlyDictionary<string, string> names = await ItemNamesAsync(context, background.StartingEquipment, cancellationToken);
+    return TypedResults.Ok(RuleMapper.Detail(background, features, RuleMapper.StartingEquipment(background.StartingEquipment, names)));
+  }
 
   private static Task<PagedResult<ClassSummaryDto>> ListClasses(TableTopSheetsContext context, [AsParameters] ListQuery query, CancellationToken cancellationToken)
     => context.Classes.Include(entry => entry.Subclasses).ToPagedAsync(query, ClassSorts, cancellationToken: cancellationToken).Select(RuleMapper.Summary);
@@ -96,7 +104,8 @@ public static class RulesEndpoints
     List<Feature> features = await Features(context)
       .Where(entry => entry.ClassId == @class.Id || subclasses.Contains(entry.SubclassId))
       .ToListAsync(cancellationToken);
-    return TypedResults.Ok(RuleMapper.Detail(@class, features));
+    IReadOnlyDictionary<string, string> names = await ItemNamesAsync(context, @class.StartingEquipment, cancellationToken);
+    return TypedResults.Ok(RuleMapper.Detail(@class, features, RuleMapper.StartingEquipment(@class.StartingEquipment, names)));
   }
 
   private static Task<PagedResult<FeatSummaryDto>> ListFeats(TableTopSheetsContext context, [AsParameters] ListQuery query, [AsParameters] FeatFilter filter, CancellationToken cancellationToken)
@@ -143,7 +152,7 @@ public static class RulesEndpoints
 
   private static Task<PagedResult<ItemSummaryDto>> ListItems(TableTopSheetsContext context, [AsParameters] ListQuery query, [AsParameters] ItemFilter filter, CancellationToken cancellationToken)
   {
-    // the category is the weapon category, the armor category or the tool group (see RuleMapper.ItemCategory)
+    // the category is the weapon category, the armor category, the tool group or the gear category (see RuleMapper.ItemCategory)
     string? category = filter.Category?.ToLowerInvariant();
     List<WeaponCategoryEnum> weapons = Matching<WeaponCategoryEnum>(category, entry => entry.ToString().ToLowerInvariant());
     List<ArmorEnum> armors = Matching<ArmorEnum>(category, entry => entry.ToString().ToLowerInvariant());
@@ -151,7 +160,7 @@ public static class RulesEndpoints
       .WhereIf(filter.Kind != null, entry => entry.Kind == filter.Kind)
       .WhereIf(category != null, entry => (entry is Weapon && weapons.Contains(((Weapon)entry).Category))
                                           || (entry is Armor && armors.Contains(((Armor)entry).Category))
-                                          || (entry is Tool && ((Tool)entry).Group.ToLower() == category))
+                                          || (entry.Group != null && entry.Group.ToLower() == category))
       .WhereIf(filter.Magic != null, entry => entry.Magic == filter.Magic)
       .WhereIf(filter.Attunement != null, entry => entry.RequiresAttunement == filter.Attunement)
       .ToPagedAsync(query, ItemSorts, cancellationToken: cancellationToken)
@@ -162,6 +171,23 @@ public static class RulesEndpoints
     => await context.Items.AsNoTracking().Include(entry => ((Weapon)entry).Mastery).FirstOrDefaultAsync(entry => entry.Key == key, cancellationToken) is { } item
       ? TypedResults.Ok(RuleMapper.Detail(item, await Features(context).Where(entry => entry.ItemId == item.Id).ToListAsync(cancellationToken)))
       : TypedResults.NotFound();
+
+  /// <summary>
+  ///   Names of the items named by starting equipment, by key
+  /// </summary>
+  public static async Task<IReadOnlyDictionary<string, string>> ItemNamesAsync
+  (
+    TableTopSheetsContext context,
+    IEnumerable<StartingEquipmentOption> options,
+    CancellationToken cancellationToken
+  )
+  {
+    IReadOnlyList<string> keys = RuleMapper.ItemKeys(options);
+    return await context.Items
+      .AsNoTracking()
+      .Where(entry => keys.Contains(entry.Key))
+      .ToDictionaryAsync(entry => entry.Key, entry => entry.Name, cancellationToken);
+  }
 
   /// <summary>
   ///   Features with their choices, as the detail endpoints show them

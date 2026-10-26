@@ -83,6 +83,11 @@ public sealed class SeedClass: SeedNamed
   public List<SeedFeature> Features { get; set; } = [];
 
   public List<SeedSubclass> Subclasses { get; set; } = [];
+
+  /// <summary>
+  ///   Starting equipment alternatives of a character whose first class this is
+  /// </summary>
+  public List<SeedStartingEquipment>? StartingEquipment { get; set; }
 }
 
 public sealed class SeedSubclass: SeedNamed
@@ -109,6 +114,53 @@ public sealed class SeedBackground: SeedNamed
   public string? OriginFeat { get; set; }
 
   public List<SeedFeature> Features { get; set; } = [];
+
+  public List<SeedStartingEquipment>? StartingEquipment { get; set; }
+}
+
+/// <summary>
+///   One alternative of the starting equipment ("(A) Spear, 2 Daggers ..., 28 GP")
+/// </summary>
+public sealed class SeedStartingEquipment
+{
+  /// <summary>
+  ///   Letter of the alternative (<c>a</c>, <c>b</c> ...)
+  /// </summary>
+  public required string Key { get; set; }
+
+  public List<SeedStartingItem> Items { get; set; } = [];
+
+  /// <summary>
+  ///   Gold pieces of the alternative
+  /// </summary>
+  public int Gold { get; set; }
+}
+
+/// <summary>
+///   A fixed item (<c>item</c>) or a pick from item groups (<c>choose</c>: <c>holy-symbol</c>, <c>artisan</c> ...)
+/// </summary>
+public sealed class SeedStartingItem
+{
+  public string? Item { get; set; }
+
+  /// <summary>
+  ///   Item groups (tool groups or gear categories) to pick the item from
+  /// </summary>
+  public List<string>? Choose { get; set; }
+
+  /// <summary>
+  ///   Name of a pick (<c>Holy Symbol</c>)
+  /// </summary>
+  public string? Name { get; set; }
+
+  /// <summary>
+  ///   Choice whose selection is the pick ("same as above")
+  /// </summary>
+  public string? SameAs { get; set; }
+
+  public int Quantity { get; set; } = 1;
+
+  public string? Note { get; set; }
 }
 
 public sealed class SeedFeat: SeedNamed
@@ -314,6 +366,16 @@ public sealed class SeedItem: SeedNamed
   public bool? Magic { get; set; }
 
   public bool? Attunement { get; set; }
+
+  /// <summary>
+  ///   Gear category (<c>ammunition</c>, <c>arcane-focus</c>, <c>mount</c> ...); tools use <see cref="ToolGroup"/>
+  /// </summary>
+  public string? Category { get; set; }
+
+  /// <summary>
+  ///   Pieces sold together for <see cref="Cost"/> (20 arrows); cost and weight are per bundle
+  /// </summary>
+  public int? Bundle { get; set; }
 
   public List<SeedFeature> Features { get; set; } = [];
 

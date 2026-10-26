@@ -107,6 +107,43 @@
           "name": "Languages"
         }
       ],
+      "startingEquipment": [
+        {
+          "key": "a",
+          "items": [
+            {
+              "item": "calligraphers-supplies",
+              "quantity": 1
+            },
+            {
+              "item": "book",
+              "quantity": 1,
+              "note": "prayers"
+            },
+            {
+              "choose": [
+                "holy-symbol"
+              ],
+              "name": "Holy Symbol",
+              "quantity": 1
+            },
+            {
+              "item": "parchment",
+              "quantity": 10
+            },
+            {
+              "item": "robe",
+              "quantity": 1
+            }
+          ],
+          "gold": 8
+        },
+        {
+          "key": "b",
+          "items": [],
+          "gold": 50
+        }
+      ],
       "key": "acolyte",
       "name": "Acolyte",
       "description": "<ul><li><strong>Ability Scores:</strong> Intelligence, Wisdom, Charisma</li><li><strong>Feat:</strong> Magic Initiate (Cleric)</li><li><strong>Skill Proficiencies:</strong> Insight, Religion</li><li><strong>Tool Proficiency:</strong> <em>Calligrapher's Supplies</em></li><li><strong>Equipment:</strong> Choose A or B: (A) <em>Calligrapher's Supplies</em>, <em>Book (prayers)</em>, <em>Holy Symbol</em>, <em>Parchment</em> (10 sheets), <em>Robe</em>, 8 GP; or (B) 50 GP</li></ul>"
@@ -230,6 +267,35 @@
           "name": "Languages"
         }
       ],
+      "startingEquipment": [
+        {
+          "key": "a",
+          "items": [
+            {
+              "choose": [
+                "artisan"
+              ],
+              "name": "Artisan's Tools",
+              "sameAs": "artisan.tool",
+              "quantity": 1
+            },
+            {
+              "item": "pouch",
+              "quantity": 2
+            },
+            {
+              "item": "clothes-travelers",
+              "quantity": 1
+            }
+          ],
+          "gold": 32
+        },
+        {
+          "key": "b",
+          "items": [],
+          "gold": 50
+        }
+      ],
       "key": "artisan",
       "name": "Artisan",
       "description": "<ul><li><strong>Ability Scores:</strong> Strength, Dexterity, Intelligence</li><li><strong>Feat:</strong> Crafter</li><li><strong>Skill Proficiencies:</strong> Investigation, Persuasion</li><li><strong>Tool Proficiency:</strong> Choose one kind of <em>Artisan's Tools</em></li><li><strong>Equipment:</strong> Choose A or B: (A) <em>Artisan's Tools</em> (same as above), 2 <em>Pouches</em>, <em>Traveler's Clothes</em>, 32 GP; or (B) 50 GP</li></ul>"
@@ -339,6 +405,31 @@
           "name": "Languages"
         }
       ],
+      "startingEquipment": [
+        {
+          "key": "a",
+          "items": [
+            {
+              "item": "forgery-kit",
+              "quantity": 1
+            },
+            {
+              "item": "costume",
+              "quantity": 1
+            },
+            {
+              "item": "clothes-fine",
+              "quantity": 1
+            }
+          ],
+          "gold": 15
+        },
+        {
+          "key": "b",
+          "items": [],
+          "gold": 50
+        }
+      ],
       "key": "charlatan",
       "name": "Charlatan",
       "description": "<ul><li><strong>Ability Scores:</strong> Dexterity, Constitution, Charisma</li><li><strong>Feat:</strong> Skilled</li><li><strong>Skill Proficiencies:</strong> Deception, Sleight of Hand</li><li><strong>Tool Proficiency:</strong> <em>Forgery Kit</em></li><li><strong>Equipment:</strong> Choose A or B: (A) <em>Forgery Kit</em>, <em>Costume</em>, <em>Fine Clothes</em>, 15 GP; or (B) 50 GP</li></ul>"
@@ -446,6 +537,39 @@
           "resources": [],
           "key": "criminal.languages",
           "name": "Languages"
+        }
+      ],
+      "startingEquipment": [
+        {
+          "key": "a",
+          "items": [
+            {
+              "item": "dagger",
+              "quantity": 2
+            },
+            {
+              "item": "thieves-tools",
+              "quantity": 1
+            },
+            {
+              "item": "crowbar",
+              "quantity": 1
+            },
+            {
+              "item": "pouch",
+              "quantity": 2
+            },
+            {
+              "item": "clothes-travelers",
+              "quantity": 1
+            }
+          ],
+          "gold": 16
+        },
+        {
+          "key": "b",
+          "items": [],
+          "gold": 50
         }
       ],
       "key": "criminal",
@@ -571,6 +695,43 @@
           "name": "Languages"
         }
       ],
+      "startingEquipment": [
+        {
+          "key": "a",
+          "items": [
+            {
+              "choose": [
+                "musical-instrument"
+              ],
+              "name": "Musical Instrument",
+              "sameAs": "entertainer.tool",
+              "quantity": 1
+            },
+            {
+              "item": "costume",
+              "quantity": 2
+            },
+            {
+              "item": "mirror",
+              "quantity": 1
+            },
+            {
+              "item": "perfume",
+              "quantity": 1
+            },
+            {
+              "item": "clothes-travelers",
+              "quantity": 1
+            }
+          ],
+          "gold": 11
+        },
+        {
+          "key": "b",
+          "items": [],
+          "gold": 50
+        }
+      ],
       "key": "entertainer",
       "name": "Entertainer",
       "description": "<ul><li><strong>Ability Scores:</strong> Strength, Dexterity, Charisma</li><li><strong>Feat:</strong> Musician</li><li><strong>Skill Proficiencies:</strong> Acrobatics, Performance</li><li><strong>Tool Proficiency:</strong> Choose one kind of <em>Musical Instrument</em></li><li><strong>Equipment:</strong> Choose A or B: (A) <em>Musical Instrument</em> (same as above), <em>2 Costumes</em>, <em>Mirror</em>, <em>Perfume</em>, <em>Traveler's Clothes</em>, 11 GP; or (B) 50 GP</li></ul>"
@@ -678,6 +839,43 @@
           "resources": [],
           "key": "farmer.languages",
           "name": "Languages"
+        }
+      ],
+      "startingEquipment": [
+        {
+          "key": "a",
+          "items": [
+            {
+              "item": "sickle",
+              "quantity": 1
+            },
+            {
+              "item": "carpenters-tools",
+              "quantity": 1
+            },
+            {
+              "item": "healers-kit",
+              "quantity": 1
+            },
+            {
+              "item": "pot-iron",
+              "quantity": 1
+            },
+            {
+              "item": "shovel",
+              "quantity": 1
+            },
+            {
+              "item": "clothes-travelers",
+              "quantity": 1
+            }
+          ],
+          "gold": 30
+        },
+        {
+          "key": "b",
+          "items": [],
+          "gold": 50
         }
       ],
       "key": "farmer",
@@ -803,6 +1001,55 @@
           "name": "Languages"
         }
       ],
+      "startingEquipment": [
+        {
+          "key": "a",
+          "items": [
+            {
+              "item": "spear",
+              "quantity": 1
+            },
+            {
+              "item": "light-crossbow",
+              "quantity": 1
+            },
+            {
+              "item": "bolts",
+              "quantity": 20
+            },
+            {
+              "choose": [
+                "gaming-set"
+              ],
+              "name": "Gaming Set",
+              "sameAs": "guard.tool",
+              "quantity": 1
+            },
+            {
+              "item": "lantern-hooded",
+              "quantity": 1
+            },
+            {
+              "item": "manacles",
+              "quantity": 1
+            },
+            {
+              "item": "quiver",
+              "quantity": 1
+            },
+            {
+              "item": "clothes-travelers",
+              "quantity": 1
+            }
+          ],
+          "gold": 12
+        },
+        {
+          "key": "b",
+          "items": [],
+          "gold": 50
+        }
+      ],
       "key": "guard",
       "name": "Guard",
       "description": "<ul><li><strong>Ability Scores:</strong> Strength, Intelligence, Wisdom</li><li><strong>Feat:</strong> Alert</li><li><strong>Skill Proficiencies:</strong> Athletics, Perception</li><li><strong>Tool Proficiency:</strong> Choose one kind of <em>Gaming Set</em></li><li><strong>Equipment:</strong> Choose A or B: (A) <em>Spear</em>, <em>Light Crossbow</em>, 20 <em>Bolts</em>, <em>Gaming Set</em> (same as above), <em>Hooded Lantern</em>, <em>Manacles</em>, <em>Quiver</em>, <em>Traveler's Clothes</em>, 12 GP; or (B) 50 GP</li></ul>"
@@ -910,6 +1157,47 @@
           "resources": [],
           "key": "guide.languages",
           "name": "Languages"
+        }
+      ],
+      "startingEquipment": [
+        {
+          "key": "a",
+          "items": [
+            {
+              "item": "shortbow",
+              "quantity": 1
+            },
+            {
+              "item": "arrows",
+              "quantity": 20
+            },
+            {
+              "item": "cartographers-tools",
+              "quantity": 1
+            },
+            {
+              "item": "bedroll",
+              "quantity": 1
+            },
+            {
+              "item": "quiver",
+              "quantity": 1
+            },
+            {
+              "item": "tent",
+              "quantity": 1
+            },
+            {
+              "item": "clothes-travelers",
+              "quantity": 1
+            }
+          ],
+          "gold": 3
+        },
+        {
+          "key": "b",
+          "items": [],
+          "gold": 50
         }
       ],
       "key": "guide",
@@ -1021,6 +1309,48 @@
           "name": "Languages"
         }
       ],
+      "startingEquipment": [
+        {
+          "key": "a",
+          "items": [
+            {
+              "item": "quarterstaff",
+              "quantity": 1
+            },
+            {
+              "item": "herbalism-kit",
+              "quantity": 1
+            },
+            {
+              "item": "bedroll",
+              "quantity": 1
+            },
+            {
+              "item": "book",
+              "quantity": 1,
+              "note": "philosophy"
+            },
+            {
+              "item": "lamp",
+              "quantity": 1
+            },
+            {
+              "item": "oil",
+              "quantity": 3
+            },
+            {
+              "item": "clothes-travelers",
+              "quantity": 1
+            }
+          ],
+          "gold": 16
+        },
+        {
+          "key": "b",
+          "items": [],
+          "gold": 50
+        }
+      ],
       "key": "hermit",
       "name": "Hermit",
       "description": "<ul><li><strong>Ability Scores:</strong> Constitution, Wisdom, Charisma</li><li><strong>Feat:</strong> Healer</li><li><strong>Skill Proficiencies:</strong> Medicine, Religion</li><li><strong>Tool Proficiency:</strong> <em>Herbalism Kit</em></li><li><strong>Equipment:</strong> Choose A or B: (A) <em>Quarterstaff</em>, <em>Herbalism Kit</em>, <em>Bedroll</em>, <em>Book</em> (philosophy), <em>Lamp</em>, <em>Oil</em> (3 flasks), <em>Traveler's Clothes</em>, 16 GP; or (B) 50 GP</li></ul>"
@@ -1128,6 +1458,31 @@
           "resources": [],
           "key": "merchant.languages",
           "name": "Languages"
+        }
+      ],
+      "startingEquipment": [
+        {
+          "key": "a",
+          "items": [
+            {
+              "item": "navigators-tools",
+              "quantity": 1
+            },
+            {
+              "item": "pouch",
+              "quantity": 2
+            },
+            {
+              "item": "clothes-travelers",
+              "quantity": 1
+            }
+          ],
+          "gold": 22
+        },
+        {
+          "key": "b",
+          "items": [],
+          "gold": 50
         }
       ],
       "key": "merchant",
@@ -1253,6 +1608,35 @@
           "name": "Languages"
         }
       ],
+      "startingEquipment": [
+        {
+          "key": "a",
+          "items": [
+            {
+              "choose": [
+                "gaming-set"
+              ],
+              "name": "Gaming Set",
+              "sameAs": "noble.tool",
+              "quantity": 1
+            },
+            {
+              "item": "clothes-fine",
+              "quantity": 1
+            },
+            {
+              "item": "perfume",
+              "quantity": 1
+            }
+          ],
+          "gold": 29
+        },
+        {
+          "key": "b",
+          "items": [],
+          "gold": 50
+        }
+      ],
       "key": "noble",
       "name": "Noble",
       "description": "<ul><li><strong>Ability Scores:</strong> Strength, Intelligence, Charisma</li><li><strong>Feat:</strong> Skilled</li><li><strong>Skill Proficiencies:</strong> History, Persuasion</li><li><strong>Tool Proficiency:</strong> Choose one kind of <em>Gaming Set</em></li><li><strong>Equipment:</strong> Choose A or B: (A) <em>Gaming Set</em> (same as above), <em>Fine Clothes</em>, <em>Perfume</em>, 29 GP; or (B) 50 GP</li></ul>"
@@ -1360,6 +1744,40 @@
           "resources": [],
           "key": "sage.languages",
           "name": "Languages"
+        }
+      ],
+      "startingEquipment": [
+        {
+          "key": "a",
+          "items": [
+            {
+              "item": "quarterstaff",
+              "quantity": 1
+            },
+            {
+              "item": "calligraphers-supplies",
+              "quantity": 1
+            },
+            {
+              "item": "book",
+              "quantity": 1,
+              "note": "history"
+            },
+            {
+              "item": "parchment",
+              "quantity": 8
+            },
+            {
+              "item": "robe",
+              "quantity": 1
+            }
+          ],
+          "gold": 8
+        },
+        {
+          "key": "b",
+          "items": [],
+          "gold": 50
         }
       ],
       "key": "sage",
@@ -1471,6 +1889,35 @@
           "name": "Languages"
         }
       ],
+      "startingEquipment": [
+        {
+          "key": "a",
+          "items": [
+            {
+              "item": "dagger",
+              "quantity": 1
+            },
+            {
+              "item": "navigators-tools",
+              "quantity": 1
+            },
+            {
+              "item": "rope",
+              "quantity": 1
+            },
+            {
+              "item": "clothes-travelers",
+              "quantity": 1
+            }
+          ],
+          "gold": 20
+        },
+        {
+          "key": "b",
+          "items": [],
+          "gold": 50
+        }
+      ],
       "key": "sailor",
       "name": "Sailor",
       "description": "<ul><li><strong>Ability Scores:</strong> Strength, Dexterity, Wisdom</li><li><strong>Feat:</strong> Tavern Brawler</li><li><strong>Skill Proficiencies:</strong> Acrobatics, Perception</li><li><strong>Tool Proficiency:</strong> <em>Navigator's Tools</em></li><li><strong>Equipment:</strong> Choose A or B: (A) <em>Dagger</em>, <em>Navigator's Tools</em>, <em>Rope</em>, <em>Traveler's Clothes</em>, 20 GP; or (B) 50 GP</li></ul>"
@@ -1578,6 +2025,39 @@
           "resources": [],
           "key": "scribe.languages",
           "name": "Languages"
+        }
+      ],
+      "startingEquipment": [
+        {
+          "key": "a",
+          "items": [
+            {
+              "item": "calligraphers-supplies",
+              "quantity": 1
+            },
+            {
+              "item": "clothes-fine",
+              "quantity": 1
+            },
+            {
+              "item": "lamp",
+              "quantity": 1
+            },
+            {
+              "item": "oil",
+              "quantity": 3
+            },
+            {
+              "item": "parchment",
+              "quantity": 12
+            }
+          ],
+          "gold": 23
+        },
+        {
+          "key": "b",
+          "items": [],
+          "gold": 50
         }
       ],
       "key": "scribe",
@@ -1703,6 +2183,51 @@
           "name": "Languages"
         }
       ],
+      "startingEquipment": [
+        {
+          "key": "a",
+          "items": [
+            {
+              "item": "spear",
+              "quantity": 1
+            },
+            {
+              "item": "shortbow",
+              "quantity": 1
+            },
+            {
+              "item": "arrows",
+              "quantity": 20
+            },
+            {
+              "choose": [
+                "gaming-set"
+              ],
+              "name": "Gaming Set",
+              "sameAs": "soldier.tool",
+              "quantity": 1
+            },
+            {
+              "item": "healers-kit",
+              "quantity": 1
+            },
+            {
+              "item": "quiver",
+              "quantity": 1
+            },
+            {
+              "item": "clothes-travelers",
+              "quantity": 1
+            }
+          ],
+          "gold": 14
+        },
+        {
+          "key": "b",
+          "items": [],
+          "gold": 50
+        }
+      ],
       "key": "soldier",
       "name": "Soldier",
       "description": "<ul><li><strong>Ability Scores:</strong> Strength, Dexterity, Constitution</li><li><strong>Feat:</strong> Savage Attacker</li><li><strong>Skill Proficiencies:</strong> Athletics, Intimidation</li><li><strong>Tool Proficiency:</strong> Choose one kind of <em>Gaming Set</em></li><li><strong>Equipment:</strong> Choose A or B: (A) <em>Spear</em>, <em>Shortbow</em>, <em>20 Arrows</em>, <em>Gaming Set</em> (same as above), <em>Healer's Kit</em>, <em>Quiver</em>, <em>Traveler's Clothes</em>, 14 GP; or (B) 50 GP</li></ul>"
@@ -1810,6 +2335,46 @@
           "resources": [],
           "key": "wayfarer.languages",
           "name": "Languages"
+        }
+      ],
+      "startingEquipment": [
+        {
+          "key": "a",
+          "items": [
+            {
+              "item": "dagger",
+              "quantity": 2
+            },
+            {
+              "item": "thieves-tools",
+              "quantity": 1
+            },
+            {
+              "choose": [
+                "gaming-set"
+              ],
+              "name": "Gaming Set",
+              "quantity": 1
+            },
+            {
+              "item": "bedroll",
+              "quantity": 1
+            },
+            {
+              "item": "pouch",
+              "quantity": 2
+            },
+            {
+              "item": "clothes-travelers",
+              "quantity": 1
+            }
+          ],
+          "gold": 16
+        },
+        {
+          "key": "b",
+          "items": [],
+          "gold": 50
         }
       ],
       "key": "wayfarer",

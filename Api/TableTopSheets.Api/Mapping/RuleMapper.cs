@@ -55,7 +55,7 @@ public static class RuleMapper
   );
 
   public static ItemSummaryDto Summary(Item item)
-    => new(item.Key, item.Name, item.Kind, ItemCategory(item), item.CostCp, item.Weight, item.Magic, item.RequiresAttunement);
+    => new(item.Key, item.Name, item.Kind, ItemCategory(item), item.CostCp, item.Weight, item.Magic, item.RequiresAttunement, item.Bundle);
 
   public static string SchoolKey(Spell spell) => spell.School.ToString().ToLowerInvariant();
 
@@ -63,8 +63,7 @@ public static class RuleMapper
   {
     Weapon weapon => weapon.Category.ToString().ToLowerInvariant(),
     Armor armor => armor.Category.ToString().ToLowerInvariant(),
-    Tool tool => tool.Group,
-    _ => null,
+    _ => item.Group,
   };
 
   #endregion
@@ -92,12 +91,16 @@ public static class RuleMapper
     choice.ReplacePolicy
   );
 
-  public static RuleDetailDto Detail(RuleEntity entity, IEnumerable<Feature> features)
-    => new(entity.Key, entity.Name, HtmlText.ToPlain(entity.DescriptionHtml), Features(features));
+  /// <param name="entity">species, background, feat or subclass</param>
+  /// <param name="features">its features</param>
+  /// <param name="startingEquipment">starting equipment of a background</param>
+  public static RuleDetailDto Detail(RuleEntity entity, IEnumerable<Feature> features, IReadOnlyList<StartingEquipmentOptionDto>? startingEquipment = null)
+    => new(entity.Key, entity.Name, HtmlText.ToPlain(entity.DescriptionHtml), Features(features), startingEquipment ?? []);
 
   /// <param name="class">class with its subclasses</param>
   /// <param name="features">features of the class and of its subclasses</param>
-  public static ClassDetailDto Detail(CharacterClass @class, IReadOnlyList<Feature> features) => new
+  /// <param name="startingEquipment">starting equipment of the class</param>
+  public static ClassDetailDto Detail(CharacterClass @class, IReadOnlyList<Feature> features, IReadOnlyList<StartingEquipmentOptionDto> startingEquipment) => new
   (
     Summary(@class),
     HtmlText.ToPlain(@class.DescriptionHtml),
@@ -105,8 +108,54 @@ public static class RuleMapper
     @class.Subclasses
       .OrderBy(entry => entry.Name, StringComparer.Ordinal)
       .Select(entry => Detail(entry, features.Where(feature => feature.SubclassId == entry.Id)))
-      .ToList()
+      .ToList(),
+    startingEquipment
   );
+
+  /// <summary>
+  ///   Items named by starting equipment (fixed items and picks), to load their names
+  /// </summary>
+  public static IReadOnlyList<string> ItemKeys(IEnumerable<StartingEquipmentOption> options)
+    => options
+      .SelectMany(option => option.Items)
+      .SelectMany(entry => entry.Options.Append(entry.ItemKey))
+      .OfType<string>()
+      .Distinct()
+      .ToList();
+
+  /// <param name="options">alternatives of a background or class</param>
+  /// <param name="names">item names by key (see <see cref="ItemKeys"/>)</param>
+  /// <param name="sameAs">item already selected per "same as above" choice; such picks show that item</param>
+  public static IReadOnlyList<StartingEquipmentOptionDto> StartingEquipment
+  (
+    IEnumerable<StartingEquipmentOption> options,
+    IReadOnlyDictionary<string, string> names,
+    IReadOnlyDictionary<string, string>? sameAs = null
+  )
+    => options
+      .Select(option => new StartingEquipmentOptionDto
+      (
+        option.Key,
+        option.Items
+          .Select(entry =>
+          {
+            string? chosen = entry.SameAs != null && sameAs?.GetValueOrDefault(entry.SameAs) is { } same && entry.Options.Contains(same) ? same : null;
+            string? itemKey = entry.ItemKey ?? chosen;
+            return new StartingEquipmentItemDto
+            (
+              entry.Key,
+              itemKey != null && entry.ItemKey != null ? names.GetValueOrDefault(itemKey, itemKey) : entry.Name ?? entry.Key,
+              itemKey,
+              entry.Quantity,
+              entry.Note,
+              entry.Options.Select(key => new ItemOptionDto(key, names.GetValueOrDefault(key, key))).ToList(),
+              entry.SameAs
+            );
+          })
+          .ToList(),
+        option.CoinsCp
+      ))
+      .ToList();
 
   public static SpellDetailDto Detail(Spell spell) => new
   (

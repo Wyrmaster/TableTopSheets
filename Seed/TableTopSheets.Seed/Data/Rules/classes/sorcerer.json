@@ -9,6 +9,31 @@
       ],
       "primaryAbilityMode": "All",
       "subclassLevel": 3,
+      "startingEquipment": [
+        {
+          "key": "a",
+          "items": [
+            {
+              "item": "spear"
+            },
+            {
+              "item": "dagger",
+              "quantity": 2
+            },
+            {
+              "item": "arcane-focus-crystal"
+            },
+            {
+              "item": "dungeoneers-pack"
+            }
+          ],
+          "gold": 28
+        },
+        {
+          "key": "b",
+          "gold": 50
+        }
+      ],
       "scales": {
         "sorcerer.cantrips": "4,4,4,5,5,5,5,5,5,6,6,6,6,6,6,6,6,6,6,6",
         "sorcerer.prepared": "2,4,6,7,9,10,11,12,14,15,16,16,17,17,18,18,19,20,21,22",

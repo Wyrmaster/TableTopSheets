@@ -45,6 +45,7 @@ public class CharacterClassConfiguration: RuleEntityConfiguration<CharacterClass
   {
     builder.HasMany(entity => entity.Subclasses).WithOne(entity => entity.Class).HasForeignKey(entity => entity.ClassId).OnDelete(DeleteBehavior.Cascade);
     builder.HasMany(entity => entity.Features).WithOne(entity => entity.Class).HasForeignKey(entity => entity.ClassId).OnDelete(DeleteBehavior.Cascade);
+    builder.Property(entity => entity.StartingEquipment).HasJsonConversion();
   }
 }
 
@@ -70,6 +71,7 @@ public class BackgroundConfiguration: RuleEntityConfiguration<Background>
   {
     builder.HasMany(entity => entity.Features).WithOne(entity => entity.Background).HasForeignKey(entity => entity.BackgroundId).OnDelete(DeleteBehavior.Cascade);
     builder.HasOne(entity => entity.OriginFeat).WithMany().HasForeignKey(entity => entity.OriginFeatId).OnDelete(DeleteBehavior.SetNull);
+    builder.Property(entity => entity.StartingEquipment).HasJsonConversion();
   }
 }
 
@@ -97,6 +99,8 @@ public class ItemConfiguration: RuleEntityConfiguration<Item>
       .HasValue<Weapon>(ItemKindEnum.Weapon)
       .HasValue<Armor>(ItemKindEnum.Armor)
       .HasValue<Tool>(ItemKindEnum.Tool);
+    builder.Property(entity => entity.Group).HasMaxLength(64);
+    builder.Property(entity => entity.Bundle).HasDefaultValue(1);
     builder.HasMany(entity => entity.Features).WithOne(entity => entity.Item).HasForeignKey(entity => entity.ItemId).OnDelete(DeleteBehavior.Cascade);
   }
 }

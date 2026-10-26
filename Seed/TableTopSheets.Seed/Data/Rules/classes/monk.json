@@ -10,6 +10,36 @@
       ],
       "primaryAbilityMode": "All",
       "subclassLevel": 3,
+      "startingEquipment": [
+        {
+          "key": "a",
+          "items": [
+            {
+              "item": "spear"
+            },
+            {
+              "item": "dagger",
+              "quantity": 5
+            },
+            {
+              "choose": [
+                "artisan",
+                "musical-instrument"
+              ],
+              "name": "Artisan's Tools or Musical Instrument",
+              "sameAs": "monk.tool"
+            },
+            {
+              "item": "explorers-pack"
+            }
+          ],
+          "gold": 11
+        },
+        {
+          "key": "b",
+          "gold": 50
+        }
+      ],
       "scales": {
         "monk.martial-arts": "1d6,1d6,1d6,1d6,1d8,1d8,1d8,1d8,1d8,1d8,1d10,1d10,1d10,1d10,1d10,1d10,1d12,1d12,1d12,1d12",
         "monk.focus": "0,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20",

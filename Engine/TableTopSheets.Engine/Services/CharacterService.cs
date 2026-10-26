@@ -92,6 +92,11 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
     };
 
     await this.ApplySelectionsAsync(character, null, request.Selections, cancellationToken);
+    if (request.StartingEquipment != null)
+    {
+      await this.TakeStartingEquipmentAsync(character, StartingEquipmentSourceEnum.Background, request.StartingEquipment, cancellationToken);
+    }
+
     if (!request.AllowIncomplete)
     {
       EnsureComplete(await this.EvaluateRulesAsync(character, cancellationToken));
@@ -261,6 +266,16 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
       }
 
       await this.ApplySelectionsAsync(character, level.Id, request.Selections, cancellationToken);
+      if (request.StartingEquipment != null)
+      {
+        if (level.Number != 1)
+        {
+          throw new RuleViolationException("Class starting equipment comes only with the first level of a character");
+        }
+
+        await this.TakeStartingEquipmentAsync(character, StartingEquipmentSourceEnum.Class, request.StartingEquipment, cancellationToken);
+      }
+
       if (!request.AllowIncomplete)
       {
         EnsureComplete(await this.EvaluateRulesAsync(character, cancellationToken));
@@ -385,6 +400,12 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
     foreach (CharacterChoice choice in character.Choices.Where(entry => entry.SupersededByLevelId == level.Id))
     {
       choice.SupersededByLevelId = null;
+    }
+
+    // a new first class offers its starting equipment again (the items already taken stay in the inventory)
+    if (level.Number == 1)
+    {
+      character.ClassEquipment = null;
     }
 
     character.Levels.Remove(level);
@@ -555,9 +576,10 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
     Character character = await this.LoadAsync(characterId, cancellationToken);
     Item item = await context.Items.AsNoTracking().SingleOrDefaultAsync(entry => entry.Key == itemKey, cancellationToken)
                 ?? throw new RuleViolationException($"Unknown item '{itemKey}'");
+    // items sold in bundles (20 arrows) cost per started bundle; the quantity counts pieces
     if (purchase)
     {
-      Purse.Pay(character.PlayState, (long)item.CostCp * quantity);
+      Purse.Pay(character.PlayState, (long)item.CostCp * ((quantity + item.Bundle - 1) / item.Bundle));
     }
 
     CharacterItem entry = new() { Id = Guid.NewGuid(), CharacterId = character.Id, ItemId = item.Id, Quantity = quantity };
@@ -585,7 +607,7 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
     if (sell)
     {
       Item item = await context.Items.AsNoTracking().SingleAsync(rule => rule.Id == entry.ItemId, cancellationToken);
-      Purse.Add(character.PlayState, (long)item.CostCp * removed / 2);
+      Purse.Add(character.PlayState, (long)item.CostCp * removed / item.Bundle / 2);
     }
 
     // the rest of a stack keeps its slot and attunement; removing all of it removes the entry
@@ -602,6 +624,189 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
     await context.SaveChangesAsync(cancellationToken);
     return await this.EvaluateAsync(character, cancellationToken);
   }
+
+  #endregion
+
+  #region Starting Equipment
+
+  /// <summary>
+  ///   Starting equipment the character can take: from the background, and from the first class once it has a level
+  /// </summary>
+  public async Task<IReadOnlyList<StartingEquipmentOffer>> GetStartingEquipmentAsync(Guid characterId, CancellationToken cancellationToken = default)
+  {
+    Character character = await this.LoadAsync(characterId, cancellationToken);
+    Dictionary<string, string> answered = Answered(await this.EvaluateRulesAsync(character, cancellationToken));
+    List<StartingEquipmentOffer> offers = new();
+    foreach (StartingEquipmentSourceEnum source in Enum.GetValues<StartingEquipmentSourceEnum>())
+    {
+      if (await this.StartingEquipmentOwnerAsync(character, source, cancellationToken) is not { } owner)
+      {
+        continue;
+      }
+
+      Dictionary<string, string> sameAs = owner.Options
+        .SelectMany(option => option.Items)
+        .Select(entry => entry.SameAs)
+        .OfType<string>()
+        .Distinct()
+        .Where(answered.ContainsKey)
+        .ToDictionary(key => key, key => answered[key]);
+      offers.Add(new StartingEquipmentOffer(source, owner.Key, owner.Name, owner.Options, Taken(character, source), sameAs));
+    }
+
+    return offers;
+  }
+
+  /// <summary>
+  ///   Take one alternative of the starting equipment of the background or the first class: its items are added to the
+  ///   inventory and its coins to the purse. Each source gives its equipment once
+  /// </summary>
+  public async Task<CharacterEvaluation> TakeStartingEquipmentAsync(
+    Guid characterId,
+    StartingEquipmentSourceEnum source,
+    StartingEquipmentRequest request,
+    CancellationToken cancellationToken = default)
+  {
+    Character character = await this.LoadAsync(characterId, cancellationToken);
+    await this.TakeStartingEquipmentAsync(character, source, request, cancellationToken);
+    await context.SaveChangesAsync(cancellationToken);
+    return await this.EvaluateAsync(character, cancellationToken);
+  }
+
+  private async Task TakeStartingEquipmentAsync(Character character, StartingEquipmentSourceEnum source, StartingEquipmentRequest request, CancellationToken cancellationToken)
+  {
+    StartingEquipmentOwner owner = await this.StartingEquipmentOwnerAsync(character, source, cancellationToken)
+                                   ?? throw new RuleViolationException("The character has no class yet; take the first level before its starting equipment");
+    if (Taken(character, source) is { } taken)
+    {
+      throw new RuleViolationException($"The starting equipment of {owner.Name} was already taken (option {taken.ToUpperInvariant()})");
+    }
+
+    StartingEquipmentOption option = owner.Options.FirstOrDefault(entry => string.Equals(entry.Key, request.OptionKey, StringComparison.OrdinalIgnoreCase))
+                                     ?? throw new RuleViolationException($"'{request.OptionKey}' is not a starting equipment option of {owner.Name}");
+
+    // every entry is a fixed item, the player's pick, or what its "same as above" choice already selected
+    Dictionary<string, string> answered = Answered(await this.EvaluateRulesAsync(character, cancellationToken));
+    List<SelectionRequest> selections = new();
+    List<(string ItemKey, StartingEquipmentEntry Entry)> picked = new();
+    List<string> errors = new();
+    foreach (StartingEquipmentEntry entry in option.Items)
+    {
+      if (entry.ItemKey != null)
+      {
+        picked.Add((entry.ItemKey, entry));
+        continue;
+      }
+
+      string name = entry.Name ?? entry.Key;
+      string? pick = request.Picks?.GetValueOrDefault(entry.Key);
+      string? same = entry.SameAs == null ? null : answered.GetValueOrDefault(entry.SameAs);
+      if (same != null && entry.Options.Contains(same))
+      {
+        if (pick != null && pick != same)
+        {
+          errors.Add($"'{name}' has to be the one chosen for '{entry.SameAs}' ({same})");
+        }
+
+        picked.Add((same, entry));
+      }
+      else if (pick == null)
+      {
+        errors.Add($"Pick an item for '{name}'");
+      }
+      else if (!entry.Options.Contains(pick))
+      {
+        errors.Add($"'{pick}' is not an option for '{name}'");
+      }
+      else
+      {
+        picked.Add((pick, entry));
+
+        // the pick of a "same as above" entry answers that choice too
+        if (entry.SameAs != null && same == null)
+        {
+          selections.Add(new SelectionRequest(entry.SameAs, pick));
+        }
+      }
+    }
+
+    if (errors.Count > 0)
+    {
+      throw new RuleViolationException(errors);
+    }
+
+    await this.ApplySelectionsAsync(character, owner.LevelId, selections, cancellationToken);
+
+    List<string> keys = picked.Select(entry => entry.ItemKey).Distinct().ToList();
+    Dictionary<string, Guid> items = await context.Items
+      .Where(entry => keys.Contains(entry.Key))
+      .ToDictionaryAsync(entry => entry.Key, entry => entry.Id, cancellationToken);
+    foreach ((string itemKey, StartingEquipmentEntry entry) in picked)
+    {
+      character.Items.Add(new CharacterItem
+      {
+        Id = Guid.NewGuid(),
+        CharacterId = character.Id,
+        ItemId = items.TryGetValue(itemKey, out Guid id) ? id : throw new RuleViolationException($"Unknown item '{itemKey}'"),
+        Quantity = entry.Quantity,
+        Notes = entry.Note,
+      });
+    }
+
+    Purse.Add(character.PlayState, option.CoinsCp);
+    if (source == StartingEquipmentSourceEnum.Background)
+    {
+      character.BackgroundEquipment = option.Key;
+    }
+    else
+    {
+      character.ClassEquipment = option.Key;
+    }
+  }
+
+  /// <summary>
+  ///   Background or first class with its starting equipment; null for a class before the first level
+  /// </summary>
+  private async Task<StartingEquipmentOwner?> StartingEquipmentOwnerAsync(Character character, StartingEquipmentSourceEnum source, CancellationToken cancellationToken)
+  {
+    if (source == StartingEquipmentSourceEnum.Background)
+    {
+      return await context.Backgrounds
+        .AsNoTracking()
+        .Where(entry => entry.Id == character.BackgroundId)
+        .Select(entry => new StartingEquipmentOwner(entry.Key, entry.Name, entry.StartingEquipment, null))
+        .SingleOrDefaultAsync(cancellationToken);
+    }
+
+    CharacterLevel? first = character.Levels.SingleOrDefault(entry => entry.Number == 1);
+    if (first == null)
+    {
+      return null;
+    }
+
+    return await context.Classes
+      .AsNoTracking()
+      .Where(entry => entry.Id == first.ClassId)
+      .Select(entry => new StartingEquipmentOwner(entry.Key, entry.Name, entry.StartingEquipment, first.Id))
+      .SingleOrDefaultAsync(cancellationToken);
+  }
+
+  private static string? Taken(Character character, StartingEquipmentSourceEnum source)
+    => source == StartingEquipmentSourceEnum.Background ? character.BackgroundEquipment : character.ClassEquipment;
+
+  /// <summary>
+  ///   First selected option per choice key (the tool of a tool proficiency)
+  /// </summary>
+  private static Dictionary<string, string> Answered(CharacterEvaluation evaluation)
+    => evaluation.Selections
+      .GroupBy(entry => entry.Choice.Key)
+      .ToDictionary(group => group.Key, group => group.First().Selection.OptionKey);
+
+  /// <param name="Key">key of the background or class</param>
+  /// <param name="Name">name of the background or class</param>
+  /// <param name="Options">its starting equipment</param>
+  /// <param name="LevelId">level the selections of the owner belong to (the first level for a class)</param>
+  private sealed record StartingEquipmentOwner(string Key, string Name, List<StartingEquipmentOption> Options, Guid? LevelId);
 
   #endregion
 

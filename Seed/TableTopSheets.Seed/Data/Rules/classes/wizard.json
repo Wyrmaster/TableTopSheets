@@ -9,6 +9,34 @@
       ],
       "primaryAbilityMode": "All",
       "subclassLevel": 3,
+      "startingEquipment": [
+        {
+          "key": "a",
+          "items": [
+            {
+              "item": "dagger",
+              "quantity": 2
+            },
+            {
+              "item": "arcane-focus-staff"
+            },
+            {
+              "item": "robe"
+            },
+            {
+              "item": "spellbook"
+            },
+            {
+              "item": "scholars-pack"
+            }
+          ],
+          "gold": 5
+        },
+        {
+          "key": "b",
+          "gold": 55
+        }
+      ],
       "scales": {
         "wizard.cantrips": "3,3,3,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5,5,5",
         "wizard.prepared": "4,5,6,7,9,10,11,12,14,15,16,16,17,18,19,21,22,23,24,25"

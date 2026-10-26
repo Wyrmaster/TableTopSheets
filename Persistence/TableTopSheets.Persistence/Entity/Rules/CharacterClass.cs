@@ -21,6 +21,11 @@ public class CharacterClass: RuleEntity
   /// </summary>
   public byte SubclassLevel { get; set; } = 3;
 
+  /// <summary>
+  ///   Alternatives of the starting equipment of a character whose first class this is ("Choose A or B")
+  /// </summary>
+  public List<StartingEquipmentOption> StartingEquipment { get; set; } = [];
+
   public ICollection<Subclass> Subclasses { get; set; } = new List<Subclass>();
 
   public ICollection<Feature> Features { get; set; } = new List<Feature>();

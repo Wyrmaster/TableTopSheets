@@ -22,6 +22,7 @@ public static class RequestMapper
     Abilities = dto.Abilities,
     Alignment = dto.Alignment,
     Selections = Selections(dto.Selections),
+    StartingEquipment = StartingEquipment(dto.StartingEquipment),
     AllowIncomplete = dto.AllowIncomplete,
   };
 
@@ -32,8 +33,12 @@ public static class RequestMapper
     HitPointRoll = dto.HitPointRoll,
     Selections = Selections(dto.Selections),
     Replacements = (dto.Replacements ?? []).Select(entry => new ReplacementRequest(entry.SelectionId, entry.OptionKey)).ToList(),
+    StartingEquipment = StartingEquipment(dto.StartingEquipment),
     AllowIncomplete = dto.AllowIncomplete,
   };
+
+  public static StartingEquipmentRequest? StartingEquipment(TakeStartingEquipmentDto? dto)
+    => dto == null ? null : new StartingEquipmentRequest(dto.OptionKey, dto.Picks);
 
   public static CharacterDetailsUpdate Details(UpdateCharacterDto dto) => new()
   {

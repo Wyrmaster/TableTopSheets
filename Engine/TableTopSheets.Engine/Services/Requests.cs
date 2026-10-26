@@ -20,6 +20,16 @@ public sealed record SelectionRequest(string ChoiceKey, string OptionKey, string
 /// </summary>
 public sealed record ReplacementRequest(Guid SelectionId, string OptionKey);
 
+/// <summary>
+///   Take one alternative of a starting equipment ("Choose A or B")
+/// </summary>
+/// <param name="OptionKey">the alternative (<c>a</c>, <c>b</c> ...)</param>
+/// <param name="Picks">
+///   item picked per entry key for entries that offer a choice (a Holy Symbol, a Gaming Set); a pick of a "same as above"
+///   entry also answers that choice when it is still open
+/// </param>
+public sealed record StartingEquipmentRequest(string OptionKey, IReadOnlyDictionary<string, string>? Picks = null);
+
 public sealed record CreateCharacterRequest
 {
   public required string Name { get; init; }
@@ -41,6 +51,11 @@ public sealed record CreateCharacterRequest
   ///   Species, background and origin feat selections
   /// </summary>
   public IReadOnlyList<SelectionRequest> Selections { get; init; } = [];
+
+  /// <summary>
+  ///   Starting equipment of the background (null = take it later)
+  /// </summary>
+  public StartingEquipmentRequest? StartingEquipment { get; init; }
 
   /// <summary>
   ///   Allow open choices (otherwise every required choice has to be answered)
@@ -65,6 +80,11 @@ public sealed record LevelUpRequest
   public IReadOnlyList<SelectionRequest> Selections { get; init; } = [];
 
   public IReadOnlyList<ReplacementRequest> Replacements { get; init; } = [];
+
+  /// <summary>
+  ///   Starting equipment of the class; only with the first level of the character (null = take it later)
+  /// </summary>
+  public StartingEquipmentRequest? StartingEquipment { get; init; }
 
   public bool AllowIncomplete { get; init; }
 }

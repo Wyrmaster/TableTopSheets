@@ -43,6 +43,10 @@ namespace TableTopSheets.Persistence.Sqlite.Migrations
                     b.Property<string>("ArmorClassChoice")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("BackgroundEquipment")
+                        .HasMaxLength(16)
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid?>("BackgroundId")
                         .HasColumnType("TEXT");
 
@@ -52,6 +56,10 @@ namespace TableTopSheets.Persistence.Sqlite.Migrations
 
                     b.Property<byte>("Charisma")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("ClassEquipment")
+                        .HasMaxLength(16)
+                        .HasColumnType("TEXT");
 
                     b.Property<byte>("Constitution")
                         .HasColumnType("INTEGER");
@@ -309,6 +317,10 @@ namespace TableTopSheets.Persistence.Sqlite.Migrations
                     b.Property<Guid?>("SourceId")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("StartingEquipment")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Key")
@@ -355,6 +367,10 @@ namespace TableTopSheets.Persistence.Sqlite.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<Guid?>("SourceId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("StartingEquipment")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<byte>("SubclassLevel")
@@ -647,11 +663,20 @@ namespace TableTopSheets.Persistence.Sqlite.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("Bundle")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(1);
+
                     b.Property<int>("CostCp")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("DescriptionHtml")
                         .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Group")
+                        .HasMaxLength(64)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Key")
@@ -1164,10 +1189,6 @@ namespace TableTopSheets.Persistence.Sqlite.Migrations
             modelBuilder.Entity("TableTopSheets.Persistence.Entity.Rules.Items.Tool", b =>
                 {
                     b.HasBaseType("TableTopSheets.Persistence.Entity.Rules.Items.Item");
-
-                    b.Property<string>("Group")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
 
                     b.HasDiscriminator().HasValue("Tool");
                 });

@@ -49,6 +49,10 @@ namespace TableTopSheets.Persistence.Postgresql.Migrations
                     b.Property<string>("ArmorClassChoice")
                         .HasColumnType("text");
 
+                    b.Property<string>("BackgroundEquipment")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
                     b.Property<Guid?>("BackgroundId")
                         .HasColumnType("uuid");
 
@@ -58,6 +62,10 @@ namespace TableTopSheets.Persistence.Postgresql.Migrations
 
                     b.Property<byte>("Charisma")
                         .HasColumnType("smallint");
+
+                    b.Property<string>("ClassEquipment")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
 
                     b.Property<byte>("Constitution")
                         .HasColumnType("smallint");
@@ -315,6 +323,10 @@ namespace TableTopSheets.Persistence.Postgresql.Migrations
                     b.Property<Guid?>("SourceId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("StartingEquipment")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Key")
@@ -362,6 +374,10 @@ namespace TableTopSheets.Persistence.Postgresql.Migrations
 
                     b.Property<Guid?>("SourceId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("StartingEquipment")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<byte>("SubclassLevel")
                         .HasColumnType("smallint");
@@ -653,12 +669,21 @@ namespace TableTopSheets.Persistence.Postgresql.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
 
+                    b.Property<int>("Bundle")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1);
+
                     b.Property<int>("CostCp")
                         .HasColumnType("integer");
 
                     b.Property<string>("DescriptionHtml")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<string>("Group")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
 
                     b.Property<string>("Key")
                         .IsRequired()
@@ -1170,10 +1195,6 @@ namespace TableTopSheets.Persistence.Postgresql.Migrations
             modelBuilder.Entity("TableTopSheets.Persistence.Entity.Rules.Items.Tool", b =>
                 {
                     b.HasBaseType("TableTopSheets.Persistence.Entity.Rules.Items.Item");
-
-                    b.Property<string>("Group")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.HasDiscriminator().HasValue("Tool");
                 });

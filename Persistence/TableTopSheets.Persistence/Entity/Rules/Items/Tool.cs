@@ -1,13 +1,6 @@
 namespace TableTopSheets.Persistence.Entity.Rules.Items;
 
-public class Tool: Item
-{
-  #region Properties
-
-  /// <summary>
-  ///   Tool group (<c>artisan</c>, <c>gaming-set</c>, <c>musical-instrument</c>, <c>other</c>)
-  /// </summary>
-  public string Group { get; set; } = "other";
-
-  #endregion
-}
+/// <summary>
+///   Artisan's tools, kits, gaming sets and musical instruments; the tool group is <see cref="Item.Group"/>
+/// </summary>
+public class Tool: Item;

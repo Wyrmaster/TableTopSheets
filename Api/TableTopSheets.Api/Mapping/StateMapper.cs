@@ -40,6 +40,8 @@ public static class StateMapper
       ArmorClass = sheet.ArmorClass,
       Items = character.Items.Select(entry => Item(evaluation, entry)).ToList(),
       Coins = new CoinsDto(sheet.Coins.Copper, sheet.Coins.Silver, sheet.Coins.Electrum, sheet.Coins.Gold, sheet.Coins.Platinum),
+      BackgroundEquipment = character.BackgroundEquipment,
+      ClassEquipment = character.ClassEquipment,
       Complete = pending.All(entry => entry.Optional),
       PendingChoices = pending,
       Violations = sheet.Violations.Select(entry => new ViolationDto(entry.Code, entry.Message, entry.Severity)).ToList(),
@@ -113,7 +115,7 @@ public static class StateMapper
   private static CharacterItemDto Item(CharacterEvaluation evaluation, CharacterItem entry)
   {
     Item item = evaluation.Catalog.Items[entry.ItemId];
-    return new CharacterItemDto(entry.Id, item.Key, item.Name, item.Kind, entry.Quantity, entry.EquipSlot, entry.Attuned, item.RequiresAttunement);
+    return new CharacterItemDto(entry.Id, item.Key, item.Name, item.Kind, entry.Quantity, entry.EquipSlot, entry.Attuned, item.RequiresAttunement, entry.Notes);
   }
 
   #endregion

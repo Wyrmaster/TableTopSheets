@@ -68,6 +68,16 @@ public class Character: BaseEntity
 
   public CharacterPlayState PlayState { get; set; } = new();
 
+  /// <summary>
+  ///   Key of the starting equipment alternative taken from the background (null = not taken yet)
+  /// </summary>
+  public string? BackgroundEquipment { get; set; }
+
+  /// <summary>
+  ///   Key of the starting equipment alternative taken from the first class (null = not taken yet)
+  /// </summary>
+  public string? ClassEquipment { get; set; }
+
   #endregion
 
   #region Navigation

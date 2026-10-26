@@ -10,6 +10,62 @@
       ],
       "primaryAbilityMode": "Any",
       "subclassLevel": 3,
+      "startingEquipment": [
+        {
+          "key": "a",
+          "items": [
+            {
+              "item": "chain-mail"
+            },
+            {
+              "item": "greatsword"
+            },
+            {
+              "item": "flail"
+            },
+            {
+              "item": "javelin",
+              "quantity": 8
+            },
+            {
+              "item": "dungeoneers-pack"
+            }
+          ],
+          "gold": 4
+        },
+        {
+          "key": "b",
+          "items": [
+            {
+              "item": "studded-leather-armor"
+            },
+            {
+              "item": "scimitar"
+            },
+            {
+              "item": "shortsword"
+            },
+            {
+              "item": "longbow"
+            },
+            {
+              "item": "arrows",
+              "quantity": 20
+            },
+            {
+              "item": "quiver"
+            },
+            {
+              "item": "dungeoneers-pack"
+            }
+          ],
+          "gold": 11
+        },
+        {
+          "key": "c",
+          "gold": 155
+        }
+      ],
       "scales": {
         "fighter.second-wind": "2,2,2,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4",
         "fighter.weapon-mastery": "3,3,3,4,4,4,4,4,4,5,5,5,5,5,5,6,6,6,6,6",

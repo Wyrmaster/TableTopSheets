@@ -1,0 +1,14 @@
+{
+  // items the rules name outside of the equipment tables of chapter 6
+  "items": [
+    {
+      // Wizard, Level 1: Spellcasting (starting equipment); the rule book gives no price, so it costs as much as a Book
+      "key": "spellbook",
+      "name": "Spellbook",
+      "kind": "Gear",
+      "cost": 2500,
+      "weight": 3,
+      "description": "<p>A Wizard's spellbook is a Tiny object that weighs 3 pounds, contains 100 pages, and can be read only by its owner or someone casting <em>Identify</em>. A Wizard can use it as a Spellcasting Focus for Wizard spells.</p>"
+    }
+  ]
+}

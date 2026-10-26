@@ -68,6 +68,7 @@ public sealed class SeedBuilder
   private readonly Dictionary<string, Feature> _features = new();
   private readonly List<(ChoiceOption Option, string FeatureKey)> _pendingGrants = new();
   private readonly List<(SpellcastingProfile Profile, string? ClassKey, Feature Feature)> _pendingProfiles = new();
+  private readonly List<(string Owner, string ChoiceKey)> _pendingSameAs = new();
   private readonly List<string> _errors = new();
 
   #endregion
@@ -183,7 +184,13 @@ public sealed class SeedBuilder
 
     foreach (SeedBackground seed in this._document.Backgrounds)
     {
-      Background background = this.Rule(new Background { Key = seed.Key, Name = seed.Name ?? seed.Key, AbilityOptions = seed.Abilities ?? [] }, "background", seed);
+      Background background = this.Rule(new Background
+      {
+        Key = seed.Key,
+        Name = seed.Name ?? seed.Key,
+        AbilityOptions = seed.Abilities ?? [],
+        StartingEquipment = this.BuildStartingEquipment($"background '{seed.Key}'", seed.StartingEquipment),
+      }, "background", seed);
       if (seed.OriginFeat != null)
       {
         Feat? feat = this._result.Feats.FirstOrDefault(entry => entry.Key == seed.OriginFeat);
@@ -282,6 +289,7 @@ public sealed class SeedBuilder
       PrimaryAbilities = seed.PrimaryAbilities ?? [],
       PrimaryAbilityMode = seed.PrimaryAbilityMode ?? PrimaryAbilityModeEnum.All,
       SubclassLevel = seed.SubclassLevel ?? 3,
+      StartingEquipment = this.BuildStartingEquipment($"class '{seed.Key}'", seed.StartingEquipment),
     }, "class", seed);
 
     this.AddScales(@class, seed.Scales);
@@ -530,8 +538,10 @@ public sealed class SeedBuilder
     };
 
     item.Kind = seed.Kind ?? ItemKindEnum.Gear;
+    item.Group ??= seed.Category;
     item.CostCp = seed.Cost ?? 0;
     item.Weight = seed.Weight ?? 0;
+    item.Bundle = seed.Bundle ?? 1;
     item.Magic = seed.Magic ?? false;
     item.RequiresAttunement = seed.Attunement ?? false;
     this.Rule(item, "item", seed);
@@ -544,8 +554,72 @@ public sealed class SeedBuilder
     return item;
   }
 
+  /// <summary>
+  ///   Starting equipment with item keys checked and picks resolved to the items of their groups
+  /// </summary>
+  private List<StartingEquipmentOption> BuildStartingEquipment(string owner, List<SeedStartingEquipment>? seeds)
+  {
+    List<StartingEquipmentOption> options = new();
+    foreach (SeedStartingEquipment seed in seeds ?? [])
+    {
+      StartingEquipmentOption option = new() { Key = seed.Key, CoinsCp = seed.Gold * 100 };
+      foreach (SeedStartingItem entry in seed.Items)
+      {
+        List<string> choose = entry.Choose ?? [];
+        string key = entry.Item ?? string.Join("-or-", choose);
+        if (option.Items.Any(existing => existing.Key == key))
+        {
+          key = $"{key}-{option.Items.Count + 1}";
+        }
+
+        if (entry.Item != null && this._result.Items.All(item => item.Key != entry.Item))
+        {
+          this._errors.Add($"{owner}: starting equipment item '{entry.Item}' doesn't exist");
+        }
+
+        List<string> picks = this._result.Items
+          .Where(item => item.Group != null && choose.Contains(item.Group))
+          .OrderBy(item => item.Name, StringComparer.Ordinal)
+          .Select(item => item.Key)
+          .ToList();
+        if ((entry.Item == null) == (choose.Count == 0) || (choose.Count > 0 && picks.Count == 0))
+        {
+          this._errors.Add($"{owner}: starting equipment entry '{key}' needs an item or groups with items to choose from");
+        }
+
+        if (entry.SameAs != null)
+        {
+          this._pendingSameAs.Add((owner, entry.SameAs));
+        }
+
+        option.Items.Add(new StartingEquipmentEntry
+        {
+          Key = key,
+          Name = entry.Name,
+          ItemKey = entry.Item,
+          Options = picks,
+          SameAs = entry.SameAs,
+          Quantity = entry.Quantity,
+          Note = entry.Note,
+        });
+      }
+
+      options.Add(option);
+    }
+
+    return options;
+  }
+
   private void ResolveReferences()
   {
+    foreach ((string owner, string choiceKey) in this._pendingSameAs)
+    {
+      if (this._features.Values.SelectMany(feature => feature.Choices).All(choice => choice.Key != choiceKey))
+      {
+        this._errors.Add($"{owner}: starting equipment refers to the unknown choice '{choiceKey}'");
+      }
+    }
+
     foreach ((ChoiceOption option, string key) in this._pendingGrants)
     {
       if (this._features.TryGetValue(key, out Feature? feature))

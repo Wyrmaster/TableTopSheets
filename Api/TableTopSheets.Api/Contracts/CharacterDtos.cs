@@ -16,8 +16,19 @@ public sealed record AbilityDto(string Key, string Name, int Score, int Modifier
 /// <summary>Rule violation of the current state (e.g. armor without training)</summary>
 public sealed record ViolationDto(string Code, string Message, ViolationSeverityEnum Severity);
 
-/// <summary>Owned item</summary>
-public sealed record CharacterItemDto(Guid Id, string ItemKey, string Name, ItemKindEnum Kind, int Quantity, EquipSlotEnum Slot, bool Attuned, bool RequiresAttunement);
+/// <summary>Owned item; <c>notes</c> tell what it is about (a book of <c>prayers</c>)</summary>
+public sealed record CharacterItemDto
+(
+  Guid Id,
+  string ItemKey,
+  string Name,
+  ItemKindEnum Kind,
+  int Quantity,
+  EquipSlotEnum Slot,
+  bool Attuned,
+  bool RequiresAttunement,
+  string? Notes
+);
 
 /// <summary>
 ///   Everything a client needs after a change: the summary, what the user still has to decide and what is wrong
@@ -50,6 +61,12 @@ public sealed record CharacterStateDto
 
   public required CoinsDto Coins { get; init; }
 
+  /// <summary>Starting equipment alternative taken from the background (null = still open)</summary>
+  public required string? BackgroundEquipment { get; init; }
+
+  /// <summary>Starting equipment alternative taken from the first class (null = still open or no class yet)</summary>
+  public required string? ClassEquipment { get; init; }
+
   /// <summary>True when no required choice is open</summary>
   public required bool Complete { get; init; }
 
@@ -79,6 +96,9 @@ public sealed record CreateCharacterDto
 
   /// <summary>Answers to origin choices known up front (more can be posted later)</summary>
   public IReadOnlyList<SelectionDto> Selections { get; init; } = [];
+
+  /// <summary>Starting equipment of the background; null takes it later (<c>POST /starting-equipment/background</c>)</summary>
+  public TakeStartingEquipmentDto? StartingEquipment { get; init; }
 
   /// <summary>Save even when required choices are open (default); false rejects incomplete characters</summary>
   public bool AllowIncomplete { get; init; } = true;
@@ -124,6 +144,9 @@ public sealed record LevelUpDto
   public IReadOnlyList<SelectionDto> Selections { get; init; } = [];
 
   public IReadOnlyList<ReplacementDto> Replacements { get; init; } = [];
+
+  /// <summary>Starting equipment of the class, only with the first level; null takes it later (<c>POST /starting-equipment/class</c>)</summary>
+  public TakeStartingEquipmentDto? StartingEquipment { get; init; }
 
   /// <summary>Save even when required choices are open (default); false rejects incomplete level ups</summary>
   public bool AllowIncomplete { get; init; } = true;

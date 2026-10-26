@@ -1,12 +1,15 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using TableTopSheets.Api.Contracts;
 using TableTopSheets.Api.Mapping;
+using TableTopSheets.Common.Enum.Rules;
+using TableTopSheets.Engine.Evaluation;
 using TableTopSheets.Engine.Services;
+using TableTopSheets.Persistence;
 
 namespace TableTopSheets.Api.Endpoints;
 
 /// <summary>
-///   Items (add, buy, remove, sell), coins, equipment slots, attunement, toggles and the armor class calculation
+///   Starting equipment, items (add, buy, remove, sell), coins, equipment slots, attunement, toggles and the armor class calculation
 /// </summary>
 public static class InventoryEndpoints
 {
@@ -16,9 +19,16 @@ public static class InventoryEndpoints
   {
     RouteGroupBuilder group = routes.MapGroup("/api/characters/{id:guid}").WithTags("Inventory").WithCharacterProblems().RequireUser();
 
+    group.MapGet("/starting-equipment", GetStartingEquipment).WithName("GetStartingEquipment")
+      .WithSummary("Starting equipment of the background and the first class, and which alternative was taken");
+    group.MapPost("/starting-equipment/{source}", TakeStartingEquipment).WithName("TakeStartingEquipment")
+      .WithSummary("Take an alternative of the starting equipment (source Background or Class)")
+      .WithDescription("Adds the items and coins of the alternative once per source. Entries with options need a pick keyed by the entry key; "
+                       + "a pick of a \"same as above\" entry also answers that tool choice while it is open. Errors answer 422.");
     group.MapPost("/items", AddItem).WithName("AddItem")
       .WithSummary("Add an item to the inventory")
-      .WithDescription("With purchase true the item's cost (times the quantity) is paid from the coins; change is returned. Not enough coins answer 422.");
+      .WithDescription("With purchase true the item's cost is paid from the coins; change is returned. Items sold in bundles (20 arrows) cost per "
+                       + "started bundle, the quantity counts pieces. Not enough coins answer 422.");
     group.MapDelete("/items/{itemId:guid}", RemoveItem).WithName("RemoveItem")
       .WithSummary("Remove an item or part of a stack")
       .WithDescription("quantity removes that many pieces (default: the whole stack); sell=true credits half of the item's cost per piece to the coins.");
@@ -32,6 +42,50 @@ public static class InventoryEndpoints
     group.MapPut("/toggles/{featureKey}", Toggle).WithName("ToggleFeature").WithSummary("Switch a toggleable feature on or off");
     group.MapPut("/armor-class", ArmorClass).WithName("ChooseArmorClass").WithSummary("Choose the armor class calculation");
     return group;
+  }
+
+  private static async Task<Ok<IReadOnlyList<StartingEquipmentDto>>> GetStartingEquipment
+  (
+    CharacterService service,
+    TableTopSheetsContext context,
+    Guid id,
+    CancellationToken cancellationToken
+  )
+  {
+    List<StartingEquipmentDto> result = new();
+    foreach (StartingEquipmentOffer offer in await service.GetStartingEquipmentAsync(id, cancellationToken))
+    {
+      IReadOnlyDictionary<string, string> names = await RulesEndpoints.ItemNamesAsync(context, offer.Options, cancellationToken);
+      result.Add(new StartingEquipmentDto
+      (
+        offer.Source,
+        offer.OwnerKey,
+        offer.OwnerName,
+        offer.Taken,
+        RuleMapper.StartingEquipment(offer.Options, names, offer.SameAs)
+      ));
+    }
+
+    return TypedResults.Ok<IReadOnlyList<StartingEquipmentDto>>(result);
+  }
+
+  /// <param name="source"><c>background</c> or <c>class</c> (any case)</param>
+  private static async Task<Results<Ok<CharacterStateDto>, NotFound>> TakeStartingEquipment
+  (
+    CharacterService service,
+    Guid id,
+    string source,
+    TakeStartingEquipmentDto dto,
+    CancellationToken cancellationToken
+  )
+  {
+    if (!Enum.TryParse(source, true, out StartingEquipmentSourceEnum parsed) || !Enum.IsDefined(parsed))
+    {
+      return TypedResults.NotFound();
+    }
+
+    CharacterEvaluation evaluation = await service.TakeStartingEquipmentAsync(id, parsed, RequestMapper.StartingEquipment(dto)!, cancellationToken);
+    return TypedResults.Ok(StateMapper.State(evaluation));
   }
 
   private static async Task<Ok<CharacterStateDto>> AddItem(CharacterService service, Guid id, AddItemDto dto, CancellationToken cancellationToken)

@@ -23,6 +23,7 @@ public static class SeedMerger
       MergeNamed(into, from);
       into.Abilities = from.Abilities ?? into.Abilities;
       into.OriginFeat = from.OriginFeat ?? into.OriginFeat;
+      into.StartingEquipment = from.StartingEquipment ?? into.StartingEquipment;
       MergeFeatures(into.Features, from.Features);
     });
     MergeList(target.Feats, source.Feats, (into, from) =>
@@ -79,6 +80,7 @@ public static class SeedMerger
     into.PrimaryAbilities = from.PrimaryAbilities ?? into.PrimaryAbilities;
     into.PrimaryAbilityMode = from.PrimaryAbilityMode ?? into.PrimaryAbilityMode;
     into.SubclassLevel = from.SubclassLevel ?? into.SubclassLevel;
+    into.StartingEquipment = from.StartingEquipment ?? into.StartingEquipment;
     foreach ((string key, string value) in from.Scales)
     {
       into.Scales[key] = value;
@@ -105,6 +107,8 @@ public static class SeedMerger
     into.Weight = from.Weight ?? into.Weight;
     into.Magic = from.Magic ?? into.Magic;
     into.Attunement = from.Attunement ?? into.Attunement;
+    into.Category = from.Category ?? into.Category;
+    into.Bundle = from.Bundle ?? into.Bundle;
     into.WeaponCategory = from.WeaponCategory ?? into.WeaponCategory;
     into.Ranged = from.Ranged ?? into.Ranged;
     into.Damage = from.Damage ?? into.Damage;

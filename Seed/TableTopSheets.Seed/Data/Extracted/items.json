@@ -927,6 +927,7 @@
     {
       "kind": "Tool",
       "cost": 10,
+      "weight": 0,
       "features": [],
       "toolGroup": "gaming-set",
       "key": "dice",
@@ -936,6 +937,7 @@
     {
       "kind": "Tool",
       "cost": 100,
+      "weight": 0,
       "features": [],
       "toolGroup": "gaming-set",
       "key": "dragonchess",
@@ -945,6 +947,7 @@
     {
       "kind": "Tool",
       "cost": 50,
+      "weight": 0,
       "features": [],
       "toolGroup": "gaming-set",
       "key": "playing-cards",
@@ -954,6 +957,7 @@
     {
       "kind": "Tool",
       "cost": 100,
+      "weight": 0,
       "features": [],
       "toolGroup": "gaming-set",
       "key": "three-dragon-ante",
@@ -973,6 +977,7 @@
     {
       "kind": "Tool",
       "cost": 3000,
+      "weight": 6,
       "features": [],
       "toolGroup": "musical-instrument",
       "key": "bagpipes",
@@ -982,6 +987,7 @@
     {
       "kind": "Tool",
       "cost": 600,
+      "weight": 3,
       "features": [],
       "toolGroup": "musical-instrument",
       "key": "drum",
@@ -991,6 +997,7 @@
     {
       "kind": "Tool",
       "cost": 2500,
+      "weight": 10,
       "features": [],
       "toolGroup": "musical-instrument",
       "key": "dulcimer",
@@ -1000,6 +1007,7 @@
     {
       "kind": "Tool",
       "cost": 200,
+      "weight": 1,
       "features": [],
       "toolGroup": "musical-instrument",
       "key": "flute",
@@ -1008,7 +1016,18 @@
     },
     {
       "kind": "Tool",
+      "cost": 300,
+      "weight": 2,
+      "features": [],
+      "toolGroup": "musical-instrument",
+      "key": "horn",
+      "name": "Horn",
+      "description": "<p><em>Musical Instrument</em></p><ul><li><strong>Ability:</strong> Charisma</li><li><strong>Weight:</strong> Varies</li><li><strong>Utilize:</strong> Play a known tune (DC 10), or improvise a song (DC 15)</li></ul>"
+    },
+    {
+      "kind": "Tool",
       "cost": 3500,
+      "weight": 2,
       "features": [],
       "toolGroup": "musical-instrument",
       "key": "lute",
@@ -1018,6 +1037,7 @@
     {
       "kind": "Tool",
       "cost": 3000,
+      "weight": 2,
       "features": [],
       "toolGroup": "musical-instrument",
       "key": "lyre",
@@ -1027,6 +1047,7 @@
     {
       "kind": "Tool",
       "cost": 1200,
+      "weight": 2,
       "features": [],
       "toolGroup": "musical-instrument",
       "key": "pan-flute",
@@ -1036,6 +1057,7 @@
     {
       "kind": "Tool",
       "cost": 200,
+      "weight": 1,
       "features": [],
       "toolGroup": "musical-instrument",
       "key": "shawm",
@@ -1045,6 +1067,7 @@
     {
       "kind": "Tool",
       "cost": 3000,
+      "weight": 1,
       "features": [],
       "toolGroup": "musical-instrument",
       "key": "viol",
@@ -1229,6 +1252,7 @@
       "kind": "Gear",
       "cost": 1600,
       "weight": 42,
+      "category": "pack",
       "features": [],
       "key": "burglars-pack",
       "name": "Burglar's Pack",
@@ -1346,6 +1370,7 @@
       "kind": "Gear",
       "cost": 3900,
       "weight": 39,
+      "category": "pack",
       "features": [],
       "key": "diplomats-pack",
       "name": "Diplomat's Pack",
@@ -1364,6 +1389,7 @@
       "kind": "Gear",
       "cost": 1200,
       "weight": 55,
+      "category": "pack",
       "features": [],
       "key": "dungeoneers-pack",
       "name": "Dungeoneer's Pack",
@@ -1372,7 +1398,8 @@
     {
       "kind": "Gear",
       "cost": 4000,
-      "weight": 0,
+      "weight": 58.5,
+      "category": "pack",
       "features": [],
       "key": "entertainers-pack",
       "name": "Entertainer's Pack",
@@ -1382,6 +1409,7 @@
       "kind": "Gear",
       "cost": 1000,
       "weight": 55,
+      "category": "pack",
       "features": [],
       "key": "explorers-pack",
       "name": "Explorer's Pack",
@@ -1643,6 +1671,7 @@
       "kind": "Gear",
       "cost": 3300,
       "weight": 29,
+      "category": "pack",
       "features": [],
       "key": "priests-pack",
       "name": "Priest's Pack",
@@ -1706,6 +1735,7 @@
       "kind": "Gear",
       "cost": 4000,
       "weight": 22,
+      "category": "pack",
       "features": [],
       "key": "scholars-pack",
       "name": "Scholar's Pack",
@@ -1816,6 +1846,449 @@
       "key": "waterskin",
       "name": "Waterskin",
       "description": "<p>A Waterskin holds up to 4 pints. If you don't drink sufficient water, you risk dehydration.</p><h5>Mounts and Vehicles</h5><p>A mount can help you move more quickly through the wilderness, but its primary purpose is to carry gear that would otherwise slow you down. The <em>Mounts and Other Animals table</em> shows each animal's carrying capacity. See appendix B for the animals' stat blocks.</p><h5>Mounts and Cargo</h5><p>An animal pulling a carriage, cart, chariot, sled, or wagon can move weight up to five times its base carrying capacity, including the weight of the vehicle. If multiple animals pull the same vehicle, add their carrying capacities together.</p><h5>Barding</h5><p>Barding is armor designed for a mount. Any type of armor on the Armor table in this chapter can be purchased as barding. The cost is four times the normal cost, and it weighs twice as much.</p><h5>Saddles</h5><p>A saddle comes with a bit, a bridle, reins, and any other equipment needed to use the saddle. A Military Saddle gives Advantage on any ability check you make to remain mounted. An Exotic Saddle is required for riding an aquatic or a flying mount.</p><h5>Mounts and Other Animals</h5><table><tr><th>Item</th><th>Carrying Capacity</th><th>Cost</th></tr><tr><td><em>Camel</em></td><td>450 lb.</td><td>50 GP</td></tr><tr><td><em>Elephant</em></td><td>1,320 lb.</td><td>200 GP</td></tr><tr><td><em>Horse, Draft</em></td><td>540 lb.</td><td>50 GP</td></tr><tr><td><em>Horse, Riding</em></td><td>480 lb.</td><td>75 GP</td></tr><tr><td><em>Mastiff</em></td><td>195 lb.</td><td>25 GP</td></tr><tr><td><em>Mule</em></td><td>420 lb.</td><td>8 GP</td></tr><tr><td><em>Pony</em></td><td>225 lb.</td><td>30 GP</td></tr><tr><td><em>Warhorse</em></td><td>540 lb.</td><td>400 GP</td></tr></table><h5>Tack, Harness, and Drawn Vehicles</h5><table><tr><th>Item</th><th>Weight</th><th>Cost</th></tr><tr><td><em>Carriage</em></td><td>600 lb.</td><td>100 GP</td></tr><tr><td><em>Cart</em></td><td>200 lb.</td><td>15 GP</td></tr><tr><td><em>Chariot</em></td><td>100 lb.</td><td>250 GP</td></tr><tr><td><em>Feed per day</em></td><td>10 lb.</td><td>5 CP</td></tr><tr><td><em>Saddle</em></td></tr><tr><td><em>Exotic</em></td><td>40 lb.</td><td>60 GP</td></tr><tr><td><em>Military</em></td><td>30 lb.</td><td>20 GP</td></tr><tr><td><em>Riding</em></td><td>25 lb.</td><td>10 GP</td></tr><tr><td><em>Sled</em></td><td>300 lb.</td><td>20 GP</td></tr><tr><td>Stabling per day</td><td>—</td><td>5 SP</td></tr><tr><td><em>Wagon</em></td><td>400 lb.</td><td>35 GP</td></tr></table><h5>Large Vehicles</h5><p>The Airborne and Waterborne Vehicles table provides statistics for various types of large vehicles. The following notes apply.</p>"
+    },
+    {
+      "kind": "Gear",
+      "cost": 100,
+      "weight": 1,
+      "category": "ammunition",
+      "bundle": 20,
+      "features": [],
+      "key": "arrows",
+      "name": "Arrows",
+      "description": "<p>Ammunition is required by a weapon that has the Ammunition property. A weapon's description specifies the type of ammunition used by the weapon. The Ammunition table lists the different types and the amount you get when you buy them. The table also lists the item that is typically used to store each type; storage must be bought separately.</p><p>Sold in bundles of 20, stored in a <em>Quiver</em>.</p>"
+    },
+    {
+      "kind": "Gear",
+      "cost": 100,
+      "weight": 1.5,
+      "category": "ammunition",
+      "bundle": 20,
+      "features": [],
+      "key": "bolts",
+      "name": "Bolts",
+      "description": "<p>Ammunition is required by a weapon that has the Ammunition property. A weapon's description specifies the type of ammunition used by the weapon. The Ammunition table lists the different types and the amount you get when you buy them. The table also lists the item that is typically used to store each type; storage must be bought separately.</p><p>Sold in bundles of 20, stored in a <em>Case</em>.</p>"
+    },
+    {
+      "kind": "Gear",
+      "cost": 300,
+      "weight": 2,
+      "category": "ammunition",
+      "bundle": 10,
+      "features": [],
+      "key": "bullets-firearm",
+      "name": "Bullets, Firearm",
+      "description": "<p>Ammunition is required by a weapon that has the Ammunition property. A weapon's description specifies the type of ammunition used by the weapon. The Ammunition table lists the different types and the amount you get when you buy them. The table also lists the item that is typically used to store each type; storage must be bought separately.</p><p>Sold in bundles of 10, stored in a <em>Pouch</em>.</p>"
+    },
+    {
+      "kind": "Gear",
+      "cost": 4,
+      "weight": 1.5,
+      "category": "ammunition",
+      "bundle": 20,
+      "features": [],
+      "key": "bullets-sling",
+      "name": "Bullets, Sling",
+      "description": "<p>Ammunition is required by a weapon that has the Ammunition property. A weapon's description specifies the type of ammunition used by the weapon. The Ammunition table lists the different types and the amount you get when you buy them. The table also lists the item that is typically used to store each type; storage must be bought separately.</p><p>Sold in bundles of 20, stored in a <em>Pouch</em>.</p>"
+    },
+    {
+      "kind": "Gear",
+      "cost": 100,
+      "weight": 1,
+      "category": "ammunition",
+      "bundle": 50,
+      "features": [],
+      "key": "needles",
+      "name": "Needles",
+      "description": "<p>Ammunition is required by a weapon that has the Ammunition property. A weapon's description specifies the type of ammunition used by the weapon. The Ammunition table lists the different types and the amount you get when you buy them. The table also lists the item that is typically used to store each type; storage must be bought separately.</p><p>Sold in bundles of 50, stored in a <em>Pouch</em>.</p>"
+    },
+    {
+      "kind": "Gear",
+      "cost": 1000,
+      "weight": 1,
+      "category": "arcane-focus",
+      "features": [],
+      "key": "arcane-focus-crystal",
+      "name": "Arcane Focus (Crystal)",
+      "description": "<p>An Arcane Focus takes one of the forms in the Arcane Focuses table and is bejeweled or carved to channel arcane magic. A Sorcerer, Warlock, or Wizard can use such an item as a Spellcasting Focus.</p>"
+    },
+    {
+      "kind": "Gear",
+      "cost": 2000,
+      "weight": 3,
+      "category": "arcane-focus",
+      "features": [],
+      "key": "arcane-focus-orb",
+      "name": "Arcane Focus (Orb)",
+      "description": "<p>An Arcane Focus takes one of the forms in the Arcane Focuses table and is bejeweled or carved to channel arcane magic. A Sorcerer, Warlock, or Wizard can use such an item as a Spellcasting Focus.</p>"
+    },
+    {
+      "kind": "Gear",
+      "cost": 1000,
+      "weight": 2,
+      "category": "arcane-focus",
+      "features": [],
+      "key": "arcane-focus-rod",
+      "name": "Arcane Focus (Rod)",
+      "description": "<p>An Arcane Focus takes one of the forms in the Arcane Focuses table and is bejeweled or carved to channel arcane magic. A Sorcerer, Warlock, or Wizard can use such an item as a Spellcasting Focus.</p>"
+    },
+    {
+      "kind": "Weapon",
+      "cost": 500,
+      "weight": 4,
+      "category": "arcane-focus",
+      "features": [],
+      "weaponCategory": "Simple",
+      "ranged": false,
+      "damage": "1d6",
+      "damageType": "Bludgeoning",
+      "properties": "Versatile, Melee",
+      "versatile": "1d8",
+      "mastery": "topple",
+      "key": "arcane-focus-staff",
+      "name": "Arcane Focus (Staff)",
+      "description": "<p>An Arcane Focus takes one of the forms in the Arcane Focuses table and is bejeweled or carved to channel arcane magic. A Sorcerer, Warlock, or Wizard can use such an item as a Spellcasting Focus.</p><p>It is also a <em>Quarterstaff</em>.</p>"
+    },
+    {
+      "kind": "Gear",
+      "cost": 1000,
+      "weight": 1,
+      "category": "arcane-focus",
+      "features": [],
+      "key": "arcane-focus-wand",
+      "name": "Arcane Focus (Wand)",
+      "description": "<p>An Arcane Focus takes one of the forms in the Arcane Focuses table and is bejeweled or carved to channel arcane magic. A Sorcerer, Warlock, or Wizard can use such an item as a Spellcasting Focus.</p>"
+    },
+    {
+      "kind": "Gear",
+      "cost": 100,
+      "weight": 0,
+      "category": "druidic-focus",
+      "features": [],
+      "key": "druidic-focus-sprig-of-mistletoe",
+      "name": "Druidic Focus (Sprig of Mistletoe)",
+      "description": "<p>A Druidic Focus takes one of the forms in the Druidic Focuses table and is carved, tied with ribbon, or painted to channel primal magic. A Druid or Ranger can use such an object as a Spellcasting Focus.</p>"
+    },
+    {
+      "kind": "Weapon",
+      "cost": 500,
+      "weight": 4,
+      "category": "druidic-focus",
+      "features": [],
+      "weaponCategory": "Simple",
+      "ranged": false,
+      "damage": "1d6",
+      "damageType": "Bludgeoning",
+      "properties": "Versatile, Melee",
+      "versatile": "1d8",
+      "mastery": "topple",
+      "key": "druidic-focus-wooden-staff",
+      "name": "Druidic Focus (Wooden Staff)",
+      "description": "<p>A Druidic Focus takes one of the forms in the Druidic Focuses table and is carved, tied with ribbon, or painted to channel primal magic. A Druid or Ranger can use such an object as a Spellcasting Focus.</p><p>It is also a <em>Quarterstaff</em>.</p>"
+    },
+    {
+      "kind": "Gear",
+      "cost": 1000,
+      "weight": 1,
+      "category": "druidic-focus",
+      "features": [],
+      "key": "druidic-focus-yew-wand",
+      "name": "Druidic Focus (Yew Wand)",
+      "description": "<p>A Druidic Focus takes one of the forms in the Druidic Focuses table and is carved, tied with ribbon, or painted to channel primal magic. A Druid or Ranger can use such an object as a Spellcasting Focus.</p>"
+    },
+    {
+      "kind": "Gear",
+      "cost": 500,
+      "weight": 1,
+      "category": "holy-symbol",
+      "features": [],
+      "key": "holy-symbol-amulet",
+      "name": "Holy Symbol (Amulet)",
+      "description": "<p>A Holy Symbol takes one of the forms in the Holy Symbol table and is bejeweled or painted to channel divine magic. A Cleric or Paladin can use a Holy Symbol as a Spellcasting Focus.</p><p>The table indicates whether a Holy Symbol needs to be held, worn, or borne on fabric (such as a tabard or banner) or a Shield.</p><p><em>Amulet:</em> worn or held.</p>"
+    },
+    {
+      "kind": "Gear",
+      "cost": 500,
+      "weight": 0,
+      "category": "holy-symbol",
+      "features": [],
+      "key": "holy-symbol-emblem",
+      "name": "Holy Symbol (Emblem)",
+      "description": "<p>A Holy Symbol takes one of the forms in the Holy Symbol table and is bejeweled or painted to channel divine magic. A Cleric or Paladin can use a Holy Symbol as a Spellcasting Focus.</p><p>The table indicates whether a Holy Symbol needs to be held, worn, or borne on fabric (such as a tabard or banner) or a Shield.</p><p><em>Emblem:</em> borne on fabric or a Shield.</p>"
+    },
+    {
+      "kind": "Gear",
+      "cost": 500,
+      "weight": 2,
+      "category": "holy-symbol",
+      "features": [],
+      "key": "holy-symbol-reliquary",
+      "name": "Holy Symbol (Reliquary)",
+      "description": "<p>A Holy Symbol takes one of the forms in the Holy Symbol table and is bejeweled or painted to channel divine magic. A Cleric or Paladin can use a Holy Symbol as a Spellcasting Focus.</p><p>The table indicates whether a Holy Symbol needs to be held, worn, or borne on fabric (such as a tabard or banner) or a Shield.</p><p><em>Reliquary:</em> held.</p>"
+    },
+    {
+      "kind": "Gear",
+      "cost": 5000,
+      "category": "mount",
+      "features": [],
+      "key": "camel",
+      "name": "Camel",
+      "description": "<p><strong>Carrying Capacity:</strong> 450 lb.</p><p>An animal pulling a carriage, cart, chariot, sled, or wagon can move weight up to five times its base carrying capacity, including the weight of the vehicle. If multiple animals pull the same vehicle, add their carrying capacities together.</p>"
+    },
+    {
+      "kind": "Gear",
+      "cost": 20000,
+      "category": "mount",
+      "features": [],
+      "key": "elephant",
+      "name": "Elephant",
+      "description": "<p><strong>Carrying Capacity:</strong> 1,320 lb.</p><p>An animal pulling a carriage, cart, chariot, sled, or wagon can move weight up to five times its base carrying capacity, including the weight of the vehicle. If multiple animals pull the same vehicle, add their carrying capacities together.</p>"
+    },
+    {
+      "kind": "Gear",
+      "cost": 5000,
+      "category": "mount",
+      "features": [],
+      "key": "horse-draft",
+      "name": "Horse, Draft",
+      "description": "<p><strong>Carrying Capacity:</strong> 540 lb.</p><p>An animal pulling a carriage, cart, chariot, sled, or wagon can move weight up to five times its base carrying capacity, including the weight of the vehicle. If multiple animals pull the same vehicle, add their carrying capacities together.</p>"
+    },
+    {
+      "kind": "Gear",
+      "cost": 7500,
+      "category": "mount",
+      "features": [],
+      "key": "horse-riding",
+      "name": "Horse, Riding",
+      "description": "<p><strong>Carrying Capacity:</strong> 480 lb.</p><p>An animal pulling a carriage, cart, chariot, sled, or wagon can move weight up to five times its base carrying capacity, including the weight of the vehicle. If multiple animals pull the same vehicle, add their carrying capacities together.</p>"
+    },
+    {
+      "kind": "Gear",
+      "cost": 2500,
+      "category": "mount",
+      "features": [],
+      "key": "mastiff",
+      "name": "Mastiff",
+      "description": "<p><strong>Carrying Capacity:</strong> 195 lb.</p><p>An animal pulling a carriage, cart, chariot, sled, or wagon can move weight up to five times its base carrying capacity, including the weight of the vehicle. If multiple animals pull the same vehicle, add their carrying capacities together.</p>"
+    },
+    {
+      "kind": "Gear",
+      "cost": 800,
+      "category": "mount",
+      "features": [],
+      "key": "mule",
+      "name": "Mule",
+      "description": "<p><strong>Carrying Capacity:</strong> 420 lb.</p><p>An animal pulling a carriage, cart, chariot, sled, or wagon can move weight up to five times its base carrying capacity, including the weight of the vehicle. If multiple animals pull the same vehicle, add their carrying capacities together.</p>"
+    },
+    {
+      "kind": "Gear",
+      "cost": 3000,
+      "category": "mount",
+      "features": [],
+      "key": "pony",
+      "name": "Pony",
+      "description": "<p><strong>Carrying Capacity:</strong> 225 lb.</p><p>An animal pulling a carriage, cart, chariot, sled, or wagon can move weight up to five times its base carrying capacity, including the weight of the vehicle. If multiple animals pull the same vehicle, add their carrying capacities together.</p>"
+    },
+    {
+      "kind": "Gear",
+      "cost": 40000,
+      "category": "mount",
+      "features": [],
+      "key": "warhorse",
+      "name": "Warhorse",
+      "description": "<p><strong>Carrying Capacity:</strong> 540 lb.</p><p>An animal pulling a carriage, cart, chariot, sled, or wagon can move weight up to five times its base carrying capacity, including the weight of the vehicle. If multiple animals pull the same vehicle, add their carrying capacities together.</p>"
+    },
+    {
+      "kind": "Gear",
+      "cost": 10000,
+      "weight": 600,
+      "category": "vehicle",
+      "features": [],
+      "key": "carriage",
+      "name": "Carriage",
+      "description": "<p>An animal pulling a carriage, cart, chariot, sled, or wagon can move weight up to five times its base carrying capacity, including the weight of the vehicle. If multiple animals pull the same vehicle, add their carrying capacities together.</p>"
+    },
+    {
+      "kind": "Gear",
+      "cost": 1500,
+      "weight": 200,
+      "category": "vehicle",
+      "features": [],
+      "key": "cart",
+      "name": "Cart",
+      "description": "<p>An animal pulling a carriage, cart, chariot, sled, or wagon can move weight up to five times its base carrying capacity, including the weight of the vehicle. If multiple animals pull the same vehicle, add their carrying capacities together.</p>"
+    },
+    {
+      "kind": "Gear",
+      "cost": 25000,
+      "weight": 100,
+      "category": "vehicle",
+      "features": [],
+      "key": "chariot",
+      "name": "Chariot",
+      "description": "<p>An animal pulling a carriage, cart, chariot, sled, or wagon can move weight up to five times its base carrying capacity, including the weight of the vehicle. If multiple animals pull the same vehicle, add their carrying capacities together.</p>"
+    },
+    {
+      "kind": "Gear",
+      "cost": 5,
+      "weight": 10,
+      "category": "tack",
+      "features": [],
+      "key": "feed-1-day",
+      "name": "Feed (1 day)"
+    },
+    {
+      "kind": "Gear",
+      "cost": 6000,
+      "weight": 40,
+      "category": "tack",
+      "features": [],
+      "key": "saddle-exotic",
+      "name": "Saddle, Exotic",
+      "description": "<p>A saddle comes with a bit, a bridle, reins, and any other equipment needed to use the saddle. A Military Saddle gives Advantage on any ability check you make to remain mounted. An Exotic Saddle is required for riding an aquatic or a flying mount.</p>"
+    },
+    {
+      "kind": "Gear",
+      "cost": 2000,
+      "weight": 30,
+      "category": "tack",
+      "features": [],
+      "key": "saddle-military",
+      "name": "Saddle, Military",
+      "description": "<p>A saddle comes with a bit, a bridle, reins, and any other equipment needed to use the saddle. A Military Saddle gives Advantage on any ability check you make to remain mounted. An Exotic Saddle is required for riding an aquatic or a flying mount.</p>"
+    },
+    {
+      "kind": "Gear",
+      "cost": 1000,
+      "weight": 25,
+      "category": "tack",
+      "features": [],
+      "key": "saddle-riding",
+      "name": "Saddle, Riding",
+      "description": "<p>A saddle comes with a bit, a bridle, reins, and any other equipment needed to use the saddle. A Military Saddle gives Advantage on any ability check you make to remain mounted. An Exotic Saddle is required for riding an aquatic or a flying mount.</p>"
+    },
+    {
+      "kind": "Gear",
+      "cost": 2000,
+      "weight": 300,
+      "category": "vehicle",
+      "features": [],
+      "key": "sled",
+      "name": "Sled",
+      "description": "<p>An animal pulling a carriage, cart, chariot, sled, or wagon can move weight up to five times its base carrying capacity, including the weight of the vehicle. If multiple animals pull the same vehicle, add their carrying capacities together.</p>"
+    },
+    {
+      "kind": "Gear",
+      "cost": 3500,
+      "weight": 400,
+      "category": "vehicle",
+      "features": [],
+      "key": "wagon",
+      "name": "Wagon",
+      "description": "<p>An animal pulling a carriage, cart, chariot, sled, or wagon can move weight up to five times its base carrying capacity, including the weight of the vehicle. If multiple animals pull the same vehicle, add their carrying capacities together.</p>"
+    },
+    {
+      "kind": "Gear",
+      "cost": 4000000,
+      "category": "ship",
+      "features": [],
+      "key": "airship",
+      "name": "Airship",
+      "description": "<ul><li><strong>Speed:</strong> 8 mph</li><li><strong>Crew:</strong> 10</li><li><strong>Passengers:</strong> 20</li><li><strong>Cargo:</strong> 1 tons</li><li><strong>AC:</strong> 13</li><li><strong>HP:</strong> 300</li><li><strong>Damage Threshold:</strong> —</li></ul><p>The Airborne and Waterborne Vehicles table provides statistics for various types of large vehicles. The following notes apply.</p>"
+    },
+    {
+      "kind": "Gear",
+      "cost": 3000000,
+      "category": "ship",
+      "features": [],
+      "key": "galley",
+      "name": "Galley",
+      "description": "<ul><li><strong>Speed:</strong> 4 mph</li><li><strong>Crew:</strong> 80</li><li><strong>Passengers:</strong> —</li><li><strong>Cargo:</strong> 150 tons</li><li><strong>AC:</strong> 15</li><li><strong>HP:</strong> 500</li><li><strong>Damage Threshold:</strong> 20</li></ul><p>The Airborne and Waterborne Vehicles table provides statistics for various types of large vehicles. The following notes apply.</p>"
+    },
+    {
+      "kind": "Gear",
+      "cost": 300000,
+      "category": "ship",
+      "features": [],
+      "key": "keelboat",
+      "name": "Keelboat",
+      "description": "<ul><li><strong>Speed:</strong> 1 mph</li><li><strong>Crew:</strong> 1</li><li><strong>Passengers:</strong> 6</li><li><strong>Cargo:</strong> 1/2 tons</li><li><strong>AC:</strong> 15</li><li><strong>HP:</strong> 100</li><li><strong>Damage Threshold:</strong> 10</li></ul><p>The Airborne and Waterborne Vehicles table provides statistics for various types of large vehicles. The following notes apply.</p>"
+    },
+    {
+      "kind": "Gear",
+      "cost": 1000000,
+      "category": "ship",
+      "features": [],
+      "key": "longship",
+      "name": "Longship",
+      "description": "<ul><li><strong>Speed:</strong> 3 mph</li><li><strong>Crew:</strong> 40</li><li><strong>Passengers:</strong> 150</li><li><strong>Cargo:</strong> 10 tons</li><li><strong>AC:</strong> 15</li><li><strong>HP:</strong> 300</li><li><strong>Damage Threshold:</strong> 15</li></ul><p>The Airborne and Waterborne Vehicles table provides statistics for various types of large vehicles. The following notes apply.</p>"
+    },
+    {
+      "kind": "Gear",
+      "cost": 5000,
+      "category": "ship",
+      "features": [],
+      "key": "rowboat",
+      "name": "Rowboat",
+      "description": "<ul><li><strong>Speed:</strong> 1&#189; mph</li><li><strong>Crew:</strong> 1</li><li><strong>Passengers:</strong> 3</li><li><strong>Cargo:</strong> — tons</li><li><strong>AC:</strong> 11</li><li><strong>HP:</strong> 50</li><li><strong>Damage Threshold:</strong> —</li></ul><p>The Airborne and Waterborne Vehicles table provides statistics for various types of large vehicles. The following notes apply.</p>"
+    },
+    {
+      "kind": "Gear",
+      "cost": 1000000,
+      "category": "ship",
+      "features": [],
+      "key": "sailing-ship",
+      "name": "Sailing Ship",
+      "description": "<ul><li><strong>Speed:</strong> 2 mph</li><li><strong>Crew:</strong> 20</li><li><strong>Passengers:</strong> 20</li><li><strong>Cargo:</strong> 100 tons</li><li><strong>AC:</strong> 15</li><li><strong>HP:</strong> 300</li><li><strong>Damage Threshold:</strong> 15</li></ul><p>The Airborne and Waterborne Vehicles table provides statistics for various types of large vehicles. The following notes apply.</p>"
+    },
+    {
+      "kind": "Gear",
+      "cost": 2500000,
+      "category": "ship",
+      "features": [],
+      "key": "warship",
+      "name": "Warship",
+      "description": "<ul><li><strong>Speed:</strong> 2&#189; mph</li><li><strong>Crew:</strong> 60</li><li><strong>Passengers:</strong> 60</li><li><strong>Cargo:</strong> 200 tons</li><li><strong>AC:</strong> 15</li><li><strong>HP:</strong> 500</li><li><strong>Damage Threshold:</strong> 20</li></ul><p>The Airborne and Waterborne Vehicles table provides statistics for various types of large vehicles. The following notes apply.</p>"
+    },
+    {
+      "kind": "Gear",
+      "cost": 4,
+      "category": "food-and-drink",
+      "features": [],
+      "key": "ale-mug",
+      "name": "Ale (mug)"
+    },
+    {
+      "kind": "Gear",
+      "cost": 2,
+      "category": "food-and-drink",
+      "features": [],
+      "key": "bread-loaf",
+      "name": "Bread (loaf)"
+    },
+    {
+      "kind": "Gear",
+      "cost": 10,
+      "category": "food-and-drink",
+      "features": [],
+      "key": "cheese-wedge",
+      "name": "Cheese (wedge)"
+    },
+    {
+      "kind": "Gear",
+      "cost": 20,
+      "category": "food-and-drink",
+      "features": [],
+      "key": "wine-common-bottle",
+      "name": "Wine, Common (bottle)"
+    },
+    {
+      "kind": "Gear",
+      "cost": 1000,
+      "category": "food-and-drink",
+      "features": [],
+      "key": "wine-fine-bottle",
+      "name": "Wine, Fine (bottle)"
     }
   ],
   "masteries": [

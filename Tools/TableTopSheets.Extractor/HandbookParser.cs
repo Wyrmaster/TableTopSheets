@@ -349,6 +349,7 @@ internal sealed partial class HandbookParser(string[] lines)
       string feat = Field("Feat");
       List<string> skills = Field("Skill Proficiencies").Split(',', StringSplitOptions.TrimEntries).Select(SeedKeys.Slug).ToList();
       string tool = Field("Tool Proficiency");
+      Match chooseTool = ChooseToolRegex().Match(tool);
 
       SeedBackground background = new()
       {
@@ -358,6 +359,8 @@ internal sealed partial class HandbookParser(string[] lines)
         OriginFeat = SeedKeys.Slug(FeatNameRegex().Match(feat).Groups[1].Value),
         Description = Markdown.ToHtml(block.Where(line => line.StartsWith("- **", StringComparison.Ordinal))),
       };
+
+      background.StartingEquipment = this.StartingEquipment(Field("Equipment"), chooseTool.Success ? $"{key}.tool" : null);
 
       background.Features.Add(new SeedFeature
       {
@@ -386,7 +389,6 @@ internal sealed partial class HandbookParser(string[] lines)
         Effects = skills.Select(entry => new SeedEffect { Target = $"skill.{entry}.prof", Op = EffectOperationEnum.Proficiency, Value = "proficient", Label = name }).ToList(),
       });
 
-      Match chooseTool = ChooseToolRegex().Match(tool);
       SeedFeature toolFeature = new() { Key = $"{key}.tool", Name = "Tool Proficiency" };
       if (chooseTool.Success)
       {
@@ -436,6 +438,111 @@ internal sealed partial class HandbookParser(string[] lines)
     "Artisan's Tools" => "artisan",
     _ => name,
   };
+
+  /// <summary>
+  ///   "Choose A or B: (A) *Sickle*, 2 *Pouches*, *Book* (prayers), *Gaming Set* (same as above), 30 GP; or (B) 50 GP"
+  /// </summary>
+  /// <param name="text">the equipment field without markdown</param>
+  /// <param name="toolChoice">choice of the tool proficiency ("same as above" picks the same tool)</param>
+  private List<SeedStartingEquipment> StartingEquipment(string text, string? toolChoice)
+  {
+    HashSet<string> items = this.Items().Select(entry => entry.Key).ToHashSet();
+    List<SeedStartingEquipment> options = new();
+    foreach (Match alternative in EquipmentOptionRegex().Matches(text))
+    {
+      SeedStartingEquipment option = new() { Key = alternative.Groups[1].Value.ToLowerInvariant() };
+      foreach (string part in PropertySplitRegex().Split(alternative.Groups[2].Value).Select(entry => entry.Trim()).Where(entry => entry.Length > 0))
+      {
+        Match gold = GoldRegex().Match(part);
+        if (gold.Success)
+        {
+          option.Gold = int.Parse(gold.Groups[1].Value, CultureInfo.InvariantCulture);
+          continue;
+        }
+
+        SeedStartingItem entry = new();
+        string name = part;
+        Match count = CountRegex().Match(name);
+        if (count.Success)
+        {
+          entry.Quantity = int.Parse(count.Groups[1].Value, CultureInfo.InvariantCulture);
+          name = count.Groups[2].Value;
+        }
+
+        Match detail = DetailRegex().Match(name);
+        if (detail.Success)
+        {
+          name = detail.Groups[1].Value;
+          string remark = detail.Groups[2].Value;
+          Match amount = CountRegex().Match(remark);
+          if (amount.Success)
+          {
+            entry.Quantity = int.Parse(amount.Groups[1].Value, CultureInfo.InvariantCulture);
+          }
+          else if (remark == "same as above")
+          {
+            entry.SameAs = toolChoice;
+          }
+          else if (remark != "any")
+          {
+            entry.Note = remark;
+          }
+        }
+
+        string? group = name switch
+        {
+          "Artisan's Tools" => "artisan",
+          "Gaming Set" => "gaming-set",
+          "Musical Instrument" => "musical-instrument",
+          "Holy Symbol" => "holy-symbol",
+          "Arcane Focus" => "arcane-focus",
+          "Druidic Focus" => "druidic-focus",
+          _ => null,
+        };
+        if (group != null)
+        {
+          entry.Name = name;
+          entry.Choose = [group];
+        }
+        else
+        {
+          entry.Item = ItemKey(name, items);
+        }
+
+        option.Items.Add(entry);
+      }
+
+      options.Add(option);
+    }
+
+    return options;
+  }
+
+  /// <summary>
+  ///   Key of an item named in running text: plurals ("2 Pouches") and reversed names ("Iron Pot" for "Pot, Iron")
+  /// </summary>
+  private static string ItemKey(string name, HashSet<string> items)
+  {
+    List<string> names = [name];
+    if (name.EndsWith("es", StringComparison.Ordinal))
+    {
+      names.Add(name[..^2]);
+    }
+
+    if (name.EndsWith('s'))
+    {
+      names.Add(name[..^1]);
+    }
+
+    string[] words = name.Split(' ', 2);
+    if (words.Length == 2)
+    {
+      names.Add($"{words[1]}, {words[0]}");
+    }
+
+    return names.Select(SeedKeys.Slug).FirstOrDefault(items.Contains)
+           ?? throw new InvalidOperationException($"Starting equipment item '{name}' not found");
+  }
 
   #endregion
 
@@ -531,6 +638,11 @@ internal sealed partial class HandbookParser(string[] lines)
     items.AddRange(this.Armor());
     items.AddRange(this.Tools());
     items.AddRange(this.Gear(items.Select(entry => entry.Key).ToHashSet()));
+    items.AddRange(this.Ammunition());
+    items.AddRange(this.Focuses(items.Single(entry => entry.Key == "quarterstaff")));
+    items.AddRange(this.Mounts());
+    items.AddRange(this.Ships());
+    items.AddRange(this.FoodAndDrink());
     return items;
   }
 
@@ -665,9 +777,9 @@ internal sealed partial class HandbookParser(string[] lines)
       if (variants != null)
       {
         string variantGroup = SeedKeys.Slug(name);
-        foreach (Match variant in VariantRegex().Matches(variants))
+        foreach (Match variant in VariantRegex().Matches(variants["- **Variants:**".Length..].Replace("*", string.Empty)))
         {
-          string variantName = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(variant.Groups[1].Value);
+          string variantName = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(variant.Groups[1].Value.Trim());
           yield return new SeedItem
           {
             Key = SeedKeys.Slug(variantName),
@@ -675,6 +787,7 @@ internal sealed partial class HandbookParser(string[] lines)
             Kind = ItemKindEnum.Tool,
             ToolGroup = variantGroup,
             Cost = Cost(variant.Groups[2].Value),
+            Weight = Weight(variant.Groups[2].Value),
             Description = Markdown.ToHtml(block.Where(entry => !entry.StartsWith("- **Variants:**", StringComparison.Ordinal)).Prepend($"*{name}*")),
           };
         }
@@ -722,12 +835,220 @@ internal sealed partial class HandbookParser(string[] lines)
         Key = key,
         Name = name,
         Kind = ItemKindEnum.Gear,
+        Category = name.EndsWith(" Pack", StringComparison.Ordinal) ? "pack" : null,
         Weight = Weight(cells[1]),
         Cost = Cost(cells[2]),
         Description = descriptions.TryGetValue(key, out List<string>? description) ? Markdown.ToHtml(description) : null,
       };
     }
   }
+
+  /// <summary>
+  ///   Ammunition table: sold in bundles (20 arrows for 1 GP); cost and weight are per bundle
+  /// </summary>
+  private IEnumerable<SeedItem> Ammunition()
+  {
+    List<string> description = this.SectionText("#### Ammunition (Varies)");
+    foreach (string[] cells in this.TableRows("##### Ammunition"))
+    {
+      string name = Markdown.Plain(cells[0]);
+      int amount = int.Parse(cells[1], CultureInfo.InvariantCulture);
+      yield return new SeedItem
+      {
+        Key = SeedKeys.Slug(name),
+        Name = name,
+        Kind = ItemKindEnum.Gear,
+        Category = "ammunition",
+        Bundle = amount,
+        Weight = Weight(cells[3]),
+        Cost = Cost(cells[4]),
+        Description = Markdown.ToHtml(description.Append($"Sold in bundles of {amount}, stored in a *{Markdown.Plain(cells[2])}*.")),
+      };
+    }
+  }
+
+  /// <summary>
+  ///   Forms of the spellcasting focuses and holy symbols ("Arcane Focus (Crystal)"); a staff is also a Quarterstaff
+  /// </summary>
+  private IEnumerable<SeedItem> Focuses(SeedItem quarterstaff)
+  {
+    (string Table, string Heading, string Group, string Name)[] kinds =
+    [
+      ("##### Arcane Focuses", "#### Arcane Focus (Varies)", "arcane-focus", "Arcane Focus"),
+      ("##### Druidic Focuses", "#### Druidic Focus (Varies)", "druidic-focus", "Druidic Focus"),
+      ("##### Holy Symbols", "#### Holy Symbol (Varies)", "holy-symbol", "Holy Symbol"),
+    ];
+    foreach ((string table, string heading, string group, string kindName) in kinds)
+    {
+      List<string> description = this.SectionText(heading);
+      foreach (string[] cells in this.TableRows(table))
+      {
+        Match form = DetailRegex().Match(Markdown.Plain(cells[0]));
+        string formName = CultureInfo.InvariantCulture.TextInfo
+          .ToTitleCase(form.Success ? form.Groups[1].Value : Markdown.Plain(cells[0]))
+          .Replace(" Of ", " of ", StringComparison.Ordinal);
+        string? remark = form.Success ? form.Groups[2].Value : null;
+        bool staff = remark?.Contains("Quarterstaff", StringComparison.Ordinal) == true;
+        string name = $"{kindName} ({formName})";
+        List<string> text = remark == null || staff ? description : description.Append($"*{formName}:* {remark}.").ToList();
+        yield return new SeedItem
+        {
+          Key = SeedKeys.Slug(name),
+          Name = name,
+          Kind = staff ? ItemKindEnum.Weapon : ItemKindEnum.Gear,
+          Category = group,
+          Weight = Weight(cells[1]),
+          Cost = Cost(cells[2]),
+          Description = Markdown.ToHtml(staff ? text.Append("It is also a *Quarterstaff*.") : text),
+          WeaponCategory = staff ? quarterstaff.WeaponCategory : null,
+          Ranged = staff ? quarterstaff.Ranged : null,
+          Damage = staff ? quarterstaff.Damage : null,
+          DamageType = staff ? quarterstaff.DamageType : null,
+          Properties = staff ? quarterstaff.Properties : null,
+          Versatile = staff ? quarterstaff.Versatile : null,
+          Mastery = staff ? quarterstaff.Mastery : null,
+        };
+      }
+    }
+  }
+
+  /// <summary>
+  ///   Mounts and other animals, tack, harness and drawn vehicles
+  /// </summary>
+  private IEnumerable<SeedItem> Mounts()
+  {
+    List<string> cargo = this.SectionText("### Mounts and Cargo");
+    foreach (string[] cells in this.TableRows("##### Mounts and Other Animals"))
+    {
+      string name = Markdown.Plain(cells[0]);
+      yield return new SeedItem
+      {
+        Key = SeedKeys.Slug(name),
+        Name = name,
+        Kind = ItemKindEnum.Gear,
+        Category = "mount",
+        Cost = Cost(cells[2]),
+        Description = Markdown.ToHtml(cargo.Prepend($"**Carrying Capacity:** {cells[1]}").Prepend(string.Empty)),
+      };
+    }
+
+    List<string> saddles = this.SectionText("### Saddles");
+    string? parent = null;
+    foreach (string[] cells in this.TableRows("##### Tack, Harness, and Drawn Vehicles"))
+    {
+      string name = Markdown.Plain(cells[0]);
+      if (cells.Length < 3 || cells.Skip(1).All(string.IsNullOrEmpty))
+      {
+        parent = name;
+        continue;
+      }
+
+      // services are no items
+      if (!cells[0].StartsWith('*'))
+      {
+        parent = null;
+        continue;
+      }
+
+      bool vehicle = name is "Carriage" or "Cart" or "Chariot" or "Sled" or "Wagon";
+      if (vehicle || name.StartsWith("Feed", StringComparison.Ordinal))
+      {
+        parent = null;
+      }
+
+      name = parent != null ? $"{parent}, {name}" : name.Replace(" per day", " (1 day)", StringComparison.Ordinal);
+      yield return new SeedItem
+      {
+        Key = SeedKeys.Slug(name),
+        Name = name,
+        Kind = ItemKindEnum.Gear,
+        Category = vehicle ? "vehicle" : "tack",
+        Weight = Weight(cells[1]),
+        Cost = Cost(cells[2]),
+        Description = parent == "Saddle" ? Markdown.ToHtml(saddles) : vehicle ? Markdown.ToHtml(cargo) : null,
+      };
+    }
+  }
+
+  /// <summary>
+  ///   Airborne and waterborne vehicles with their statistics in the description
+  /// </summary>
+  private IEnumerable<SeedItem> Ships()
+  {
+    List<string> notes = this.SectionText("### Large Vehicles");
+    foreach (string[] cells in this.TableRows("##### Airborne and Waterborne Vehicles"))
+    {
+      string name = Markdown.Plain(cells[0]);
+      string[] stats =
+      [
+        $"**Speed:** {cells[1]}",
+        $"**Crew:** {cells[2]}",
+        $"**Passengers:** {cells[3]}",
+        $"**Cargo:** {cells[4]} tons",
+        $"**AC:** {cells[5]}",
+        $"**HP:** {cells[6]}",
+        $"**Damage Threshold:** {cells[7]}",
+      ];
+      yield return new SeedItem
+      {
+        Key = SeedKeys.Slug(name),
+        Name = name,
+        Kind = ItemKindEnum.Gear,
+        Category = "ship",
+        Cost = Cost(cells[8]),
+        Description = Markdown.ToHtml(stats.Select(entry => $"- {entry}").Append(string.Empty).Concat(notes)),
+      };
+    }
+  }
+
+  /// <summary>
+  ///   Food and drink you can carry (inn stays and meals are services)
+  /// </summary>
+  private IEnumerable<SeedItem> FoodAndDrink()
+  {
+    string? parent = null;
+    foreach (string[] cells in this.TableRows("##### Food, Drink, and Lodging"))
+    {
+      string name = Markdown.Plain(cells[0]);
+      if (cells.Length < 2 || string.IsNullOrEmpty(cells[1]))
+      {
+        parent = name;
+        continue;
+      }
+
+      if (!cells[0].StartsWith('*'))
+      {
+        continue;
+      }
+
+      Match unit = DetailRegex().Match(parent ?? name);
+      if (parent != null && !unit.Success)
+      {
+        continue;
+      }
+
+      // "Wine (bottle)" with "Common" below it is "Wine, Common (bottle)"
+      name = parent != null ? $"{unit.Groups[1].Value}, {name} ({unit.Groups[2].Value})" : name;
+      yield return new SeedItem
+      {
+        Key = SeedKeys.Slug(name),
+        Name = name,
+        Kind = ItemKindEnum.Gear,
+        Category = "food-and-drink",
+        Cost = Cost(cells[1]),
+      };
+    }
+  }
+
+  /// <summary>
+  ///   Paragraphs below a heading up to the next heading or table
+  /// </summary>
+  private List<string> SectionText(string heading)
+    => lines
+      .Skip(this.Find(heading) + 1)
+      .TakeWhile(line => !line.StartsWith('#') && !line.TrimStart().StartsWith('|'))
+      .Where(line => !line.StartsWith("![", StringComparison.Ordinal))
+      .ToList();
 
   public List<SeedNamed> Masteries()
     => this.Blocks("### Mastery Properties", "## Armor", "#### ")
@@ -773,7 +1094,7 @@ internal sealed partial class HandbookParser(string[] lines)
 
   private static double Weight(string text)
   {
-    Match match = WeightRegex().Match(text);
+    Match match = WeightRegex().Match(text.Replace("½", ".5"));
     if (!match.Success)
     {
       return 0;
@@ -938,8 +1259,20 @@ internal sealed partial class HandbookParser(string[] lines)
   [GeneratedRegex(@"^#### (.+?) \(([^)]*)\)\s*$")]
   private static partial Regex ItemHeadingRegex();
 
-  [GeneratedRegex(@"\*([^*]+)\* \(([^)]+)\)")]
+  [GeneratedRegex(@"([^,(]+) \(([^)]+)\)")]
   private static partial Regex VariantRegex();
+
+  [GeneratedRegex(@"\(([A-C])\) (.+?)(?:; or |; |$)")]
+  private static partial Regex EquipmentOptionRegex();
+
+  [GeneratedRegex(@"^(\d+) GP$")]
+  private static partial Regex GoldRegex();
+
+  [GeneratedRegex(@"^(\d+) (.+)$")]
+  private static partial Regex CountRegex();
+
+  [GeneratedRegex(@"^(.+?) \((.+)\)$")]
+  private static partial Regex DetailRegex();
 
   [GeneratedRegex(@"(\d+) (CP|SP|EP|GP|PP)")]
   private static partial Regex CostRegex();

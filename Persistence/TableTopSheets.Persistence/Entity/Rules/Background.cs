@@ -16,6 +16,11 @@ public class Background: RuleEntity
 
   public Feat? OriginFeat { get; set; }
 
+  /// <summary>
+  ///   Alternatives of the starting equipment ("Choose A or B")
+  /// </summary>
+  public List<StartingEquipmentOption> StartingEquipment { get; set; } = [];
+
   public ICollection<Feature> Features { get; set; } = new List<Feature>();
 
   #endregion
