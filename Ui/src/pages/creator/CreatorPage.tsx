@@ -50,8 +50,21 @@ const steps = ['Species', 'Background', 'Ability scores', 'Origin choices', 'Cla
 const alignmentName = (alignment: string) => alignment.replace(/([a-z])([A-Z])/g, '$1 $2')
 
 /**
- * Character creator. Steps 1–3 are local; "Create draft" saves the character (POST /api/characters) and the remaining
- * steps work on the saved draft (/characters/new/{id}), so the creator can be left and resumed.
+ * Name of the character until it is set in the details step; the API needs a name to save the character
+ */
+const PlaceholderName = 'New character'
+
+interface Details {
+  name: string
+  alignment: AlignmentEnum
+  appearance: string
+  backstory: string
+}
+
+/**
+ * Character creator. Steps 1–3 are local; "Save" stores the character (POST /api/characters) and the remaining
+ * steps work on the saved draft (/characters/new/{id}), so the creator can be left and resumed. The name is set in the
+ * details step; "Finish" saves the details.
  */
 export function CreatorPage() {
   const { id } = useParams()
@@ -64,7 +77,6 @@ export function CreatorPage() {
   const [background, setBackground] = useState('')
   const [backgroundEquipment, setBackgroundEquipment] = useState<TakeStartingEquipmentDto | null>(null)
   const backgroundOptions = useRuleStartingEquipment('background', background)
-  const [name, setName] = useState('')
   const [method, setMethod] = useState<AbilityMethod>('StandardArray')
   const [rolled, setRolled] = useState<number[]>(StandardArray)
   const [scores, setScores] = useState<Scores>({
@@ -82,26 +94,35 @@ export function CreatorPage() {
   const [classKey, setClassKey] = useState('')
   const [classEquipment, setClassEquipment] = useState<TakeStartingEquipmentDto | null>(null)
   const classOptions = useRuleStartingEquipment('class', classKey)
+  const [editedDetails, setDetails] = useState<Details | null>(null)
+  const details: Details | null = editedDetails ?? (state
+    ? {
+      name: state.name === PlaceholderName ? '' : state.name,
+      alignment: state.alignment,
+      appearance: '',
+      backstory: '',
+    }
+    : null)
 
   const scoresInvalid = Boolean(scoreProblem(method, scores, method === 'Rolled' ? rolled : StandardArray))
   const canNext = [
     Boolean(species),
     Boolean(background) && equipmentComplete(backgroundOptions ?? [], backgroundEquipment),
-    Boolean(name.trim()) && !scoresInvalid,
+    !scoresInvalid,
     true,
     Boolean(state && state.level > 0),
-    true,
+    Boolean(details?.name.trim()),
   ][step]
 
   const create = async () => {
     const result = await run(new CreateCharacterIntent({
-      name: name.trim(),
+      name: PlaceholderName,
       speciesKey: species,
       backgroundKey: background,
       abilityMethod: method,
       abilities: scores,
       startingEquipment: backgroundEquipment,
-    }), { success: 'Draft saved – origin choices are open' })
+    }), { success: 'Character saved – origin choices are open' })
     if (result.ok) {
       navigate(`/characters/new/${result.data.id}`, { replace: true })
       draft.setData(result.data)
@@ -126,12 +147,28 @@ export function CreatorPage() {
     }
   }
 
+  const finish = async () => {
+    if (!state || !details) {
+      return
+    }
+
+    const result = await run(new UpdateCharacterIntent(state.id, {
+      name: details.name.trim(),
+      alignment: details.alignment,
+      appearance: details.appearance || null,
+      backstory: details.backstory || null,
+    }), { success: 'Character saved' })
+    if (result.ok) {
+      navigate(`/characters/${state.id}`)
+    }
+  }
+
   const next = () => {
     if (step === 2) {
       create()
     }
     else if (step === steps.length - 1) {
-      navigate(`/characters/${id}`)
+      finish()
     }
     else {
       setStep(step + 1)
@@ -233,16 +270,9 @@ export function CreatorPage() {
           {step === 2 && (
             <>
               <StepTitle
-                title='Name and ability scores'
-                text='Base scores before the background increases (next step). “Create draft” saves the character.'
+                title='Ability scores'
+                text='Base scores before the background increases (next step).'
               />
-              <Field.Root maxW='md'>
-                <Field.Label>Name</Field.Label>
-                <Input
-                  value={name}
-                  onChange={(event) => setName(event.target.value)}
-                />
-              </Field.Root>
               <AbilityScoresStep
                 method={method}
                 scores={scores}
@@ -332,10 +362,11 @@ export function CreatorPage() {
               )}
             </>
           )}
-          {step === 5 && state && (
+          {step === 5 && state && details && (
             <DetailsStep
               state={state}
-              onState={applyState}
+              details={details}
+              onChange={setDetails}
             />
           )}
 
@@ -360,16 +391,16 @@ export function CreatorPage() {
             <Button
               colorPalette='brand'
               disabled={!canNext}
-              loading={busy && step === 2}
+              loading={busy && (step === 2 || step === steps.length - 1)}
               onClick={next}
             >
-              {step === 2 ? 'Create draft' : step === steps.length - 1 ? 'Finish' : 'Next'}
+              {step === 2 ? 'Save' : step === steps.length - 1 ? 'Finish' : 'Next'}
             </Button>
           </Flex>
         </Stack>
 
         <Summary
-          name={state?.name ?? name}
+          name={details?.name ?? ''}
           species={state?.species ?? species}
           background={state?.background ?? background}
           scores={state
@@ -521,31 +552,23 @@ function Summary({
   )
 }
 
-function DetailsStep({ state, onState }: { state: CharacterStateDto, onState: (state: CharacterStateDto) => void }) {
-  const { run, busy } = useApiAction()
-  const [name, setName] = useState(state.name)
-  const [alignment, setAlignment] = useState<AlignmentEnum>(state.alignment)
-  const [appearance, setAppearance] = useState('')
-  const [backstory, setBackstory] = useState('')
+function DetailsStep({
+  state,
+  details,
+  onChange,
+}: {
+  state: CharacterStateDto
+  details: Details
+  onChange: (details: Details) => void
+}) {
   const open = state.pendingChoices.filter((choice) => !choice.optional).length
-
-  const save = async () => {
-    const result = await run(new UpdateCharacterIntent(state.id, {
-      name,
-      alignment,
-      appearance: appearance || null,
-      backstory: backstory || null,
-    }), { success: 'Details saved' })
-    if (result.ok) {
-      onState(result.data)
-    }
-  }
+  const set = (change: Partial<Details>) => onChange({ ...details, ...change })
 
   return (
     <Stack gap='4'>
       <StepTitle
         title='Details'
-        text='Name, alignment and the story of the character.'
+        text='Name, alignment and the story of the character. “Finish” saves them.'
       />
       <Grid
         templateColumns={{
@@ -557,16 +580,17 @@ function DetailsStep({ state, onState }: { state: CharacterStateDto, onState: (s
         <Field.Root>
           <Field.Label>Name</Field.Label>
           <Input
-            value={name}
-            onChange={(event) => setName(event.target.value)}
+            value={details.name}
+            placeholder='Character name'
+            onChange={(event) => set({ name: event.target.value })}
           />
         </Field.Root>
         <Field.Root>
           <Field.Label>Alignment</Field.Label>
           <NativeSelect.Root>
             <NativeSelect.Field
-              value={alignment}
-              onChange={(event) => setAlignment(event.target.value as AlignmentEnum)}
+              value={details.alignment}
+              onChange={(event) => set({ alignment: event.target.value as AlignmentEnum })}
             >
               {Alignments.map((value) => <option
                 key={value}
@@ -582,26 +606,17 @@ function DetailsStep({ state, onState }: { state: CharacterStateDto, onState: (s
       <Field.Root>
         <Field.Label>Appearance</Field.Label>
         <Textarea
-          value={appearance}
-          onChange={(event) => setAppearance(event.target.value)}
+          value={details.appearance}
+          onChange={(event) => set({ appearance: event.target.value })}
         />
       </Field.Root>
       <Field.Root>
         <Field.Label>Backstory</Field.Label>
         <Textarea
-          value={backstory}
-          onChange={(event) => setBackstory(event.target.value)}
+          value={details.backstory}
+          onChange={(event) => set({ backstory: event.target.value })}
         />
       </Field.Root>
-      <Flex justify='flex-end'>
-        <Button
-          variant='outline'
-          loading={busy}
-          onClick={save}
-        >
-          Save details
-        </Button>
-      </Flex>
       <Alert.Root status={open ? 'warning' : 'success'}>
         <Alert.Indicator />
         <Alert.Title>
