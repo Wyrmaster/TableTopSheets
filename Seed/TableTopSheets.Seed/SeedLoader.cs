@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 using TableTopSheets.Seed.Model;
 
@@ -20,10 +22,53 @@ public static class SeedLoader
 
   #region Methods
 
+  /// <summary>
+  ///   Read every seed file (<c>Extracted</c> first, then <c>Rules</c>, each in ordinal order) and merge them
+  /// </summary>
   public static SeedDocument Load(string? directory = null)
   {
-    directory ??= DefaultDirectory;
     SeedDocument merged = new();
+    foreach (string file in Files(directory ?? DefaultDirectory))
+    {
+      SeedDocument document;
+      try
+      {
+        document = JsonSerializer.Deserialize<SeedDocument>(File.ReadAllText(file), SeedJson.Options)!;
+      }
+      catch (JsonException exception)
+      {
+        throw new InvalidDataException($"Seed file '{file}' is invalid: {exception.Message}", exception);
+      }
+
+      SeedMerger.Merge(merged, document);
+    }
+
+    return merged;
+  }
+
+  /// <summary>
+  ///   SHA-256 (lower case hex) over the relative paths and contents of the seed files; it changes whenever a file is
+  ///   added, removed, renamed or edited
+  /// </summary>
+  public static string Hash(string? directory = null)
+  {
+    directory ??= DefaultDirectory;
+    using IncrementalHash hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+    foreach (string file in Files(directory))
+    {
+      string relative = Path
+        .GetRelativePath(directory, file)
+        .Replace('\\', '/');
+      hash.AppendData(Encoding.UTF8.GetBytes(relative + "\n"));
+      hash.AppendData(File.ReadAllBytes(file));
+      hash.AppendData("\n"u8);
+    }
+
+    return Convert.ToHexStringLower(hash.GetHashAndReset());
+  }
+
+  private static IEnumerable<string> Files(string directory)
+  {
     foreach (string folder in new[] { "Extracted", "Rules" })
     {
       string path = Path.Combine(directory, folder);
@@ -36,21 +81,9 @@ public static class SeedLoader
         .GetFiles(path, "*.json", SearchOption.AllDirectories)
         .Order(StringComparer.Ordinal))
       {
-        SeedDocument document;
-        try
-        {
-          document = JsonSerializer.Deserialize<SeedDocument>(File.ReadAllText(file), SeedJson.Options)!;
-        }
-        catch (JsonException exception)
-        {
-          throw new InvalidDataException($"Seed file '{file}' is invalid: {exception.Message}", exception);
-        }
-
-        SeedMerger.Merge(merged, document);
+        yield return file;
       }
     }
-
-    return merged;
   }
 
   #endregion

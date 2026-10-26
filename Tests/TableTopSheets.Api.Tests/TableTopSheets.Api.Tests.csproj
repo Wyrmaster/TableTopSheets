@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Api\TableTopSheets.Api\TableTopSheets.Api.csproj" />
+    <ProjectReference Include="..\..\Seed\TableTopSheets.Seed\TableTopSheets.Seed.csproj" />
   </ItemGroup>
 
 </Project>

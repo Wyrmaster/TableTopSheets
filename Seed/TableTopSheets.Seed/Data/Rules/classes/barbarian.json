@@ -1,0 +1,722 @@
+{
+  // Barbarian (Player's Handbook 2024). Features without authored mechanics (Reckless Attack, Brutal Strike,
+  // Relentless Rage ...) are added from Data/Extracted/class-features.json as text
+  "classes": [
+    {
+      "key": "barbarian",
+      "name": "Barbarian",
+      "hitDie": "D12",
+      "primaryAbilities": [
+        "str"
+      ],
+      "primaryAbilityMode": "All",
+      "subclassLevel": 3,
+      "startingEquipment": [
+        {
+          "key": "a",
+          "items": [
+            {
+              "item": "greataxe"
+            },
+            {
+              "item": "handaxe",
+              "quantity": 4
+            },
+            {
+              "item": "explorers-pack"
+            }
+          ],
+          "gold": 15
+        },
+        {
+          "key": "b",
+          "gold": 75
+        }
+      ],
+      "scales": {
+        "barbarian.rages": "2,2,3,3,3,4,4,4,4,4,4,5,5,5,5,5,6,6,6,6",
+        // noted only: the bonus applies to attacks using Strength, which the sheet doesn't calculate
+        "barbarian.rage-damage": "2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,4,4,4,4,4",
+        "barbarian.weapon-mastery": "2,2,2,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4",
+        "barbarian.brutal-strike": "0,0,0,0,0,0,0,0,1d10,1d10,1d10,1d10,1d10,1d10,1d10,1d10,2d10,2d10,2d10,2d10"
+      },
+      "features": [
+        {
+          "key": "barbarian.proficiencies",
+          "name": "Proficiencies",
+          "level": 1,
+          "grantMode": "FirstClassOnly",
+          "sheetSection": "Hidden",
+          "effects": [
+            {
+              "target": "save.str.prof",
+              "op": "Proficiency",
+              "value": "proficient"
+            },
+            {
+              "target": "save.con.prof",
+              "op": "Proficiency",
+              "value": "proficient"
+            },
+            {
+              "target": "proficiency.weapon.simple",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "proficiency.weapon.martial",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "proficiency.armor.light",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "proficiency.armor.medium",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "proficiency.armor.shield",
+              "op": "Grant",
+              "value": "1"
+            }
+          ],
+          "choices": [
+            {
+              "key": "barbarian.skills",
+              "name": "Skill Proficiencies",
+              "count": "2",
+              "source": "Skill",
+              "replace": "Never",
+              "filter": "oneOf(option.key, 'animal-handling', 'athletics', 'intimidation', 'nature', 'perception', 'survival')",
+              "effects": [
+                {
+                  "target": "skill.$option.prof",
+                  "op": "Proficiency",
+                  "value": "proficient"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "barbarian.multiclass-proficiencies",
+          "name": "Multiclass Proficiencies",
+          "level": 1,
+          "grantMode": "MulticlassOnly",
+          "sheetSection": "Hidden",
+          "effects": [
+            {
+              "target": "proficiency.weapon.martial",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "proficiency.armor.shield",
+              "op": "Grant",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          // Rage Damage is noted in the description and the barbarian.rage-damage scale, it isn't calculated
+          "key": "barbarian.rage",
+          "name": "Rage",
+          "level": 1,
+          "toggleable": true,
+          "effects": [
+            {
+              "target": "damage.resist.bludgeoning",
+              "op": "Grant",
+              "value": "1",
+              "condition": "!wearing('heavy')",
+              "label": "Rage"
+            },
+            {
+              "target": "damage.resist.piercing",
+              "op": "Grant",
+              "value": "1",
+              "condition": "!wearing('heavy')",
+              "label": "Rage"
+            },
+            {
+              "target": "damage.resist.slashing",
+              "op": "Grant",
+              "value": "1",
+              "condition": "!wearing('heavy')",
+              "label": "Rage"
+            },
+            {
+              "target": "check.str.advantage",
+              "op": "Grant",
+              "value": "1",
+              "condition": "!wearing('heavy')",
+              "label": "Rage"
+            },
+            {
+              "target": "save.str.advantage",
+              "op": "Grant",
+              "value": "1",
+              "condition": "!wearing('heavy')",
+              "label": "Rage"
+            }
+          ],
+          "resources": [
+            {
+              "key": "rage",
+              "name": "Rage",
+              "max": "scale('barbarian.rages')",
+              "recharge": "ShortRest"
+            }
+          ]
+        },
+        {
+          "key": "barbarian.unarmored-defense",
+          "name": "Unarmored Defense",
+          "level": 1,
+          "effects": [
+            {
+              // a shield doesn't end it (unlike the Monk's); the core rules add the shield on top
+              "target": "ac.base",
+              "op": "Candidate",
+              "value": "10 + mod('dex') + mod('con')",
+              "condition": "!wearing('armor')",
+              "label": "Unarmored Defense (Barbarian)"
+            }
+          ]
+        },
+        {
+          // the sheet only marks the chosen weapon kinds; the mastery properties aren't calculated
+          "key": "barbarian.weapon-mastery",
+          "name": "Weapon Mastery",
+          "level": 1,
+          "description": "<p>Your training with weapons allows you to use the mastery properties of two kinds of Simple or Martial Melee weapons of your choice, such as <em>Greataxes</em> and <em>Handaxes</em>. Whenever you finish a Long Rest, you can practice weapon drills and change one of those weapon choices.</p><p>When you reach certain Barbarian levels, you gain the ability to use the mastery properties of more kinds of weapons, as shown in the Weapon Mastery column of the Barbarian Features table.</p><h5>Using Weapon Mastery</h5><p>Each kind of weapon has one mastery property. While you attack with a weapon of a chosen kind, you can use its property; the sheet marks the chosen weapons but doesn't apply the property for you. Only Melee weapons count for the Barbarian.</p><ul><li><strong>Cleave.</strong> After a melee hit, make one more attack against a second creature within 5 feet of the first (no ability modifier to its damage unless negative); once per turn.</li><li><strong>Graze.</strong> On a miss, deal damage equal to the ability modifier of the attack.</li><li><strong>Nick.</strong> Make the extra attack of the Light property as part of the Attack action; once per turn.</li><li><strong>Push.</strong> On a hit, push a Large or smaller creature up to 10 feet away.</li><li><strong>Sap.</strong> On a hit, the creature has Disadvantage on its next attack roll before your next turn.</li><li><strong>Slow.</strong> On a hit that deals damage, reduce the creature's Speed by 10 feet until your next turn.</li><li><strong>Topple.</strong> On a hit, the creature makes a Constitution save (DC 8 + the attack's ability modifier + your Proficiency Bonus) or has the Prone condition.</li><li><strong>Vex.</strong> On a hit that deals damage, you have Advantage on your next attack roll against that creature before the end of your next turn.</li></ul>",
+          "choices": [
+            {
+              "key": "barbarian.weapon-mastery",
+              "name": "Weapon Mastery",
+              "count": "scale('barbarian.weapon-mastery')",
+              "source": "Weapon",
+              "replace": "OnLongRest",
+              "filter": "option.category == 'simple' || option.category == 'martial'",
+              "effects": [
+                {
+                  "target": "mastery.$option",
+                  "op": "Grant",
+                  "value": "1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "barbarian.danger-sense",
+          "name": "Danger Sense",
+          "level": 2,
+          "effects": [
+            {
+              "target": "save.dex.advantage",
+              "op": "Grant",
+              "value": "1",
+              "label": "Danger Sense"
+            }
+          ]
+        },
+        {
+          "key": "barbarian.primal-knowledge",
+          "name": "Primal Knowledge",
+          "level": 3,
+          "choices": [
+            {
+              "key": "barbarian.primal-knowledge",
+              "name": "Skill Proficiency",
+              "count": "1",
+              "source": "Skill",
+              "replace": "Never",
+              "filter": "oneOf(option.key, 'animal-handling', 'athletics', 'intimidation', 'nature', 'perception', 'survival')",
+              "effects": [
+                {
+                  "target": "skill.$option.prof",
+                  "op": "Proficiency",
+                  "value": "proficient"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "barbarian.ability-score-improvement-4",
+          "name": "Ability Score Improvement",
+          "level": 4,
+          "choices": [
+            {
+              "key": "barbarian.ability-score-improvement-4",
+              "name": "Feat",
+              "count": "1",
+              "source": "Feat",
+              "replace": "Never",
+              "filter": "option.category == 'general'"
+            }
+          ]
+        },
+        {
+          "key": "barbarian.extra-attack",
+          "name": "Extra Attack",
+          "level": 5,
+          "effects": [
+            {
+              "target": "attack.extraAttacks",
+              "op": "Add",
+              "value": "1",
+              "stackGroup": "extra-attack",
+              "label": "Extra Attack"
+            }
+          ]
+        },
+        {
+          "key": "barbarian.fast-movement",
+          "name": "Fast Movement",
+          "level": 5,
+          "effects": [
+            {
+              "target": "speed.walk",
+              "op": "Add",
+              "value": "10",
+              "condition": "!wearing('heavy')",
+              "label": "Fast Movement"
+            }
+          ]
+        },
+        {
+          "key": "barbarian.feral-instinct",
+          "name": "Feral Instinct",
+          "level": 7,
+          "effects": [
+            {
+              "target": "initiative.advantage",
+              "op": "Grant",
+              "value": "1",
+              "label": "Feral Instinct"
+            }
+          ]
+        },
+        {
+          "key": "barbarian.ability-score-improvement-8",
+          "name": "Ability Score Improvement",
+          "level": 8,
+          "choices": [
+            {
+              "key": "barbarian.ability-score-improvement-8",
+              "name": "Feat",
+              "count": "1",
+              "source": "Feat",
+              "replace": "Never",
+              "filter": "option.category == 'general'"
+            }
+          ]
+        },
+        {
+          "key": "barbarian.ability-score-improvement-12",
+          "name": "Ability Score Improvement",
+          "level": 12,
+          "choices": [
+            {
+              "key": "barbarian.ability-score-improvement-12",
+              "name": "Feat",
+              "count": "1",
+              "source": "Feat",
+              "replace": "Never",
+              "filter": "option.category == 'general'"
+            }
+          ]
+        },
+        {
+          "key": "barbarian.persistent-rage",
+          "name": "Persistent Rage",
+          "level": 15,
+          "resources": [
+            {
+              "key": "persistent-rage",
+              "name": "Persistent Rage",
+              "max": "1",
+              "recharge": "LongRest"
+            }
+          ]
+        },
+        {
+          "key": "barbarian.ability-score-improvement-16",
+          "name": "Ability Score Improvement",
+          "level": 16,
+          "choices": [
+            {
+              "key": "barbarian.ability-score-improvement-16",
+              "name": "Feat",
+              "count": "1",
+              "source": "Feat",
+              "replace": "Never",
+              "filter": "option.category == 'general'"
+            }
+          ]
+        },
+        {
+          "key": "barbarian.epic-boon",
+          "name": "Epic Boon",
+          "level": 19,
+          "choices": [
+            {
+              "key": "barbarian.epic-boon",
+              "name": "Epic Boon",
+              "count": "1",
+              "source": "Feat",
+              "replace": "Never",
+              "filter": "option.category == 'epic-boon' || option.category == 'general'"
+            }
+          ]
+        },
+        {
+          "key": "barbarian.primal-champion",
+          "name": "Primal Champion",
+          "level": 20,
+          "effects": [
+            {
+              "target": "ability.str.score",
+              "op": "Add",
+              "value": "4",
+              "label": "Primal Champion"
+            },
+            {
+              "target": "ability.con.score",
+              "op": "Add",
+              "value": "4",
+              "label": "Primal Champion"
+            },
+            {
+              "target": "ability.str.max",
+              "op": "Max",
+              "value": "25",
+              "label": "Primal Champion"
+            },
+            {
+              "target": "ability.con.max",
+              "op": "Max",
+              "value": "25",
+              "label": "Primal Champion"
+            }
+          ]
+        }
+      ],
+      "subclasses": [
+        {
+          "key": "path-of-the-berserker",
+          "name": "Path of the Berserker",
+          "description": "<p>Channel Rage into violent fury. Barbarians who walk the Path of the Berserker direct their Rage primarily toward violence.</p>",
+          "features": [
+            {
+              "key": "path-of-the-berserker.frenzy",
+              "name": "Frenzy",
+              "level": 3,
+              "description": "<p>If you use Reckless Attack while your Rage is active, you deal extra damage to the first target you hit on your turn with a Strength-based attack. Roll a number of d6s equal to your Rage Damage bonus and add them together; the damage has the same type as the weapon or Unarmed Strike used for the attack.</p>"
+            },
+            {
+              "key": "path-of-the-berserker.mindless-rage",
+              "name": "Mindless Rage",
+              "level": 6,
+              "description": "<p>You have Immunity to the Charmed and Frightened conditions while your Rage is active. If you're Charmed or Frightened when you enter your Rage, the condition ends on you.</p>",
+              "effects": [
+                {
+                  "target": "condition.immune.charmed",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "active('barbarian.rage')",
+                  "label": "Mindless Rage"
+                },
+                {
+                  "target": "condition.immune.frightened",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "active('barbarian.rage')",
+                  "label": "Mindless Rage"
+                }
+              ]
+            },
+            {
+              "key": "path-of-the-berserker.retaliation",
+              "name": "Retaliation",
+              "level": 10,
+              "description": "<p>When you take damage from a creature that is within 5 feet of you, you can take a Reaction to make one melee attack against that creature, using a weapon or an Unarmed Strike.</p>"
+            },
+            {
+              "key": "path-of-the-berserker.intimidating-presence",
+              "name": "Intimidating Presence",
+              "level": 14,
+              "description": "<p>As a Bonus Action, you can strike terror into others with your menacing presence and primal power. Each creature of your choice in a 30-foot Emanation originating from you must make a Wisdom saving throw (DC 8 plus your Strength modifier and Proficiency Bonus). On a failed save, a creature has the Frightened condition for 1 minute. At the end of each of its turns, the Frightened target repeats the save, ending the effect on itself on a success.</p><p>Once you use this feature, you can't use it again until you finish a Long Rest unless you expend a use of your Rage (no action required) to restore your use of it.</p>",
+              "resources": [
+                {
+                  "key": "intimidating-presence",
+                  "name": "Intimidating Presence",
+                  "max": "1",
+                  "recharge": "LongRest"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "path-of-the-wild-heart",
+          "name": "Path of the Wild Heart",
+          "description": "<p>Walk in community with the animal world. Barbarians who follow the Path of the Wild Heart view themselves as kin to animals and draw on their power while raging.</p>",
+          "features": [
+            {
+              "key": "path-of-the-wild-heart.animal-speaker",
+              "name": "Animal Speaker",
+              "level": 3,
+              "description": "<p>You can cast the <em>Beast Sense</em> and <em>Speak with Animals</em> spells but only as Rituals. Wisdom is your spellcasting ability for them.</p>",
+              "effects": [
+                {
+                  "target": "spell.beast-sense",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Animal Speaker"
+                },
+                {
+                  "target": "spell.speak-with-animals",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Animal Speaker"
+                }
+              ]
+            },
+            {
+              // chosen whenever the Rage starts; noted only, nothing is calculated
+              "key": "path-of-the-wild-heart.rage-of-the-wilds",
+              "name": "Rage of the Wilds",
+              "level": 3,
+              "description": "<p>Your Rage taps into the primal power of animals. Whenever you activate your Rage, you gain one of the following options of your choice.</p><p><strong><em>Bear.</em></strong> While your Rage is active, you have Resistance to every damage type except Force, Necrotic, Psychic, and Radiant.</p><p><strong><em>Eagle.</em></strong> When you activate your Rage, you can take the Disengage and Dash actions as part of that Bonus Action. While your Rage is active, you can take a Bonus Action to take both of those actions.</p><p><strong><em>Wolf.</em></strong> While your Rage is active, your allies have Advantage on attack rolls against any enemy of yours within 5 feet of you.</p>"
+            },
+            {
+              "key": "path-of-the-wild-heart.aspect-of-the-wilds",
+              "name": "Aspect of the Wilds",
+              "level": 6,
+              "description": "<p>You gain one of the following options of your choice. Whenever you finish a Long Rest, you can change your choice.</p><p><strong><em>Owl.</em></strong> You have Darkvision with a range of 60 feet. If you already have Darkvision, its range increases by 60 feet.</p><p><strong><em>Panther.</em></strong> You have a Climb Speed equal to your Speed.</p><p><strong><em>Salmon.</em></strong> You have a Swim Speed equal to your Speed.</p>",
+              "choices": [
+                {
+                  "key": "path-of-the-wild-heart.aspect-of-the-wilds",
+                  "name": "Aspect",
+                  "count": "1",
+                  "source": "Static",
+                  "replace": "OnLongRest",
+                  "options": [
+                    {
+                      "key": "owl",
+                      "name": "Owl",
+                      "feature": {
+                        "key": "path-of-the-wild-heart.aspect-of-the-wilds.owl",
+                        "sheetSection": "Hidden",
+                        "effects": [
+                          {
+                            // added after a species' Set, so 60 feet or 60 feet more
+                            "target": "sense.darkvision",
+                            "op": "Add",
+                            "value": "60",
+                            "label": "Aspect of the Wilds (Owl)"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "key": "panther",
+                      "name": "Panther",
+                      "feature": {
+                        "key": "path-of-the-wild-heart.aspect-of-the-wilds.panther",
+                        "sheetSection": "Hidden",
+                        "effects": [
+                          {
+                            "target": "speed.climb",
+                            "op": "Set",
+                            "value": "stat('speed.walk')",
+                            "label": "Aspect of the Wilds (Panther)"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "key": "salmon",
+                      "name": "Salmon",
+                      "feature": {
+                        "key": "path-of-the-wild-heart.aspect-of-the-wilds.salmon",
+                        "sheetSection": "Hidden",
+                        "effects": [
+                          {
+                            "target": "speed.swim",
+                            "op": "Set",
+                            "value": "stat('speed.walk')",
+                            "label": "Aspect of the Wilds (Salmon)"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "key": "path-of-the-wild-heart.nature-speaker",
+              "name": "Nature Speaker",
+              "level": 10,
+              "description": "<p>You can cast the <em>Commune with Nature</em> spell but only as a Ritual. Wisdom is your spellcasting ability for it.</p>",
+              "effects": [
+                {
+                  "target": "spell.commune-with-nature",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Nature Speaker"
+                }
+              ]
+            },
+            {
+              "key": "path-of-the-wild-heart.power-of-the-wilds",
+              "name": "Power of the Wilds",
+              "level": 14,
+              "description": "<p>Whenever you activate your Rage, you gain one of the following options of your choice.</p><p><strong><em>Falcon.</em></strong> While your Rage is active, you have a Fly Speed equal to your Speed if you aren't wearing any armor.</p><p><strong><em>Lion.</em></strong> While your Rage is active, any of your enemies within 5 feet of you have Disadvantage on attack rolls against targets other than you or another Barbarian who has this option active.</p><p><strong><em>Ram.</em></strong> While your Rage is active, you can cause a Large or smaller creature to have the Prone condition when you hit it with a melee attack.</p>",
+              "choices": [
+                {
+                  "key": "path-of-the-wild-heart.power-of-the-wilds",
+                  "name": "Power",
+                  "count": "1",
+                  "source": "Static",
+                  "replace": "OnShortRest",
+                  "options": [
+                    {
+                      "key": "falcon",
+                      "name": "Falcon",
+                      "feature": {
+                        "key": "path-of-the-wild-heart.power-of-the-wilds.falcon",
+                        "sheetSection": "Hidden",
+                        "effects": [
+                          {
+                            "target": "speed.fly",
+                            "op": "Set",
+                            "value": "stat('speed.walk')",
+                            "condition": "active('barbarian.rage') && !wearing('armor')",
+                            "label": "Power of the Wilds (Falcon)"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "key": "lion",
+                      "name": "Lion"
+                    },
+                    {
+                      "key": "ram",
+                      "name": "Ram"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "path-of-the-world-tree",
+          "name": "Path of the World Tree",
+          "description": "<p>Trace the roots and branches of the multiverse. Barbarians who follow the Path of the World Tree connect with the cosmic tree Yggdrasil through their Rage.</p>",
+          "features": [
+            {
+              "key": "path-of-the-world-tree.vitality-of-the-tree",
+              "name": "Vitality of the Tree",
+              "level": 3,
+              "description": "<p><strong><em>Vitality Surge.</em></strong> When you activate your Rage, you gain a number of Temporary Hit Points equal to your Barbarian level.</p><p><strong><em>Life-Giving Force.</em></strong> At the start of each of your turns while your Rage is active, you can choose another creature within 10 feet of yourself to gain Temporary Hit Points. To determine the number, roll a number of d6s equal to your Rage Damage bonus and add them together. If any of these Temporary Hit Points remain when your Rage ends, they vanish.</p>"
+            },
+            {
+              "key": "path-of-the-world-tree.branches-of-the-tree",
+              "name": "Branches of the Tree",
+              "level": 6,
+              "description": "<p>Whenever a creature you can see starts its turn within 30 feet of you while your Rage is active, you can take a Reaction to summon spectral branches around it. The target must succeed on a Strength saving throw (DC 8 plus your Strength modifier and Proficiency Bonus) or be teleported to an unoccupied space you can see within 5 feet of yourself or the nearest one. After the target teleports, you can reduce its Speed to 0 until the end of the current turn.</p>"
+            },
+            {
+              "key": "path-of-the-world-tree.battering-roots",
+              "name": "Battering Roots",
+              "level": 10,
+              "description": "<p>During your turn, your reach is 10 feet greater with any Melee weapon that has the Heavy or Versatile property. When you hit with such a weapon on your turn, you can activate the Push or Topple mastery property in addition to a different mastery property you're using with that weapon.</p>"
+            },
+            {
+              "key": "path-of-the-world-tree.travel-along-the-tree",
+              "name": "Travel Along the Tree",
+              "level": 14,
+              "description": "<p>When you activate your Rage and as a Bonus Action while your Rage is active, you can teleport up to 60 feet to an unoccupied space you can see.</p><p>In addition, once per Rage, you can increase the range of that teleport to 150 feet. When you do so, you can also bring up to six willing creatures who are within 10 feet of you. Each creature teleports to an unoccupied space of your choice within 10 feet of your destination space.</p>"
+            }
+          ]
+        },
+        {
+          "key": "path-of-the-zealot",
+          "name": "Path of the Zealot",
+          "description": "<p>Rage in ecstatic union with a god. Barbarians who walk the Path of the Zealot receive boons from a god or pantheon, which they fuel with their Rage.</p>",
+          "scales": {
+            "path-of-the-zealot.warrior-of-the-gods": "0,0,4,4,4,5,5,5,5,5,5,6,6,6,6,6,7,7,7,7"
+          },
+          "features": [
+            {
+              "key": "path-of-the-zealot.divine-fury",
+              "name": "Divine Fury",
+              "level": 3,
+              "description": "<p>You can channel divine power into your strikes. On each of your turns while your Rage is active, the first creature you hit with a weapon or an Unarmed Strike takes extra damage equal to 1d6 plus half your Barbarian level (round down). The extra damage is Necrotic or Radiant; you choose the type each time you deal the damage.</p>"
+            },
+            {
+              "key": "path-of-the-zealot.warrior-of-the-gods",
+              "name": "Warrior of the Gods",
+              "level": 3,
+              "description": "<p>A divine entity helps ensure you can continue the fight. You have a pool of four d12s that you can spend to heal yourself. As a Bonus Action, you can expend dice from the pool, roll them, and regain a number of Hit Points equal to the roll's total.</p><p>Your pool regains all expended dice when you finish a Long Rest. The pool's maximum number of dice increases by one when you reach Barbarian levels 6 (5 dice), 12 (6 dice), and 17 (7 dice).</p>",
+              "resources": [
+                {
+                  "key": "warrior-of-the-gods",
+                  "name": "Warrior of the Gods",
+                  "max": "scale('path-of-the-zealot.warrior-of-the-gods')",
+                  "die": "1d12",
+                  "recharge": "LongRest"
+                }
+              ]
+            },
+            {
+              "key": "path-of-the-zealot.fanatical-focus",
+              "name": "Fanatical Focus",
+              "level": 6,
+              "description": "<p>Once per active Rage, if you fail a saving throw, you can reroll it with a bonus equal to your Rage Damage bonus, and you must use the new roll.</p>"
+            },
+            {
+              "key": "path-of-the-zealot.zealous-presence",
+              "name": "Zealous Presence",
+              "level": 10,
+              "description": "<p>As a Bonus Action, you unleash a battle cry infused with divine energy. Up to ten other creatures of your choice within 60 feet of you gain Advantage on attack rolls and saving throws until the start of your next turn.</p><p>Once you use this feature, you can't use it again until you finish a Long Rest unless you expend a use of your Rage (no action required) to restore your use of it.</p>",
+              "resources": [
+                {
+                  "key": "zealous-presence",
+                  "name": "Zealous Presence",
+                  "max": "1",
+                  "recharge": "LongRest"
+                }
+              ]
+            },
+            {
+              "key": "path-of-the-zealot.rage-of-the-gods",
+              "name": "Rage of the Gods",
+              "level": 14,
+              "description": "<p>When you activate your Rage, you can assume the form of a divine warrior. This form lasts for 1 minute or until you drop to 0 Hit Points. Once you use this feature, you can't do so again until you finish a Long Rest.</p><p>While in this form, you gain the benefits below.</p><p><strong><em>Flight.</em></strong> You have a Fly Speed equal to your Speed and can hover.</p><p><strong><em>Resistance.</em></strong> You have Resistance to Necrotic, Psychic, and Radiant damage.</p><p><strong><em>Revivification.</em></strong> When a creature within 30 feet of you would drop to 0 Hit Points, you can take a Reaction to expend a use of your Rage to instead change the target's Hit Points to a number equal to your Barbarian level.</p>",
+              "resources": [
+                {
+                  "key": "rage-of-the-gods",
+                  "name": "Rage of the Gods",
+                  "max": "1",
+                  "recharge": "LongRest"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

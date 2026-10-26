@@ -5,6 +5,18 @@
 name: tabletopsheets-postgresql
 
 services:
+  migrator:
+    extends:
+      file: compose.api.yaml
+      service: migrator
+    pull_policy: build
+    environment:
+      Database__Provider: Postgresql
+      ConnectionStrings__TableTopSheets: "Host=postgres;Port=5432;Database=${POSTGRES_DB:-tabletopsheets};Username=${POSTGRES_USER:-tabletopsheets};Password=${POSTGRES_PASSWORD:-tabletopsheets}"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   api:
     extends:
       file: compose.api.yaml
@@ -16,6 +28,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      migrator:
+        condition: service_completed_successfully
 
   postgres:
     image: postgres:18

@@ -8,7 +8,9 @@ namespace TableTopSheets.Seed;
 
 /// <summary>
 ///   Writes seed data into the database. Rows are matched by their deterministic id, so seeding can be repeated:
-///   new rows are inserted, existing rows updated and stale child rows (effects, options, scales ...) removed
+///   new rows are inserted and existing rows updated. Nothing else disappears: rule rows (classes, features, choices,
+///   spells, items ...) and character data are never deleted, and stale child rows (effects, options, scales ...) are
+///   only removed from rules the seed owns. Rows of other rules (homebrew) and options a character has selected stay
 /// </summary>
 public static class SeedWriter
 {
@@ -30,7 +32,10 @@ public static class SeedWriter
     return result;
   }
 
-  public static async Task WriteAsync(TableTopSheetsContext context, SeedResult result, CancellationToken cancellationToken = default)
+  /// <summary>
+  ///   Upsert the built seed in one transaction
+  /// </summary>
+  public static async Task<SeedWriteReport> WriteAsync(TableTopSheetsContext context, SeedResult result, CancellationToken cancellationToken = default)
   {
     List<object> roots =
     [
@@ -49,28 +54,47 @@ public static class SeedWriter
     ];
 
     HashSet<Guid> seeded = SeededIds(result);
+    List<Guid> features = result.Features
+      .Select(entry => entry.Id)
+      .ToList();
+    List<Guid> choices = result.Features
+      .SelectMany(entry => entry.Choices)
+      .Select(entry => entry.Id)
+      .ToList();
+    List<string> scales = result.ScaleValues
+      .Select(entry => entry.Key)
+      .Distinct()
+      .ToList();
+    List<string> slotTables = result.SpellSlotRows
+      .Select(entry => entry.TableKey)
+      .Distinct()
+      .ToList();
     context.ChangeTracker.Clear();
 
     await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
 
-    // child rows that are owned completely by the seed data
-    await context.Effects
+    // stale child rows, but only of rules the seed owns; rows of other rules and selected options stay
+    int deleted = 0;
+    deleted += await context.Effects
       .Where(entry => !seeded.Contains(entry.Id))
+      .Where(entry => (entry.FeatureId != null && features.Contains(entry.FeatureId.Value))
+                      || (entry.ChoiceId != null && choices.Contains(entry.ChoiceId.Value)))
       .ExecuteDeleteAsync(cancellationToken);
-    await context.ChoiceOptions
-      .Where(entry => !seeded.Contains(entry.Id))
+    deleted += await context.ChoiceOptions
+      .Where(entry => !seeded.Contains(entry.Id) && choices.Contains(entry.ChoiceId))
+      .Where(entry => !context.CharacterChoices.Any(selection => selection.ChoiceId == entry.ChoiceId && selection.OptionKey == entry.Key))
       .ExecuteDeleteAsync(cancellationToken);
-    await context.ScaleValues
-      .Where(entry => !seeded.Contains(entry.Id))
+    deleted += await context.ScaleValues
+      .Where(entry => !seeded.Contains(entry.Id) && scales.Contains(entry.Key))
       .ExecuteDeleteAsync(cancellationToken);
-    await context.SpellSlotRows
-      .Where(entry => !seeded.Contains(entry.Id))
+    deleted += await context.SpellSlotRows
+      .Where(entry => !seeded.Contains(entry.Id) && slotTables.Contains(entry.TableKey))
       .ExecuteDeleteAsync(cancellationToken);
-    await context.Resources
-      .Where(entry => !seeded.Contains(entry.Id))
+    deleted += await context.Resources
+      .Where(entry => !seeded.Contains(entry.Id) && features.Contains(entry.FeatureId))
       .ExecuteDeleteAsync(cancellationToken);
-    await context.SpellcastingProfiles
-      .Where(entry => !seeded.Contains(entry.Id))
+    deleted += await context.SpellcastingProfiles
+      .Where(entry => !seeded.Contains(entry.Id) && features.Contains(entry.FeatureId))
       .ExecuteDeleteAsync(cancellationToken);
 
     HashSet<Guid> existing = (await ExistingIds(context, cancellationToken)).ToHashSet();
@@ -92,9 +116,17 @@ public static class SeedWriter
       });
     }
 
+    int inserted = context.ChangeTracker
+      .Entries()
+      .Count(entry => entry.State == EntityState.Added);
+    int updated = context.ChangeTracker
+      .Entries()
+      .Count(entry => entry.State == EntityState.Modified);
+
     await context.SaveChangesAsync(cancellationToken);
     await transaction.CommitAsync(cancellationToken);
     context.ChangeTracker.Clear();
+    return new SeedWriteReport(inserted, updated, deleted);
   }
 
   private static HashSet<Guid> SeededIds(SeedResult result)

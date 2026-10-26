@@ -790,6 +790,36 @@ namespace TableTopSheets.Persistence.Sqlite.Migrations
                     b.ToTable("Resources");
                 });
 
+            modelBuilder.Entity("TableTopSheets.Persistence.Entity.Rules.RulesetMigration", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("AppliedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ContentHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Summary")
+                        .IsRequired()
+                        .HasMaxLength(1024)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ToolVersion")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppliedAt");
+
+                    b.ToTable("RulesetMigrations");
+                });
+
             modelBuilder.Entity("TableTopSheets.Persistence.Entity.Rules.ScaleValue", b =>
                 {
                     b.Property<Guid>("Id")

@@ -29,6 +29,7 @@
     <File Path="compose.postgresql-external.yaml" />
     <File Path="compose.sqlite.yaml" />
     <File Path="README.md" />
+    <File Path="Seed/TableTopSheets.Seed/Dockerfile" />
   </Folder>
   <Folder Name="/Tests/">
     <Project Path="Tests/TableTopSheets.Api.Tests/TableTopSheets.Api.Tests.csproj" />

@@ -47,7 +47,8 @@ builder.Services.AddOpenApi(options => options.AddBearerScheme());
 
 WebApplication app = builder.Build();
 
-await DatabaseInitializer.InitializeAsync(app.Services);
+// the ruleset migrator migrates and seeds the database; the API only warns when it hasn't run yet
+await DatabaseStartupCheck.RunAsync(app.Services);
 
 app
   .UseExceptionHandler()

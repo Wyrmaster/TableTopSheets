@@ -35,7 +35,7 @@ docker compose -f compose.sqlite.yaml up --build  # alternative; needs .env with
 dotnet test Tests/TableTopSheets.Api.Tests        # end to end tests of the API
 ```
 
-The API creates, migrates and seeds a local SQLite database on start. In Development the JWT signing key is random per start, so **tokens become invalid when the API restarts**: handle 401 by sending the user back to sign in.
+The API doesn't migrate or seed: run the ruleset migrator first (`dotnet run --project Seed/TableTopSheets.Seed`, from the same folder as the API so both use the same local SQLite file); docker compose runs it automatically before the API. In Development the JWT signing key is random per start, so **tokens become invalid when the API restarts**: handle 401 by sending the user back to sign in.
 
 **CORS is not configured** (`Program.cs` has no `AddCors`). A browser UI on another origin will fail. In development `Ui/vite.config.ts` proxies `/api` to `http://localhost:5180`, so call the API with relative URLs (`/api/...`). For a deployed UI on another origin, serve it behind the same host or add a CORS policy to `Program.cs` with the allowed origins from configuration (e.g. `Cors:Origins`), never `AllowAnyOrigin` together with credentials. If you change the API, add or extend a test in `Tests/TableTopSheets.Api.Tests` and run them.
 

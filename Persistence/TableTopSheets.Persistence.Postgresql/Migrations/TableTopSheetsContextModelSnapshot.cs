@@ -796,6 +796,36 @@ namespace TableTopSheets.Persistence.Postgresql.Migrations
                     b.ToTable("Resources");
                 });
 
+            modelBuilder.Entity("TableTopSheets.Persistence.Entity.Rules.RulesetMigration", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("AppliedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ContentHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("Summary")
+                        .IsRequired()
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)");
+
+                    b.Property<string>("ToolVersion")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppliedAt");
+
+                    b.ToTable("RulesetMigrations");
+                });
+
             modelBuilder.Entity("TableTopSheets.Persistence.Entity.Rules.ScaleValue", b =>
                 {
                     b.Property<Guid>("Id")

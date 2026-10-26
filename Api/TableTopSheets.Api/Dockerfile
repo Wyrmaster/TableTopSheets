@@ -1,4 +1,5 @@
-# TableTopSheets REST API, hosting the user interface
+# TableTopSheets REST API, hosting the user interface. It neither migrates nor seeds the database: the ruleset
+# migrator (Seed/TableTopSheets.Seed/Dockerfile) does that before the API starts
 # build from the repository root: docker build -f Api/TableTopSheets.Api/Dockerfile -t tabletopsheets-api .
 
 ARG DOTNET_VERSION=10.0
@@ -46,7 +47,6 @@ COPY Pdf/Library/TableTopSheets.Pdf.csproj Pdf/Library/
 COPY Persistence/TableTopSheets.Persistence/TableTopSheets.Persistence.csproj Persistence/TableTopSheets.Persistence/
 COPY Persistence/TableTopSheets.Persistence.Postgresql/TableTopSheets.Persistence.Postgresql.csproj Persistence/TableTopSheets.Persistence.Postgresql/
 COPY Persistence/TableTopSheets.Persistence.Sqlite/TableTopSheets.Persistence.Sqlite.csproj Persistence/TableTopSheets.Persistence.Sqlite/
-COPY Seed/TableTopSheets.Seed/TableTopSheets.Seed.csproj Seed/TableTopSheets.Seed/
 RUN dotnet restore Api/TableTopSheets.Api/TableTopSheets.Api.csproj
 
 COPY Api/ Api/
@@ -54,7 +54,6 @@ COPY Common/ Common/
 COPY Engine/ Engine/
 COPY Pdf/Library/ Pdf/Library/
 COPY Persistence/ Persistence/
-COPY Seed/ Seed/
 RUN dotnet publish Api/TableTopSheets.Api/TableTopSheets.Api.csproj \
       --configuration $BUILD_CONFIGURATION \
       --no-restore \

@@ -1,10 +1,21 @@
-# Shared definition of the API service; the database compose files extend it.
+# Shared definition of the migrator and API services; the database compose files extend them.
+# The migrator applies the schema migrations and writes the rules, then exits; the API starts after it succeeded.
 # Not meant to be started on its own, use one of:
 #   docker compose -f compose.sqlite.yaml up --build
 #   docker compose -f compose.postgresql.yaml up --build
 #   docker compose -f compose.postgresql-external.yaml up --build
 
 services:
+  migrator:
+    image: tabletopsheets-migrator
+    build:
+      context: .
+      dockerfile: Seed/TableTopSheets.Seed/Dockerfile
+    command: ["migrate"]
+    environment:
+      DOTNET_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+    restart: "no"
+
   api:
     image: tabletopsheets-api
     build:
@@ -14,8 +25,6 @@ services:
       - "${API_PORT:-5180}:8080"
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
-      Database__MigrateOnStartup: "true"
-      Database__SeedOnStartup: "true"
       Authentication__Provider: ${AUTH_PROVIDER:-Database}
       # at least 32 characters; the database authentication signs its tokens with it
       Authentication__Jwt__SigningKey: ${JWT_SIGNING_KEY:?set JWT_SIGNING_KEY (at least 32 characters), e.g. in .env}

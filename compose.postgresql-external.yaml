@@ -6,10 +6,23 @@
 name: tabletopsheets-postgresql-external
 
 services:
+  migrator:
+    extends:
+      file: compose.api.yaml
+      service: migrator
+    environment:
+      Database__Provider: Postgresql
+      ConnectionStrings__TableTopSheets: ${POSTGRES_CONNECTION:?set POSTGRES_CONNECTION to the connection string of the PostgreSQL server}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
   api:
     extends:
       file: compose.api.yaml
       service: api
+    depends_on:
+      migrator:
+        condition: service_completed_successfully
     environment:
       Database__Provider: Postgresql
       ConnectionStrings__TableTopSheets: ${POSTGRES_CONNECTION:?set POSTGRES_CONNECTION to the connection string of the PostgreSQL server}

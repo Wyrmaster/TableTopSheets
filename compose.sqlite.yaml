@@ -4,10 +4,23 @@
 name: tabletopsheets-sqlite
 
 services:
+  migrator:
+    extends:
+      file: compose.api.yaml
+      service: migrator
+    environment:
+      Database__Provider: Sqlite
+      ConnectionStrings__TableTopSheets: "Data Source=/app/data/tabletopsheets.db"
+    volumes:
+      - sqlite-data:/app/data
+
   api:
     extends:
       file: compose.api.yaml
       service: api
+    depends_on:
+      migrator:
+        condition: service_completed_successfully
     environment:
       Database__Provider: Sqlite
       ConnectionStrings__TableTopSheets: "Data Source=/app/data/tabletopsheets.db"

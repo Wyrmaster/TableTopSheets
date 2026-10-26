@@ -4,7 +4,8 @@ using TableTopSheets.Persistence.Sqlite;
 namespace TableTopSheets.Api.Configuration;
 
 /// <summary>
-///   <c>Database</c> section of the configuration
+///   <c>Database</c> section of the configuration. The API neither migrates nor seeds: the ruleset migrator
+///   (<c>Seed/TableTopSheets.Seed</c>) does both in its own process, with the same settings
 /// </summary>
 public sealed class DatabaseOptions
 {
@@ -18,16 +19,6 @@ public sealed class DatabaseOptions
   #region Properties
 
   public DatabaseProvider Provider { get; set; } = DatabaseProvider.Sqlite;
-
-  /// <summary>
-  ///   Apply pending migrations on startup
-  /// </summary>
-  public bool MigrateOnStartup { get; set; } = true;
-
-  /// <summary>
-  ///   Write the rules seed on startup (an idempotent upsert)
-  /// </summary>
-  public bool SeedOnStartup { get; set; } = true;
 
   #endregion
 

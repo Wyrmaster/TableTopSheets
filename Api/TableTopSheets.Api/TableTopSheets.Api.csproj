@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Seed\TableTopSheets.Seed\TableTopSheets.Seed.csproj" />
+    <ProjectReference Include="..\..\Engine\TableTopSheets.Engine\TableTopSheets.Engine.csproj" />
     <ProjectReference Include="..\..\Pdf\Library\TableTopSheets.Pdf.csproj" />
     <ProjectReference Include="..\..\Persistence\TableTopSheets.Persistence.Sqlite\TableTopSheets.Persistence.Sqlite.csproj" />
     <ProjectReference Include="..\..\Persistence\TableTopSheets.Persistence.Postgresql\TableTopSheets.Persistence.Postgresql.csproj" />

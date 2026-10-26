@@ -36,11 +36,17 @@ dotnet test Tests/TableTopSheets.Engine.Tests    # engine, rules, undo, multicla
 dotnet test Tests/TableTopSheets.Api.Tests       # REST API end to end
 ```
 
-The quickest way to try it is the REST API. It creates, migrates and seeds a local SQLite database on start:
+The quickest way to try it is the REST API. The API doesn't create or change the database schema and doesn't write the
+rules: the **ruleset migrator** (`Seed/TableTopSheets.Seed`, a console application) does both. Run it first, from the
+same folder as the API so both use the same local SQLite file (`tabletopsheets.db`), and again whenever the rules or
+the schema change:
 
 ```bash
+dotnet run --project Seed/TableTopSheets.Seed    # migrate: schema migrations + rules (skipped when unchanged)
 dotnet run --project Api/TableTopSheets.Api      # Swagger UI at http://localhost:5180/swagger
 ```
+
+See [Ruleset migrator](#ruleset-migrator) for its commands.
 
 The user interface is a React app in `Ui/` (pnpm); its dev server proxies `/api` to the API:
 
@@ -53,8 +59,9 @@ cd Ui && pnpm install && pnpm dev                # http://localhost:5173
 ### Docker
 
 `Api/TableTopSheets.Api/Dockerfile` builds the API and the user interface (from the repository root); the API serves
-the built UI from its web root, so the website and `/api` share one origin. The compose files at the root run it with
-one database configuration each; all of them extend the API service in `compose.api.yaml`:
+the built UI from its web root, so the website and `/api` share one origin. `Seed/TableTopSheets.Seed/Dockerfile` builds
+the ruleset migrator. The compose files at the root run both with one database configuration each; all of them extend
+the `migrator` and `api` services in `compose.api.yaml`:
 
 | File                               | Database                                                              |
 |------------------------------------|-----------------------------------------------------------------------|
@@ -67,7 +74,10 @@ cp .env.example .env                             # set JWT_SIGNING_KEY (at least
 docker compose -f compose.postgresql.yaml up --build    # UI at http://localhost:5180, Swagger UI at /swagger
 ```
 
-The API migrates and seeds the database on start. Ports, credentials and authentication settings are read from `.env`.
+On every `up` the `migrator` service runs first: it applies pending schema migrations, writes the rules if they changed
+and exits. The API starts only after it succeeded (`depends_on: condition: service_completed_successfully`). Existing
+data stays: users, characters and rules that are already in the database are never deleted (see
+[Ruleset migrator](#ruleset-migrator)). Ports, credentials and authentication settings are read from `.env`.
 
 Create a database and fill it with the rules:
 
@@ -80,7 +90,7 @@ dotnet ef database update --project Persistence/TableTopSheets.Persistence.Postg
 
 ```csharp
 await using TableTopSheetsContext context = PostgresqlContextFactory.Create(connectionString);
-await SeedWriter.SeedAsync(context);                          // repeatable; ids are deterministic
+await SeedWriter.SeedAsync(context);                          // repeatable; ids are deterministic (the migrator does this)
 // characters belong to a user; ICurrentUser tells the service whose characters it may see
 CharacterService service = new(context, new RulesCatalogLoader(context), currentUser);
 ```
@@ -138,7 +148,7 @@ foreach (PendingChoice pending in ChoiceService.Pending(evaluation))
 | `Persistence/TableTopSheets.Persistence` | EF Core entities, configuration, `TableTopSheetsContext` |
 | `Persistence/…Postgresql` / `…Sqlite` | Database providers, design-time factories, migrations |
 | `Engine/TableTopSheets.Engine` | Expression language, rule evaluation, choices, sheet builder, `CharacterService` |
-| `Seed/TableTopSheets.Seed` | Rule data as JSON (`Data/Extracted`, `Data/Rules`), loader, validator hookup, database writer |
+| `Seed/TableTopSheets.Seed` | Ruleset migrator (console app, Docker image): rule data as JSON (`Data/Extracted`, `Data/Rules`), loader, validator hookup, database writer, schema migrations |
 | `Tools/TableTopSheets.Extractor` | Reads the Player's Handbook markdown and generates `Data/Extracted` |
 | `Pdf/Library` | PDF rendering (PDFsharp); `CharacterSheetDocument` prints a `CharacterSheet` |
 | `Api/TableTopSheets.Api` | ASP.NET Core minimal API: rules catalog, characters, the choice loop, level up, sheet and PDF |
@@ -577,8 +587,34 @@ dotnet run --project Api/TableTopSheets.Api
 |---|---|---|
 | `Database:Provider` | `Sqlite` | `Sqlite` or `Postgresql` |
 | `ConnectionStrings:TableTopSheets` | – | falls back to `TABLETOPSHEETS_SQLITE` / `TABLETOPSHEETS_POSTGRESQL`, then `Data Source=tabletopsheets.db` |
-| `Database:MigrateOnStartup` | `true` | apply EF migrations on start |
-| `Database:SeedOnStartup` | `true` | write the rules seed on start (idempotent upsert) |
+
+The API only reads the database. On start it logs a warning if schema migrations are pending, which means the ruleset
+migrator hasn't run yet.
+
+### Ruleset migrator
+
+`Seed/TableTopSheets.Seed` brings a database up to date. It uses the same `Database:Provider` and
+`ConnectionStrings:TableTopSheets` settings as the API (environment variables `Database__Provider`,
+`ConnectionStrings__TableTopSheets`).
+
+```bash
+dotnet run --project Seed/TableTopSheets.Seed -- migrate            # default: schema migrations, then the rules
+dotnet run --project Seed/TableTopSheets.Seed -- migrate --force    # write the rules even when unchanged
+dotnet run --project Seed/TableTopSheets.Seed -- validate           # build and validate the rules, no database
+dotnet run --project Seed/TableTopSheets.Seed -- status             # pending migrations, last ruleset written
+dotnet run --project Seed/TableTopSheets.Seed -- migrate --data ../my-rules   # another seed folder (Extracted/, Rules/)
+```
+
+Exit codes: `0` done, `1` failed (invalid rules, database error), `2` bad command line.
+
+- **History:** every write adds a row to `RulesetMigrations` (hash, migrator version, time, counts). The hash covers the
+  seed files and the migrator's code; if it equals the last row, `migrate` leaves the rules alone.
+- **Upsert:** rows are matched by their deterministic ids (`SeedKeys.Id`), so new rules are inserted and changed rules
+  updated in one transaction.
+- **Nothing old disappears:** rule rows (classes, features, choices, spells, items …), users and characters are never
+  deleted. Child rows of a seeded rule that the seed no longer contains (an effect, a choice option, a scale value …) are
+  removed, but only for rules the seed owns: rows of other rules (homebrew) stay, and so does an option that a character
+  has selected.
 
 The rules catalog is loaded once on startup and shared. A request gets its own `TableTopSheetsContext` and
 `CharacterService`.
@@ -753,6 +789,8 @@ dotnet run --project Tools/TableTopSheets.Extractor -- "/path/to/Player's Handbo
 ```
 
 Then run the tests. `CatalogTests.SeedDataIsValid` loads and validates all data, and seeding the database validates again.
+`dotnet run --project Seed/TableTopSheets.Seed -- validate` does the same check from the command line, and `migrate`
+writes the new rules into an existing database.
 
 ### Keys
 
@@ -915,8 +953,10 @@ beyond the available rows are continued there too.
   - Warlock (Fiend, all invocations)
   - Fighter (Eldritch Knight)
   - Monk (Open Hand)
+  - Barbarian (Berserker, Wild Heart, World Tree, Zealot); Rage Damage, Rage of the Wilds and the Weapon Mastery
+    properties are noted only, not calculated
   - Human, Elf, Dwarf, Dragonborn
   - all backgrounds
   - the common feats and fighting styles
-- **Still to author:** the other classes (Barbarian, Bard, Cleric, Druid, Paladin, Ranger, Rogue) and their subclasses.
+- **Still to author:** the other classes (Bard, Cleric, Druid, Paladin, Ranger, Rogue) and their subclasses.
   The book's markdown has no class tables or subclasses, so those come from `Data/Rules/classes/*.json`.

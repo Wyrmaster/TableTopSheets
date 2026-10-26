@@ -57,6 +57,11 @@ public class TableTopSheetsContext: DbContext
 
   public DbSet<Item> Items => this.Set<Item>();
 
+  /// <summary>
+  ///   History of the ruleset migrator runs
+  /// </summary>
+  public DbSet<RulesetMigration> RulesetMigrations => this.Set<RulesetMigration>();
+
   #endregion
 
   #region Users
