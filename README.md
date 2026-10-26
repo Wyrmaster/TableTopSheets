@@ -44,6 +44,24 @@ dotnet run --project Api/TableTopSheets.Api      # Swagger UI at http://localhos
 
 `Api/TableTopSheets.Api/TableTopSheets.Api.http` walks through a whole character. See [REST API](#rest-api).
 
+### Docker
+
+`Api/TableTopSheets.Api/Dockerfile` builds the API (from the repository root). The compose files at the root run it with
+one database configuration each; all of them extend the API service in `compose.api.yaml`:
+
+| File                               | Database                                                              |
+|------------------------------------|-----------------------------------------------------------------------|
+| `compose.sqlite.yaml`              | SQLite file in the `sqlite-data` volume                               |
+| `compose.postgresql.yaml`          | PostgreSQL 18 container (volume `postgres-data`, port `5432` on host) |
+| `compose.postgresql-external.yaml` | An existing PostgreSQL server, connection string in `POSTGRES_CONNECTION` |
+
+```bash
+cp .env.example .env                             # set JWT_SIGNING_KEY (at least 32 characters)
+docker compose -f compose.postgresql.yaml up --build    # Swagger UI at http://localhost:5180/swagger
+```
+
+The API migrates and seeds the database on start. Ports, credentials and authentication settings are read from `.env`.
+
 Create a database and fill it with the rules:
 
 ```bash

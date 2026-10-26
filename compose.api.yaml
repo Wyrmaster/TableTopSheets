@@ -1,0 +1,25 @@
+# Shared definition of the API service; the database compose files extend it.
+# Not meant to be started on its own, use one of:
+#   docker compose -f compose.sqlite.yaml up --build
+#   docker compose -f compose.postgresql.yaml up --build
+#   docker compose -f compose.postgresql-external.yaml up --build
+
+services:
+  api:
+    image: tabletopsheets-api
+    build:
+      context: .
+      dockerfile: Api/TableTopSheets.Api/Dockerfile
+    ports:
+      - "${API_PORT:-5180}:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      Database__MigrateOnStartup: "true"
+      Database__SeedOnStartup: "true"
+      Authentication__Provider: ${AUTH_PROVIDER:-Database}
+      # at least 32 characters; the database authentication signs its tokens with it
+      Authentication__Jwt__SigningKey: ${JWT_SIGNING_KEY:?set JWT_SIGNING_KEY (at least 32 characters), e.g. in .env}
+      Authentication__Database__AllowRegistration: ${ALLOW_REGISTRATION:-true}
+      Authentication__Oidc__Authority: ${OIDC_AUTHORITY:-}
+      Authentication__Oidc__Audience: ${OIDC_AUDIENCE:-}
+    restart: unless-stopped

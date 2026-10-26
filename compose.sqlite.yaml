@@ -1,0 +1,18 @@
+# API with an SQLite database file in a named volume
+#   docker compose -f compose.sqlite.yaml up --build
+
+name: tabletopsheets-sqlite
+
+services:
+  api:
+    extends:
+      file: compose.api.yaml
+      service: api
+    environment:
+      Database__Provider: Sqlite
+      ConnectionStrings__TableTopSheets: "Data Source=/app/data/tabletopsheets.db"
+    volumes:
+      - sqlite-data:/app/data
+
+volumes:
+  sqlite-data:

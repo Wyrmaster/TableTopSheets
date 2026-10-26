@@ -1,0 +1,14 @@
+**/bin/
+**/obj/
+**/*.db
+**/*.db-shm
+**/*.db-wal
+**/*.user
+**/.vs/
+**/.idea/
+.git/
+.claude/
+.env
+Tests/
+Tools/
+Pdf/Test/

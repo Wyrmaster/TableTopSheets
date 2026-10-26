@@ -1,0 +1,17 @@
+# API against an existing PostgreSQL server (managed database, host installation, ...)
+#   POSTGRES_CONNECTION="Host=db.example.com;Database=tabletopsheets;Username=...;Password=..." \
+#     docker compose -f compose.postgresql-external.yaml up --build
+# a server on the docker host is reachable as host.docker.internal
+
+name: tabletopsheets-postgresql-external
+
+services:
+  api:
+    extends:
+      file: compose.api.yaml
+      service: api
+    environment:
+      Database__Provider: Postgresql
+      ConnectionStrings__TableTopSheets: ${POSTGRES_CONNECTION:?set POSTGRES_CONNECTION to the connection string of the PostgreSQL server}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

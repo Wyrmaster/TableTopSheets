@@ -1,0 +1,37 @@
+# API with a PostgreSQL container
+#   docker compose -f compose.postgresql.yaml up --build
+# the database is published on POSTGRES_PORT (default 5432) for tools like Rider or psql
+
+name: tabletopsheets-postgresql
+
+services:
+  api:
+    extends:
+      file: compose.api.yaml
+      service: api
+    environment:
+      Database__Provider: Postgresql
+      ConnectionStrings__TableTopSheets: "Host=postgres;Port=5432;Database=${POSTGRES_DB:-tabletopsheets};Username=${POSTGRES_USER:-tabletopsheets};Password=${POSTGRES_PASSWORD:-tabletopsheets}"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-tabletopsheets}
+      POSTGRES_USER: ${POSTGRES_USER:-tabletopsheets}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-tabletopsheets}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
