@@ -171,7 +171,6 @@
     }
 
     .device {
-      container: device / inline-size;
       position: relative;
       width: 100%;
       max-width: 1280px;
@@ -181,19 +180,25 @@
       overflow: hidden;
     }
 
+    /* the phone frame stays put and only the app inside scrolls, so panels anchored to the frame are always in view */
     .device.mobile {
       max-width: 390px;
       height: 800px;
       border: 10px solid #18181b;
       border-radius: 40px;
-      overflow-y: auto;
     }
 
     .app {
+      container: device / inline-size;
       display: flex;
       flex-direction: column;
       min-height: 100%;
       background: var(--bg);
+    }
+
+    .device.mobile .app {
+      height: 100%;
+      overflow-y: auto;
     }
 
     /* ------------------------------------------------------------------ title bar */
@@ -1314,9 +1319,11 @@
       gap: 10px;
     }
 
-    /* ------------------------------------------------------------------ dialog, drawer, toast */
+    /* ------------------------------------------------------------------ dialog, detail panel, toast
+       Desktop: fixed to the browser window, so they open where the user is. Phone frame: absolute in the frame
+       (which doesn't scroll). Narrow (phone frame or a narrow window): bottom sheets. */
     .overlay {
-      position: absolute;
+      position: fixed;
       inset: 0;
       z-index: 40;
       display: grid;
@@ -1325,31 +1332,82 @@
       background: rgb(0 0 0 / 0.45);
     }
 
-    .overlay.drawer {
-      place-items: stretch end;
-      padding: 0;
-    }
-
     .dialog {
       display: grid;
       gap: 14px;
       width: min(440px, 100%);
+      max-height: 100%;
       padding: 20px;
       border-radius: var(--radius-lg);
       background: var(--bg);
       box-shadow: var(--shadow-lg);
-    }
-
-    .drawer .dialog {
-      align-content: start;
-      width: min(480px, 100%);
-      height: 100%;
-      border-radius: 0;
       overflow-y: auto;
     }
 
-    .dialog .grabber {
+    /* detail view: a floating panel without backdrop; a click outside closes it */
+    .inspector {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 45;
+      display: grid;
+      align-content: start;
+      gap: 14px;
+      width: min(460px, calc(100vw - 32px));
+      max-height: calc(100vh - 32px);
+      padding: 20px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: var(--bg);
+      box-shadow: var(--shadow-lg);
+      overflow-y: auto;
+    }
+
+    .grabber {
       display: none;
+    }
+
+    .device.mobile .overlay,
+    .device.mobile .inspector,
+    .device.mobile .toast {
+      position: absolute;
+    }
+
+    .device.narrow .overlay {
+      place-items: end stretch;
+      padding: 0;
+    }
+
+    .device.narrow .dialog,
+    .device.narrow .inspector {
+      width: 100%;
+      max-height: 78%;
+      border-radius: 18px 18px 0 0;
+    }
+
+    .device.narrow .inspector {
+      inset: auto 0 0 0;
+      border-width: 1px 0 0;
+      box-shadow: 0 -8px 30px rgb(0 0 0 / 0.25);
+    }
+
+    .device.narrow:not(.mobile) .inspector {
+      max-height: 78vh;
+    }
+
+    .device.narrow .grabber {
+      display: block;
+      justify-self: center;
+      width: 40px;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--bg-emphasized);
+    }
+
+    .device.mobile .toast {
+      right: 12px;
+      bottom: 72px;
+      left: 12px;
     }
 
     .dialog-head {
@@ -1583,30 +1641,6 @@
 
       .shop-detail {
         position: static;
-      }
-
-      .overlay,
-      .overlay.drawer {
-        place-items: end stretch;
-        padding: 0;
-      }
-
-      .dialog,
-      .drawer .dialog {
-        width: 100%;
-        height: auto;
-        max-height: 88%;
-        border-radius: 18px 18px 0 0;
-        overflow-y: auto;
-      }
-
-      .dialog .grabber {
-        display: block;
-        justify-self: center;
-        width: 40px;
-        height: 4px;
-        border-radius: 2px;
-        background: var(--bg-emphasized);
       }
 
       .facts {
@@ -2069,10 +2103,10 @@
       <div class='overlay' id='overlay' hidden>
         <div class='dialog' id='dialog'></div>
       </div>
+      <aside class='inspector' id='inspector' hidden></aside>
+      <div class='toast' id='toast' hidden></div>
     </div>
   </div>
-
-  <div class='toast' id='toast' hidden></div>
 
   <script>
     // ---------------------------------------------------------------- icons (Material Design Icons, Apache 2.0)
@@ -3008,15 +3042,52 @@
       }, 2600)
     }
 
-    function openDialog(html, drawer = false) {
+    /**
+     * Modal dialog with backdrop (rests, undo); fixed to the window on desktop, in the frame on mobile
+     */
+    function openDialog(html) {
       $('#dialog').innerHTML = `<div class='grabber'></div>${html}`
-      $('#overlay').classList.toggle('drawer', drawer)
       $('#overlay').hidden = false
-      $('#overlay').style.top = `${$('#device').scrollTop}px`
     }
 
     function closeDialog() {
       $('#overlay').hidden = true
+    }
+
+    /**
+     * Detail view without backdrop: a floating panel at the right edge of the app on desktop, a bottom sheet on narrow
+     * screens; it always opens in the visible part of the page and closes with a click outside or Escape
+     */
+    function openInspector(html) {
+      const inspector = $('#inspector')
+      inspector.innerHTML = `<div class='grabber'></div>${html}`
+      inspector.hidden = false
+      inspector.scrollTop = 0
+      placeInspector()
+    }
+
+    function closeInspector() {
+      $('#inspector').hidden = true
+    }
+
+    function placeInspector() {
+      const device = $('#device')
+      const inspector = $('#inspector')
+      if (inspector.hidden) {
+        return
+      }
+
+      // narrow screens and the phone frame use the bottom sheet from the CSS
+      if (device.classList.contains('narrow')) {
+        inspector.style.cssText = ''
+        return
+      }
+
+      // keep the panel inside the app's right edge and below the app's top while it is scrolled into view
+      const rect = device.getBoundingClientRect()
+      const top = Math.max(16, rect.top + 16)
+      inspector.style.cssText = `top: ${top}px; right: ${Math.max(16, innerWidth - rect.right + 16)}px;
+        max-height: ${innerHeight - top - 16}px`
     }
 
     // ---------------------------------------------------------------- navigation, theme, device
@@ -3037,7 +3108,8 @@
       $('#appnav').hidden = !signedIn
       $('#user').hidden = !signedIn
       closeDialog()
-      $('#device').scrollTop = 0
+      closeInspector()
+      $('.app').scrollTop = 0
     }
 
     function setDevice(device) {
@@ -3209,13 +3281,13 @@
         note = 'features come with the class / species details and the sheet'
       }
 
-      openDialog(`
+      openInspector(`
         <div class='dialog-head'>
           <div><span class='muted small'>${label}</span><h2>${title}</h2></div>
-          <button class='icon-button' data-close title='Close'>${icon('close')}</button>
+          <button class='icon-button' data-close-inspector title='Close'>${icon('close')}</button>
         </div>
         ${body}
-        <div class='api-note'><b>API:</b> ${note}</div>`, true)
+        <div class='api-note'><b>API:</b> ${note}</div>`)
     }
 
     // ---------------------------------------------------------------- login
@@ -4101,6 +4173,24 @@
     }
 
     // ---------------------------------------------------------------- events
+    // a click outside the detail view closes it (capture phase: before the click does anything else)
+    document.addEventListener('click', (event) => {
+      const inspector = $('#inspector')
+      if (!inspector.hidden && !event.target.closest('#inspector, [data-inspect]')) {
+        closeInspector()
+      }
+    }, true)
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        closeInspector()
+        closeDialog()
+      }
+    })
+
+    addEventListener('scroll', placeInspector, { passive: true })
+    addEventListener('resize', placeInspector)
+
     document.addEventListener('click', (event) => {
       const target = event.target.closest('button, [data-go], [data-open], [role=button], [data-shop-item]')
       if (!target) {
@@ -4114,6 +4204,11 @@
         event.stopPropagation()
         const [kind, ...key] = data.inspect.split(':')
         inspect(kind, key.join(':'))
+        return
+      }
+
+      if (data.closeInspector !== undefined) {
+        closeInspector()
         return
       }
 
@@ -4358,14 +4453,17 @@
       }
     })
 
-    // the creator summary is a panel on wide screens and a collapsed line on narrow ones (same breakpoint as the CSS)
+    // narrow layout (same breakpoint as the CSS container query): the creator summary collapses, panels become
+    // bottom sheets (they sit outside the container, so they get a class instead)
     let wasNarrow = null
     new ResizeObserver(([entry]) => {
       const narrow = entry.contentRect.width <= 760
+      $('#device').classList.toggle('narrow', narrow)
       if (narrow !== wasNarrow) {
         $('#summary').open = !narrow
         wasNarrow = narrow
       }
+      placeInspector()
     }).observe($('#device'))
 
     // ---------------------------------------------------------------- start (?screen=&device=&page=&tab= for links)
