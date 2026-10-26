@@ -1,5 +1,5 @@
 // Source: Api/TableTopSheets.Api/Contracts/UserDtos.cs
-import type { Guid, IsoDateTime } from "./common"
+import type { Guid, IsoDateTime } from './common'
 
 /** New user of the database authentication */
 export interface RegisterDto {

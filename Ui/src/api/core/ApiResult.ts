@@ -39,5 +39,5 @@ export function problemMessages(problem: ProblemDetails): string[] {
     return errors
   }
 
-  return [problem.detail ?? problem.title ?? "Unknown error"]
+  return [problem.detail ?? problem.title ?? 'Unknown error']
 }

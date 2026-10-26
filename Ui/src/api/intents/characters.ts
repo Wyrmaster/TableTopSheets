@@ -1,9 +1,15 @@
 // Routes: Api/TableTopSheets.Api/Endpoints/CharacterEndpoints.cs
-import { BodyIntent, Intent, PagedIntent, segment } from "../core/Intent"
-import type { CharacterFilter, CharacterStateDto, CharacterSummaryDto, CreateCharacterDto, UpdateCharacterDto } from "../dtos/character"
-import type { Guid } from "../dtos/common"
-import type { ListQuery } from "../dtos/paging"
-import type { CharacterSheet } from "../dtos/sheet"
+import { BodyIntent, Intent, PagedIntent, segment } from '../core/Intent'
+import type {
+  CharacterFilter,
+  CharacterStateDto,
+  CharacterSummaryDto,
+  CreateCharacterDto,
+  UpdateCharacterDto,
+} from '../dtos/character'
+import type { Guid } from '../dtos/common'
+import type { ListQuery } from '../dtos/paging'
+import type { CharacterSheet } from '../dtos/sheet'
 
 /**
  * Path of a character route
@@ -11,7 +17,7 @@ import type { CharacterSheet } from "../dtos/sheet"
  * @param characterId id of the character
  * @param suffix rest of the route, e.g. `/choices`
  */
-export function characterPath(characterId: Guid, suffix = ""): string {
+export function characterPath(characterId: Guid, suffix = ''): string {
   return `/api/characters/${segment(characterId)}${suffix}`
 }
 
@@ -26,13 +32,13 @@ export class ListCharactersIntent extends PagedIntent<CharacterSummaryDto, Chara
 
   /** Route of the intent */
   get path() {
-    return "/api/characters"
+    return '/api/characters'
   }
 }
 
 /** POST /api/characters: create a draft from its origin; the answer lists the pending choices (201) */
 export class CreateCharacterIntent extends BodyIntent<CreateCharacterDto, CharacterStateDto> {
-  readonly method = "POST"
+  readonly method = 'POST'
 
   /**
    * @param body name, species, background and base ability scores; origin choices may be sent later
@@ -43,13 +49,13 @@ export class CreateCharacterIntent extends BodyIntent<CreateCharacterDto, Charac
 
   /** Route of the intent */
   get path() {
-    return "/api/characters"
+    return '/api/characters'
   }
 }
 
 /** GET /api/characters/{id}: current state with pending choices */
 export class GetCharacterIntent extends Intent<CharacterStateDto> {
-  readonly method = "GET"
+  readonly method = 'GET'
 
   readonly characterId: Guid
 
@@ -69,7 +75,7 @@ export class GetCharacterIntent extends Intent<CharacterStateDto> {
 
 /** PATCH /api/characters/{id}: name, alignment, appearance, backstory or experience */
 export class UpdateCharacterIntent extends BodyIntent<UpdateCharacterDto, CharacterStateDto> {
-  readonly method = "PATCH"
+  readonly method = 'PATCH'
 
   readonly characterId: Guid
 
@@ -90,8 +96,8 @@ export class UpdateCharacterIntent extends BodyIntent<UpdateCharacterDto, Charac
 
 /** DELETE /api/characters/{id} (204) */
 export class DeleteCharacterIntent extends Intent<void> {
-  readonly method = "DELETE"
-  override readonly responseKind = "none"
+  readonly method = 'DELETE'
+  override readonly responseKind = 'none'
 
   readonly characterId: Guid
 
@@ -111,7 +117,7 @@ export class DeleteCharacterIntent extends Intent<void> {
 
 /** GET /api/characters/{id}/sheet: every computed value of the character sheet */
 export class GetCharacterSheetIntent extends Intent<CharacterSheet> {
-  readonly method = "GET"
+  readonly method = 'GET'
 
   readonly characterId: Guid
 
@@ -125,14 +131,14 @@ export class GetCharacterSheetIntent extends Intent<CharacterSheet> {
 
   /** Route of the intent */
   get path() {
-    return characterPath(this.characterId, "/sheet")
+    return characterPath(this.characterId, '/sheet')
   }
 }
 
 /** GET /api/characters/{id}/sheet.pdf: printable character sheet as PDF blob */
 export class GetCharacterSheetPdfIntent extends Intent<Blob> {
-  readonly method = "GET"
-  override readonly responseKind = "blob"
+  readonly method = 'GET'
+  override readonly responseKind = 'blob'
 
   readonly characterId: Guid
 
@@ -146,6 +152,6 @@ export class GetCharacterSheetPdfIntent extends Intent<Blob> {
 
   /** Route of the intent */
   get path() {
-    return characterPath(this.characterId, "/sheet.pdf")
+    return characterPath(this.characterId, '/sheet.pdf')
   }
 }

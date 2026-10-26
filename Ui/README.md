@@ -6,7 +6,8 @@ React front end of TableTopSheets: Vite, TypeScript, Chakra UI v3 and SCSS, mana
 pnpm install
 pnpm dev        # http://localhost:5173, /api is proxied to the API on http://localhost:5180
 pnpm build      # type check and production build into dist/
-pnpm lint       # oxlint
+pnpm lint       # oxlint (code rules) + eslint (code style)
+pnpm format     # fix the code style automatically
 pnpm test       # unit tests (vitest)
 API_URL=http://localhost:5180 pnpm test api.integration   # end to end against a running API
 ```
@@ -23,6 +24,17 @@ Start the API with `dotnet run --project Api/TableTopSheets.Api` from the reposi
 | `src/styles/_variables.scss` | SCSS layout variables (`@use "./styles/variables" as *;`) |
 | `src/styles/global.scss` | global styles not covered by Chakra's reset |
 | `src/*.module.scss` | component styles as CSS modules |
+
+## Code style
+
+`eslint.config.js` holds formatting rules only (`@stylistic/eslint-plugin` and the local rule in `eslint/`):
+
+- `}` and `else` / `catch` / `finally` on separate lines
+- single quotes (also in JSX attributes); double quotes only when the string contains a single quote
+- objects, interfaces, type literals and destructurings with 3 or more members, chains with 3 or more calls and lines
+  over 120 characters are chopped: one member / argument / call per line, trailing commas
+
+Run `pnpm format` after editing; `pnpm lint` fails on what can't be fixed automatically (mostly long lines).
 
 ## Light and dark mode
 

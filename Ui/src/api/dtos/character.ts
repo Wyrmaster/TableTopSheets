@@ -1,8 +1,16 @@
 // Sources: Api/TableTopSheets.Api/Contracts/CharacterDtos.cs, Contracts/Filters.cs (CharacterFilter)
-import type { PendingChoiceDto } from "./choice"
-import type { Guid } from "./common"
-import type { AbilityKey, AbilityMethodEnum, AlignmentEnum, EquipSlotEnum, ItemKindEnum, ReplacePolicyEnum, ViolationSeverityEnum } from "./enums"
-import type { SubclassSummaryDto } from "./rules"
+import type { PendingChoiceDto } from './choice'
+import type { Guid } from './common'
+import type {
+  AbilityKey,
+  AbilityMethodEnum,
+  AlignmentEnum,
+  EquipSlotEnum,
+  ItemKindEnum,
+  ReplacePolicyEnum,
+  ViolationSeverityEnum,
+} from './enums'
+import type { SubclassSummaryDto } from './rules'
 
 /** Levels of a character in one class */
 export interface ClassLevelDto {

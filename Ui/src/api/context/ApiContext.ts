@@ -1,7 +1,7 @@
-import { createContext } from "react"
-import type { ApiResult } from "../core/ApiResult"
-import type { HttpClient } from "../core/HttpClient"
-import type { Intent } from "../core/Intent"
+import { createContext } from 'react'
+import type { ApiResult } from '../core/ApiResult'
+import type { HttpClient } from '../core/HttpClient'
+import type { Intent } from '../core/Intent'
 
 export interface ApiContextValue {
   client: HttpClient

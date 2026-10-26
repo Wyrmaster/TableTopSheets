@@ -1,19 +1,19 @@
 // Routes: Api/TableTopSheets.Api/Endpoints/ChoiceEndpoints.cs
-import { BodyIntent, Intent, PagedIntent, segment } from "../core/Intent"
-import type { CharacterStateDto, SelectionInfoDto, SelectionsDto, ValidationResultDto } from "../dtos/character"
-import type { OptionDto, OptionQuery, PendingChoiceDto } from "../dtos/choice"
-import type { Guid } from "../dtos/common"
-import type { RestReplaceDto } from "../dtos/inventory"
-import type { ListQuery } from "../dtos/paging"
-import { characterPath } from "./characters"
+import { BodyIntent, Intent, PagedIntent, segment } from '../core/Intent'
+import type { CharacterStateDto, SelectionInfoDto, SelectionsDto, ValidationResultDto } from '../dtos/character'
+import type { OptionDto, OptionQuery, PendingChoiceDto } from '../dtos/choice'
+import type { Guid } from '../dtos/common'
+import type { RestReplaceDto } from '../dtos/inventory'
+import type { ListQuery } from '../dtos/paging'
+import { characterPath } from './characters'
 
 /** Query parameters of the options route that are numbers or booleans (everything else stays a string) */
-const NumberOptions = new Set(["level", "minLevel", "maxLevel", "page", "pageSize"])
-const BooleanOptions = new Set(["ritual", "damage", "includeDisabled", "includeDescriptions"])
+const NumberOptions = new Set(['level', 'minLevel', 'maxLevel', 'page', 'pageSize'])
+const BooleanOptions = new Set(['ritual', 'damage', 'includeDisabled', 'includeDescriptions'])
 
 /** GET /api/characters/{id}/choices: choices that still need selections */
 export class GetPendingChoicesIntent extends Intent<PendingChoiceDto[]> {
-  readonly method = "GET"
+  readonly method = 'GET'
 
   readonly characterId: Guid
 
@@ -27,7 +27,7 @@ export class GetPendingChoicesIntent extends Intent<PendingChoiceDto[]> {
 
   /** Route of the intent */
   get path() {
-    return characterPath(this.characterId, "/choices")
+    return characterPath(this.characterId, '/choices')
   }
 }
 
@@ -36,7 +36,7 @@ export class GetPendingChoicesIntent extends Intent<PendingChoiceDto[]> {
  * opens can be sent together with ref / parentRef (422 on rule violations)
  */
 export class SelectOptionsIntent extends BodyIntent<SelectionsDto, CharacterStateDto> {
-  readonly method = "POST"
+  readonly method = 'POST'
 
   readonly characterId: Guid
 
@@ -51,13 +51,13 @@ export class SelectOptionsIntent extends BodyIntent<SelectionsDto, CharacterStat
 
   /** Route of the intent */
   get path() {
-    return characterPath(this.characterId, "/choices")
+    return characterPath(this.characterId, '/choices')
   }
 }
 
 /** POST /api/characters/{id}/choices/validate: dry run of selections; the state shows follow-up choices */
 export class ValidateSelectionsIntent extends BodyIntent<SelectionsDto, ValidationResultDto> {
-  readonly method = "POST"
+  readonly method = 'POST'
 
   readonly characterId: Guid
 
@@ -72,7 +72,7 @@ export class ValidateSelectionsIntent extends BodyIntent<SelectionsDto, Validati
 
   /** Route of the intent */
   get path() {
-    return characterPath(this.characterId, "/choices/validate")
+    return characterPath(this.characterId, '/choices/validate')
   }
 }
 
@@ -108,7 +108,7 @@ export class GetChoiceOptionsIntent extends PagedIntent<OptionDto, OptionQuery> 
    */
   static fromUrl(optionsUrl: string, query: ListQuery & OptionQuery = {}): GetChoiceOptionsIntent {
     // 1. split the url; the base is only needed because the API sends a path without origin
-    const url = new URL(optionsUrl, "http://localhost")
+    const url = new URL(optionsUrl, 'http://localhost')
     const match = /^\/api\/characters\/([^/]+)\/choices\/([^/]+)\/options$/.exec(url.pathname)
     if (!match) {
       throw new Error(`'${optionsUrl}' is not an options url`)
@@ -117,17 +117,21 @@ export class GetChoiceOptionsIntent extends PagedIntent<OptionDto, OptionQuery> 
     // 2. query parameters arrive as strings; turn numbers and flags back into their types
     const parsed: Record<string, string | number | boolean> = {}
     url.searchParams.forEach((value, key) => {
-      parsed[key] = NumberOptions.has(key) ? Number(value) : BooleanOptions.has(key) ? value === "true" : value
+      parsed[key] = NumberOptions.has(key) ? Number(value) : BooleanOptions.has(key) ? value === 'true' : value
     })
 
     // 3. character id and choice key come from the path; the given query wins over the url's parameters
-    return new GetChoiceOptionsIntent(decodeURIComponent(match[1]), decodeURIComponent(match[2]), { ...parsed, ...query })
+    return new GetChoiceOptionsIntent(
+      decodeURIComponent(match[1]),
+      decodeURIComponent(match[2]),
+      { ...parsed, ...query },
+    )
   }
 }
 
 /** GET /api/characters/{id}/selections: active selections with ids, level and whether they can be removed */
 export class GetSelectionsIntent extends Intent<SelectionInfoDto[]> {
-  readonly method = "GET"
+  readonly method = 'GET'
 
   readonly characterId: Guid
 
@@ -141,13 +145,15 @@ export class GetSelectionsIntent extends Intent<SelectionInfoDto[]> {
 
   /** Route of the intent */
   get path() {
-    return characterPath(this.characterId, "/selections")
+    return characterPath(this.characterId, '/selections')
   }
 }
 
-/** DELETE /api/characters/{id}/selections/{selectionId}: take back a selection of the latest level with its dependants */
+/**
+ * DELETE /api/characters/{id}/selections/{selectionId}: take back a selection of the latest level with its dependants
+ */
 export class RemoveSelectionIntent extends Intent<CharacterStateDto> {
-  readonly method = "DELETE"
+  readonly method = 'DELETE'
 
   readonly characterId: Guid
   readonly selectionId: Guid
@@ -170,7 +176,7 @@ export class RemoveSelectionIntent extends Intent<CharacterStateDto> {
 
 /** POST /api/characters/{id}/selections/{selectionId}/rest-replace: change a selection on a rest */
 export class ReplaceSelectionOnRestIntent extends BodyIntent<RestReplaceDto, CharacterStateDto> {
-  readonly method = "POST"
+  readonly method = 'POST'
 
   readonly characterId: Guid
   readonly selectionId: Guid

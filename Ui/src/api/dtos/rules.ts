@@ -1,5 +1,12 @@
 // Sources: Api/TableTopSheets.Api/Contracts/RuleDtos.cs, Contracts/Filters.cs
-import type { DamageTypeEnum, DiceEnum, ItemKindEnum, OptionSourceEnum, PrimaryAbilityModeEnum, ReplacePolicyEnum } from "./enums"
+import type {
+  DamageTypeEnum,
+  DiceEnum,
+  ItemKindEnum,
+  OptionSourceEnum,
+  PrimaryAbilityModeEnum,
+  ReplacePolicyEnum,
+} from './enums'
 
 /** Species in a list */
 export interface SpeciesSummaryDto {

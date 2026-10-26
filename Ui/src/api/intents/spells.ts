@@ -1,13 +1,13 @@
 // Routes: Api/TableTopSheets.Api/Endpoints/SpellEndpoints.cs
-import { BodyIntent, segment } from "../core/Intent"
-import type { CharacterStateDto } from "../dtos/character"
-import type { Guid } from "../dtos/common"
-import type { PreparedSpellsDto, SpellbookEntryDto } from "../dtos/inventory"
-import { characterPath } from "./characters"
+import { BodyIntent, segment } from '../core/Intent'
+import type { CharacterStateDto } from '../dtos/character'
+import type { Guid } from '../dtos/common'
+import type { PreparedSpellsDto, SpellbookEntryDto } from '../dtos/inventory'
+import { characterPath } from './characters'
 
 /** PUT /api/characters/{id}/prepared-spells/{classKey}: replace the prepared spells of a class (long rest) */
 export class SetPreparedSpellsIntent extends BodyIntent<PreparedSpellsDto, CharacterStateDto> {
-  readonly method = "PUT"
+  readonly method = 'PUT'
 
   readonly characterId: Guid
   readonly classKey: string
@@ -31,7 +31,7 @@ export class SetPreparedSpellsIntent extends BodyIntent<PreparedSpellsDto, Chara
 
 /** POST /api/characters/{id}/spellbook: copy a spell into the spellbook */
 export class CopyToSpellbookIntent extends BodyIntent<SpellbookEntryDto, CharacterStateDto> {
-  readonly method = "POST"
+  readonly method = 'POST'
 
   readonly characterId: Guid
 
@@ -46,6 +46,6 @@ export class CopyToSpellbookIntent extends BodyIntent<SpellbookEntryDto, Charact
 
   /** Route of the intent */
   get path() {
-    return characterPath(this.characterId, "/spellbook")
+    return characterPath(this.characterId, '/spellbook')
   }
 }

@@ -1,6 +1,6 @@
 // Routes: Api/TableTopSheets.Api/Endpoints/RulesEndpoints.cs. The rules catalog doesn't need a token
-import { Intent, PagedIntent, segment } from "../core/Intent"
-import type { ListQuery } from "../dtos/paging"
+import { Intent, PagedIntent, segment } from '../core/Intent'
+import type { ListQuery } from '../dtos/paging'
 import type {
   BackgroundSummaryDto,
   ClassDetailDto,
@@ -15,13 +15,13 @@ import type {
   SpellDetailDto,
   SpellFilter,
   SpellSummaryDto,
-} from "../dtos/rules"
+} from '../dtos/rules'
 
 /**
  * Details of one rule entity by key; derived classes only name their collection
  */
 abstract class RuleDetailIntent<T> extends Intent<T> {
-  readonly method = "GET"
+  readonly method = 'GET'
   override readonly anonymous = true
 
   /** Key of the entity, e.g. `wizard` or `fire-bolt` */
@@ -57,13 +57,13 @@ export class ListSpeciesIntent extends PagedIntent<SpeciesSummaryDto> {
 
   /** Route of the intent */
   get path() {
-    return "/api/rules/species"
+    return '/api/rules/species'
   }
 }
 
 /** GET /api/rules/species/{key}: species with its traits and choices */
 export class GetSpeciesIntent extends RuleDetailIntent<RuleDetailDto> {
-  protected readonly collection = "species"
+  protected readonly collection = 'species'
 }
 
 /** GET /api/rules/backgrounds (sort: name, key) */
@@ -79,13 +79,13 @@ export class ListBackgroundsIntent extends PagedIntent<BackgroundSummaryDto> {
 
   /** Route of the intent */
   get path() {
-    return "/api/rules/backgrounds"
+    return '/api/rules/backgrounds'
   }
 }
 
 /** GET /api/rules/backgrounds/{key}: background with its features and choices */
 export class GetBackgroundIntent extends RuleDetailIntent<RuleDetailDto> {
-  protected readonly collection = "backgrounds"
+  protected readonly collection = 'backgrounds'
 }
 
 /** GET /api/rules/classes: classes with their subclasses (sort: name, key) */
@@ -101,13 +101,13 @@ export class ListClassesIntent extends PagedIntent<ClassSummaryDto> {
 
   /** Route of the intent */
   get path() {
-    return "/api/rules/classes"
+    return '/api/rules/classes'
   }
 }
 
 /** GET /api/rules/classes/{key}: class with its features per level and subclasses */
 export class GetClassIntent extends RuleDetailIntent<ClassDetailDto> {
-  protected readonly collection = "classes"
+  protected readonly collection = 'classes'
 }
 
 /** GET /api/rules/feats (sort: name, key, category) */
@@ -123,13 +123,13 @@ export class ListFeatsIntent extends PagedIntent<FeatSummaryDto, FeatFilter> {
 
   /** Route of the intent */
   get path() {
-    return "/api/rules/feats"
+    return '/api/rules/feats'
   }
 }
 
 /** GET /api/rules/feats/{key}: feat with its benefits and choices */
 export class GetFeatIntent extends RuleDetailIntent<RuleDetailDto> {
-  protected readonly collection = "feats"
+  protected readonly collection = 'feats'
 }
 
 /** GET /api/rules/spells (sort: name, key, level, school) */
@@ -137,7 +137,8 @@ export class ListSpellsIntent extends PagedIntent<SpellSummaryDto, SpellFilter> 
   override readonly anonymous = true
 
   /**
-   * @param query paging, search, sort and filters (`class`, levels, `school`, `ritual`, `concentration`, damage, casting time)
+   * @param query paging, search, sort and filters (`class`, levels, `school`, `ritual`, `concentration`, damage,
+   *   casting time)
    */
   constructor(query: ListQuery & SpellFilter = {}) {
     super(query)
@@ -145,13 +146,13 @@ export class ListSpellsIntent extends PagedIntent<SpellSummaryDto, SpellFilter> 
 
   /** Route of the intent */
   get path() {
-    return "/api/rules/spells"
+    return '/api/rules/spells'
   }
 }
 
 /** GET /api/rules/spells/{key}: spell with its full text */
 export class GetSpellIntent extends RuleDetailIntent<SpellDetailDto> {
-  protected readonly collection = "spells"
+  protected readonly collection = 'spells'
 }
 
 /** GET /api/rules/items (sort: name, key, kind, cost, weight) */
@@ -167,11 +168,11 @@ export class ListItemsIntent extends PagedIntent<ItemSummaryDto, ItemFilter> {
 
   /** Route of the intent */
   get path() {
-    return "/api/rules/items"
+    return '/api/rules/items'
   }
 }
 
 /** GET /api/rules/items/{key}: item with its full text and properties */
 export class GetItemIntent extends RuleDetailIntent<ItemDetailDto> {
-  protected readonly collection = "items"
+  protected readonly collection = 'items'
 }

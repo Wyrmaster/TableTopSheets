@@ -1,5 +1,5 @@
 // Source: Api/TableTopSheets.Api/Contracts/InventoryDtos.cs
-import type { EquipSlotEnum } from "./enums"
+import type { EquipSlotEnum } from './enums'
 
 /** Add an item to the inventory */
 export interface AddItemDto {

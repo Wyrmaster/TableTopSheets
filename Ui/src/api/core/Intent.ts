@@ -1,9 +1,9 @@
-import type { ListQuery, PagedResult } from "../dtos/paging"
+import type { ListQuery, PagedResult } from '../dtos/paging'
 
-export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
+export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
 
 /** How the HttpClient reads a successful answer */
-export type ResponseKind = "json" | "blob" | "none"
+export type ResponseKind = 'json' | 'blob' | 'none'
 
 export type QueryValue = string | number | boolean | null | undefined
 
@@ -19,9 +19,11 @@ export function segment(value: string): string {
 
 /**
  * Immutable description of one API request: method, path and query. The type parameter is the type of a successful
- * answer, so `HttpClient.execute` returns a typed result. Intents hold no outcome and can be executed any number of times.
+ * answer, so `HttpClient.execute` returns a typed result. Intents hold no outcome and can be executed any number of
+ * times.
  *
- * A derived intent sets `method`, implements `path` and, when the route takes query parameters, overrides `queryParams`.
+ * A derived intent sets `method`, implements `path` and, when the route takes query parameters, overrides
+ * `queryParams`.
  */
 export abstract class Intent<TResponse> {
   /** HTTP method of the route */
@@ -31,7 +33,7 @@ export abstract class Intent<TResponse> {
   abstract get path(): string
 
   /** `blob` for files (PDF), `none` for routes without content (204) */
-  readonly responseKind: ResponseKind = "json"
+  readonly responseKind: ResponseKind = 'json'
 
   /** True for routes that don't need a bearer token (rules catalog, login, register) */
   readonly anonymous: boolean = false
@@ -52,7 +54,7 @@ export abstract class Intent<TResponse> {
  */
 export abstract class BodyIntent<TBody, TResponse> extends Intent<TResponse> {
   /** Only methods with a body */
-  abstract override readonly method: "POST" | "PUT" | "PATCH"
+  abstract override readonly method: 'POST' | 'PUT' | 'PATCH'
 
   /** Request body, serialized as JSON by the HttpClient */
   readonly body: TBody
@@ -71,7 +73,7 @@ export abstract class BodyIntent<TBody, TResponse> extends Intent<TResponse> {
  * `PagedResult` of the item type
  */
 export abstract class PagedIntent<TItem, TFilter extends object = object> extends Intent<PagedResult<TItem>> {
-  readonly method = "GET"
+  readonly method = 'GET'
 
   /** Paging, search, sort and filters; unset values are left out of the query string */
   readonly query: ListQuery & TFilter

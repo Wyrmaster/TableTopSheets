@@ -1,15 +1,15 @@
 // Routes: Api/TableTopSheets.Api/Endpoints/LevelEndpoints.cs
-import { BodyIntent, Intent, type QueryParams } from "../core/Intent"
-import type { CharacterStateDto, LevelUpDto, LevelUpPreviewDto, ValidationResultDto } from "../dtos/character"
-import type { Guid } from "../dtos/common"
-import { characterPath } from "./characters"
+import { BodyIntent, Intent, type QueryParams } from '../core/Intent'
+import type { CharacterStateDto, LevelUpDto, LevelUpPreviewDto, ValidationResultDto } from '../dtos/character'
+import type { Guid } from '../dtos/common'
+import { characterPath } from './characters'
 
 /**
- * GET /api/characters/{id}/level-up/preview: choices a level in the class would open (nothing is saved). At the subclass
- * level without a subclass only `requiresSubclass` and `subclasses` are set
+ * GET /api/characters/{id}/level-up/preview: choices a level in the class would open (nothing is saved). At the
+ * subclass level without a subclass only `requiresSubclass` and `subclasses` are set
  */
 export class PreviewLevelUpIntent extends Intent<LevelUpPreviewDto> {
-  readonly method = "GET"
+  readonly method = 'GET'
 
   readonly characterId: Guid
   readonly classKey: string
@@ -29,7 +29,7 @@ export class PreviewLevelUpIntent extends Intent<LevelUpPreviewDto> {
 
   /** Route of the intent */
   get path() {
-    return characterPath(this.characterId, "/level-up/preview")
+    return characterPath(this.characterId, '/level-up/preview')
   }
 
   /** `class` and, when set, `subclass` */
@@ -39,11 +39,11 @@ export class PreviewLevelUpIntent extends Intent<LevelUpPreviewDto> {
 }
 
 /**
- * POST /api/characters/{id}/levels: gain a level. Saved even when its choices are open (unless allowIncomplete is false);
- * answers posted later belong to this level
+ * POST /api/characters/{id}/levels: gain a level. Saved even when its choices are open (unless allowIncomplete is
+ * false); answers posted later belong to this level
  */
 export class LevelUpIntent extends BodyIntent<LevelUpDto, CharacterStateDto> {
-  readonly method = "POST"
+  readonly method = 'POST'
 
   readonly characterId: Guid
 
@@ -58,13 +58,13 @@ export class LevelUpIntent extends BodyIntent<LevelUpDto, CharacterStateDto> {
 
   /** Route of the intent */
   get path() {
-    return characterPath(this.characterId, "/levels")
+    return characterPath(this.characterId, '/levels')
   }
 }
 
 /** POST /api/characters/{id}/levels/validate: check a level up without saving it */
 export class ValidateLevelUpIntent extends BodyIntent<LevelUpDto, ValidationResultDto> {
-  readonly method = "POST"
+  readonly method = 'POST'
 
   readonly characterId: Guid
 
@@ -79,13 +79,13 @@ export class ValidateLevelUpIntent extends BodyIntent<LevelUpDto, ValidationResu
 
   /** Route of the intent */
   get path() {
-    return characterPath(this.characterId, "/levels/validate")
+    return characterPath(this.characterId, '/levels/validate')
   }
 }
 
 /** DELETE /api/characters/{id}/levels/last: remove the highest level with its selections */
 export class UndoLevelIntent extends Intent<CharacterStateDto> {
-  readonly method = "DELETE"
+  readonly method = 'DELETE'
 
   readonly characterId: Guid
 
@@ -99,6 +99,6 @@ export class UndoLevelIntent extends Intent<CharacterStateDto> {
 
   /** Route of the intent */
   get path() {
-    return characterPath(this.characterId, "/levels/last")
+    return characterPath(this.characterId, '/levels/last')
   }
 }

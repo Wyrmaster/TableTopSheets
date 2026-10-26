@@ -1,9 +1,15 @@
-// Sources: Common/TableTopSheets.Common/Sheet/CharacterSheet.cs, Common/TableTopSheets.Common/Container/Magic/SpellSlot.cs
-import type { Guid } from "./common"
-import type { ArmorFlags, DamageTypeEnum, DiceEnum, PeriodEnum, SizeEnum, ViolationSeverityEnum } from "./enums"
+// Sources: Common/TableTopSheets.Common/Sheet/CharacterSheet.cs,
+// Common/TableTopSheets.Common/Container/Magic/SpellSlot.cs
+import type { Guid } from './common'
+import type { ArmorFlags, DamageTypeEnum, DiceEnum, PeriodEnum, SizeEnum, ViolationSeverityEnum } from './enums'
 
 /** Proficiency levels of skills and saving throws (SkillModifierEnum) */
-export const ProficiencyLevels = { None: 0, Half: 5, Proficient: 10, Expertise: 20 } as const
+export const ProficiencyLevels = {
+  None: 0,
+  Half: 5,
+  Proficient: 10,
+  Expertise: 20,
+} as const
 
 export interface ClassLevelSheet {
   class: string

@@ -1,6 +1,6 @@
 // Source: Api/TableTopSheets.Api/Contracts/ChoiceDtos.cs
-import type { Guid } from "./common"
-import type { ChoiceInputKind, OptionSourceEnum } from "./enums"
+import type { Guid } from './common'
+import type { ChoiceInputKind, OptionSourceEnum } from './enums'
 
 /**
  * Limits of a choice instance, enough to validate before sending
