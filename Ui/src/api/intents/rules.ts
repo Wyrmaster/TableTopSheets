@@ -18,21 +18,27 @@ import type {
 } from "../dtos/rules"
 
 /**
- * Details of one rule entity by key
+ * Details of one rule entity by key; derived classes only name their collection
  */
 abstract class RuleDetailIntent<T> extends Intent<T> {
   readonly method = "GET"
   override readonly anonymous = true
 
+  /** Key of the entity, e.g. `wizard` or `fire-bolt` */
   readonly key: string
 
+  /** Collection below `/api/rules`, e.g. `classes` */
   protected abstract readonly collection: string
 
+  /**
+   * @param key key of the entity, e.g. `wizard` or `fire-bolt`
+   */
   constructor(key: string) {
     super()
     this.key = key
   }
 
+  /** `/api/rules/{collection}/{key}` */
   get path() {
     return `/api/rules/${this.collection}/${segment(this.key)}`
   }
@@ -42,10 +48,14 @@ abstract class RuleDetailIntent<T> extends Intent<T> {
 export class ListSpeciesIntent extends PagedIntent<SpeciesSummaryDto> {
   override readonly anonymous = true
 
+  /**
+   * @param query paging, search and sort
+   */
   constructor(query: ListQuery = {}) {
     super(query)
   }
 
+  /** Route of the intent */
   get path() {
     return "/api/rules/species"
   }
@@ -60,10 +70,14 @@ export class GetSpeciesIntent extends RuleDetailIntent<RuleDetailDto> {
 export class ListBackgroundsIntent extends PagedIntent<BackgroundSummaryDto> {
   override readonly anonymous = true
 
+  /**
+   * @param query paging, search and sort
+   */
   constructor(query: ListQuery = {}) {
     super(query)
   }
 
+  /** Route of the intent */
   get path() {
     return "/api/rules/backgrounds"
   }
@@ -78,10 +92,14 @@ export class GetBackgroundIntent extends RuleDetailIntent<RuleDetailDto> {
 export class ListClassesIntent extends PagedIntent<ClassSummaryDto> {
   override readonly anonymous = true
 
+  /**
+   * @param query paging, search and sort
+   */
   constructor(query: ListQuery = {}) {
     super(query)
   }
 
+  /** Route of the intent */
   get path() {
     return "/api/rules/classes"
   }
@@ -96,10 +114,14 @@ export class GetClassIntent extends RuleDetailIntent<ClassDetailDto> {
 export class ListFeatsIntent extends PagedIntent<FeatSummaryDto, FeatFilter> {
   override readonly anonymous = true
 
+  /**
+   * @param query paging, search, sort and filters (`category`, `repeatable`, `hasPrerequisite`)
+   */
   constructor(query: ListQuery & FeatFilter = {}) {
     super(query)
   }
 
+  /** Route of the intent */
   get path() {
     return "/api/rules/feats"
   }
@@ -114,10 +136,14 @@ export class GetFeatIntent extends RuleDetailIntent<RuleDetailDto> {
 export class ListSpellsIntent extends PagedIntent<SpellSummaryDto, SpellFilter> {
   override readonly anonymous = true
 
+  /**
+   * @param query paging, search, sort and filters (`class`, levels, `school`, `ritual`, `concentration`, damage, casting time)
+   */
   constructor(query: ListQuery & SpellFilter = {}) {
     super(query)
   }
 
+  /** Route of the intent */
   get path() {
     return "/api/rules/spells"
   }
@@ -132,10 +158,14 @@ export class GetSpellIntent extends RuleDetailIntent<SpellDetailDto> {
 export class ListItemsIntent extends PagedIntent<ItemSummaryDto, ItemFilter> {
   override readonly anonymous = true
 
+  /**
+   * @param query paging, search, sort and filters (`kind`, `category`, `magic`, `attunement`)
+   */
   constructor(query: ListQuery & ItemFilter = {}) {
     super(query)
   }
 
+  /** Route of the intent */
   get path() {
     return "/api/rules/items"
   }

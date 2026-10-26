@@ -7,6 +7,9 @@ import type { CharacterSheet } from "../dtos/sheet"
 
 /**
  * Path of a character route
+ *
+ * @param characterId id of the character
+ * @param suffix rest of the route, e.g. `/choices`
  */
 export function characterPath(characterId: Guid, suffix = ""): string {
   return `/api/characters/${segment(characterId)}${suffix}`
@@ -14,10 +17,14 @@ export function characterPath(characterId: Guid, suffix = ""): string {
 
 /** GET /api/characters: characters of the signed in user (sort: name, level, species) */
 export class ListCharactersIntent extends PagedIntent<CharacterSummaryDto, CharacterFilter> {
+  /**
+   * @param query paging, search, sort and filters (`class`, `species`, `minLevel`, `maxLevel`)
+   */
   constructor(query: ListQuery & CharacterFilter = {}) {
     super(query)
   }
 
+  /** Route of the intent */
   get path() {
     return "/api/characters"
   }
@@ -27,10 +34,14 @@ export class ListCharactersIntent extends PagedIntent<CharacterSummaryDto, Chara
 export class CreateCharacterIntent extends BodyIntent<CreateCharacterDto, CharacterStateDto> {
   readonly method = "POST"
 
+  /**
+   * @param body name, species, background and base ability scores; origin choices may be sent later
+   */
   constructor(body: CreateCharacterDto) {
     super(body)
   }
 
+  /** Route of the intent */
   get path() {
     return "/api/characters"
   }
@@ -42,11 +53,15 @@ export class GetCharacterIntent extends Intent<CharacterStateDto> {
 
   readonly characterId: Guid
 
+  /**
+   * @param characterId id of the character
+   */
   constructor(characterId: Guid) {
     super()
     this.characterId = characterId
   }
 
+  /** Route of the intent */
   get path() {
     return characterPath(this.characterId)
   }
@@ -58,11 +73,16 @@ export class UpdateCharacterIntent extends BodyIntent<UpdateCharacterDto, Charac
 
   readonly characterId: Guid
 
+  /**
+   * @param characterId id of the character
+   * @param body fields to change; omitted fields keep their value
+   */
   constructor(characterId: Guid, body: UpdateCharacterDto) {
     super(body)
     this.characterId = characterId
   }
 
+  /** Route of the intent */
   get path() {
     return characterPath(this.characterId)
   }
@@ -75,11 +95,15 @@ export class DeleteCharacterIntent extends Intent<void> {
 
   readonly characterId: Guid
 
+  /**
+   * @param characterId id of the character
+   */
   constructor(characterId: Guid) {
     super()
     this.characterId = characterId
   }
 
+  /** Route of the intent */
   get path() {
     return characterPath(this.characterId)
   }
@@ -91,11 +115,15 @@ export class GetCharacterSheetIntent extends Intent<CharacterSheet> {
 
   readonly characterId: Guid
 
+  /**
+   * @param characterId id of the character
+   */
   constructor(characterId: Guid) {
     super()
     this.characterId = characterId
   }
 
+  /** Route of the intent */
   get path() {
     return characterPath(this.characterId, "/sheet")
   }
@@ -108,11 +136,15 @@ export class GetCharacterSheetPdfIntent extends Intent<Blob> {
 
   readonly characterId: Guid
 
+  /**
+   * @param characterId id of the character
+   */
   constructor(characterId: Guid) {
     super()
     this.characterId = characterId
   }
 
+  /** Route of the intent */
   get path() {
     return characterPath(this.characterId, "/sheet.pdf")
   }

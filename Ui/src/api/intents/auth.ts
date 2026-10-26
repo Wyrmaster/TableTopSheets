@@ -7,10 +7,14 @@ export class RegisterIntent extends BodyIntent<RegisterDto, TokenDto> {
   readonly method = "POST"
   override readonly anonymous = true
 
+  /**
+   * @param body user name (3-64 characters), password (at least 8) and optional email
+   */
   constructor(body: RegisterDto) {
     super(body)
   }
 
+  /** Route of the intent */
   get path() {
     return "/api/auth/register"
   }
@@ -21,19 +25,24 @@ export class LoginIntent extends BodyIntent<LoginDto, TokenDto> {
   readonly method = "POST"
   override readonly anonymous = true
 
+  /**
+   * @param body user name and password
+   */
   constructor(body: LoginDto) {
     super(body)
   }
 
+  /** Route of the intent */
   get path() {
     return "/api/auth/login"
   }
 }
 
-/** GET /api/users/me: the signed in user */
+/** GET /api/users/me: the signed in user (also a cheap way to check whether the token is still valid) */
 export class GetCurrentUserIntent extends Intent<CurrentUserDto> {
   readonly method = "GET"
 
+  /** Route of the intent */
   get path() {
     return "/api/users/me"
   }

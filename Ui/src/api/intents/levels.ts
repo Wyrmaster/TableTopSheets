@@ -15,6 +15,11 @@ export class PreviewLevelUpIntent extends Intent<LevelUpPreviewDto> {
   readonly classKey: string
   readonly subclassKey: string | undefined
 
+  /**
+   * @param characterId id of the character
+   * @param classKey class that gains the level (a new class is a multiclass)
+   * @param subclassKey subclass to preview at the class's subclass level
+   */
   constructor(characterId: Guid, classKey: string, subclassKey?: string) {
     super()
     this.characterId = characterId
@@ -22,10 +27,12 @@ export class PreviewLevelUpIntent extends Intent<LevelUpPreviewDto> {
     this.subclassKey = subclassKey
   }
 
+  /** Route of the intent */
   get path() {
     return characterPath(this.characterId, "/level-up/preview")
   }
 
+  /** `class` and, when set, `subclass` */
   override queryParams(): QueryParams {
     return { class: this.classKey, subclass: this.subclassKey }
   }
@@ -40,11 +47,16 @@ export class LevelUpIntent extends BodyIntent<LevelUpDto, CharacterStateDto> {
 
   readonly characterId: Guid
 
+  /**
+   * @param characterId id of the character
+   * @param body class, subclass, hit point roll, selections and replacements of the level
+   */
   constructor(characterId: Guid, body: LevelUpDto) {
     super(body)
     this.characterId = characterId
   }
 
+  /** Route of the intent */
   get path() {
     return characterPath(this.characterId, "/levels")
   }
@@ -56,11 +68,16 @@ export class ValidateLevelUpIntent extends BodyIntent<LevelUpDto, ValidationResu
 
   readonly characterId: Guid
 
+  /**
+   * @param characterId id of the character
+   * @param body the level up that would be sent to LevelUpIntent
+   */
   constructor(characterId: Guid, body: LevelUpDto) {
     super(body)
     this.characterId = characterId
   }
 
+  /** Route of the intent */
   get path() {
     return characterPath(this.characterId, "/levels/validate")
   }
@@ -72,11 +89,15 @@ export class UndoLevelIntent extends Intent<CharacterStateDto> {
 
   readonly characterId: Guid
 
+  /**
+   * @param characterId id of the character
+   */
   constructor(characterId: Guid) {
     super()
     this.characterId = characterId
   }
 
+  /** Route of the intent */
   get path() {
     return characterPath(this.characterId, "/levels/last")
   }

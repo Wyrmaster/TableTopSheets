@@ -11,11 +11,16 @@ export class AddItemIntent extends BodyIntent<AddItemDto, CharacterStateDto> {
 
   readonly characterId: Guid
 
+  /**
+   * @param characterId id of the character
+   * @param body item key from the rules catalog and quantity
+   */
   constructor(characterId: Guid, body: AddItemDto) {
     super(body)
     this.characterId = characterId
   }
 
+  /** Route of the intent */
   get path() {
     return characterPath(this.characterId, "/items")
   }
@@ -28,12 +33,18 @@ export class EquipItemIntent extends BodyIntent<EquipDto, CharacterStateDto> {
   readonly characterId: Guid
   readonly itemId: Guid
 
+  /**
+   * @param characterId id of the character
+   * @param itemId id of the owned item (`items[].id` of the state, not the item key)
+   * @param body the slot
+   */
   constructor(characterId: Guid, itemId: Guid, body: EquipDto) {
     super(body)
     this.characterId = characterId
     this.itemId = itemId
   }
 
+  /** Route of the intent */
   get path() {
     return characterPath(this.characterId, `/items/${segment(this.itemId)}/slot`)
   }
@@ -46,12 +57,18 @@ export class AttuneItemIntent extends BodyIntent<AttuneDto, CharacterStateDto> {
   readonly characterId: Guid
   readonly itemId: Guid
 
+  /**
+   * @param characterId id of the character
+   * @param itemId id of the owned item
+   * @param body attuned or not
+   */
   constructor(characterId: Guid, itemId: Guid, body: AttuneDto) {
     super(body)
     this.characterId = characterId
     this.itemId = itemId
   }
 
+  /** Route of the intent */
   get path() {
     return characterPath(this.characterId, `/items/${segment(this.itemId)}/attunement`)
   }
@@ -64,12 +81,18 @@ export class ToggleFeatureIntent extends BodyIntent<ToggleDto, CharacterStateDto
   readonly characterId: Guid
   readonly featureKey: string
 
+  /**
+   * @param characterId id of the character
+   * @param featureKey key of the toggleable feature or spell effect
+   * @param body on or off
+   */
   constructor(characterId: Guid, featureKey: string, body: ToggleDto) {
     super(body)
     this.characterId = characterId
     this.featureKey = featureKey
   }
 
+  /** Route of the intent */
   get path() {
     return characterPath(this.characterId, `/toggles/${segment(this.featureKey)}`)
   }
@@ -81,11 +104,16 @@ export class ChooseArmorClassIntent extends BodyIntent<ArmorClassDto, CharacterS
 
   readonly characterId: Guid
 
+  /**
+   * @param characterId id of the character
+   * @param body label of the calculation (from `armorClassOptions` of the sheet), or null for the best one
+   */
   constructor(characterId: Guid, body: ArmorClassDto) {
     super(body)
     this.characterId = characterId
   }
 
+  /** Route of the intent */
   get path() {
     return characterPath(this.characterId, "/armor-class")
   }
