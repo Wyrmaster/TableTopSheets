@@ -1,7 +1,21 @@
-# TableTopSheets REST API
+# TableTopSheets REST API, hosting the user interface
 # build from the repository root: docker build -f Api/TableTopSheets.Api/Dockerfile -t tabletopsheets-api .
 
 ARG DOTNET_VERSION=10.0
+ARG NODE_VERSION=24
+
+FROM node:${NODE_VERSION}-slim AS ui
+WORKDIR /ui
+
+# the version pinned by packageManager in Ui/package.json
+RUN npm install --global pnpm@11.22.0
+
+# manifests first, so the install layer is reused until a dependency changes
+COPY Ui/package.json Ui/pnpm-lock.yaml Ui/pnpm-workspace.yaml ./
+RUN pnpm install --frozen-lockfile
+
+COPY Ui/ ./
+RUN pnpm build
 
 FROM mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION} AS build
 ARG BUILD_CONFIGURATION=Release
@@ -43,6 +57,8 @@ RUN mkdir -p /app/data && chown $APP_UID /app/data
 VOLUME /app/data
 
 COPY --from=build /app/publish .
+# served by the API from its web root, same origin as /api
+COPY --from=ui /ui/dist ./wwwroot
 
 ENV ASPNETCORE_HTTP_PORTS=8080 \
     Database__Provider=Sqlite \

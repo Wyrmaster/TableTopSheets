@@ -52,7 +52,8 @@ cd Ui && pnpm install && pnpm dev                # http://localhost:5173
 
 ### Docker
 
-`Api/TableTopSheets.Api/Dockerfile` builds the API (from the repository root). The compose files at the root run it with
+`Api/TableTopSheets.Api/Dockerfile` builds the API and the user interface (from the repository root); the API serves
+the built UI from its web root, so the website and `/api` share one origin. The compose files at the root run it with
 one database configuration each; all of them extend the API service in `compose.api.yaml`:
 
 | File                               | Database                                                              |
@@ -63,7 +64,7 @@ one database configuration each; all of them extend the API service in `compose.
 
 ```bash
 cp .env.example .env                             # set JWT_SIGNING_KEY (at least 32 characters)
-docker compose -f compose.postgresql.yaml up --build    # Swagger UI at http://localhost:5180/swagger
+docker compose -f compose.postgresql.yaml up --build    # UI at http://localhost:5180, Swagger UI at /swagger
 ```
 
 The API migrates and seeds the database on start. Ports, credentials and authentication settings are read from `.env`.

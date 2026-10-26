@@ -60,7 +60,18 @@ app.UseSwaggerUI(options =>
   options.EnableTryItOutByDefault();
   options.EnablePersistAuthorization();
 });
-app.MapGet("/", () => Results.Redirect("/swagger")).ExcludeFromDescription();
+
+// the Docker image puts the built user interface into wwwroot; without it (dotnet run) / opens the Swagger UI
+bool hostsUi = app.Environment.WebRootFileProvider.GetFileInfo("index.html").Exists;
+if (hostsUi)
+{
+  app.UseDefaultFiles();
+  app.UseStaticFiles();
+}
+else
+{
+  app.MapGet("/", () => Results.Redirect("/swagger")).ExcludeFromDescription();
+}
 
 app.MapAuthEndpoints();
 app.MapRulesEndpoints();
@@ -69,6 +80,13 @@ app.MapChoiceEndpoints();
 app.MapLevelEndpoints();
 app.MapInventoryEndpoints();
 app.MapSpellEndpoints();
+
+if (hostsUi)
+{
+  // client side routes load the app; unknown API routes stay a 404
+  app.MapFallback("/api/{**path}", () => Results.NotFound()).ExcludeFromDescription();
+  app.MapFallbackToFile("index.html");
+}
 
 app.Run();
 

@@ -12,3 +12,5 @@
 Tests/
 Tools/
 Pdf/Test/
+**/node_modules/
+Ui/dist/
