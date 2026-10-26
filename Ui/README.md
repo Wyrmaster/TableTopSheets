@@ -25,6 +25,13 @@ Start the API with `dotnet run --project Api/TableTopSheets.Api` from the reposi
 | `src/styles/global.scss` | global styles not covered by Chakra's reset |
 | `src/*.module.scss` | component styles as CSS modules |
 
+## Mockups
+
+`mockups/ui-mockups.html` shows the planned screens (login, character list, creator, character management with level
+up, inventory, shop and spells) with mock data. Open the file in a browser; the toolbar switches screens, desktop /
+mobile (390 px phone frame) and the app's ☀/☾ toggle switches light / dark. Dashed boxes note the API routes behind a
+screen and the gaps (coins, removing items). Links: `?screen=creator&device=mobile`.
+
 ## Code style
 
 `eslint.config.js` holds formatting rules only (`@stylistic/eslint-plugin` and the local rule in `eslint/`):
