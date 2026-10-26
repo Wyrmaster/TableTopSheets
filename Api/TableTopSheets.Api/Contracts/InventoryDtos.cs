@@ -2,8 +2,14 @@ using TableTopSheets.Common.Enum.Rules;
 
 namespace TableTopSheets.Api.Contracts;
 
-/// <summary>Add an item to the inventory</summary>
-public sealed record AddItemDto(string ItemKey, int Quantity = 1);
+/// <summary>Add an item to the inventory; <c>purchase</c> pays its cost from the coins (with change, 422 when too expensive)</summary>
+public sealed record AddItemDto(string ItemKey, int Quantity = 1, bool Purchase = false);
+
+/// <summary>Coins of a character (or, for a change, the coins added (positive) or removed (negative) per kind)</summary>
+public sealed record CoinsDto(int Copper = 0, int Silver = 0, int Electrum = 0, int Gold = 0, int Platinum = 0);
+
+/// <summary>An amount to pay in copper pieces (1 gp = 100 cp); coins are spent and change is returned</summary>
+public sealed record CoinPaymentDto(long AmountCp);
 
 /// <summary>Put an item into a slot (<c>None</c> unequips it)</summary>
 public sealed record EquipDto(EquipSlotEnum Slot);

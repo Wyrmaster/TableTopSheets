@@ -520,6 +520,10 @@ The database enforces the same: deleting a level cascades to its selections and 
 - **Equipped weapons:** any number of weapons can be `Ready` (equipped, not held); armor and each hand hold one item.
   Taking a weapon into an occupied hand puts the weapon held there back to `Ready`. The sheet lists the equipped weapons
   (ready or in hand) as attacks.
+- **Coins and trading:** `AddItemAsync(…, purchase: true)` pays the item's cost from the coins, `RemoveItemAsync` removes
+  a whole stack or part of it and, when selling, credits half of the cost. `Purse` pays with change (coins from the lowest
+  value up; one larger coin is broken when needed) and credits in gold, silver and copper; too few coins are a rule
+  violation. `SetCoinsAsync`, `ChangeCoinsAsync` (per kind) and `PayAsync` (an amount in copper) change the coins directly.
 - **Armor rules are built in:**
   - base AC + DEX up to the armor's cap
   - Speed −10 if Strength is below the armor's requirement
@@ -670,7 +674,9 @@ sequenceDiagram
 | GET | `/api/characters/{id}/level-up/preview?class=&subclass=` | choices a level would open, plus the selections that may be swapped; `requiresSubclass` + `subclasses` at the subclass level |
 | POST | `/api/characters/{id}/levels`, `/levels/validate` | gain a level (`classKey`, `subclassKey`, `hitPointRoll`, `selections`, `replacements`) / dry run |
 | DELETE | `/api/characters/{id}/levels/last` | undo the highest level |
-| POST / PUT | `/api/characters/{id}/items`, `/items/{itemId}/slot`, `/items/{itemId}/attunement` | inventory, equip, attune |
+| POST / PUT | `/api/characters/{id}/items`, `/items/{itemId}/slot`, `/items/{itemId}/attunement` | inventory (`purchase: true` pays with coins), equip, attune |
+| DELETE | `/api/characters/{id}/items/{itemId}?quantity=&sell=` | remove an item or part of a stack; `sell=true` credits half the cost |
+| PUT / POST | `/api/characters/{id}/coins`, `/coins/change`, `/coins/payments` | set the coins, add / remove coins per kind, pay an amount in copper (with change) |
 | PUT | `/api/characters/{id}/toggles/{featureKey}`, `/armor-class` | toggles (Rage, Mage Armor …), AC calculation |
 | GET | `/api/characters/{id}/spells` | per spellcasting class: spellbook, prepared and always prepared spells, limits, pool, highest level; plus spells from species and feats |
 | PUT / POST | `/api/characters/{id}/prepared-spells/{classKey}`, `/spellbook` | long rest loadout, copy a spell into the spellbook |

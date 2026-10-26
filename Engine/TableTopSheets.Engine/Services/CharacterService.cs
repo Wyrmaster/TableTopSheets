@@ -540,18 +540,102 @@ public sealed class CharacterService(TableTopSheetsContext context, RulesCatalog
 
   #endregion
 
-  #region Equipment and Toggles
+  #region Inventory
 
-  public async Task<CharacterItem> AddItemAsync(Guid characterId, string itemKey, int quantity = 1, CancellationToken cancellationToken = default)
+  /// <summary>
+  ///   Add an item to the inventory; a purchase pays its cost from the character's coins (with change)
+  /// </summary>
+  public async Task<CharacterItem> AddItemAsync(Guid characterId, string itemKey, int quantity = 1, CancellationToken cancellationToken = default, bool purchase = false)
   {
+    if (quantity < 1)
+    {
+      throw new RuleViolationException("The quantity has to be at least 1");
+    }
+
     Character character = await this.LoadAsync(characterId, cancellationToken);
     Item item = await context.Items.AsNoTracking().SingleOrDefaultAsync(entry => entry.Key == itemKey, cancellationToken)
                 ?? throw new RuleViolationException($"Unknown item '{itemKey}'");
+    if (purchase)
+    {
+      Purse.Pay(character.PlayState, (long)item.CostCp * quantity);
+    }
+
     CharacterItem entry = new() { Id = Guid.NewGuid(), CharacterId = character.Id, ItemId = item.Id, Quantity = quantity };
     character.Items.Add(entry);
     await context.SaveChangesAsync(cancellationToken);
     return entry;
   }
+
+  /// <summary>
+  ///   Remove an item (or part of a stack) from the inventory; selling credits half of its cost
+  /// </summary>
+  /// <param name="quantity">how many to remove; null removes the whole stack</param>
+  /// <param name="sell">credit half of the item's cost per piece to the coins (the usual selling price)</param>
+  public async Task<CharacterEvaluation> RemoveItemAsync(Guid characterId, Guid characterItemId, int? quantity = null, bool sell = false, CancellationToken cancellationToken = default)
+  {
+    Character character = await this.LoadAsync(characterId, cancellationToken);
+    CharacterItem entry = character.Items.SingleOrDefault(item => item.Id == characterItemId)
+                          ?? throw new RuleViolationException($"Item {characterItemId} doesn't belong to the character");
+    int removed = quantity ?? entry.Quantity;
+    if (removed < 1 || removed > entry.Quantity)
+    {
+      throw new RuleViolationException($"Between 1 and {entry.Quantity} can be removed");
+    }
+
+    if (sell)
+    {
+      Item item = await context.Items.AsNoTracking().SingleAsync(rule => rule.Id == entry.ItemId, cancellationToken);
+      Purse.Add(character.PlayState, (long)item.CostCp * removed / 2);
+    }
+
+    // the rest of a stack keeps its slot and attunement; removing all of it removes the entry
+    if (removed < entry.Quantity)
+    {
+      entry.Quantity -= removed;
+    }
+    else
+    {
+      character.Items.Remove(entry);
+      context.CharacterItems.Remove(entry);
+    }
+
+    await context.SaveChangesAsync(cancellationToken);
+    return await this.EvaluateAsync(character, cancellationToken);
+  }
+
+  #endregion
+
+  #region Coins
+
+  /// <summary>
+  ///   Replace all coins of the character
+  /// </summary>
+  public Task<CharacterEvaluation> SetCoinsAsync(Guid characterId, int copper, int silver, int electrum, int gold, int platinum, CancellationToken cancellationToken = default)
+    => this.UpdatePurseAsync(characterId, purse => Purse.Set(purse, copper, silver, electrum, gold, platinum), cancellationToken);
+
+  /// <summary>
+  ///   Add (positive) or remove (negative) coins of each kind
+  /// </summary>
+  public Task<CharacterEvaluation> ChangeCoinsAsync(Guid characterId, int copper, int silver, int electrum, int gold, int platinum, CancellationToken cancellationToken = default)
+    => this.UpdatePurseAsync(characterId, purse => Purse.Change(purse, copper, silver, electrum, gold, platinum), cancellationToken);
+
+  /// <summary>
+  ///   Pay an amount in copper pieces; coins are spent and change is returned
+  /// </summary>
+  public Task<CharacterEvaluation> PayAsync(Guid characterId, long amountCp, CancellationToken cancellationToken = default)
+    => this.UpdatePurseAsync(characterId, purse => Purse.Pay(purse, amountCp), cancellationToken);
+
+  private async Task<CharacterEvaluation> UpdatePurseAsync(Guid characterId, Action<CharacterPlayState> update, CancellationToken cancellationToken)
+  {
+    Character character = await this.LoadAsync(characterId, cancellationToken);
+    update(character.PlayState);
+    await context.SaveChangesAsync(cancellationToken);
+    return await this.EvaluateAsync(character, cancellationToken);
+  }
+
+  #endregion
+
+  #region Equipment and Toggles
 
   /// <summary>
   ///   Don, doff, wield, ready or stow an item. Any number of weapons can be ready; armor and each hand hold one item.

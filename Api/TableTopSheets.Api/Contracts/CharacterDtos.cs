@@ -48,6 +48,8 @@ public sealed record CharacterStateDto
 
   public required IReadOnlyList<CharacterItemDto> Items { get; init; }
 
+  public required CoinsDto Coins { get; init; }
+
   /// <summary>True when no required choice is open</summary>
   public required bool Complete { get; init; }
 
