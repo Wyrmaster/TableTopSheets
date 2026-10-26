@@ -1,0 +1,942 @@
+{
+  // Paladin (Player's Handbook 2024). Features without authored mechanics (Abjure Foes, Aura of Courage, Radiant Strikes ...)
+  // are added from Data/Extracted/class-features.json as text
+  "classes": [
+    {
+      "key": "paladin",
+      "name": "Paladin",
+      "hitDie": "D10",
+      "primaryAbilities": [
+        "str",
+        "cha"
+      ],
+      "primaryAbilityMode": "All",
+      "subclassLevel": 3,
+      "startingEquipment": [
+        {
+          "key": "a",
+          "items": [
+            {
+              "item": "chain-mail"
+            },
+            {
+              "item": "shield"
+            },
+            {
+              "item": "longsword"
+            },
+            {
+              "item": "javelin",
+              "quantity": 6
+            },
+            {
+              "choose": [
+                "holy-symbol"
+              ],
+              "name": "Holy Symbol"
+            },
+            {
+              "item": "priests-pack"
+            }
+          ],
+          "gold": 9
+        },
+        {
+          "key": "b",
+          "gold": 150
+        }
+      ],
+      "scales": {
+        "paladin.prepared": "2,3,4,5,6,6,7,7,9,9,10,10,11,11,12,12,14,14,15,15",
+        "paladin.channel-divinity": "0,0,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3"
+      },
+      "features": [
+        {
+          "key": "paladin.proficiencies",
+          "name": "Proficiencies",
+          "level": 1,
+          "grantMode": "FirstClassOnly",
+          "sheetSection": "Hidden",
+          "effects": [
+            {
+              "target": "save.wis.prof",
+              "op": "Proficiency",
+              "value": "proficient"
+            },
+            {
+              "target": "save.cha.prof",
+              "op": "Proficiency",
+              "value": "proficient"
+            },
+            {
+              "target": "proficiency.weapon.simple",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "proficiency.weapon.martial",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "proficiency.armor.light",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "proficiency.armor.medium",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "proficiency.armor.heavy",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "proficiency.armor.shield",
+              "op": "Grant",
+              "value": "1"
+            }
+          ],
+          "choices": [
+            {
+              "key": "paladin.skills",
+              "name": "Skill Proficiencies",
+              "count": "2",
+              "source": "Skill",
+              "replace": "Never",
+              "filter": "oneOf(option.key, 'athletics', 'insight', 'intimidation', 'medicine', 'persuasion', 'religion')",
+              "effects": [
+                {
+                  "target": "skill.$option.prof",
+                  "op": "Proficiency",
+                  "value": "proficient"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "paladin.multiclass-proficiencies",
+          "name": "Multiclass Proficiencies",
+          "level": 1,
+          "grantMode": "MulticlassOnly",
+          "sheetSection": "Hidden",
+          "effects": [
+            {
+              "target": "proficiency.weapon.martial",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "proficiency.armor.light",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "proficiency.armor.medium",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "proficiency.armor.shield",
+              "op": "Grant",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "key": "paladin.lay-on-hands",
+          "name": "Lay on Hands",
+          "level": 1,
+          "resources": [
+            {
+              "key": "lay-on-hands",
+              "name": "Lay on Hands",
+              "max": "5 * classLevel('paladin')",
+              "recharge": "LongRest"
+            }
+          ]
+        },
+        {
+          "key": "paladin.spellcasting",
+          "name": "Spellcasting",
+          "level": 1,
+          "spellcasting": {
+            "ability": "cha",
+            "progression": "Half",
+            "spellList": "paladin",
+            "prepared": "paladin.prepared",
+            "pool": "ClassList",
+            "prepareChange": "LongRest",
+            "ritual": "None",
+            "focus": "Holy Symbol"
+          }
+        },
+        {
+          "key": "paladin.weapon-mastery",
+          "name": "Weapon Mastery",
+          "level": 1,
+          "choices": [
+            {
+              "key": "paladin.weapon-mastery",
+              "name": "Weapon Mastery",
+              "count": "2",
+              "source": "Weapon",
+              "replace": "OnLongRest",
+              "filter": "option.category == 'simple' || option.category == 'martial'",
+              "effects": [
+                {
+                  "target": "mastery.$option",
+                  "op": "Grant",
+                  "value": "1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "paladin.fighting-style",
+          "name": "Fighting Style",
+          "level": 2,
+          "choices": [
+            {
+              "key": "paladin.fighting-style",
+              "name": "Fighting Style",
+              "count": "1",
+              "source": "Static",
+              "replace": "Never",
+              "options": [
+                {
+                  "key": "fighting-style-feat",
+                  "name": "Fighting Style Feat",
+                  "feature": {
+                    "key": "paladin.fighting-style.feat",
+                    "name": "Fighting Style Feat",
+                    "sheetSection": "Hidden",
+                    "choices": [
+                      {
+                        "key": "paladin.fighting-style.feat",
+                        "name": "Fighting Style Feat",
+                        "count": "1",
+                        "source": "Feat",
+                        "replace": "Never",
+                        "filter": "option.category == 'fighting-style'"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "blessed-warrior",
+                  "name": "Blessed Warrior",
+                  "feature": {
+                    "key": "paladin.fighting-style.blessed-warrior",
+                    "name": "Blessed Warrior",
+                    "sheetSection": "Hidden",
+                    "choices": [
+                      {
+                        "key": "paladin.blessed-warrior",
+                        "name": "Blessed Warrior Cantrips",
+                        "count": "2",
+                        "source": "Spell",
+                        "replace": "OneOnLevelUp",
+                        "filter": "onList('cleric') && option.level == 0",
+                        "category": "cantrip"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "paladin.paladins-smite",
+          "name": "Paladin's Smite",
+          "level": 2,
+          "effects": [
+            {
+              "target": "spell.divine-smite",
+              "op": "Grant",
+              "value": "1",
+              "label": "Paladin’s Smite"
+            }
+          ],
+          "resources": [
+            {
+              "key": "paladins-smite",
+              "name": "Paladin’s Smite (Divine Smite)",
+              "max": "1",
+              "recharge": "LongRest"
+            }
+          ]
+        },
+        {
+          "key": "paladin.channel-divinity",
+          "name": "Channel Divinity",
+          "level": 3,
+          "resources": [
+            {
+              "key": "paladin-channel-divinity",
+              "name": "Channel Divinity",
+              "max": "scale('paladin.channel-divinity')",
+              "recharge": "ShortRest"
+            }
+          ]
+        },
+        {
+          "key": "paladin.extra-attack",
+          "name": "Extra Attack",
+          "level": 5,
+          "effects": [
+            {
+              "target": "attack.extraAttacks",
+              "op": "Add",
+              "value": "1",
+              "stackGroup": "extra-attack",
+              "label": "Extra Attack"
+            }
+          ]
+        },
+        {
+          "key": "paladin.faithful-steed",
+          "name": "Faithful Steed",
+          "level": 5,
+          "effects": [
+            {
+              "target": "spell.find-steed",
+              "op": "Grant",
+              "value": "1",
+              "label": "Faithful Steed"
+            }
+          ],
+          "resources": [
+            {
+              "key": "faithful-steed",
+              "name": "Faithful Steed (Find Steed)",
+              "max": "1",
+              "recharge": "LongRest"
+            }
+          ]
+        },
+        {
+          "key": "paladin.aura-of-protection",
+          "name": "Aura of Protection",
+          "level": 6,
+          "effects": [
+            {
+              "target": "save.all.bonus",
+              "op": "Add",
+              "value": "max(1, mod('cha'))",
+              "label": "Aura of Protection"
+            }
+          ]
+        },
+        {
+          "key": "paladin.ability-score-improvement-4",
+          "name": "Ability Score Improvement",
+          "level": 4,
+          "choices": [
+            {
+              "key": "paladin.ability-score-improvement-4",
+              "name": "Feat",
+              "count": "1",
+              "source": "Feat",
+              "replace": "Never",
+              "filter": "option.category == 'general'"
+            }
+          ]
+        },
+        {
+          "key": "paladin.ability-score-improvement-8",
+          "name": "Ability Score Improvement",
+          "level": 8,
+          "choices": [
+            {
+              "key": "paladin.ability-score-improvement-8",
+              "name": "Feat",
+              "count": "1",
+              "source": "Feat",
+              "replace": "Never",
+              "filter": "option.category == 'general'"
+            }
+          ]
+        },
+        {
+          "key": "paladin.ability-score-improvement-12",
+          "name": "Ability Score Improvement",
+          "level": 12,
+          "choices": [
+            {
+              "key": "paladin.ability-score-improvement-12",
+              "name": "Feat",
+              "count": "1",
+              "source": "Feat",
+              "replace": "Never",
+              "filter": "option.category == 'general'"
+            }
+          ]
+        },
+        {
+          "key": "paladin.ability-score-improvement-16",
+          "name": "Ability Score Improvement",
+          "level": 16,
+          "choices": [
+            {
+              "key": "paladin.ability-score-improvement-16",
+              "name": "Feat",
+              "count": "1",
+              "source": "Feat",
+              "replace": "Never",
+              "filter": "option.category == 'general'"
+            }
+          ]
+        },
+        {
+          "key": "paladin.epic-boon",
+          "name": "Epic Boon",
+          "level": 19,
+          "choices": [
+            {
+              "key": "paladin.epic-boon",
+              "name": "Epic Boon",
+              "count": "1",
+              "source": "Feat",
+              "replace": "Never",
+              "filter": "option.category == 'epic-boon' || option.category == 'general'"
+            }
+          ]
+        }
+      ],
+      "subclasses": [
+        {
+          "key": "oath-of-devotion",
+          "name": "Oath of Devotion",
+          "description": "<p>Uphold the ideals of justice and order. The Oath of Devotion binds Paladins to the ideals of justice and order. These Paladins meet the archetype of the knight in shining armor. They hold themselves to the highest standards of conduct, and some—for better or worse—hold the rest of the world to the same standards.</p>",
+          "features": [
+            {
+              "key": "oath-of-devotion.oath-spells",
+              "name": "Oath of Devotion Spells",
+              "level": 3,
+              "description": "<p>The magic of your oath ensures you always have certain spells ready; when you reach a Paladin level specified in the Oath of Devotion Spells table, you thereafter always have the listed spells prepared.</p><ul><li>Level 3: Protection from Evil and Good, Shield of Faith</li><li>Level 5: Aid, Zone of Truth</li><li>Level 9: Beacon of Hope, Dispel Magic</li><li>Level 13: Freedom of Movement, Guardian of Faith</li><li>Level 17: Commune, Flame Strike</li></ul>",
+              "effects": [
+                {
+                  "target": "spell.protection-from-evil-and-good",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('paladin') >= 3",
+                  "label": "Oath of Devotion Spells"
+                },
+                {
+                  "target": "spell.shield-of-faith",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('paladin') >= 3",
+                  "label": "Oath of Devotion Spells"
+                },
+                {
+                  "target": "spell.aid",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('paladin') >= 5",
+                  "label": "Oath of Devotion Spells"
+                },
+                {
+                  "target": "spell.zone-of-truth",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('paladin') >= 5",
+                  "label": "Oath of Devotion Spells"
+                },
+                {
+                  "target": "spell.beacon-of-hope",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('paladin') >= 9",
+                  "label": "Oath of Devotion Spells"
+                },
+                {
+                  "target": "spell.dispel-magic",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('paladin') >= 9",
+                  "label": "Oath of Devotion Spells"
+                },
+                {
+                  "target": "spell.freedom-of-movement",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('paladin') >= 13",
+                  "label": "Oath of Devotion Spells"
+                },
+                {
+                  "target": "spell.guardian-of-faith",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('paladin') >= 13",
+                  "label": "Oath of Devotion Spells"
+                },
+                {
+                  "target": "spell.commune",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('paladin') >= 17",
+                  "label": "Oath of Devotion Spells"
+                },
+                {
+                  "target": "spell.flame-strike",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('paladin') >= 17",
+                  "label": "Oath of Devotion Spells"
+                }
+              ]
+            },
+            {
+              "key": "oath-of-devotion.sacred-weapon",
+              "name": "Sacred Weapon",
+              "level": 3,
+              "description": "<p>When you take the Attack action, you can expend one use of your Channel Divinity to imbue one Melee weapon that you are holding with positive energy. For 10 minutes or until you use this feature again, you add your Charisma modifier to attack rolls you make with that weapon (minimum bonus of +1), and each time you hit with it, you cause it to deal its normal damage type or Radiant damage.</p><p>The weapon also emits Bright Light in a 20-foot radius and Dim Light 20 feet beyond that.</p><p>You can end this effect early (no action required). This effect also ends if you aren’t carrying the weapon.</p>"
+            },
+            {
+              "key": "oath-of-devotion.aura-of-devotion",
+              "name": "Aura of Devotion",
+              "level": 7,
+              "description": "<p>You and your allies have Immunity to the Charmed condition while in your Aura of Protection. If a Charmed ally enters the aura, that condition has no effect on that ally while there.</p>",
+              "effects": [
+                {
+                  "target": "condition.immune.charmed",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Aura of Devotion"
+                }
+              ]
+            },
+            {
+              "key": "oath-of-devotion.smite-of-protection",
+              "name": "Smite of Protection",
+              "level": 15,
+              "description": "<p>Your magical smite now radiates protective energy. Whenever you cast Divine Smite, you and your allies have Half Cover while in your Aura of Protection. The aura has this benefit until the start of your next turn.</p>"
+            },
+            {
+              "key": "oath-of-devotion.holy-nimbus",
+              "name": "Holy Nimbus",
+              "level": 20,
+              "description": "<p>As a Bonus Action, you can imbue your Aura of Protection with holy power, granting the benefits below for 10 minutes or until you end them (no action required). Once you use this feature, you can’t use it again until you finish a Long Rest. You can also restore your use of it by expending a level 5 spell slot (no action required).</p><p><strong><em>Holy Ward.</em></strong> You have Advantage on any saving throw you are forced to make by a Fiend or an Undead.</p><p><strong><em>Radiant Damage.</em></strong> Whenever an enemy starts its turn in the aura, that creature takes Radiant damage equal to your Charisma modifier plus your Proficiency Bonus.</p><p><strong><em>Sunlight.</em></strong> The aura is filled with Bright Light that is sunlight.</p>",
+              "resources": [
+                {
+                  "key": "holy-nimbus",
+                  "name": "Holy Nimbus",
+                  "max": "1",
+                  "recharge": "LongRest"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "oath-of-glory",
+          "name": "Oath of Glory",
+          "description": "<p>Strive for the heights of heroism. Paladins who take the Oath of Glory believe they and their companions are destined to achieve glory through deeds of heroism. They train diligently and encourage their companions so they’re all ready when destiny calls.</p>",
+          "features": [
+            {
+              "key": "oath-of-glory.oath-spells",
+              "name": "Oath of Glory Spells",
+              "level": 3,
+              "description": "<p>The magic of your oath ensures you always have certain spells ready; when you reach a Paladin level specified in the Oath of Glory Spells table, you thereafter always have the listed spells prepared.</p><ul><li>Level 3: Guiding Bolt, Heroism</li><li>Level 5: Enhance Ability, Magic Weapon</li><li>Level 9: Haste, Protection from Energy</li><li>Level 13: Compulsion, Freedom of Movement</li><li>Level 17: Legend Lore, Yolande’s Regal Presence</li></ul>",
+              "effects": [
+                {
+                  "target": "spell.guiding-bolt",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('paladin') >= 3",
+                  "label": "Oath of Glory Spells"
+                },
+                {
+                  "target": "spell.heroism",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('paladin') >= 3",
+                  "label": "Oath of Glory Spells"
+                },
+                {
+                  "target": "spell.enhance-ability",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('paladin') >= 5",
+                  "label": "Oath of Glory Spells"
+                },
+                {
+                  "target": "spell.magic-weapon",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('paladin') >= 5",
+                  "label": "Oath of Glory Spells"
+                },
+                {
+                  "target": "spell.haste",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('paladin') >= 9",
+                  "label": "Oath of Glory Spells"
+                },
+                {
+                  "target": "spell.protection-from-energy",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('paladin') >= 9",
+                  "label": "Oath of Glory Spells"
+                },
+                {
+                  "target": "spell.compulsion",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('paladin') >= 13",
+                  "label": "Oath of Glory Spells"
+                },
+                {
+                  "target": "spell.freedom-of-movement",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('paladin') >= 13",
+                  "label": "Oath of Glory Spells"
+                },
+                {
+                  "target": "spell.legend-lore",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('paladin') >= 17",
+                  "label": "Oath of Glory Spells"
+                },
+                {
+                  "target": "spell.yolandes-regal-presence",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('paladin') >= 17",
+                  "label": "Oath of Glory Spells"
+                }
+              ]
+            },
+            {
+              "key": "oath-of-glory.inspiring-smite",
+              "name": "Inspiring Smite",
+              "level": 3,
+              "description": "<p>Immediately after you cast Divine Smite, you can expend one use of your Channel Divinity and distribute Temporary Hit Points to creatures of your choice within 30 feet of yourself, which can include you. The total number of Temporary Hit Points equals 2d8 plus your Paladin level, divided among the chosen creatures however you like.</p>"
+            },
+            {
+              "key": "oath-of-glory.peerless-athlete",
+              "name": "Peerless Athlete",
+              "level": 3,
+              "description": "<p>As a Bonus Action, you can expend one use of your Channel Divinity to augment your athleticism. For 1 hour, you have Advantage on Strength (Athletics) and Dexterity (Acrobatics) checks, and the distance of your Long and High Jumps increases by 10 feet (this extra distance costs movement as normal).</p>"
+            },
+            {
+              "key": "oath-of-glory.aura-of-alacrity",
+              "name": "Aura of Alacrity",
+              "level": 7,
+              "description": "<p>Your Speed increases by 10 feet.</p><p>In addition, whenever an ally enters your Aura of Protection for the first time on a turn or starts their turn there, the ally’s Speed increases by 10 feet until the end of their next turn.</p>",
+              "effects": [
+                {
+                  "target": "speed.walk",
+                  "op": "Add",
+                  "value": "10",
+                  "label": "Aura of Alacrity"
+                }
+              ]
+            },
+            {
+              "key": "oath-of-glory.glorious-defense",
+              "name": "Glorious Defense",
+              "level": 15,
+              "description": "<p>You can turn defense into a sudden strike. When you or another creature you can see within 10 feet of you is hit by an attack roll, you can take a Reaction to grant a bonus to the target’s AC against that attack, potentially causing it to miss. The bonus equals your Charisma modifier (minimum of +1). If the attack misses, you can make one attack with a weapon against the attacker as part of this Reaction if the attacker is within your weapon’s range.</p><p>You can use this feature a number of times equal to your Charisma modifier (minimum of once), and you regain all expended uses when you finish a Long Rest.</p>",
+              "resources": [
+                {
+                  "key": "glorious-defense",
+                  "name": "Glorious Defense",
+                  "max": "max(1, mod('cha'))",
+                  "recharge": "LongRest"
+                }
+              ]
+            },
+            {
+              "key": "oath-of-glory.living-legend",
+              "name": "Living Legend",
+              "level": 20,
+              "description": "<p>You can empower yourself with the legends—whether true or exaggerated—of your great deeds. As a Bonus Action, you gain the benefits below for 10 minutes. Once you use this feature, you can’t use it again until you finish a Long Rest. You can also restore your use of it by expending a level 5 spell slot (no action required).</p><p><strong><em>Charismatic.</em></strong> You are blessed with an otherworldly presence and have Advantage on all Charisma checks.</p><p><strong><em>Saving Throw Reroll.</em></strong> If you fail a saving throw, you can take a Reaction to reroll it. You must use this new roll.</p><p><strong><em>Unerring Strike.</em></strong> Once on each of your turns when you make an attack roll with a weapon and miss, you can cause that attack to hit instead.</p>",
+              "resources": [
+                {
+                  "key": "living-legend",
+                  "name": "Living Legend",
+                  "max": "1",
+                  "recharge": "LongRest"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "oath-of-the-ancients",
+          "name": "Oath of the Ancients",
+          "description": "<p>Preserve life and light in the world. The Oath of the Ancients is as old as the first elves. Paladins who swear this oath cherish the light; they love the beautiful and life-giving things of the world more than any principles of honor, courage, and justice.</p>",
+          "features": [
+            {
+              "key": "oath-of-the-ancients.oath-spells",
+              "name": "Oath of the Ancients Spells",
+              "level": 3,
+              "description": "<p>The magic of your oath ensures you always have certain spells ready; when you reach a Paladin level specified in the Oath of the Ancients Spells table, you thereafter always have the listed spells prepared.</p><ul><li>Level 3: Ensnaring Strike, Speak with Animals</li><li>Level 5: Misty Step, Moonbeam</li><li>Level 9: Plant Growth, Protection from Energy</li><li>Level 13: Ice Storm, Stoneskin</li><li>Level 17: Commune with Nature, Tree Stride</li></ul>",
+              "effects": [
+                {
+                  "target": "spell.ensnaring-strike",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('paladin') >= 3",
+                  "label": "Oath of the Ancients Spells"
+                },
+                {
+                  "target": "spell.speak-with-animals",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('paladin') >= 3",
+                  "label": "Oath of the Ancients Spells"
+                },
+                {
+                  "target": "spell.misty-step",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('paladin') >= 5",
+                  "label": "Oath of the Ancients Spells"
+                },
+                {
+                  "target": "spell.moonbeam",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('paladin') >= 5",
+                  "label": "Oath of the Ancients Spells"
+                },
+                {
+                  "target": "spell.plant-growth",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('paladin') >= 9",
+                  "label": "Oath of the Ancients Spells"
+                },
+                {
+                  "target": "spell.protection-from-energy",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('paladin') >= 9",
+                  "label": "Oath of the Ancients Spells"
+                },
+                {
+                  "target": "spell.ice-storm",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('paladin') >= 13",
+                  "label": "Oath of the Ancients Spells"
+                },
+                {
+                  "target": "spell.stoneskin",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('paladin') >= 13",
+                  "label": "Oath of the Ancients Spells"
+                },
+                {
+                  "target": "spell.commune-with-nature",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('paladin') >= 17",
+                  "label": "Oath of the Ancients Spells"
+                },
+                {
+                  "target": "spell.tree-stride",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('paladin') >= 17",
+                  "label": "Oath of the Ancients Spells"
+                }
+              ]
+            },
+            {
+              "key": "oath-of-the-ancients.natures-wrath",
+              "name": "Nature’s Wrath",
+              "level": 3,
+              "description": "<p>As a Magic action, you can expend one use of your Channel Divinity to conjure spectral vines around nearby creatures. Each creature of your choice that you can see within 15 feet of yourself must succeed on a Strength saving throw or have the Restrained condition for 1 minute. A Restrained creature repeats the save at the end of each of its turns, ending the effect on itself on a success.</p>"
+            },
+            {
+              "key": "oath-of-the-ancients.aura-of-warding",
+              "name": "Aura of Warding",
+              "level": 7,
+              "description": "<p>Ancient magic lies so heavily upon you that it forms an eldritch ward, blunting energy from beyond the Material Plane; you and your allies have Resistance to Necrotic, Psychic, and Radiant damage while in your Aura of Protection.</p>",
+              "effects": [
+                {
+                  "target": "damage.resist.necrotic",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Aura of Warding"
+                },
+                {
+                  "target": "damage.resist.psychic",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Aura of Warding"
+                },
+                {
+                  "target": "damage.resist.radiant",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Aura of Warding"
+                }
+              ]
+            },
+            {
+              "key": "oath-of-the-ancients.undying-sentinel",
+              "name": "Undying Sentinel",
+              "level": 15,
+              "description": "<p>When you are reduced to 0 Hit Points and not killed outright, you can drop to 1 Hit Point instead, and you regain a number of Hit Points equal to three times your Paladin level. Once you use this feature, you can’t do so again until you finish a Long Rest.</p><p>Additionally, you can’t be aged magically, and you cease visibly aging.</p>",
+              "resources": [
+                {
+                  "key": "undying-sentinel",
+                  "name": "Undying Sentinel",
+                  "max": "1",
+                  "recharge": "LongRest"
+                }
+              ]
+            },
+            {
+              "key": "oath-of-the-ancients.elder-champion",
+              "name": "Elder Champion",
+              "level": 20,
+              "description": "<p>As a Bonus Action, you can imbue your Aura of Protection with primal power, granting the benefits below for 1 minute or until you end them (no action required). Once you use this feature, you can’t use it again until you finish a Long Rest. You can also restore your use of it by expending a level 5 spell slot (no action required).</p><p><strong><em>Diminish Defiance.</em></strong> Enemies in the aura have Disadvantage on saving throws against your spells and Channel Divinity options.</p><p><strong><em>Regeneration.</em></strong> At the start of each of your turns, you regain 10 Hit Points.</p><p><strong><em>Swift Spells.</em></strong> Whenever you cast a spell that has a casting time of an action, you can cast it using a Bonus Action instead.</p>",
+              "resources": [
+                {
+                  "key": "elder-champion",
+                  "name": "Elder Champion",
+                  "max": "1",
+                  "recharge": "LongRest"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "oath-of-vengeance",
+          "name": "Oath of Vengeance",
+          "description": "<p>Punish evildoers at any cost. The Oath of Vengeance is a solemn commitment to punish those who have committed grievously evil acts. When evil armies slaughter helpless villagers, when a tyrant defies the will of the gods, when a thieves’ guild grows too violent, when a dragon rampages through the countryside—at times like these, paladins arise and swear an Oath of Vengeance to set right that which has gone wrong.</p>",
+          "features": [
+            {
+              "key": "oath-of-vengeance.oath-spells",
+              "name": "Oath of Vengeance Spells",
+              "level": 3,
+              "description": "<p>The magic of your oath ensures you always have certain spells ready; when you reach a Paladin level specified in the Oath of Vengeance Spells table, you thereafter always have the listed spells prepared.</p><ul><li>Level 3: Bane, Hunter’s Mark</li><li>Level 5: Hold Person, Misty Step</li><li>Level 9: Haste, Protection from Energy</li><li>Level 13: Banishment, Dimension Door</li><li>Level 17: Hold Monster, Scrying</li></ul>",
+              "effects": [
+                {
+                  "target": "spell.bane",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('paladin') >= 3",
+                  "label": "Oath of Vengeance Spells"
+                },
+                {
+                  "target": "spell.hunters-mark",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('paladin') >= 3",
+                  "label": "Oath of Vengeance Spells"
+                },
+                {
+                  "target": "spell.hold-person",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('paladin') >= 5",
+                  "label": "Oath of Vengeance Spells"
+                },
+                {
+                  "target": "spell.misty-step",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('paladin') >= 5",
+                  "label": "Oath of Vengeance Spells"
+                },
+                {
+                  "target": "spell.haste",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('paladin') >= 9",
+                  "label": "Oath of Vengeance Spells"
+                },
+                {
+                  "target": "spell.protection-from-energy",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('paladin') >= 9",
+                  "label": "Oath of Vengeance Spells"
+                },
+                {
+                  "target": "spell.banishment",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('paladin') >= 13",
+                  "label": "Oath of Vengeance Spells"
+                },
+                {
+                  "target": "spell.dimension-door",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('paladin') >= 13",
+                  "label": "Oath of Vengeance Spells"
+                },
+                {
+                  "target": "spell.hold-monster",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('paladin') >= 17",
+                  "label": "Oath of Vengeance Spells"
+                },
+                {
+                  "target": "spell.scrying",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('paladin') >= 17",
+                  "label": "Oath of Vengeance Spells"
+                }
+              ]
+            },
+            {
+              "key": "oath-of-vengeance.vow-of-enmity",
+              "name": "Vow of Enmity",
+              "level": 3,
+              "description": "<p>When you take the Attack action, you can expend one use of your Channel Divinity to utter a vow of enmity against a creature you can see within 30 feet of yourself. You have Advantage on attack rolls against the creature for 1 minute or until you use this feature again.</p><p>If the creature drops to 0 Hit Points before the vow ends, you can transfer the vow to a different creature within 30 feet of yourself (no action required).</p>"
+            },
+            {
+              "key": "oath-of-vengeance.relentless-avenger",
+              "name": "Relentless Avenger",
+              "level": 7,
+              "description": "<p>Your supernatural focus helps you close off a foe’s retreat. When you hit a creature with an Opportunity Attack, you can reduce the creature’s Speed to 0 until the end of the current turn. You can then move up to half your Speed as part of the same Reaction. This movement doesn’t provoke Opportunity Attacks.</p>"
+            },
+            {
+              "key": "oath-of-vengeance.soul-of-vengeance",
+              "name": "Soul of Vengeance",
+              "level": 15,
+              "description": "<p>Immediately after a creature under the effect of your Vow of Enmity hits or misses with an attack roll, you can take a Reaction to make a melee attack against that creature if it’s within range.</p>"
+            },
+            {
+              "key": "oath-of-vengeance.avenging-angel",
+              "name": "Avenging Angel",
+              "level": 20,
+              "description": "<p>As a Bonus Action, you gain the benefits below for 10 minutes or until you end them (no action required). Once you use this feature, you can’t use it again until you finish a Long Rest. You can also restore your use of it by expending a level 5 spell slot (no action required).</p><p><strong><em>Flight.</em></strong> You sprout spectral wings on your back, have a Fly Speed of 60 feet, and can hover.</p><p><strong><em>Frightful Aura.</em></strong> Whenever an enemy starts its turn in your Aura of Protection, that creature must succeed on a Wisdom saving throw or have the Frightened condition for 1 minute or until it takes any damage. Attack rolls against the Frightened creature have Advantage.</p>",
+              "resources": [
+                {
+                  "key": "avenging-angel",
+                  "name": "Avenging Angel",
+                  "max": "1",
+                  "recharge": "LongRest"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
