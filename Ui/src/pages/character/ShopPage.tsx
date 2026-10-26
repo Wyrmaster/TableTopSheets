@@ -26,6 +26,33 @@ import { useCharacter } from './useCharacter'
 
 const PageSize = 25
 
+/** Values of the `category` filter of the item list (weapon and armor categories, tool groups, gear categories) */
+const Categories: [string, string][] = [
+  ['', 'All categories'],
+  ['simple', 'Simple weapons'],
+  ['martial', 'Martial weapons'],
+  ['ammunition', 'Ammunition'],
+  ['light', 'Light armor'],
+  ['medium', 'Medium armor'],
+  ['heavy', 'Heavy armor'],
+  ['shield', 'Shields'],
+  ['artisan', 'Artisan\'s tools'],
+  ['gaming-set', 'Gaming sets'],
+  ['musical-instrument', 'Musical instruments'],
+  ['arcane-focus', 'Arcane focuses'],
+  ['druidic-focus', 'Druidic focuses'],
+  ['holy-symbol', 'Holy symbols'],
+  ['pack', 'Packs'],
+  ['food-and-drink', 'Food and drink'],
+  ['mount', 'Mounts and animals'],
+  ['tack', 'Tack and harness'],
+  ['vehicle', 'Drawn vehicles'],
+  ['ship', 'Ships'],
+]
+
+/** Price of an item; items sold in bundles show the bundle size (`1 gp / 20`) */
+const priceLabel = (item: ItemSummaryDto) => `${formatPrice(item.costCp)}${item.bundle > 1 ? ` / ${item.bundle}` : ''}`
+
 /**
  * Item catalog with search, filters and paging; "Buy" pays with the character's coins, "Add free" doesn't
  */
@@ -39,6 +66,7 @@ export function ShopPage() {
   const { run } = useApiAction()
   const [search, setSearch] = useState('')
   const [kind, setKind] = useState('')
+  const [category, setCategory] = useState('')
   const [magic, setMagic] = useState(false)
   const [sort, setSort] = useState('name')
   const [page, setPage] = useState(1)
@@ -47,25 +75,29 @@ export function ShopPage() {
     () => new ListItemsIntent({
       search: search || undefined,
       kind: (kind || undefined) as ItemKindEnum | undefined,
+      category: category || undefined,
       magic: magic || undefined,
       sort,
       page,
       pageSize: PageSize,
     }),
-    `${search}|${kind}|${magic}|${sort}|${page}`,
+    `${search}|${kind}|${category}|${magic}|${sort}|${page}`,
   )
 
-  // a purchase pays the cost (the API returns change); without it the item is free (starting equipment, loot)
+  // a purchase pays the cost (the API returns change); without it the item is free (starting equipment, loot);
+  // items sold in bundles come as a whole bundle (20 arrows)
   const add = async (item: ItemSummaryDto, purchase: boolean) => {
+    const name = item.bundle > 1 ? `${item.bundle} × ${item.name}` : item.name
     const result = await run(
       new AddItemIntent(id, {
         itemKey: item.key,
+        quantity: item.bundle,
         purchase,
       }),
       {
         success: purchase
-          ? `Bought ${item.name} for ${formatPrice(item.costCp)}`
-          : `${item.name} added to the inventory`,
+          ? `Bought ${name} for ${formatPrice(item.costCp)}`
+          : `${name} added to the inventory`,
       },
     )
     if (result.ok) {
@@ -123,6 +155,26 @@ export function ShopPage() {
             <option value='Armor'>Armor</option>
             <option value='Gear'>Gear</option>
             <option value='Tool'>Tools</option>
+          </NativeSelect.Field>
+          <NativeSelect.Indicator />
+        </NativeSelect.Root>
+        <NativeSelect.Root w='190px'>
+          <NativeSelect.Field
+            aria-label='Category'
+            value={category}
+            onChange={(event) => {
+              setCategory(event.target.value)
+              setPage(1)
+            }}
+          >
+            {Categories.map(([value, label]) => (
+              <option
+                key={value}
+                value={value}
+              >
+                {label}
+              </option>
+            ))}
           </NativeSelect.Field>
           <NativeSelect.Indicator />
         </NativeSelect.Root>
@@ -187,10 +239,10 @@ export function ShopPage() {
                 fontSize='sm'
                 color='fg.muted'
               >
-                {[item.kind, item.category, `${item.weight} lb`].filter(Boolean).join(' · ')}
+                {[item.kind, item.category, item.weight && `${item.weight} lb`].filter(Boolean).join(' · ')}
               </Text>
             </Box>
-            <Text fontWeight='semibold'>{formatPrice(item.costCp)}</Text>
+            <Text fontWeight='semibold'>{priceLabel(item)}</Text>
             <InfoButton target={{
               kind: 'item',
               key: item.key,
@@ -253,7 +305,7 @@ export function ShopPage() {
         </HStack>
       )}
       <ApiHint>
-        <code>GET /api/rules/items?search=&amp;kind=&amp;magic=&amp;sort=&amp;page=</code>,
+        <code>GET /api/rules/items?search=&amp;kind=&amp;category=&amp;magic=&amp;sort=&amp;page=</code>,
         <code> POST /api/characters/{'{id}'}/items</code> with <code>purchase: true</code> (pays with change, 422 when
         the coins are not enough) or without it (free)
       </ApiHint>

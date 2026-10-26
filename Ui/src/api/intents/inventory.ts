@@ -11,7 +11,53 @@ import type {
   EquipDto,
   ToggleDto,
 } from '../dtos/inventory'
+import type { StartingEquipmentSourceEnum } from '../dtos/enums'
+import type { StartingEquipmentDto, TakeStartingEquipmentDto } from '../dtos/startingEquipment'
 import { characterPath } from './characters'
+
+/** GET /api/characters/{id}/starting-equipment: starting equipment of the background and the first class */
+export class GetStartingEquipmentIntent extends Intent<StartingEquipmentDto[]> {
+  readonly method = 'GET'
+
+  readonly characterId: Guid
+
+  /**
+   * @param characterId id of the character
+   */
+  constructor(characterId: Guid) {
+    super()
+    this.characterId = characterId
+  }
+
+  /** Route of the intent */
+  get path() {
+    return characterPath(this.characterId, '/starting-equipment')
+  }
+}
+
+/** POST /api/characters/{id}/starting-equipment/{source}: take an alternative (once per source, 422 otherwise) */
+export class TakeStartingEquipmentIntent extends BodyIntent<TakeStartingEquipmentDto, CharacterStateDto> {
+  readonly method = 'POST'
+
+  readonly characterId: Guid
+  readonly source: StartingEquipmentSourceEnum
+
+  /**
+   * @param characterId id of the character
+   * @param source `Background` or `Class`
+   * @param body the alternative and the picks per entry key
+   */
+  constructor(characterId: Guid, source: StartingEquipmentSourceEnum, body: TakeStartingEquipmentDto) {
+    super(body)
+    this.characterId = characterId
+    this.source = source
+  }
+
+  /** Route of the intent */
+  get path() {
+    return characterPath(this.characterId, `/starting-equipment/${segment(this.source)}`)
+  }
+}
 
 /** DELETE /api/characters/{id}/items/{itemId}: remove an item or part of a stack; selling credits half the cost */
 export class RemoveItemIntent extends Intent<CharacterStateDto> {

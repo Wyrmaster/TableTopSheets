@@ -57,7 +57,14 @@ prepare after a long rest get the loadout editor, spellbook classes "Copy into s
 
 **Coins and items:** the shop's "Buy" pays with the character's coins (`purchase: true`, change comes back), "Add free"
 doesn't. The inventory's coins card edits the coins and pays amounts; each item's menu sells (half the cost) or removes
-one piece or the whole stack.
+one piece or the whole stack. Items sold in bundles (20 arrows) are bought as a bundle; the shop filters by category
+(ammunition, focuses, mounts, vehicles …). The coins card adds or removes coins of one kind (pp, gp, ep, sp, cp) or pays
+an amount with change.
+
+**Starting equipment:** the creator shows the alternatives of the chosen background (step 2) and class (step 5); they're
+sent with `POST /api/characters` and the first `POST …/levels`. "Decide later" leaves them open: the creator, the level
+up page and the inventory then show `StartingEquipmentCard` (`GET/POST …/starting-equipment`). Picks of "same as above"
+entries also answer the tool proficiency choice.
 
 **API gap the UI still works around** (see the hints in the app): storing play state (current HP, charges, hit dice,
 rests) – it lives in local storage.

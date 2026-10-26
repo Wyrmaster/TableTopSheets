@@ -41,6 +41,7 @@ import {
 } from '@/components/icons'
 import { InfoButton } from '@/components/InfoButton'
 import { useApiAction } from '@/hooks/useApiAction'
+import { StartingEquipmentCard } from '@/components/startingEquipment/StartingEquipmentCard'
 import { useItemDetails } from '@/hooks/useItemDetails'
 import { formatPrice } from './coins'
 import { CoinsCard } from './CoinsCard'
@@ -195,6 +196,7 @@ export function InventoryTab() {
           <ItemMenu
             item={item}
             costCp={details.get(item.itemKey)?.item.costCp}
+            bundle={details.get(item.itemKey)?.item.bundle}
             onRemove={(options) => remove(item, options)}
           />
         </>
@@ -216,6 +218,11 @@ export function InventoryTab() {
           <Alert.Title>{violation.message}</Alert.Title>
         </Alert.Root>
       ))}
+
+      <StartingEquipmentCard
+        state={state}
+        onState={applyState}
+      />
 
       <SimpleGrid
         minChildWidth='320px'
@@ -407,7 +414,7 @@ function ItemRow({
       properties.baseAc && `AC ${properties.baseAc}`,
       properties.range && `range ${properties.range}`,
       detail?.item.category,
-      detail && `${detail.item.weight} lb`,
+      detail && `${detail.item.weight} lb${detail.item.bundle > 1 ? ` per ${detail.item.bundle}` : ''}`,
     ].filter(Boolean).join(' · ')
   const slotLabel: Partial<Record<EquipSlotEnum, string>> = {
     MainHand: 'main hand',
@@ -444,6 +451,7 @@ function ItemRow({
       >
         <HStack gap='2'>
           <Text fontWeight='semibold'>{item.name}</Text>
+          {item.notes && <Text color='fg.muted'>({item.notes})</Text>}
           {item.quantity > 1 && <Badge>×{item.quantity}</Badge>}
           {slotLabel[item.slot] && <Badge colorPalette='brand'>{slotLabel[item.slot]}</Badge>}
           {item.attuned && <Badge colorPalette='brand'>attuned</Badge>}
@@ -478,18 +486,22 @@ function ItemRow({
 }
 
 /**
- * Sell or remove an item: one piece of a stack, or all of it; selling credits half the cost
+ * Sell or remove an item: one piece of a stack, or all of it; selling credits half the cost (per piece of a bundle)
  */
 function ItemMenu({
   item,
   costCp,
+  bundle = 1,
   onRemove,
 }: {
   item: CharacterItemDto
   costCp?: number
+  bundle?: number
   onRemove: (options: { quantity?: number, sell?: boolean }) => void
 }) {
-  const sellPrice = costCp === undefined ? 0 : Math.floor(costCp / 2)
+  // the same rounding as the API: half the cost of the pieces, rounded down
+  const sellValue = (pieces: number) => (costCp === undefined ? 0 : Math.floor(costCp * pieces / bundle / 2))
+  const sellPrice = sellValue(1)
   const stack = item.quantity > 1
   const actions: Record<string, { quantity?: number, sell?: boolean }> = {
     'sell-one': {
@@ -521,9 +533,9 @@ function ItemMenu({
                 Sell {stack ? 'one ' : ''}for {formatPrice(sellPrice)}
               </Menu.Item>
             )}
-            {sellPrice > 0 && stack && (
+            {sellValue(item.quantity) > 0 && stack && (
               <Menu.Item value='sell-all'>
-                Sell all {item.quantity} for {formatPrice(sellPrice * item.quantity)}
+                Sell all {item.quantity} for {formatPrice(sellValue(item.quantity))}
               </Menu.Item>
             )}
             {stack && <Menu.Item value='remove-one'>Remove one</Menu.Item>}

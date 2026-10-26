@@ -27,10 +27,16 @@ import {
   CreateCharacterIntent,
   GetCharacterIntent,
   LevelUpIntent,
+  type StartingEquipmentOptionDto,
+  type TakeStartingEquipmentDto,
   UpdateCharacterIntent,
 } from '@/api'
 import { ApiHint } from '@/components/ApiHint'
 import { ChoiceList } from '@/components/choices/ChoiceList'
+import { equipmentComplete } from '@/components/startingEquipment/startingEquipment'
+import { StartingEquipmentCard } from '@/components/startingEquipment/StartingEquipmentCard'
+import { StartingEquipmentPicker } from '@/components/startingEquipment/StartingEquipmentPicker'
+import { useRuleStartingEquipment } from '@/components/startingEquipment/useRuleStartingEquipment'
 import { useApiAction } from '@/hooks/useApiAction'
 import { useIntentQuery } from '@/hooks/useIntentQuery'
 import { type AbilityMethod, modifier, type Scores, scoreProblem, StandardArray } from './abilityScores'
@@ -54,6 +60,8 @@ export function CreatorPage() {
   // origin (before the draft exists)
   const [species, setSpecies] = useState('')
   const [background, setBackground] = useState('')
+  const [backgroundEquipment, setBackgroundEquipment] = useState<TakeStartingEquipmentDto | null>(null)
+  const backgroundOptions = useRuleStartingEquipment('background', background)
   const [name, setName] = useState('')
   const [method, setMethod] = useState<AbilityMethod>('StandardArray')
   const [rolled, setRolled] = useState<number[]>(StandardArray)
@@ -70,11 +78,13 @@ export function CreatorPage() {
   const draft = useIntentQuery(() => (id ? new GetCharacterIntent(id) : null), id ?? '')
   const state = draft.data
   const [classKey, setClassKey] = useState('')
+  const [classEquipment, setClassEquipment] = useState<TakeStartingEquipmentDto | null>(null)
+  const classOptions = useRuleStartingEquipment('class', classKey)
 
   const scoresInvalid = Boolean(scoreProblem(method, scores, method === 'Rolled' ? rolled : StandardArray))
   const canNext = [
     Boolean(species),
-    Boolean(background),
+    Boolean(background) && equipmentComplete(backgroundOptions ?? [], backgroundEquipment),
     Boolean(name.trim()) && !scoresInvalid,
     true,
     Boolean(state && state.level > 0),
@@ -88,6 +98,7 @@ export function CreatorPage() {
       backgroundKey: background,
       abilityMethod: method,
       abilities: scores,
+      startingEquipment: backgroundEquipment,
     }), { success: 'Draft saved – origin choices are open' })
     if (result.ok) {
       navigate(`/characters/new/${result.data.id}`, { replace: true })
@@ -102,7 +113,10 @@ export function CreatorPage() {
     }
 
     const result = await run(
-      new LevelUpIntent(id, { classKey }),
+      new LevelUpIntent(id, {
+        classKey,
+        startingEquipment: classEquipment,
+      }),
       { success: 'Level 1 added – answer its choices below' },
     )
     if (result.ok) {
@@ -201,7 +215,16 @@ export function CreatorPage() {
               <RuleCards
                 kind='background'
                 selected={background}
-                onSelect={setBackground}
+                onSelect={(key) => {
+                  setBackground(key)
+                  setBackgroundEquipment(null)
+                }}
+              />
+              <EquipmentChoice
+                options={background ? backgroundOptions : undefined}
+                value={backgroundEquipment}
+                onChange={setBackgroundEquipment}
+                hint='saved with the draft (POST /api/characters with startingEquipment)'
               />
             </>
           )}
@@ -247,6 +270,13 @@ export function CreatorPage() {
                   empty='All origin choices are made.'
                 />
               )}
+              {state && (
+                <StartingEquipmentCard
+                  state={state}
+                  onState={applyState}
+                  sources={['Background']}
+                />
+              )}
             </>
           )}
           {step === 4 && state && (
@@ -260,12 +290,21 @@ export function CreatorPage() {
                   <RuleCards
                     kind='class'
                     selected={classKey}
-                    onSelect={setClassKey}
+                    onSelect={(key) => {
+                      setClassKey(key)
+                      setClassEquipment(null)
+                    }}
+                  />
+                  <EquipmentChoice
+                    options={classKey ? classOptions : undefined}
+                    value={classEquipment}
+                    onChange={setClassEquipment}
+                    hint='saved with the level (POST …/levels with startingEquipment)'
                   />
                   <Flex justify='flex-end'>
                     <Button
                       colorPalette='brand'
-                      disabled={!classKey}
+                      disabled={!classKey || !equipmentComplete(classOptions ?? [], classEquipment)}
                       loading={busy}
                       onClick={takeClass}
                     >
@@ -275,12 +314,19 @@ export function CreatorPage() {
                 </>
               )}
               {state.level > 0 && (
-                <ChoiceList
-                  characterId={state.id}
-                  choices={state.pendingChoices}
-                  onState={applyState}
-                  empty='All class choices are made.'
-                />
+                <>
+                  <ChoiceList
+                    characterId={state.id}
+                    choices={state.pendingChoices}
+                    onState={applyState}
+                    empty='All class choices are made.'
+                  />
+                  <StartingEquipmentCard
+                    state={state}
+                    onState={applyState}
+                    sources={['Class']}
+                  />
+                </>
               )}
             </>
           )}
@@ -331,6 +377,47 @@ export function CreatorPage() {
         />
       </Grid>
     </Box>
+  )
+}
+
+/**
+ * Starting equipment of the selected background or class, chosen before it is saved
+ */
+function EquipmentChoice({
+  options,
+  value,
+  onChange,
+  hint,
+}: {
+  options: StartingEquipmentOptionDto[] | undefined
+  value: TakeStartingEquipmentDto | null
+  onChange: (value: TakeStartingEquipmentDto | null) => void
+  hint: string
+}) {
+  if (!options?.length) {
+    return null
+  }
+
+  return (
+    <Card.Root>
+      <Card.Body gap='3'>
+        <Box>
+          <Heading size='md'>Starting equipment</Heading>
+          <Text
+            fontSize='sm'
+            color='fg.muted'
+          >
+            Choose an alternative; the items and coins go into the inventory.
+          </Text>
+        </Box>
+        <StartingEquipmentPicker
+          options={options}
+          value={value}
+          onChange={onChange}
+        />
+        <ApiHint>{hint}</ApiHint>
+      </Card.Body>
+    </Card.Root>
   )
 }
 

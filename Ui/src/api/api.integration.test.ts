@@ -18,6 +18,12 @@ import type {
 import type { OptionDto, PendingChoiceDto, ChoiceConstraintsDto, OptionMetaDto } from './dtos/choice'
 import type { PagedResult } from './dtos/paging'
 import type {
+  ItemOptionDto,
+  StartingEquipmentDto,
+  StartingEquipmentItemDto,
+  StartingEquipmentOptionDto,
+} from './dtos/startingEquipment'
+import type {
   ClassDetailDto,
   ClassSummaryDto,
   FeatSummaryDto,
@@ -48,13 +54,16 @@ import {
   AddItemIntent,
   ChangeCoinsIntent,
   EquipItemIntent,
+  GetStartingEquipmentIntent,
   PayCoinsIntent,
   RemoveItemIntent,
   SetCoinsIntent,
+  TakeStartingEquipmentIntent,
 } from './intents/inventory'
 import { LevelUpIntent, PreviewLevelUpIntent, UndoLevelIntent } from './intents/levels'
 import { GetSpellsIntent } from './intents/spells'
 import {
+  GetBackgroundIntent,
   GetClassIntent,
   GetItemIntent,
   GetSpeciesIntent,
@@ -128,12 +137,39 @@ const Shapes = {
     description: true,
     features: true,
     subclasses: true,
+    startingEquipment: true,
   }),
   ruleDetail: keys<RuleDetailDto>({
     key: true,
     name: true,
     description: true,
     features: true,
+    startingEquipment: true,
+  }),
+  startingEquipment: keys<StartingEquipmentDto>({
+    source: true,
+    ownerKey: true,
+    ownerName: true,
+    taken: true,
+    options: true,
+  }),
+  startingEquipmentOption: keys<StartingEquipmentOptionDto>({
+    key: true,
+    items: true,
+    coinsCp: true,
+  }),
+  startingEquipmentItem: keys<StartingEquipmentItemDto>({
+    key: true,
+    name: true,
+    itemKey: true,
+    quantity: true,
+    note: true,
+    options: true,
+    sameAs: true,
+  }),
+  itemOption: keys<ItemOptionDto>({
+    key: true,
+    name: true,
   }),
   feature: keys<FeatureDto>({
     key: true,
@@ -190,6 +226,7 @@ const Shapes = {
     weight: true,
     magic: true,
     requiresAttunement: true,
+    bundle: true,
   }),
   itemDetail: keys<ItemDetailDto>({
     item: true,
@@ -211,6 +248,8 @@ const Shapes = {
     armorClass: true,
     items: true,
     coins: true,
+    backgroundEquipment: true,
+    classEquipment: true,
     complete: true,
     pendingChoices: true,
     violations: true,
@@ -244,6 +283,7 @@ const Shapes = {
     slot: true,
     attuned: true,
     requiresAttunement: true,
+    notes: true,
   }),
   pending: keys<PendingChoiceDto>({
     id: true,
@@ -504,6 +544,12 @@ describe.skipIf(!apiUrl)('API integration', () => {
     const wizard = await ok(new GetClassIntent('wizard'))
     expectShape(wizard, Shapes.classDetail)
     expectShape(wizard.features[0], Shapes.feature)
+    const acolyte = await ok(new GetBackgroundIntent('acolyte'))
+    expectShape(acolyte, Shapes.ruleDetail)
+    expectShape(acolyte.startingEquipment[0], Shapes.startingEquipmentOption)
+    const holySymbol = acolyte.startingEquipment[0].items.find((entry) => entry.options.length > 0)!
+    expectShape(holySymbol, Shapes.startingEquipmentItem)
+    expectShape(holySymbol.options[0], Shapes.itemOption)
     const elf = await ok(new GetSpeciesIntent('elf'))
     expectShape(elf, Shapes.ruleDetail)
     expectShape(elf.features.flatMap((feature) => feature.choices)[0], Shapes.choiceDefinition)
@@ -523,8 +569,12 @@ describe.skipIf(!apiUrl)('API integration', () => {
         cha: 10,
       },
       alignment: 'NeutralGood',
+      startingEquipment: { optionKey: 'a' },
     }))
     expectShape(state, Shapes.state)
+    expect(state.backgroundEquipment).toBe('a')
+    expect(state.coins.gold).toBe(8)
+    expect(state.items.find((item) => item.itemKey === 'book')?.notes).toBe('history')
     expectShape(state.abilities[0], Shapes.ability)
     expectShape(state.coins, Shapes.coinsDto)
     expect(state.complete).toBe(false)
@@ -539,6 +589,14 @@ describe.skipIf(!apiUrl)('API integration', () => {
     expect(state.level).toBe(1)
     expect(state.complete).toBe(true)
     expectShape(state.classes[0], Shapes.classLevel)
+
+    // class starting equipment, taken after the level
+    const offers = await ok(new GetStartingEquipmentIntent(state.id))
+    expectShape(offers[0], Shapes.startingEquipment)
+    expect(offers.map((offer) => [offer.source, offer.taken])).toEqual([['Background', 'a'], ['Class', null]])
+    state = await ok(new TakeStartingEquipmentIntent(state.id, 'Class', { optionKey: 'b' }))
+    expect(state.classEquipment).toBe('b')
+    expect(state.coins.gold).toBe(8 + 55)
 
     const selections = await ok(new GetSelectionsIntent(state.id))
     expectShape(selections[0], Shapes.selection)

@@ -11,7 +11,7 @@ import {
   Text,
 } from '@chakra-ui/react'
 import { useState } from 'react'
-import { type CoinsDto, PayCoinsIntent, SetCoinsIntent } from '@/api'
+import { ChangeCoinsIntent, type CoinsDto, PayCoinsIntent, SetCoinsIntent } from '@/api'
 import { Icon } from '@/components/Icon'
 import { bagIcon } from '@/components/icons'
 import { useApiAction } from '@/hooks/useApiAction'
@@ -19,7 +19,8 @@ import { CoinKinds, coinValue, formatCoins, formatPrice } from './coins'
 import { useCharacter } from './useCharacter'
 
 /**
- * Coins of the character: edit all kinds at once, or pay an amount (coins are spent, change comes back)
+ * Coins of the character (platinum, gold, electrum, silver, copper): edit all kinds at once, add or remove coins of one
+ * kind (treasure, spending exact coins), or pay an amount (coins are spent, change comes back)
  */
 export function CoinsCard() {
   const {
@@ -30,7 +31,8 @@ export function CoinsCard() {
   const { run, busy } = useApiAction()
   const [editing, setEditing] = useState<CoinsDto | null>(null)
   const [amount, setAmount] = useState(1)
-  const [unit, setUnit] = useState(100)
+  const [kindKey, setKindKey] = useState<keyof CoinsDto>('gold')
+  const kind = CoinKinds.find((entry) => entry.key === kindKey) ?? CoinKinds[1]
 
   const save = async () => {
     if (!editing) {
@@ -46,8 +48,19 @@ export function CoinsCard() {
 
   const pay = async () => {
     const result = await run(
-      new PayCoinsIntent(id, { amountCp: amount * unit }),
-      { success: `Paid ${formatPrice(amount * unit)}` },
+      new PayCoinsIntent(id, { amountCp: amount * kind.value }),
+      { success: `Paid ${formatPrice(amount * kind.value)}` },
+    )
+    if (result.ok) {
+      applyState(result.data)
+    }
+  }
+
+  // exactly these coins: +/- of one kind, no change
+  const change = async (sign: 1 | -1) => {
+    const result = await run(
+      new ChangeCoinsIntent(id, { [kind.key]: sign * amount }),
+      { success: `${sign > 0 ? 'Added' : 'Removed'} ${amount} ${kind.short}` },
     )
     if (result.ok) {
       applyState(result.data)
@@ -150,7 +163,6 @@ export function CoinsCard() {
           pt='2'
           borderTopWidth='1px'
         >
-          <Text fontSize='sm'>Pay</Text>
           <NumberInput.Root
             size='sm'
             w='20'
@@ -158,20 +170,25 @@ export function CoinsCard() {
             value={String(amount)}
             onValueChange={(details) => setAmount(details.valueAsNumber || 1)}
           >
-            <NumberInput.Input aria-label='Amount to pay' />
+            <NumberInput.Input aria-label='Amount' />
           </NumberInput.Root>
           <NativeSelect.Root
             size='sm'
-            w='20'
+            w='28'
           >
             <NativeSelect.Field
               aria-label='Coin'
-              value={String(unit)}
-              onChange={(event) => setUnit(Number(event.target.value))}
+              value={kind.key}
+              onChange={(event) => setKindKey(event.target.value as keyof CoinsDto)}
             >
-              <option value='100'>gp</option>
-              <option value='10'>sp</option>
-              <option value='1'>cp</option>
+              {CoinKinds.map((entry) => (
+                <option
+                  key={entry.key}
+                  value={entry.key}
+                >
+                  {entry.label} ({entry.short})
+                </option>
+              ))}
             </NativeSelect.Field>
             <NativeSelect.Indicator />
           </NativeSelect.Root>
@@ -179,7 +196,27 @@ export function CoinsCard() {
             size='sm'
             variant='outline'
             loading={busy}
-            disabled={amount * unit > coinValue(state.coins)}
+            title={`Add ${amount} ${kind.short} (found, earned)`}
+            onClick={() => change(1)}
+          >
+            Add
+          </Button>
+          <Button
+            size='sm'
+            variant='outline'
+            loading={busy}
+            disabled={amount > state.coins[kind.key]}
+            title={`Remove exactly ${amount} ${kind.short}`}
+            onClick={() => change(-1)}
+          >
+            Remove
+          </Button>
+          <Button
+            size='sm'
+            variant='outline'
+            loading={busy}
+            disabled={amount * kind.value > coinValue(state.coins)}
+            title='Pay the amount with any coins; change comes back'
             onClick={pay}
           >
             Pay
@@ -188,8 +225,7 @@ export function CoinsCard() {
             fontSize='xs'
             color='fg.muted'
           >
-            change comes back automatically
-          </Text>
+            Pay uses any coins and returns change</Text>
         </HStack>
       </Card.Body>
     </Card.Root>

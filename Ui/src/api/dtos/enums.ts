@@ -64,5 +64,8 @@ export type PrepareChangeEnum = 'LongRest' | 'LevelUp'
 export type RitualModeEnum = 'None' | 'Prepared' | 'FromSpellbook'
 
 /** Ability keys used in ability dictionaries and choices */
+export const StartingEquipmentSources = ['Background', 'Class'] as const
+export type StartingEquipmentSourceEnum = (typeof StartingEquipmentSources)[number]
+
 export const AbilityKeys = ['str', 'dex', 'con', 'int', 'wis', 'cha'] as const
 export type AbilityKey = (typeof AbilityKeys)[number]

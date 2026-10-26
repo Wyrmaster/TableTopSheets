@@ -17,9 +17,20 @@ import {
   Text,
 } from '@chakra-ui/react'
 import { useState } from 'react'
-import { type ClassSummaryDto, LevelUpIntent, ListClassesIntent, PreviewLevelUpIntent, UndoLevelIntent } from '@/api'
+import {
+  type ClassSummaryDto,
+  LevelUpIntent,
+  ListClassesIntent,
+  PreviewLevelUpIntent,
+  type TakeStartingEquipmentDto,
+  UndoLevelIntent,
+} from '@/api'
 import { ApiHint } from '@/components/ApiHint'
 import { ChoiceList } from '@/components/choices/ChoiceList'
+import { equipmentComplete } from '@/components/startingEquipment/startingEquipment'
+import { StartingEquipmentCard } from '@/components/startingEquipment/StartingEquipmentCard'
+import { StartingEquipmentPicker } from '@/components/startingEquipment/StartingEquipmentPicker'
+import { useRuleStartingEquipment } from '@/components/startingEquipment/useRuleStartingEquipment'
 import { Icon } from '@/components/Icon'
 import { levelUpIcon, undoIcon } from '@/components/icons'
 import { InfoButton } from '@/components/InfoButton'
@@ -56,6 +67,10 @@ export function LevelUpPage() {
           </ApiHint>
         </Stack>
       )}
+      <StartingEquipmentCard
+        state={state}
+        onState={applyState}
+      />
       <GainLevel />
     </Stack>
   )
@@ -74,6 +89,11 @@ function GainLevel() {
   const [subclassKey, setSubclassKey] = useState('')
   const [hitPoints, setHitPoints] = useState<'average' | 'roll'>('average')
   const [roll, setRoll] = useState(1)
+  const [equipment, setEquipment] = useState<TakeStartingEquipmentDto | null>(null)
+
+  // the first class of a character brings its starting equipment
+  const first = state.level === 0
+  const equipmentOptions = useRuleStartingEquipment('class', first ? classKey : '')
 
   const preview = useIntentQuery(
     () => (classKey ? new PreviewLevelUpIntent(id, classKey, subclassKey || undefined) : null),
@@ -87,6 +107,7 @@ function GainLevel() {
     setClassKey(key)
     setSubclassKey('')
     setRoll(1)
+    setEquipment(null)
   }
 
   const levelUp = async () => {
@@ -94,9 +115,11 @@ function GainLevel() {
       classKey,
       subclassKey: subclassKey || null,
       hitPointRoll: hitPoints === 'roll' ? roll : null,
+      startingEquipment: first ? equipment : null,
     }), { success: `${state.name} is now level ${state.level + 1}` })
     if (result.ok) {
       setSubclassKey('')
+      setEquipment(null)
       applyState(result.data)
     }
   }
@@ -259,6 +282,22 @@ function GainLevel() {
               </RadioGroup.Root>
             </Box>
 
+            {first && equipmentOptions && equipmentOptions.length > 0 && (
+              <Box>
+                <Text
+                  fontWeight='medium'
+                  mb='1.5'
+                >
+                  Starting equipment
+                </Text>
+                <StartingEquipmentPicker
+                  options={equipmentOptions}
+                  value={equipment}
+                  onChange={setEquipment}
+                />
+              </Box>
+            )}
+
             <Box>
               <Text
                 fontWeight='medium'
@@ -305,7 +344,9 @@ function GainLevel() {
               <Button
                 colorPalette='brand'
                 loading={busy}
-                disabled={Boolean(needsSubclass) || Boolean(preview.problem)}
+                disabled={Boolean(needsSubclass)
+                  || Boolean(preview.problem)
+                  || (first && !equipmentComplete(equipmentOptions ?? [], equipment))}
                 onClick={levelUp}
               >
                 <Icon path={levelUpIcon} />

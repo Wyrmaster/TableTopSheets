@@ -7,6 +7,7 @@ import type {
   PrimaryAbilityModeEnum,
   ReplacePolicyEnum,
 } from './enums'
+import type { StartingEquipmentOptionDto } from './startingEquipment'
 
 /** Species in a list */
 export interface SpeciesSummaryDto {
@@ -64,16 +65,19 @@ export interface SpellSummaryDto {
   lists: string[]
 }
 
-/** Item in a list */
+/** Item in a list; cost and weight are per `bundle` (20 arrows for 1 gp), quantities count pieces */
 export interface ItemSummaryDto {
   key: string
   name: string
   kind: ItemKindEnum
+  /** weapon or armor category, tool group or gear category (`ammunition`, `holy-symbol`, `mount` ...) */
   category: string | null
   costCp: number
   weight: number
   magic: boolean
   requiresAttunement: boolean
+  /** pieces sold together (1 for most items) */
+  bundle: number
 }
 
 /** Definition of a choice as authored in the rules (independent of a character) */
@@ -104,6 +108,8 @@ export interface RuleDetailDto {
   name: string
   description: string
   features: FeatureDto[]
+  /** starting equipment of a background (empty for the others) */
+  startingEquipment: StartingEquipmentOptionDto[]
 }
 
 /** Class with its features per level and subclasses */
@@ -112,6 +118,8 @@ export interface ClassDetailDto {
   description: string
   features: FeatureDto[]
   subclasses: RuleDetailDto[]
+  /** starting equipment of a character that starts with the class */
+  startingEquipment: StartingEquipmentOptionDto[]
 }
 
 /** Spell with its full text */
@@ -162,7 +170,7 @@ export interface FeatFilter {
 /** Filters of the item list */
 export interface ItemFilter {
   kind?: ItemKindEnum
-  /** weapon category (`simple`, `martial`), armor category (`light` ...) or tool group */
+  /** weapon category (`simple`, `martial`), armor category (`light` ...), tool group or gear category (`ammunition`) */
   category?: string
   magic?: boolean
   attunement?: boolean

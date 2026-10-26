@@ -14,6 +14,7 @@ import {
 } from '@/api'
 import { ApiHint } from '@/components/ApiHint'
 import { Facts, Prose } from '@/components/Facts'
+import { StartingEquipmentList } from '@/components/startingEquipment/StartingEquipmentList'
 import { useIntentQuery } from '@/hooks/useIntentQuery'
 import type { InspectTarget } from './InspectorContext'
 
@@ -165,6 +166,7 @@ function ClassView({ detail }: { detail: ClassDetailDto }) {
         ]}
       />
       <Prose text={detail.description} />
+      <StartingEquipmentList options={detail.startingEquipment} />
       <Heading size='sm'>Features by level</Heading>
       <Stack gap='2'>
         {features.map((feature) => (
@@ -209,7 +211,7 @@ function ItemView({ detail }: { detail: ItemDetailDto }) {
       </HStack>
       <Facts
         items={[
-          ['Cost', `${item.costCp / 100} gp`],
+          ['Cost', `${item.costCp / 100} gp${item.bundle > 1 ? ` per ${item.bundle}` : ''}`],
           ['Weight', `${item.weight} lb`],
           ...properties,
         ]}
@@ -237,6 +239,7 @@ function RuleView(
         title={detail.name}
       />
       {detail.description && <Prose text={detail.description} />}
+      <StartingEquipmentList options={detail.startingEquipment ?? []} />
       {detail.features.map((feature) => (
         <Box key={feature.key}>
           <Heading

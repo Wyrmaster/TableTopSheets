@@ -3,7 +3,12 @@ import { HttpClient } from '../core/HttpClient'
 import { RegisterIntent } from './auth'
 import { CreateCharacterIntent, ListCharactersIntent } from './characters'
 import { GetChoiceOptionsIntent, RemoveSelectionIntent, SelectOptionsIntent } from './choices'
-import { EquipItemIntent, ToggleFeatureIntent } from './inventory'
+import {
+  EquipItemIntent,
+  GetStartingEquipmentIntent,
+  TakeStartingEquipmentIntent,
+  ToggleFeatureIntent,
+} from './inventory'
 import { LevelUpIntent, PreviewLevelUpIntent, UndoLevelIntent } from './levels'
 import { GetClassIntent, GetSpellIntent } from './rules'
 import { SetPreparedSpellsIntent } from './spells'
@@ -45,6 +50,13 @@ describe('intents', () => {
     ],
     [new LevelUpIntent('c1', { classKey: 'wizard' }), 'POST', '/api/characters/c1/levels', false],
     [new UndoLevelIntent('c1'), 'DELETE', '/api/characters/c1/levels/last', false],
+    [new GetStartingEquipmentIntent('c1'), 'GET', '/api/characters/c1/starting-equipment', false],
+    [
+      new TakeStartingEquipmentIntent('c1', 'Background', { optionKey: 'a' }),
+      'POST',
+      '/api/characters/c1/starting-equipment/Background',
+      false,
+    ],
     [new EquipItemIntent('c1', 'i1', { slot: 'Armor' }), 'PUT', '/api/characters/c1/items/i1/slot', false],
     [
       new ToggleFeatureIntent('c1', 'barbarian.rage', { active: true }),

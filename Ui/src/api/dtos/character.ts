@@ -12,6 +12,7 @@ import type {
 } from './enums'
 import type { CoinsDto } from './inventory'
 import type { SubclassSummaryDto } from './rules'
+import type { TakeStartingEquipmentDto } from './startingEquipment'
 
 /** Levels of a character in one class */
 export interface ClassLevelDto {
@@ -56,6 +57,8 @@ export interface CharacterItemDto {
   slot: EquipSlotEnum
   attuned: boolean
   requiresAttunement: boolean
+  /** what the item is about (a book of `prayers`) */
+  notes: string | null
 }
 
 /**
@@ -76,6 +79,10 @@ export interface CharacterStateDto {
   armorClass: number
   items: CharacterItemDto[]
   coins: CoinsDto
+  /** starting equipment alternative taken from the background (null = still open) */
+  backgroundEquipment: string | null
+  /** starting equipment alternative taken from the first class (null = still open or no class yet) */
+  classEquipment: string | null
   /** true when no required choice is open */
   complete: boolean
   /** choices that still need selections (follow-up choices appear here after their parent was selected) */
@@ -112,6 +119,8 @@ export interface CreateCharacterDto {
   alignment?: AlignmentEnum
   /** answers to origin choices known up front (more can be posted later) */
   selections?: SelectionDto[]
+  /** starting equipment of the background; null takes it later */
+  startingEquipment?: TakeStartingEquipmentDto | null
   /** save even when required choices are open (default true) */
   allowIncomplete?: boolean
 }
@@ -142,6 +151,8 @@ export interface LevelUpDto {
   replacements?: ReplacementDto[]
   /** save even when required choices are open (default true) */
   allowIncomplete?: boolean
+  /** starting equipment of the class, only with the first level; null takes it later */
+  startingEquipment?: TakeStartingEquipmentDto | null
 }
 
 /** Active selection of a character */

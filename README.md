@@ -673,10 +673,11 @@ sequenceDiagram
 | DELETE | `/api/characters/{id}/selections/{selectionId}` | take back a selection of the latest level, together with the selections that depend on it |
 | POST | `/api/characters/{id}/selections/{selectionId}/rest-replace` | change a selection on a rest (Wizard cantrip swap …) |
 | GET | `/api/characters/{id}/level-up/preview?class=&subclass=` | choices a level would open, plus the selections that may be swapped; `requiresSubclass` + `subclasses` at the subclass level |
-| POST | `/api/characters/{id}/levels`, `/levels/validate` | gain a level (`classKey`, `subclassKey`, `hitPointRoll`, `selections`, `replacements`) / dry run |
+| POST | `/api/characters/{id}/levels`, `/levels/validate` | gain a level (`classKey`, `subclassKey`, `hitPointRoll`, `selections`, `replacements`, `startingEquipment` with the first level) / dry run |
 | DELETE | `/api/characters/{id}/levels/last` | undo the highest level |
 | POST / PUT | `/api/characters/{id}/items`, `/items/{itemId}/slot`, `/items/{itemId}/attunement` | inventory (`purchase: true` pays with coins), equip, attune |
 | DELETE | `/api/characters/{id}/items/{itemId}?quantity=&sell=` | remove an item or part of a stack; `sell=true` credits half the cost |
+| GET / POST | `/api/characters/{id}/starting-equipment`, `/starting-equipment/{background\|class}` | starting equipment alternatives ("Choose A or B") of the background and first class; take one once (`optionKey`, `picks` per entry). Creation takes it as `startingEquipment` too |
 | PUT / POST | `/api/characters/{id}/coins`, `/coins/change`, `/coins/payments` | set the coins, add / remove coins per kind, pay an amount in copper (with change) |
 | PUT | `/api/characters/{id}/toggles/{featureKey}`, `/armor-class` | toggles (Rage, Mage Armor …), AC calculation |
 | GET | `/api/characters/{id}/spells` | per spellcasting class: spellbook, prepared and always prepared spells, limits, pool, highest level; plus spells from species and feats |
