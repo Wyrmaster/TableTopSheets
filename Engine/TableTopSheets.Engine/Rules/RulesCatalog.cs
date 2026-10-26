@@ -301,8 +301,3 @@ public sealed class RulesCatalog
 
   #endregion
 }
-
-/// <summary>
-///   Description html of an option and the names of the features it grants
-/// </summary>
-public sealed record OptionText(string? Html, IReadOnlyList<string> Grants);

@@ -17,18 +17,3 @@ public sealed record FeatureInstance(Feature Feature, CharacterChoice? GrantedBy
   /// </summary>
   public Guid? SelectionScope => this.GrantedBy?.Id;
 }
-
-/// <summary>
-///   An active selection of a choice
-/// </summary>
-public sealed record SelectionInstance(CharacterChoice Selection, Choice Choice, FeatureInstance Owner, ChoiceOption? StaticOption);
-
-/// <summary>
-///   Effect that applies to the character with all placeholders (<c>$option</c>, <c>$value</c>) replaced
-/// </summary>
-public sealed record AppliedEffect(Effect Effect, string Target, string ValueExpr, string Label, FeatureInstance Owner);
-
-/// <summary>
-///   Contribution of a single effect to a stat (used for the source breakdown)
-/// </summary>
-public sealed record StatSource(string Label, string Operation, double Value);

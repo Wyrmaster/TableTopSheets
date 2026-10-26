@@ -2,14 +2,6 @@ using System.Globalization;
 
 namespace TableTopSheets.Engine.Expressions;
 
-public enum ExprValueKind
-{
-  Number,
-  Boolean,
-  String,
-  Dice,
-}
-
 /// <summary>
 ///   Result of an expression: a number, boolean, string or dice (<c>2d6</c>)
 /// </summary>

@@ -2,23 +2,6 @@ using System.Globalization;
 
 namespace TableTopSheets.Engine.Expressions;
 
-internal enum TokenKind
-{
-  Number,
-  Dice,
-  String,
-  Identifier,
-  Operator,
-  LeftParen,
-  RightParen,
-  Comma,
-  Question,
-  Colon,
-  End,
-}
-
-internal readonly record struct Token(TokenKind Kind, string Text, int Position);
-
 /// <summary>
 ///   Splits an expression into tokens
 /// </summary>
