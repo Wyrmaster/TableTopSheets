@@ -7,15 +7,12 @@ ARG NODE_VERSION=24
 FROM node:${NODE_VERSION}-slim AS ui
 WORKDIR /ui
 
-# the version pinned by packageManager in Ui/package.json
-RUN npm install --global pnpm@11.22.0
-
 # manifests first, so the install layer is reused until a dependency changes
-COPY Ui/package.json Ui/pnpm-lock.yaml Ui/pnpm-workspace.yaml ./
-RUN pnpm install --frozen-lockfile
+COPY Ui/package.json Ui/package-lock.json ./
+RUN npm ci
 
 COPY Ui/ ./
-RUN pnpm build
+RUN npm run build
 
 FROM mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION} AS build
 ARG BUILD_CONFIGURATION=Release
