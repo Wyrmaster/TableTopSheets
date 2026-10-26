@@ -348,6 +348,195 @@
       ],
       "subclasses": [
         {
+          "key": "warrior-of-mercy",
+          "name": "Warrior of Mercy",
+          "description": "<p>Manipulate forces of life and death. Warriors of Mercy manipulate the life force of others. These Monks are wandering physicians, but they bring a swift end to their enemies. They often wear masks, presenting themselves as faceless bringers of life and death.</p>",
+          "features": [
+            {
+              "key": "warrior-of-mercy.hand-of-harm",
+              "name": "Hand of Harm",
+              "level": 3,
+              "description": "<p>Once per turn when you hit a creature with an Unarmed Strike and deal damage, you can expend 1 Focus Point to deal extra Necrotic damage equal to one roll of your Martial Arts die plus your Wisdom modifier.</p>"
+            },
+            {
+              "key": "warrior-of-mercy.hand-of-healing",
+              "name": "Hand of Healing",
+              "level": 3,
+              "description": "<p>As a Magic action, you can expend 1 Focus Point to touch a creature and restore a number of Hit Points equal to a roll of your Martial Arts die plus your Wisdom modifier.</p><p>When you use your Flurry of Blows, you can replace one of the Unarmed Strikes with a use of this feature without expending a Focus Point for the healing.</p>"
+            },
+            {
+              "key": "warrior-of-mercy.implements-of-mercy",
+              "name": "Implements of Mercy",
+              "level": 3,
+              "description": "<p>You gain proficiency in the Insight and Medicine skills and proficiency with the Herbalism Kit.</p>",
+              "effects": [
+                {
+                  "target": "skill.insight.prof",
+                  "op": "Proficiency",
+                  "value": "proficient"
+                },
+                {
+                  "target": "skill.medicine.prof",
+                  "op": "Proficiency",
+                  "value": "proficient"
+                },
+                {
+                  "target": "proficiency.tool.herbalism-kit",
+                  "op": "Proficiency",
+                  "value": "proficient"
+                }
+              ]
+            },
+            {
+              "key": "warrior-of-mercy.physicians-touch",
+              "name": "Physician’s Touch",
+              "level": 6,
+              "description": "<p>Your Hand of Harm and Hand of Healing improve, as detailed below.</p><p><strong><em>Hand of Harm.</em></strong> When you use Hand of Harm on a creature, you can also give that creature the Poisoned condition until the end of your next turn.</p><p><strong><em>Hand of Healing.</em></strong> When you use Hand of Healing, you can also end one of the following conditions on the creature you heal: Blinded, Deafened, Paralyzed, Poisoned, or Stunned.</p>"
+            },
+            {
+              "key": "warrior-of-mercy.flurry-of-healing-and-harm",
+              "name": "Flurry of Healing and Harm",
+              "level": 11,
+              "description": "<p>When you use Flurry of Blows, you can replace each of the Unarmed Strikes with a use of Hand of Healing without expending Focus Points for the healing.</p><p>In addition, when you make an Unarmed Strike with Flurry of Blows and deal damage, you can use Hand of Harm with that strike without expending a Focus Point for Hand of Harm. You can still use Hand of Harm only once per turn.</p><p>You can use these benefits a total number of times equal to your Wisdom modifier (minimum of once). You regain all expended uses when you finish a Long Rest.</p>",
+              "resources": [
+                {
+                  "key": "flurry-of-healing-and-harm",
+                  "name": "Flurry of Healing and Harm",
+                  "max": "max(1, mod('wis'))",
+                  "recharge": "LongRest"
+                }
+              ]
+            },
+            {
+              "key": "warrior-of-mercy.hand-of-ultimate-mercy",
+              "name": "Hand of Ultimate Mercy",
+              "level": 17,
+              "description": "<p>Your mastery of life energy opens the door to the ultimate mercy. As a Magic action, you can touch the corpse of a creature that died within the past 24 hours and expend 5 Focus Points. The creature then returns to life with a number of Hit Points equal to 4d10 plus your Wisdom modifier. If the creature died with any of the following conditions, the creature revives with the conditions removed: Blinded, Deafened, Paralyzed, Poisoned, and Stunned.</p><p>Once you use this feature, you can’t use it again until you finish a Long Rest.</p>",
+              "resources": [
+                {
+                  "key": "hand-of-ultimate-mercy",
+                  "name": "Hand of Ultimate Mercy",
+                  "max": "1",
+                  "recharge": "LongRest"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "warrior-of-shadow",
+          "name": "Warrior of Shadow",
+          "description": "<p>Harness shadow power for stealth and subterfuge. Warriors of Shadow practice stealth and subterfuge, harnessing the power of the Shadowfell. They are at home in darkness, able to draw gloom around themselves to hide, leap from shadow to shadow, and take on a wraithlike form.</p>",
+          "features": [
+            {
+              "key": "warrior-of-shadow.shadow-arts",
+              "name": "Shadow Arts",
+              "level": 3,
+              "description": "<p>You have learned to draw on the power of the Shadowfell, gaining the following benefits.</p><p><strong><em>Darkness.</em></strong> You can expend 1 Focus Point to cast the Darkness spell without spell components. You can see within the spell’s area when you cast it with this feature. While the spell persists, you can move its area of Darkness to a space within 60 feet of yourself at the start of each of your turns.</p><p><strong><em>Darkvision.</em></strong> You gain Darkvision with a range of 60 feet. If you already have Darkvision, its range increases by 60 feet.</p><p><strong><em>Shadowy Figments.</em></strong> You know the Minor Illusion spell. Wisdom is your spellcasting ability for it.</p>",
+              "effects": [
+                {
+                  "target": "sense.darkvision",
+                  "op": "Add",
+                  "value": "60",
+                  "label": "Shadow Arts"
+                },
+                {
+                  "target": "spell.darkness",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Shadow Arts"
+                },
+                {
+                  "target": "spell.minor-illusion",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Shadow Arts"
+                }
+              ]
+            },
+            {
+              "key": "warrior-of-shadow.shadow-step",
+              "name": "Shadow Step",
+              "level": 6,
+              "description": "<p>While entirely within Dim Light or Darkness, you can use a Bonus Action to teleport up to 60 feet to an unoccupied space you can see that is also in Dim Light or Darkness. You then have Advantage on the next melee attack you make before the end of the current turn.</p>"
+            },
+            {
+              "key": "warrior-of-shadow.improved-shadow-step",
+              "name": "Improved Shadow Step",
+              "level": 11,
+              "description": "<p>You can draw on your Shadowfell connection to empower your teleportation. When you use your Shadow Step, you can expend 1 Focus Point to remove the requirement that you must start and end in Dim Light or Darkness for that use of the feature. As part of this Bonus Action, you can make an Unarmed Strike immediately after you teleport.</p>"
+            },
+            {
+              "key": "warrior-of-shadow.cloak-of-shadows",
+              "name": "Cloak of Shadows",
+              "level": 17,
+              "description": "<p>As a Magic action while entirely within Dim Light or Darkness, you can expend 3 Focus Points to shroud yourself with shadows for 1 minute, until you have the Incapacitated condition, or until you end your turn in Bright Light. While shrouded by these shadows, you gain the following benefits.</p><p><strong><em>Invisibility.</em></strong> You have the Invisible condition.</p><p><strong><em>Partially Incorporeal.</em></strong> You can move through occupied spaces as if they were Difficult Terrain. If you end your turn in such a space, you are shunted to the last unoccupied space you were in.</p><p><strong><em>Shadow Flurry.</em></strong> You can use your Flurry of Blows without expending any Focus Points.</p>"
+            }
+          ]
+        },
+        {
+          "key": "warrior-of-the-elements",
+          "name": "Warrior of the Elements",
+          "description": "<p>Wield strikes and bursts of elemental power. Warriors of the Elements tap into the power of the Elemental Planes. Harnessing their supernatural focus, these Monks momentarily tame the energy of the Elemental Chaos to empower themselves in and out of battle.</p>",
+          "features": [
+            {
+              "key": "warrior-of-the-elements.elemental-attunement",
+              "name": "Elemental Attunement",
+              "level": 3,
+              "description": "<p>At the start of your turn, you can expend 1 Focus Point to imbue yourself with elemental energy. The energy lasts for 10 minutes or until you have the Incapacitated condition. You gain the following benefits while this feature is active.</p><p><strong><em>Reach.</em></strong> When you make an Unarmed Strike, your reach is 10 feet greater than normal, as elemental energy extends from you.</p><p><strong><em>Elemental Strikes.</em></strong> Whenever you hit with your Unarmed Strike, you can cause it to deal your choice of Acid, Cold, Fire, Lightning, or Thunder damage rather than its normal damage type. When you deal one of these types with it, you can also force the target to make a Strength saving throw. On a failed save, you can move the target up to 10 feet toward or away from you, as elemental energy swirls around it.</p>",
+              "toggleable": true
+            },
+            {
+              "key": "warrior-of-the-elements.manipulate-elements",
+              "name": "Manipulate Elements",
+              "level": 3,
+              "description": "<p>You know the Elementalism spell. Wisdom is your spellcasting ability for it.</p>",
+              "effects": [
+                {
+                  "target": "spell.elementalism",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Manipulate Elements"
+                }
+              ]
+            },
+            {
+              "key": "warrior-of-the-elements.elemental-burst",
+              "name": "Elemental Burst",
+              "level": 6,
+              "description": "<p>As a Magic action, you can expend 2 Focus Points to cause elemental energy to burst in a 20-foot-radius Sphere centered on a point within 120 feet of yourself. Choose a damage type: Acid, Cold, Fire, Lightning, or Thunder.</p><p>Each creature in the Sphere must make a Dexterity saving throw. On a failed save, a creature takes damage of the chosen type equal to three rolls of your Martial Arts die. On a successful save, a creature takes half as much damage.</p>"
+            },
+            {
+              "key": "warrior-of-the-elements.stride-of-the-elements",
+              "name": "Stride of the Elements",
+              "level": 11,
+              "description": "<p>While your Elemental Attunement is active, you also have a Fly Speed and a Swim Speed equal to your Speed.</p>",
+              "effects": [
+                {
+                  "target": "speed.fly",
+                  "op": "Set",
+                  "value": "stat('speed.walk')",
+                  "condition": "active('warrior-of-the-elements.elemental-attunement')",
+                  "label": "Stride of the Elements"
+                },
+                {
+                  "target": "speed.swim",
+                  "op": "Set",
+                  "value": "stat('speed.walk')",
+                  "condition": "active('warrior-of-the-elements.elemental-attunement')",
+                  "label": "Stride of the Elements"
+                }
+              ]
+            },
+            {
+              "key": "warrior-of-the-elements.elemental-epitome",
+              "name": "Elemental Epitome",
+              "level": 17,
+              "description": "<p>While your Elemental Attunement is active, you also gain the following benefits.</p><p><strong><em>Damage Resistance.</em></strong> You gain Resistance to one of the following damage types of your choice: Acid, Cold, Fire, Lightning, or Thunder. At the start of each of your turns, you can change this choice.</p><p><strong><em>Destructive Stride.</em></strong> When you use your Step of the Wind, your Speed increases by 20 feet until the end of the turn. For that duration, any creature of your choice takes damage equal to one roll of your Martial Arts die when you enter a space within 5 feet of it. The damage type is your choice of Acid, Cold, Fire, Lightning, or Thunder. A creature can take this damage only once per turn.</p><p><strong><em>Empowered Strikes.</em></strong> Once on each of your turns, you can deal extra damage to a target equal to one roll of your Martial Arts die when you hit it with an Unarmed Strike. The extra damage is the same type dealt by that strike.</p>"
+            }
+          ]
+        },
+        {
           "key": "warrior-of-the-open-hand",
           "name": "Warrior of the Open Hand",
           "features": [
