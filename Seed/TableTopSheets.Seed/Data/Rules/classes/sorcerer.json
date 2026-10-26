@@ -267,6 +267,277 @@
       ],
       "subclasses": [
         {
+          "key": "aberrant-sorcery",
+          "name": "Aberrant Sorcery",
+          "description": "<p>Wield unnatural psionic power. An alien influence has wrapped its tendrils around your mind, giving you psionic power. You can now touch other minds with that power and alter the world around you.</p>",
+          "features": [
+            {
+              "key": "aberrant-sorcery.psionic-spells",
+              "name": "Psionic Spells",
+              "level": 3,
+              "description": "<p>When you reach a Sorcerer level specified in the Psionic Spells table, you thereafter always have the listed spells prepared.</p><table><tr><th>Sorcerer Level</th><th>Spells</th></tr><tr><td>3</td><td>Arms of Hadar, Calm Emotions, Detect Thoughts, Dissonant Whispers, Mind Sliver</td></tr><tr><td>5</td><td>Hunger of Hadar, Sending</td></tr><tr><td>7</td><td>Evard’s Black Tentacles, Summon Aberration</td></tr><tr><td>9</td><td>Rary’s Telepathic Bond, Telekinesis</td></tr></table>",
+              "effects": [
+                {
+                  "target": "spell.arms-of-hadar",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('sorcerer') >= 3",
+                  "label": "Psionic Spells"
+                },
+                {
+                  "target": "spell.calm-emotions",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('sorcerer') >= 3",
+                  "label": "Psionic Spells"
+                },
+                {
+                  "target": "spell.detect-thoughts",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('sorcerer') >= 3",
+                  "label": "Psionic Spells"
+                },
+                {
+                  "target": "spell.dissonant-whispers",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('sorcerer') >= 3",
+                  "label": "Psionic Spells"
+                },
+                {
+                  "target": "spell.mind-sliver",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('sorcerer') >= 3",
+                  "label": "Psionic Spells"
+                },
+                {
+                  "target": "spell.hunger-of-hadar",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('sorcerer') >= 5",
+                  "label": "Psionic Spells"
+                },
+                {
+                  "target": "spell.sending",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('sorcerer') >= 5",
+                  "label": "Psionic Spells"
+                },
+                {
+                  "target": "spell.evards-black-tentacles",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('sorcerer') >= 7",
+                  "label": "Psionic Spells"
+                },
+                {
+                  "target": "spell.summon-aberration",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('sorcerer') >= 7",
+                  "label": "Psionic Spells"
+                },
+                {
+                  "target": "spell.rarys-telepathic-bond",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('sorcerer') >= 9",
+                  "label": "Psionic Spells"
+                },
+                {
+                  "target": "spell.telekinesis",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('sorcerer') >= 9",
+                  "label": "Psionic Spells"
+                }
+              ]
+            },
+            {
+              "key": "aberrant-sorcery.telepathic-speech",
+              "name": "Telepathic Speech",
+              "level": 3,
+              "description": "<p>You can form a telepathic connection between your mind and the mind of another. As a Bonus Action, choose one creature you can see within 30 feet of yourself. You and the chosen creature can communicate telepathically with each other while the two of you are within a number of miles of each other equal to your Charisma modifier (minimum of 1 mile). To understand each other, you each must mentally use a language the other knows.</p><p>The telepathic connection lasts for a number of minutes equal to your Sorcerer level. It ends early if you use this ability to form a connection with a different creature.</p>"
+            },
+            {
+              "key": "aberrant-sorcery.psionic-sorcery",
+              "name": "Psionic Sorcery",
+              "level": 6,
+              "description": "<p>When you cast any level 1+ spell from your Psionic Spells feature, you can cast it by expending a spell slot as normal or by spending a number of Sorcery Points equal to the spell’s level. If you cast the spell using Sorcery Points, it requires no Verbal or Somatic components, and it requires no Material components unless they are consumed by the spell or have a cost specified in it.</p>"
+            },
+            {
+              "key": "aberrant-sorcery.psychic-defenses",
+              "name": "Psychic Defenses",
+              "level": 6,
+              "description": "<p>You have Resistance to Psychic damage, and you have Advantage on saving throws to avoid or end the Charmed or Frightened condition.</p>",
+              "effects": [
+                {
+                  "target": "damage.resist.psychic",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Psychic Defenses"
+                }
+              ]
+            },
+            {
+              "key": "aberrant-sorcery.revelation-in-flesh",
+              "name": "Revelation in Flesh",
+              "level": 14,
+              "description": "<p>You can unleash the aberrant truth hidden within yourself. As a Bonus Action, you can spend 1 Sorcery Point or more to magically alter your body for 10 minutes. For each Sorcery Point you spend, you gain one of the following benefits of your choice, the effects of which last until the alteration ends.</p><p><strong><em>Aquatic Adaptation.</em></strong> You gain a Swim Speed equal to twice your Speed, and you can breathe underwater. Gills grow from your neck or flare behind your ears, and your fingers become webbed or you grow wriggling cilia.</p><p><strong><em>Glistening Flight.</em></strong> You gain a Fly Speed equal to your Speed, and you can hover. As you fly, your skin glistens with mucus or otherworldly light.</p><p><strong><em>See the Invisible.</em></strong> You can see any Invisible creature within 60 feet of yourself that isn’t behind Total Cover. Your eyes also turn black or become writhing sensory tendrils.</p><p><strong><em>Wormlike Movement.</em></strong> Your body, along with any equipment you are wearing or carrying, becomes slimy and pliable. You can move through any space as narrow as 1 inch, and you can spend 5 feet of movement to escape from nonmagical restraints or the Grappled condition.</p>"
+            },
+            {
+              "key": "aberrant-sorcery.warping-implosion",
+              "name": "Warping Implosion",
+              "level": 18,
+              "description": "<p>You can unleash a space-warping anomaly. As a Magic action, you teleport to an unoccupied space you can see within 120 feet of yourself. Immediately after you disappear, each creature within 30 feet of the space you left must make a Strength saving throw against your spell save DC. On a failed save, a creature takes 3d10 Force damage and is pulled straight toward the space you left, ending in an unoccupied space as close to your former space as possible. On a successful save, the creature takes half as much damage only.</p><p>Once you use this feature, you can’t do so again until you finish a Long Rest unless you spend 5 Sorcery Points (no action required) to restore your use of it.</p>",
+              "resources": [
+                {
+                  "key": "warping-implosion",
+                  "name": "Warping Implosion",
+                  "max": "1",
+                  "recharge": "LongRest"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "clockwork-sorcery",
+          "name": "Clockwork Sorcery",
+          "description": "<p>Channel cosmic forces of order. The cosmic force of order has suffused you with magic. That power arises from Mechanus or a realm like it—a plane of existence shaped entirely by clockwork efficiency. The power of order can seem strange to others, but for you, it’s part of a vast and glorious system.</p>",
+          "features": [
+            {
+              "key": "clockwork-sorcery.clockwork-spells",
+              "name": "Clockwork Spells",
+              "level": 3,
+              "description": "<p>When you reach a Sorcerer level specified in the Clockwork Spells table, you thereafter always have the listed spells prepared.</p><table><tr><th>Sorcerer Level</th><th>Spells</th></tr><tr><td>3</td><td>Aid, Alarm, Lesser Restoration, Protection from Evil and Good</td></tr><tr><td>5</td><td>Dispel Magic, Protection from Energy</td></tr><tr><td>7</td><td>Freedom of Movement, Summon Construct</td></tr><tr><td>9</td><td>Greater Restoration, Wall of Force</td></tr></table><p>In addition, consult the Manifestations of Order table and choose or randomly determine a way your connection to order manifests while you are casting any of your Sorcerer spells.</p><table><tr><th>1d6</th><th>Manifestation</th></tr><tr><td>1</td><td>Spectral cogwheels hover behind you.</td></tr><tr><td>2</td><td>The hands of a clock spin in your eyes.</td></tr><tr><td>3</td><td>Your skin glows with a brassy sheen.</td></tr><tr><td>4</td><td>Floating equations and geometric objects overlay your body.</td></tr><tr><td>5</td><td>Your Spellcasting Focus temporarily takes the form of a Tiny clockwork mechanism.</td></tr><tr><td>6</td><td>The ticking of gears or ringing of a clock can be heard by you and those affected by your magic.</td></tr></table>",
+              "effects": [
+                {
+                  "target": "spell.aid",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('sorcerer') >= 3",
+                  "label": "Clockwork Spells"
+                },
+                {
+                  "target": "spell.alarm",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('sorcerer') >= 3",
+                  "label": "Clockwork Spells"
+                },
+                {
+                  "target": "spell.lesser-restoration",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('sorcerer') >= 3",
+                  "label": "Clockwork Spells"
+                },
+                {
+                  "target": "spell.protection-from-evil-and-good",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('sorcerer') >= 3",
+                  "label": "Clockwork Spells"
+                },
+                {
+                  "target": "spell.dispel-magic",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('sorcerer') >= 5",
+                  "label": "Clockwork Spells"
+                },
+                {
+                  "target": "spell.protection-from-energy",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('sorcerer') >= 5",
+                  "label": "Clockwork Spells"
+                },
+                {
+                  "target": "spell.freedom-of-movement",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('sorcerer') >= 7",
+                  "label": "Clockwork Spells"
+                },
+                {
+                  "target": "spell.summon-construct",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('sorcerer') >= 7",
+                  "label": "Clockwork Spells"
+                },
+                {
+                  "target": "spell.greater-restoration",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('sorcerer') >= 9",
+                  "label": "Clockwork Spells"
+                },
+                {
+                  "target": "spell.wall-of-force",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "classLevel('sorcerer') >= 9",
+                  "label": "Clockwork Spells"
+                }
+              ]
+            },
+            {
+              "key": "clockwork-sorcery.restore-balance",
+              "name": "Restore Balance",
+              "level": 3,
+              "description": "<p>Your connection to the plane of absolute order allows you to equalize chaotic moments. When a creature you can see within 60 feet of yourself is about to roll a d20 with Advantage or Disadvantage, you can take a Reaction to prevent the roll from being affected by Advantage and Disadvantage.</p><p>You can use this feature a number of times equal to your Charisma modifier (minimum of once), and you regain all expended uses when you finish a Long Rest.</p>",
+              "resources": [
+                {
+                  "key": "restore-balance",
+                  "name": "Restore Balance",
+                  "max": "max(1, mod('cha'))",
+                  "recharge": "LongRest"
+                }
+              ]
+            },
+            {
+              "key": "clockwork-sorcery.bastion-of-law",
+              "name": "Bastion of Law",
+              "level": 6,
+              "description": "<p>You can tap into the grand equation of existence to imbue a creature with a shimmering shield of order. As a Magic action, you can expend 1 to 5 Sorcery Points to create a magical ward around yourself or another creature you can see within 30 feet of yourself. The ward is represented by a number of d8s equal to the number of Sorcery Points spent to create it. When the warded creature takes damage, it can expend a number of those dice, roll them, and reduce the damage taken by the total rolled on those dice.</p><p>The ward lasts until you finish a Long Rest or until you use this feature again.</p>"
+            },
+            {
+              "key": "clockwork-sorcery.trance-of-order",
+              "name": "Trance of Order",
+              "level": 14,
+              "description": "<p>You gain the ability to align your consciousness with the endless calculations of Mechanus. As a Bonus Action, you can enter this state for 1 minute. For the duration, attack rolls against you can’t benefit from Advantage, and whenever you make a D20 Test, you can treat a roll of 9 or lower on the d20 as a 10.</p><p>Once you use this feature, you can’t use it again until you finish a Long Rest unless you spend 5 Sorcery Points (no action required) to restore your use of it.</p>",
+              "resources": [
+                {
+                  "key": "trance-of-order",
+                  "name": "Trance of Order",
+                  "max": "1",
+                  "recharge": "LongRest"
+                }
+              ]
+            },
+            {
+              "key": "clockwork-sorcery.clockwork-cavalcade",
+              "name": "Clockwork Cavalcade",
+              "level": 18,
+              "description": "<p>You momentarily summon spirits of order to expunge disorder around you. As a Magic action, you summon the spirits in a 30-foot Cube originating from you. The spirits look like modrons or other Constructs of your choice. The spirits are intangible and invulnerable, and they create the effects below within the Cube before vanishing. Once you use this action, you can’t use it again until you finish a Long Rest unless you spend 7 Sorcery Points (no action required) to restore your use of it.</p><p><strong><em>Heal.</em></strong> The spirits restore up to 100 Hit Points, divided as you choose among any number of creatures of your choice in the Cube.</p><p><strong><em>Repair.</em></strong> Any damaged objects entirely in the Cube are repaired instantly.</p><p><strong><em>Dispel.</em></strong> Every spell of level 6 and lower ends on creatures and objects of your choice in the Cube.</p>",
+              "resources": [
+                {
+                  "key": "clockwork-cavalcade",
+                  "name": "Clockwork Cavalcade",
+                  "max": "1",
+                  "recharge": "LongRest"
+                }
+              ]
+            }
+          ]
+        },
+        {
           "key": "draconic-sorcery",
           "name": "Draconic Sorcery",
           "features": [
@@ -431,6 +702,59 @@
               "name": "Dragon Companion",
               "level": 18,
               "description": "<p>You can cast Summon Dragon without a Material component, and once per Long Rest without a spell slot.</p>"
+            }
+          ]
+        },
+        {
+          "key": "wild-magic-sorcery",
+          "name": "Wild Magic Sorcery",
+          "description": "<p>Unleash chaotic magic. Your innate magic stems from the forces of chaos that underlie the order of creation. Whatever its source, this magic churns within you, waiting for any outlet.</p>",
+          "features": [
+            {
+              "key": "wild-magic-sorcery.wild-magic-surge",
+              "name": "Wild Magic Surge",
+              "level": 3,
+              "description": "<p>Your spellcasting can unleash surges of untamed magic. Once per turn, you can roll 1d20 immediately after you cast a Sorcerer spell with a spell slot. If you roll a 20, roll on the Wild Magic Surge table to create a magical effect.</p><p>If the magical effect is a spell, it is too wild to be affected by your Metamagic.</p><table><tr><th>1d100</th><th>Effect</th></tr><tr><td>01–04</td><td>Roll on this table at the start of each of your turns for the next minute, ignoring this result on subsequent rolls.</td></tr><tr><td>05–08</td><td>A creature that is Friendly toward you appears in a random unoccupied space within 60 feet of you. The creature is under the DM’s control and disappears 1 minute later. Roll 1d4 to determine the creature: on a 1, a Modron Duodrone appears; on a 2, a Flumph appears; on a 3, a Modron Monodrone appears; on a 4, a Unicorn appears. See the Monster Manual for the creature’s stat block.</td></tr><tr><td>09–12</td><td>For the next minute, you regain 5 Hit Points at the start of each of your turns.</td></tr><tr><td>13–16</td><td>Creatures have Disadvantage on saving throws against the next spell you cast in the next minute that involves a saving throw.</td></tr><tr><td>17–20</td><td>You are subjected to an effect that lasts for 1 minute unless its description says otherwise. Roll 1d8 to determine the effect: on a 1, you’re surrounded by faint, ethereal music only you and creatures within 5 feet of you can hear; on a 2, your size increases by one size category; on a 3, you grow a long beard made of feathers that remains until you sneeze, at which point the feathers explode from your face and vanish; on a 4, you must shout when you speak; on a 5, illusory butterflies flutter in the air within 10 feet of you; on a 6, an eye appears on your forehead, granting you Advantage on Wisdom (Perception) checks; on a 7, pink bubbles float out of your mouth whenever you speak; on an 8, your skin turns a vibrant shade of blue for 24 hours or until the effect is ended by a Remove Curse spell.</td></tr><tr><td>21–24</td><td>For the next minute, all your spells with a casting time of an action have a casting time of a Bonus Action.</td></tr><tr><td>25–28</td><td>You are transported to the Astral Plane until the end of your next turn. You then return to the space you previously occupied or the nearest unoccupied space if that space is occupied.</td></tr><tr><td>29–32</td><td>The next time you cast a spell that deals damage within the next minute, don’t roll the spell’s damage dice for the damage. Instead use the highest number possible for each damage die.</td></tr><tr><td>33–36</td><td>You have Resistance to all damage for the next minute.</td></tr><tr><td>37–40</td><td>You turn into a potted plant until the start of your next turn. While you’re a plant, you have the Incapacitated condition and have Vulnerability to all damage. If you drop to 0 Hit Points, your pot breaks, and your form reverts.</td></tr><tr><td>41–44</td><td>For the next minute, you can teleport up to 20 feet as a Bonus Action on each of your turns.</td></tr><tr><td>45–48</td><td>You and up to three creatures you choose within 30 feet of you have the Invisible condition for 1 minute. This invisibility ends on a creature immediately after it makes an attack roll, deals damage, or casts a spell.</td></tr><tr><td>49–52</td><td>A spectral shield hovers near you for the next minute, granting you a +2 bonus to AC and immunity to Magic Missile.</td></tr><tr><td>53–56</td><td>You can take one extra action on this turn.</td></tr><tr><td>57–60</td><td>You cast a random spell. If the spell normally requires Concentration, it doesn’t require Concentration in this case; the spell lasts for its full duration. Roll 1d10 to determine the spell: on a 1, Confusion; on a 2, Fireball; on a 3, Fog Cloud; on a 4, Fly (cast on a random creature within 60 feet of you); on a 5, Grease; on a 6, Levitate (cast on yourself); on a 7, Magic Missile (cast as a level 5 spell); on an 8, Mirror Image; on a 9, Polymorph (cast on yourself), and if you fail the saving throw, you turn into a Goat; on a 10, See Invisibility.</td></tr><tr><td>61–64</td><td>For the next minute, any flammable, nonmagical object you touch that isn’t being worn or carried by another creature bursts into flame, takes 1d4 Fire damage, and is burning.</td></tr><tr><td>65–68</td><td>If you die within the next hour, you immediately revive as if by the Reincarnate spell.</td></tr><tr><td>69–72</td><td>You have the Frightened condition until the end of your next turn. The DM determines the source of your fear.</td></tr><tr><td>73–76</td><td>You teleport up to 60 feet to an unoccupied space you can see.</td></tr><tr><td>77–80</td><td>A random creature within 60 feet of you has the Poisoned condition for 1d4 hours.</td></tr><tr><td>81–84</td><td>You radiate Bright Light in a 30-foot radius for the next minute. Any creature that ends its turn within 5 feet of you has the Blinded condition until the end of its next turn.</td></tr><tr><td>85–88</td><td>Up to three creatures of your choice that you can see within 30 feet of you take 1d10 Necrotic damage. You regain Hit Points equal to the sum of the Necrotic damage dealt.</td></tr><tr><td>89–92</td><td>Up to three creatures of your choice that you can see within 30 feet of you take 4d10 Lightning damage.</td></tr><tr><td>93–96</td><td>You and all creatures within 30 feet of you have Vulnerability to Piercing damage for the next minute.</td></tr><tr><td>97–00</td><td>Roll 1d6: On a 1, you regain 2d10 Hit Points; on a 2, one ally of your choice within 300 feet of you regains 2d10 Hit Points; on a 3, you regain your lowest-level expended spell slot; on a 4, one ally of your choice within 300 feet of you regains their lowest-level expended spell slot; on a 5, you regain all your expended Sorcery Points; on a 6, all the effects of row 17–20 affect you simultaneously.</td></tr></table>"
+            },
+            {
+              "key": "wild-magic-sorcery.tides-of-chaos",
+              "name": "Tides of Chaos",
+              "level": 3,
+              "description": "<p>You can manipulate chaos itself to give yourself Advantage on one D20 Test before you roll the d20. Once you do so, you must cast a Sorcerer spell with a spell slot or finish a Long Rest before you can use this feature again.</p><p>If you do cast a Sorcerer spell with a spell slot before you finish a Long Rest, you automatically roll on the Wild Magic Surge table.</p>",
+              "resources": [
+                {
+                  "key": "tides-of-chaos",
+                  "name": "Tides of Chaos",
+                  "max": "1",
+                  "recharge": "LongRest"
+                }
+              ]
+            },
+            {
+              "key": "wild-magic-sorcery.bend-luck",
+              "name": "Bend Luck",
+              "level": 6,
+              "description": "<p>You have the ability to twist fate using your wild magic. Immediately after another creature you can see rolls the d20 for a D20 Test, you can take a Reaction and spend 1 Sorcery Point to roll 1d4 and apply the number rolled as a bonus or penalty (your choice) to the d20 roll.</p>"
+            },
+            {
+              "key": "wild-magic-sorcery.controlled-chaos",
+              "name": "Controlled Chaos",
+              "level": 14,
+              "description": "<p>You gain a modicum of control over the surges of your wild magic. Whenever you roll on the Wild Magic Surge table, you can roll twice and use either number.</p>"
+            },
+            {
+              "key": "wild-magic-sorcery.tamed-surge",
+              "name": "Tamed Surge",
+              "level": 18,
+              "description": "<p>Immediately after you cast a Sorcerer spell with a spell slot, you can create an effect of your choice from the Wild Magic Surge table instead of rolling on that table. You can choose any effect in the table except for the final row, and if the chosen effect involves a roll, you must make it.</p><p>Once you use this feature, you can’t do so again until you finish a Long Rest.</p>",
+              "resources": [
+                {
+                  "key": "tamed-surge",
+                  "name": "Tamed Surge",
+                  "max": "1",
+                  "recharge": "LongRest"
+                }
+              ]
             }
           ]
         }
