@@ -50,9 +50,13 @@ Start the API with `dotnet run --project Api/TableTopSheets.Api` from the reposi
 | `src/pages/character/CharacterLayout.tsx` | loads state + sheet into `useCharacter()`; `applyState(state)` after writes |
 | `src/pages/character/playState.ts` | current HP, charges, hit dice and slots per character in local storage (not stored by the API yet) |
 
-**API gaps the UI works around** (see the hints in the app): any number of equipped weapons (one item per hand today),
-coins for buying, removing or selling items, storing play state (HP, charges, rests), and listing the spellbook and the
-current loadout per class (needed for preparing spells after a long rest).
+**Equipped weapons:** the inventory switch equips a weapon as `Ready` (any number); "Main hand" / "Off hand" take it into
+a hand, "Stow" puts it back. Only equipped weapons are attacks on the sheet. **Spells** come from
+`GET /api/characters/{id}/spells` (per class: spellbook, prepared and always prepared spells, limits); classes that
+prepare after a long rest get the loadout editor, spellbook classes "Copy into spellbook".
+
+**API gaps the UI still works around** (see the hints in the app): coins for buying, removing or selling items, and
+storing play state (HP, charges, rests).
 
 ## Mockups
 

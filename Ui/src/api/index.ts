@@ -14,6 +14,7 @@ export type * from './dtos/inventory'
 export * from './dtos/paging'
 export type * from './dtos/rules'
 export * from './dtos/sheet'
+export type * from './dtos/spells'
 export type * from './dtos/user'
 
 export * from './intents/auth'

@@ -32,6 +32,7 @@ import type {
   ChoiceDefinitionDto,
 } from './dtos/rules'
 import type { AbilitySheet, CharacterSheet, Coins, SkillSheet } from './dtos/sheet'
+import type { CharacterSpellsDto, KnownSpellDto, SpellcastingClassDto } from './dtos/spells'
 import type { CurrentUserDto, TokenDto, UserDto } from './dtos/user'
 import { GetCurrentUserIntent, RegisterIntent } from './intents/auth'
 import {
@@ -44,6 +45,7 @@ import {
 import { GetChoiceOptionsIntent, GetSelectionsIntent, SelectOptionsIntent } from './intents/choices'
 import { AddItemIntent, EquipItemIntent } from './intents/inventory'
 import { LevelUpIntent, PreviewLevelUpIntent, UndoLevelIntent } from './intents/levels'
+import { GetSpellsIntent } from './intents/spells'
 import {
   GetClassIntent,
   GetItemIntent,
@@ -374,6 +376,38 @@ const Shapes = {
     gold: true,
     platinum: true,
   }),
+  spells: keys<CharacterSpellsDto>({
+    classes: true,
+    other: true,
+  }),
+  spellcastingClass: keys<SpellcastingClassDto>({
+    classKey: true,
+    className: true,
+    ability: true,
+    pool: true,
+    prepareChange: true,
+    ritualMode: true,
+    spellList: true,
+    maxSpellLevel: true,
+    preparedLimit: true,
+    preparedCount: true,
+    cantripLimit: true,
+    spells: true,
+  }),
+  knownSpell: keys<KnownSpellDto>({
+    key: true,
+    name: true,
+    level: true,
+    school: true,
+    castingTime: true,
+    ritual: true,
+    concentration: true,
+    prepared: true,
+    alwaysPrepared: true,
+    inSpellbook: true,
+    source: true,
+    ability: true,
+  }),
 }
 
 describe.skipIf(!apiUrl)('API integration', () => {
@@ -493,6 +527,13 @@ describe.skipIf(!apiUrl)('API integration', () => {
     expectShape(selections[0], Shapes.selection)
     const list = await ok(new ListCharactersIntent({ class: 'wizard' }))
     expectShape(list.items[0], Shapes.summary)
+
+    // spells per class
+    const characterSpells = await ok(new GetSpellsIntent(state.id))
+    expectShape(characterSpells, Shapes.spells)
+    expectShape(characterSpells.classes[0], Shapes.spellcastingClass)
+    expectShape(characterSpells.classes[0].spells[0], Shapes.knownSpell)
+    expect(characterSpells.classes[0].pool).toBe('Spellbook')
 
     // equipment
     state = await ok(new AddItemIntent(state.id, { itemKey: 'quarterstaff' }))

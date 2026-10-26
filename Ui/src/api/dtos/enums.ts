@@ -16,7 +16,8 @@ export type AbilityMethodEnum = (typeof AbilityMethods)[number]
 export const ItemKinds = ['Gear', 'Weapon', 'Armor', 'Tool'] as const
 export type ItemKindEnum = (typeof ItemKinds)[number]
 
-export const EquipSlots = ['None', 'Armor', 'MainHand', 'OffHand', 'Worn'] as const
+/** `Ready`: an equipped weapon that isn't held; any number of weapons can be ready */
+export const EquipSlots = ['None', 'Armor', 'MainHand', 'OffHand', 'Worn', 'Ready'] as const
 export type EquipSlotEnum = (typeof EquipSlots)[number]
 
 export type DiceEnum = 'D1' | 'D4' | 'D6' | 'D8' | 'D10' | 'D12' | 'D20' | 'D100'
@@ -53,6 +54,14 @@ export type PeriodEnum =
  * or "0" without any training
  */
 export type ArmorFlags = string
+
+/** Where prepared spells come from */
+export type SpellPoolEnum = 'ClassList' | 'Spellbook'
+
+/** When prepared spells change: after a long rest (loadout) or on a level up (choices) */
+export type PrepareChangeEnum = 'LongRest' | 'LevelUp'
+
+export type RitualModeEnum = 'None' | 'Prepared' | 'FromSpellbook'
 
 /** Ability keys used in ability dictionaries and choices */
 export const AbilityKeys = ['str', 'dex', 'con', 'int', 'wis', 'cha'] as const

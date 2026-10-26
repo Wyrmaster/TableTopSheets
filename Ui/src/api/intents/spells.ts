@@ -1,9 +1,30 @@
 // Routes: Api/TableTopSheets.Api/Endpoints/SpellEndpoints.cs
-import { BodyIntent, segment } from '../core/Intent'
+import { BodyIntent, Intent, segment } from '../core/Intent'
 import type { CharacterStateDto } from '../dtos/character'
 import type { Guid } from '../dtos/common'
 import type { PreparedSpellsDto, SpellbookEntryDto } from '../dtos/inventory'
+import type { CharacterSpellsDto } from '../dtos/spells'
 import { characterPath } from './characters'
+
+/** GET /api/characters/{id}/spells: per spellcasting class the spellbook, prepared spells and limits */
+export class GetSpellsIntent extends Intent<CharacterSpellsDto> {
+  readonly method = 'GET'
+
+  readonly characterId: Guid
+
+  /**
+   * @param characterId id of the character
+   */
+  constructor(characterId: Guid) {
+    super()
+    this.characterId = characterId
+  }
+
+  /** Route of the intent */
+  get path() {
+    return characterPath(this.characterId, '/spells')
+  }
+}
 
 /** PUT /api/characters/{id}/prepared-spells/{classKey}: replace the prepared spells of a class (long rest) */
 export class SetPreparedSpellsIntent extends BodyIntent<PreparedSpellsDto, CharacterStateDto> {

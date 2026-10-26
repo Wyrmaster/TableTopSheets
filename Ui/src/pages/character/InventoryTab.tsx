@@ -33,6 +33,13 @@ import { useCharacter } from './useCharacter'
 
 type Section = 'armor' | 'melee' | 'ranged' | 'worn' | 'backpack'
 
+/** "2 equipped · 1 in hand" */
+function equippedHint(items: CharacterItemDto[]) {
+  const equipped = items.filter((item) => item.slot !== 'None').length
+  const inHand = items.filter((item) => item.slot === 'MainHand' || item.slot === 'OffHand').length
+  return `${equipped} equipped${inHand ? ` · ${inHand} in hand` : ''}`
+}
+
 const isShield = (detail?: ItemDetailDto) => detail?.item.category?.toLowerCase() === 'shield'
   || detail?.item.key === 'shield'
 
@@ -71,7 +78,7 @@ export function InventoryTab() {
     }
   }
 
-  // the API holds one item per hand: a weapon goes to the main hand, or the off hand when the main hand is taken
+  // the switch equips: weapons become ready (any number), armor is worn, a shield goes to the off hand
   const toggle = (item: CharacterItemDto) => {
     if (item.slot !== 'None') {
       return equip(item, 'None')
@@ -82,12 +89,49 @@ export function InventoryTab() {
     if (section === 'armor') {
       return equip(item, isShield(detail) ? 'OffHand' : 'Armor')
     }
-    if (section === 'worn') {
-      return equip(item, 'Worn')
+
+    return equip(item, section === 'worn' ? 'Worn' : 'Ready')
+  }
+
+  // equipped weapons can be taken into a hand; the weapon held there goes back to ready
+  const handButtons = (item: CharacterItemDto) => {
+    if (item.slot === 'None') {
+      return null
     }
 
-    const mainHandTaken = state.items.some((entry) => entry.slot === 'MainHand')
-    return equip(item, mainHandTaken && !state.items.some((entry) => entry.slot === 'OffHand') ? 'OffHand' : 'MainHand')
+    const inHand = item.slot === 'MainHand' || item.slot === 'OffHand'
+    return (
+      <HStack gap='1'>
+        {inHand
+          ? (
+            <Button
+              size='xs'
+              variant='outline'
+              onClick={() => equip(item, 'Ready')}
+            >
+              Stow
+            </Button>
+          )
+          : (
+            <>
+              <Button
+                size='xs'
+                variant='outline'
+                onClick={() => equip(item, 'MainHand')}
+              >
+                Main hand
+              </Button>
+              <Button
+                size='xs'
+                variant='outline'
+                onClick={() => equip(item, 'OffHand')}
+              >
+                Off hand
+              </Button>
+            </>
+          )}
+      </HStack>
+    )
   }
 
   const attune = async (item: CharacterItemDto) => {
@@ -204,16 +248,16 @@ export function InventoryTab() {
         <Section
           icon={meleeIcon}
           title='Weapons – melee'
-          hint={`${bySection('melee').filter((item) => item.slot !== 'None').length} in hand`}
+          hint={equippedHint(bySection('melee'))}
         >
-          {rows(bySection('melee'))}
+          {rows(bySection('melee'), handButtons)}
         </Section>
         <Section
           icon={rangedIcon}
           title='Weapons – ranged'
-          hint={`${bySection('ranged').filter((item) => item.slot !== 'None').length} in hand`}
+          hint={equippedHint(bySection('ranged'))}
         >
-          {rows(bySection('ranged'))}
+          {rows(bySection('ranged'), handButtons)}
         </Section>
       </SimpleGrid>
 
@@ -245,10 +289,10 @@ export function InventoryTab() {
       </SimpleGrid>
 
       <ApiHint>
-        equip = <code>PUT /api/characters/{'{id}'}/items/{'{itemId}'}/slot</code> (one item per hand: a second weapon
-        goes to
-        the off hand, a third replaces the main hand – any number of ready weapons needs an API change), attunement =
-        <code> PUT …/attunement</code>, AC calculation = <code>PUT …/armor-class</code>
+        equip = <code>PUT /api/characters/{'{id}'}/items/{'{itemId}'}/slot</code> with slot <code>Ready</code>
+        (any number of weapons), <code>MainHand</code> / <code>OffHand</code> (one item each), <code>Armor</code>,
+        <code> Worn</code> or
+        <code> None</code>; attunement = <code>PUT …/attunement</code>, AC calculation = <code>PUT …/armor-class</code>
       </ApiHint>
     </Stack>
   )
@@ -321,13 +365,17 @@ function ItemRow({
       attack.notes,
     ].filter(Boolean).join(' · ')
     : [
+      // not equipped: the sheet lists no attack, so the damage comes from the item details
+      properties.damage && `${properties.damage} ${properties.damageType?.toLowerCase() ?? ''}`,
       properties.baseAc && `AC ${properties.baseAc}`,
+      properties.range && `range ${properties.range}`,
       detail?.item.category,
       detail && `${detail.item.weight} lb`,
     ].filter(Boolean).join(' · ')
   const slotLabel: Partial<Record<EquipSlotEnum, string>> = {
     MainHand: 'main hand',
     OffHand: 'off hand',
+    Ready: 'ready',
   }
 
   return (
