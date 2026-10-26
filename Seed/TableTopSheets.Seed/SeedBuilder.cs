@@ -424,6 +424,7 @@ public sealed class SeedBuilder
         MaxExpr = resource.Max,
         DieExpr = resource.Die,
         Recharge = resource.Recharge,
+        ShortRestExpr = resource.ShortRest,
       });
     }
 

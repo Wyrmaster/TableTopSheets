@@ -26,5 +26,10 @@ public class ResourceDefinition: BaseEntity
 
   public PeriodEnum Recharge { get; set; } = PeriodEnum.LongRest;
 
+  /// <summary>
+  ///   Optional condition; while it is true the resource recharges on a Short Rest instead (Font of Inspiration)
+  /// </summary>
+  public string? ShortRestExpr { get; set; }
+
   #endregion
 }

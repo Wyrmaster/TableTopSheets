@@ -786,6 +786,9 @@ namespace TableTopSheets.Persistence.Postgresql.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
 
+                    b.Property<string>("ShortRestExpr")
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.HasIndex("FeatureId");

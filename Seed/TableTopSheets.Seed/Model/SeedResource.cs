@@ -19,4 +19,7 @@ public sealed class SeedResource
   public string? Die { get; set; }
 
   public PeriodEnum Recharge { get; set; } = PeriodEnum.LongRest;
+
+  // condition from which on the resource recharges on a Short Rest instead (Font of Inspiration)
+  public string? ShortRest { get; set; }
 }

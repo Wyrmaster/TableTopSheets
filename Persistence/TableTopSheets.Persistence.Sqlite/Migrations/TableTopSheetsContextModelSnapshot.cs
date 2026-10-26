@@ -780,6 +780,9 @@ namespace TableTopSheets.Persistence.Sqlite.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("ShortRestExpr")
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
                     b.HasIndex("FeatureId");

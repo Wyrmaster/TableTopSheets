@@ -62,6 +62,7 @@ public static class CatalogValidator
       {
         CheckExpression(catalog, errors, $"resource '{resource.Key}'", "max", resource.MaxExpr, optionContext: false);
         CheckExpression(catalog, errors, $"resource '{resource.Key}'", "die", resource.DieExpr, optionContext: false);
+        CheckExpression(catalog, errors, $"resource '{resource.Key}'", "shortRest", resource.ShortRestExpr, optionContext: false);
       }
 
       if (feature.Spellcasting is { } profile)

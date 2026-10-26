@@ -557,15 +557,15 @@ The database enforces the same: deleting a level cascades to its selections and 
 
 Every spellcasting feature has a **spellcasting profile**. The differences between classes are just different values:
 
-| | Wizard | Sorcerer | Warlock | Eldritch Knight |
-|---|---|---|---|---|
-| ability | `int` | `cha` | `cha` | `int` |
-| progression | Full | Full | **Pact** | **Third** |
-| slot table | multiclass | multiclass | `pact` | `eldritch-knight` |
-| spell list | wizard | sorcerer | warlock | wizard |
-| pool | **Spellbook** | ClassList | ClassList | ClassList |
-| prepared spells change | Long rest (loadout) | Level up (choice) | Level up (choice) | Level up (choice) |
-| rituals | from spellbook | – | – | – |
+| | Wizard | Cleric | Bard | Sorcerer | Warlock | Eldritch Knight |
+|---|---|---|---|---|---|---|
+| ability | `int` | `wis` | `cha` | `cha` | `cha` | `int` |
+| progression | Full | Full | Full | Full | **Pact** | **Third** |
+| slot table | multiclass | multiclass | multiclass | multiclass | `pact` | `eldritch-knight` |
+| spell list | wizard | cleric | bard (+ cleric, druid, wizard from level 10) | sorcerer | warlock | wizard |
+| pool | **Spellbook** | ClassList | ClassList | ClassList | ClassList | ClassList |
+| prepared spells change | Long rest (loadout) | Long rest (loadout) | Level up (choice) | Level up (choice) | Level up (choice) | Level up (choice) |
+| rituals | from spellbook | – | – | – | – | – |
 
 The sheet shows each class's spellcasting ability, save DC and attack bonus, the slots (Pact slots marked as short rest),
 and the spell list. That list holds cantrips, prepared and always-prepared spells, and rituals castable from the spellbook.
@@ -844,7 +844,9 @@ text.
 1. Hit die, primary abilities with `All`/`Any`, subclass level.
 2. Every table column as a `scale` (20 values, level 1 to 20).
 3. Starting proficiencies (`FirstClassOnly`) and multiclass proficiencies (`MulticlassOnly`).
-4. Features with effects, choices and resources. Use `stackGroup` for anything that doesn't stack.
+4. Features with effects, choices and resources. Use `stackGroup` for anything that doesn't stack. A resource that
+   starts recharging on a Short Rest at some level gets a condition: `"recharge": "LongRest", "shortRest":
+   "classLevel('bard') >= 5"` (Font of Inspiration).
 5. Casters: a `spellcasting` block plus cantrip/prepared/spellbook choices (copy from `wizard.json`, `sorcerer.json` or
    `warlock.json`).
 6. ASI features at the class's levels and an Epic Boon at 19.

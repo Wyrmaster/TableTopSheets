@@ -481,7 +481,11 @@ public static class CharacterSheetBuilder
         .Parse(resource.DieExpr)
         .Evaluate(evaluation)
         .AsString(),
-      resource.Recharge.ToString()
+      resource.ShortRestExpr != null && Expression
+        .Parse(resource.ShortRestExpr)
+        .EvaluateBoolean(evaluation)
+        ? PeriodEnum.ShortRest.ToString()
+        : resource.Recharge.ToString()
     ))
     .ToList();
 
