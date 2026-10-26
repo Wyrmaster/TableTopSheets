@@ -389,6 +389,22 @@
       ]
     },
     {
+      "key": "two-weapon-fighting",
+      "features": [
+        {
+          "key": "feat.two-weapon-fighting",
+          "name": "Two-Weapon Fighting",
+          "effects": [
+            {
+              "target": "attack.offhand.modifier",
+              "op": "Set",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "key": "blind-fighting",
       "features": [
         {

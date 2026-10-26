@@ -133,6 +133,73 @@ public class EquipmentTests
     Assert.Contains("Mastery: Sap", attack.Notes);
   }
 
+  [Theory]
+  [InlineData("defense", "1d6")]
+  [InlineData("two-weapon-fighting", "1d6+2")]
+  public async Task TwoWeaponsGetARowPerHand(string fightingStyle, string offHandDamage)
+  {
+    await using TestWorld world = await TestWorld.CreateAsync();
+    Guid id = await world.CreateCharacterAsync(TestWorld.Scores(10, 14, 14, 8, 12, 10), "farmer", "con", "con", "wis");
+    await world.LevelUpAsync(id, "fighter", selections:
+    [
+      new("fighter.fighting-style", fightingStyle),
+      new("fighter.weapon-mastery", "scimitar"),
+    ]);
+    CharacterItem first = await world.Service.AddItemAsync(id, "scimitar");
+    CharacterItem second = await world.Service.AddItemAsync(id, "scimitar");
+    await world.Service.EquipAsync(id, first.Id, EquipSlotEnum.MainHand);
+    await world.Service.EquipAsync(id, second.Id, EquipSlotEnum.OffHand);
+
+    CharacterSheet sheet = await world.SheetAsync(id);
+    AttackSheet mainHand = sheet.Attacks.Single(entry => entry.Name == "Scimitar");
+    AttackSheet offHand = sheet.Attacks.Single(entry => entry.Name == "Scimitar (off hand)");
+
+    // Finesse: Dexterity +2; the extra attack of the off hand adds the modifier only with Two-Weapon Fighting
+    Assert.Equal("1d6+2", mainHand.Damage);
+    Assert.Equal(offHandDamage, offHand.Damage);
+    Assert.Equal(mainHand.AttackBonus, offHand.AttackBonus);
+  }
+
+  [Fact]
+  public async Task SpeciesShowsTheChosenLineage()
+  {
+    await using TestWorld world = await TestWorld.CreateAsync();
+    Guid elf = await world.CreateCharacterAsync("elf", TestWorld.Scores(10, 14, 14, 8, 12, 10), "farmer", [new("elf.elven-lineage", "drow")], "con", "con", "wis");
+    Guid dragonborn = await world.CreateCharacterAsync("dragonborn", TestWorld.Scores(10, 14, 14, 8, 12, 10), "farmer", [new("dragonborn.draconic-ancestry", "red")], "con", "con", "wis");
+
+    Assert.Equal("Elf (Drow)", (await world.SheetAsync(elf)).Species);
+    Assert.Equal("Dragonborn (Red)", (await world.SheetAsync(dragonborn)).Species);
+  }
+
+  [Fact]
+  public async Task FiendishLegacyGrantsResistanceAndSpells()
+  {
+    await using TestWorld world = await TestWorld.CreateAsync();
+    // the size is a static choice as well, but it isn't the lineage
+    Guid tiefling = await world.CreateCharacterAsync
+    (
+      "tiefling",
+      TestWorld.Scores(8, 14, 13, 10, 12, 15),
+      "entertainer",
+      [new("tiefling.size", "small"), new("tiefling.fiendish-legacy", "infernal"), new("tiefling.fiendish-legacy-ability", "cha")],
+      "cha",
+      "cha",
+      "dex"
+    );
+    Guid human = await world.CreateCharacterAsync("human", TestWorld.Scores(8, 14, 13, 10, 12, 15), "entertainer", [new("human.size", "small")], "cha", "cha", "dex");
+
+    CharacterSheet level1 = await world.SheetAsync(tiefling);
+    Assert.Equal("Tiefling (Infernal)", level1.Species);
+    Assert.Equal("Human", (await world.SheetAsync(human)).Species);
+    Assert.Contains("Fire", level1.Resistances);
+    Assert.Contains(level1.Spells, entry => entry.Name == "Fire Bolt");
+    Assert.Contains(level1.Spells, entry => entry.Name == "Thaumaturgy");
+    Assert.DoesNotContain(level1.Spells, entry => entry.Name == "Hellish Rebuke");
+
+    await world.LevelUpManyAsync(tiefling, "sorcerer", 3, "draconic-sorcery");
+    Assert.Contains((await world.SheetAsync(tiefling)).Spells, entry => entry.Name == "Hellish Rebuke");
+  }
+
   [Fact]
   public async Task ArmorLimitsTheDexterityModifierByItsDexCap()
   {

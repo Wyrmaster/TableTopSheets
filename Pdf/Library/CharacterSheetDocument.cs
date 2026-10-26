@@ -52,7 +52,7 @@ public class CharacterSheetDocument: Document
 
     ClassFeature classFeature = new(ClassFeatureText(sheet));
     SpeciesTraits speciesTraits = new(Text(sheet.SpeciesTraits));
-    Feats feats = new(Text(sheet.Feats));
+    Feats feats = new(Text(sheet.Feats.Where(Printed)));
     EquipmentBox equipmentBox = new(sheet.ArmorTraining, string.Join(", ", sheet.WeaponProficiencies), string.Join(", ", sheet.ToolProficiencies));
     WeaponDamageBox weaponDamage = new(sheet.Attacks
       .Select(ToAttack)
@@ -209,8 +209,13 @@ public class CharacterSheetDocument: Document
   {
     IEnumerable<string> resources = sheet.Resources.Select(resource =>
       $"{resource.Name}{(resource.Die == null ? string.Empty : $" ({resource.Die})")}: {string.Join(" ", Enumerable.Repeat("[ ]", Math.Max(0, resource.Maximum)))}");
-    return string.Join("\n", resources) + (sheet.Resources.Count > 0 ? "\n\n" : string.Empty) + Text(sheet.ClassFeatures);
+    return string.Join("\n", resources) + (sheet.Resources.Count > 0 ? "\n\n" : string.Empty) + Text(sheet.ClassFeatures.Where(Printed));
   }
+
+  /// <summary>
+  ///   Ability Score Improvements say nothing about the character and spellcasting is covered by the spell page
+  /// </summary>
+  private static bool Printed(FeatureSheet feature) => !feature.Spellcasting && !feature.Key.Contains("ability-score-improvement");
 
   private static string Text(IEnumerable<FeatureSheet> features)
     => string.Join("\n\n", features.Select(entry => string.IsNullOrWhiteSpace(entry.Description) ? entry.Name : $"{entry.Name}. {entry.Description}"));

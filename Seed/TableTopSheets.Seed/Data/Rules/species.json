@@ -323,6 +323,365 @@
           ]
         }
       ]
+    },
+    {
+      "key": "tiefling",
+      "features": [
+        {
+          "key": "tiefling.fiendish-legacy",
+          "choices": [
+            {
+              "key": "tiefling.fiendish-legacy",
+              "name": "Fiendish Legacy",
+              "count": "1",
+              "source": "Static",
+              "replace": "Never",
+              "options": [
+                {
+                  "key": "abyssal",
+                  "name": "Abyssal",
+                  "feature": {
+                    "key": "tiefling.legacy.abyssal",
+                    "name": "Abyssal Legacy",
+                    "sheetSection": "SpeciesTraits",
+                    "effects": [
+                      {
+                        "target": "damage.resist.poison",
+                        "op": "Grant",
+                        "value": "1",
+                        "label": "Abyssal"
+                      },
+                      {
+                        "target": "spell.poison-spray",
+                        "op": "Grant",
+                        "value": "1",
+                        "label": "Abyssal"
+                      },
+                      {
+                        "target": "spell.ray-of-sickness",
+                        "op": "Grant",
+                        "value": "1",
+                        "condition": "level >= 3",
+                        "label": "Abyssal"
+                      },
+                      {
+                        "target": "spell.hold-person",
+                        "op": "Grant",
+                        "value": "1",
+                        "condition": "level >= 5",
+                        "label": "Abyssal"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "chthonic",
+                  "name": "Chthonic",
+                  "feature": {
+                    "key": "tiefling.legacy.chthonic",
+                    "name": "Chthonic Legacy",
+                    "sheetSection": "SpeciesTraits",
+                    "effects": [
+                      {
+                        "target": "damage.resist.necrotic",
+                        "op": "Grant",
+                        "value": "1",
+                        "label": "Chthonic"
+                      },
+                      {
+                        "target": "spell.chill-touch",
+                        "op": "Grant",
+                        "value": "1",
+                        "label": "Chthonic"
+                      },
+                      {
+                        "target": "spell.false-life",
+                        "op": "Grant",
+                        "value": "1",
+                        "condition": "level >= 3",
+                        "label": "Chthonic"
+                      },
+                      {
+                        "target": "spell.ray-of-enfeeblement",
+                        "op": "Grant",
+                        "value": "1",
+                        "condition": "level >= 5",
+                        "label": "Chthonic"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "infernal",
+                  "name": "Infernal",
+                  "feature": {
+                    "key": "tiefling.legacy.infernal",
+                    "name": "Infernal Legacy",
+                    "sheetSection": "SpeciesTraits",
+                    "effects": [
+                      {
+                        "target": "damage.resist.fire",
+                        "op": "Grant",
+                        "value": "1",
+                        "label": "Infernal"
+                      },
+                      {
+                        "target": "spell.fire-bolt",
+                        "op": "Grant",
+                        "value": "1",
+                        "label": "Infernal"
+                      },
+                      {
+                        "target": "spell.hellish-rebuke",
+                        "op": "Grant",
+                        "value": "1",
+                        "condition": "level >= 3",
+                        "label": "Infernal"
+                      },
+                      {
+                        "target": "spell.darkness",
+                        "op": "Grant",
+                        "value": "1",
+                        "condition": "level >= 5",
+                        "label": "Infernal"
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "key": "tiefling.fiendish-legacy-ability",
+              "name": "Lineage Spellcasting Ability",
+              "count": "1",
+              "source": "Ability",
+              "replace": "Never",
+              "filter": "oneOf(option.key, 'int', 'wis', 'cha')"
+            }
+          ]
+        },
+        {
+          "key": "tiefling.otherworldly-presence",
+          "effects": [
+            {
+              "target": "spell.thaumaturgy",
+              "op": "Grant",
+              "value": "1",
+              "label": "Otherworldly Presence"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "gnome",
+      "features": [
+        {
+          "key": "gnome.gnomish-lineage",
+          "choices": [
+            {
+              "key": "gnome.gnomish-lineage",
+              "name": "Gnomish Lineage",
+              "count": "1",
+              "source": "Static",
+              "replace": "Never",
+              "options": [
+                {
+                  "key": "forest-gnome",
+                  "name": "Forest Gnome",
+                  "feature": {
+                    "key": "gnome.lineage.forest-gnome",
+                    "name": "Forest Gnome Lineage",
+                    "description": "<p>You know the <em>Minor Illusion</em> cantrip. You also always have the <em>Speak with Animals</em> spell prepared. You can cast it without a spell slot a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest. You can also use any spell slots you have to cast the spell.</p>",
+                    "sheetSection": "SpeciesTraits",
+                    "effects": [
+                      {
+                        "target": "spell.minor-illusion",
+                        "op": "Grant",
+                        "value": "1",
+                        "label": "Forest Gnome"
+                      },
+                      {
+                        "target": "spell.speak-with-animals",
+                        "op": "Grant",
+                        "value": "1",
+                        "label": "Forest Gnome"
+                      }
+                    ],
+                    "resources": [
+                      {
+                        "key": "forest-gnome.speak-with-animals",
+                        "name": "Speak with Animals",
+                        "max": "pb",
+                        "recharge": "LongRest"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "rock-gnome",
+                  "name": "Rock Gnome",
+                  "feature": {
+                    "key": "gnome.lineage.rock-gnome",
+                    "name": "Rock Gnome Lineage",
+                    "description": "<p>You know the <em>Mending</em> and <em>Prestidigitation</em> cantrips. In addition, you can spend 10 minutes casting <em>Prestidigitation</em> to create a Tiny clockwork device (AC 5, 1 HP), such as a toy, fire starter, or music box. When you create the device, you determine its function by choosing one effect from <em>Prestidigitation</em>; the device produces that effect whenever you or another creature takes a Bonus Action to activate it with a touch. You can have three such devices in existence at a time, and each falls apart 8 hours after its creation or when you dismantle it with a touch as a Utilize action.</p>",
+                    "sheetSection": "SpeciesTraits",
+                    "effects": [
+                      {
+                        "target": "spell.mending",
+                        "op": "Grant",
+                        "value": "1",
+                        "label": "Rock Gnome"
+                      },
+                      {
+                        "target": "spell.prestidigitation",
+                        "op": "Grant",
+                        "value": "1",
+                        "label": "Rock Gnome"
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "key": "gnome.gnomish-lineage-ability",
+              "name": "Lineage Spellcasting Ability",
+              "count": "1",
+              "source": "Ability",
+              "replace": "Never",
+              "filter": "oneOf(option.key, 'int', 'wis', 'cha')"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "goliath",
+      "features": [
+        {
+          "key": "goliath.giant-ancestry",
+          "choices": [
+            {
+              "key": "goliath.giant-ancestry",
+              "name": "Giant Ancestry",
+              "count": "1",
+              "source": "Static",
+              "replace": "Never",
+              "options": [
+                {
+                  "key": "cloud-giant",
+                  "name": "Cloud Giant",
+                  "feature": {
+                    "key": "goliath.ancestry.cloud-giant",
+                    "name": "Cloud's Jaunt",
+                    "description": "<p>As a Bonus Action, you magically teleport up to 30 feet to an unoccupied space you can see. You can use this benefit a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest.</p>",
+                    "sheetSection": "SpeciesTraits",
+                    "resources": [
+                      {
+                        "key": "clouds-jaunt",
+                        "name": "Cloud's Jaunt",
+                        "max": "pb",
+                        "recharge": "LongRest"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "fire-giant",
+                  "name": "Fire Giant",
+                  "feature": {
+                    "key": "goliath.ancestry.fire-giant",
+                    "name": "Fire's Burn",
+                    "description": "<p>When you hit a target with an attack roll and deal damage to it, you can also deal 1d10 Fire damage to that target. You can use this benefit a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest.</p>",
+                    "sheetSection": "SpeciesTraits",
+                    "resources": [
+                      {
+                        "key": "fires-burn",
+                        "name": "Fire's Burn",
+                        "max": "pb",
+                        "recharge": "LongRest"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "frost-giant",
+                  "name": "Frost Giant",
+                  "feature": {
+                    "key": "goliath.ancestry.frost-giant",
+                    "name": "Frost's Chill",
+                    "description": "<p>When you hit a target with an attack roll and deal damage to it, you can also deal 1d6 Cold damage to that target and reduce its Speed by 10 feet until the start of your next turn. You can use this benefit a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest.</p>",
+                    "sheetSection": "SpeciesTraits",
+                    "resources": [
+                      {
+                        "key": "frosts-chill",
+                        "name": "Frost's Chill",
+                        "max": "pb",
+                        "recharge": "LongRest"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "hill-giant",
+                  "name": "Hill Giant",
+                  "feature": {
+                    "key": "goliath.ancestry.hill-giant",
+                    "name": "Hill's Tumble",
+                    "description": "<p>When you hit a Large or smaller creature with an attack roll and deal damage to it, you can give that target the Prone condition. You can use this benefit a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest.</p>",
+                    "sheetSection": "SpeciesTraits",
+                    "resources": [
+                      {
+                        "key": "hills-tumble",
+                        "name": "Hill's Tumble",
+                        "max": "pb",
+                        "recharge": "LongRest"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "stone-giant",
+                  "name": "Stone Giant",
+                  "feature": {
+                    "key": "goliath.ancestry.stone-giant",
+                    "name": "Stone's Endurance",
+                    "description": "<p>When you take damage, you can take a Reaction to roll 1d12. Add your Constitution modifier to the number rolled and reduce the damage by that total. You can use this benefit a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest.</p>",
+                    "sheetSection": "SpeciesTraits",
+                    "resources": [
+                      {
+                        "key": "stones-endurance",
+                        "name": "Stone's Endurance",
+                        "max": "pb",
+                        "recharge": "LongRest"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "storm-giant",
+                  "name": "Storm Giant",
+                  "feature": {
+                    "key": "goliath.ancestry.storm-giant",
+                    "name": "Storm's Thunder",
+                    "description": "<p>When you take damage from a creature within 60 feet of you, you can take a Reaction to deal 1d8 Thunder damage to that creature. You can use this benefit a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest.</p>",
+                    "sheetSection": "SpeciesTraits",
+                    "resources": [
+                      {
+                        "key": "storms-thunder",
+                        "name": "Storm's Thunder",
+                        "max": "pb",
+                        "recharge": "LongRest"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ],
   "scales": {

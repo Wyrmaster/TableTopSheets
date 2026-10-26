@@ -99,6 +99,7 @@ export interface FeatureSheet {
   name: string
   source: string
   description: string
+  spellcasting: boolean
 }
 
 export interface ResourceSheet {

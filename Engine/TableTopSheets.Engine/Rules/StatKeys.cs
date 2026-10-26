@@ -28,7 +28,7 @@ public static class StatKeys
     new($@"^condition\.immune\.{Name}$"),
     new(@"^damage\.(bonus|melee\.bonus|ranged\.bonus)$"),
     new($@"^damage\.spell\.{Name}$"),
-    new(@"^attack\.(extraAttacks|bonus|melee\.bonus|ranged\.bonus|melee\.dex|unarmed\.die|unarmed\.bonus)$"),
+    new(@"^attack\.(extraAttacks|bonus|melee\.bonus|ranged\.bonus|melee\.dex|offhand\.modifier|unarmed\.die|unarmed\.bonus)$"),
     new(@"^proficiency\.armor\.(light|medium|heavy|shield)$"),
     new($@"^proficiency\.(weapon|tool)\.{Name}$"),
     new($@"^language\.{Name}$"),

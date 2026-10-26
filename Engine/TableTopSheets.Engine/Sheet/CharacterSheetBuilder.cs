@@ -31,7 +31,7 @@ public static class CharacterSheetBuilder
     {
       Name = character.Name,
       Background = character.BackgroundId is { } backgroundId ? evaluation.Catalog.Backgrounds[backgroundId].Name : string.Empty,
-      Species = character.SpeciesId is { } speciesId ? evaluation.Catalog.Species[speciesId].Name : string.Empty,
+      Species = Species(evaluation),
       Classes = string.Join(" / ", classLevels.Select(entry => $"{entry.Class} {entry.Level}")),
       Subclasses = string.Join(" / ", classLevels
         .Where(entry => entry.Subclass != null)
@@ -133,6 +133,25 @@ public static class CharacterSheetBuilder
   #endregion
 
   #region Sections
+
+  /// <summary>
+  ///   Species name with the chosen lineage (the static choice of a species feature other than the size), e.g. <c>Elf (Drow)</c>
+  /// </summary>
+  private static string Species(CharacterEvaluation evaluation)
+  {
+    if (evaluation.Character.SpeciesId is not { } speciesId)
+    {
+      return string.Empty;
+    }
+
+    string? lineage = evaluation.Selections
+      .Where(entry => entry.Owner.Feature.OwnerType == OwnerTypeEnum.Species && entry.Choice.OptionSource == OptionSourceEnum.Static)
+      .Where(entry => entry.Choice.Effects.All(effect => effect.Target != "size"))
+      .Select(entry => evaluation.OptionName(entry.Choice, entry.Selection.OptionKey))
+      .FirstOrDefault();
+    string name = evaluation.Catalog.Species[speciesId].Name;
+    return lineage == null ? name : $"{name} ({lineage})";
+  }
 
   private static List<ClassLevelSheet> ClassLevels(CharacterEvaluation evaluation) => evaluation.Levels
     .GroupBy(entry => entry.ClassId)
@@ -241,11 +260,15 @@ public static class CharacterSheetBuilder
     int dexterity = evaluation.Modifier("dex");
     bool meleeDexterity = evaluation.Stat("attack.melee.dex") > 0;
 
-    // equipped weapons only: ready ones and the ones in hand
-    foreach (Weapon weapon in evaluation.EquippedItems
-      .Select(entry => evaluation.Catalog.Items[entry.ItemId])
-      .OfType<Weapon>()
-      .DistinctBy(entry => entry.Id))
+    bool offHandModifier = evaluation.Stat("attack.offhand.modifier") > 0;
+
+    // equipped weapons only: ready ones and the ones in hand; the off hand gets its own row (Light property extra attack)
+    foreach ((Weapon weapon, bool offHand) in evaluation.EquippedItems
+      .Select(entry => (Item: evaluation.Catalog.Items[entry.ItemId], OffHand: entry.EquipSlot == EquipSlotEnum.OffHand))
+      .Where(entry => entry.Item is Weapon)
+      .Select(entry => (Weapon: (Weapon)entry.Item, entry.OffHand))
+      .OrderBy(entry => entry.OffHand)
+      .DistinctBy(entry => (entry.Weapon.Id, entry.OffHand)))
     {
       bool finesse = weapon.Properties.HasFlag(WeaponPropertyEnum.Finesse);
       int modifier = weapon.Ranged
@@ -256,7 +279,8 @@ public static class CharacterSheetBuilder
                         + (proficient ? evaluation.ProficiencyBonus : 0)
                         + (int)evaluation.Stat("attack.bonus")
                         + (int)evaluation.Stat(weapon.Ranged ? "attack.ranged.bonus" : "attack.melee.bonus");
-      int damageBonus = modifier
+      // the extra attack of the off hand adds a positive modifier only with Two-Weapon Fighting
+      int damageBonus = (offHand && !offHandModifier ? Math.Min(0, modifier) : modifier)
                         + (int)evaluation.Stat("damage.bonus")
                         + (int)evaluation.Stat(weapon.Ranged ? "damage.ranged.bonus" : "damage.melee.bonus");
 
@@ -282,7 +306,7 @@ public static class CharacterSheetBuilder
         notes.Add("not proficient");
       }
 
-      attacks.Add(new(weapon.Name, attackBonus, Damage(weapon.Damage, damageBonus), Dice(weapon.Damage), damageBonus, weapon.DamageType, string.Join(", ", notes)));
+      attacks.Add(new(offHand ? $"{weapon.Name} (off hand)" : weapon.Name, attackBonus, Damage(weapon.Damage, damageBonus), Dice(weapon.Damage), damageBonus, weapon.DamageType, string.Join(", ", notes)));
     }
 
     // unarmed strike: 1 + Strength, or the Martial Arts die
@@ -462,7 +486,7 @@ public static class CharacterSheetBuilder
       string name = entry.Feature.Name
                     + (choices.Count > 0 ? $" ({string.Join(", ", choices)})" : string.Empty)
                     + (entry.Feature.Toggleable ? entry.Active ? " [active]" : " [inactive]" : string.Empty);
-      return new FeatureSheet(entry.Feature.Key, name, entry.Source, description);
+      return new FeatureSheet(entry.Feature.Key, name, entry.Source, description, entry.Feature.Spellcasting != null);
     })
     .ToList();
 
