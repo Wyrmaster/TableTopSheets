@@ -414,6 +414,180 @@
       ],
       "subclasses": [
         {
+          "key": "battle-master",
+          "name": "Battle Master",
+          "description": "<p>Master sophisticated battle maneuvers. Battle Masters are students of the art of battle, learning martial techniques passed down through generations. The most accomplished Battle Masters are well-rounded figures who combine their carefully honed combat skills with academic study in the fields of history, theory, and the arts.</p>",
+          "scales": {
+            "battle-master.maneuvers": "0,0,3,3,3,3,5,5,5,7,7,7,7,7,9,9,9,9,9,9",
+            "battle-master.superiority-dice": "0,0,4,4,4,4,5,5,5,5,5,5,5,5,6,6,6,6,6,6",
+            "battle-master.superiority-die": "1d8,1d8,1d8,1d8,1d8,1d8,1d8,1d8,1d8,1d10,1d10,1d10,1d10,1d10,1d10,1d10,1d10,1d12,1d12,1d12"
+          },
+          "features": [
+            {
+              "key": "battle-master.combat-superiority",
+              "name": "Combat Superiority",
+              "level": 3,
+              "description": "<p>Your experience on the battlefield has refined your fighting techniques. You learn maneuvers that are fueled by special dice called Superiority Dice.</p><p><strong><em>Maneuvers.</em></strong> You learn three maneuvers of your choice from the Maneuver Options. Many maneuvers enhance an attack in some way. You can use only one maneuver per attack.</p><p>You learn two additional maneuvers of your choice when you reach Fighter levels 7, 10, and 15. Each time you learn new maneuvers, you can also replace one maneuver you know with a different one.</p><p><strong><em>Superiority Dice.</em></strong> You have four Superiority Dice, which are d8s. A Superiority Die is expended when you use it. You regain all expended Superiority Dice when you finish a Short or Long Rest.</p><p>You gain an additional Superiority Die when you reach Fighter levels 7 (five dice total) and 15 (six dice total).</p><p><strong><em>Saving Throws.</em></strong> If a maneuver requires a saving throw, the DC equals 8 plus your Strength or Dexterity modifier (your choice) and Proficiency Bonus.</p>",
+              "choices": [
+                {
+                  "key": "battle-master.maneuvers",
+                  "name": "Maneuvers",
+                  "count": "scale('battle-master.maneuvers')",
+                  "source": "FeatureCategory",
+                  "replace": "OneOnLevelUp",
+                  "category": "maneuver"
+                }
+              ],
+              "resources": [
+                {
+                  "key": "superiority-dice",
+                  "name": "Superiority Dice",
+                  "max": "scale('battle-master.superiority-dice')",
+                  "die": "scale('battle-master.superiority-die')",
+                  "recharge": "ShortRest"
+                }
+              ]
+            },
+            {
+              "key": "battle-master.student-of-war",
+              "name": "Student of War",
+              "level": 3,
+              "description": "<p>You gain proficiency with one type of Artisan’s Tools of your choice, and you gain proficiency in one skill of your choice from the skills available to Fighters at level 1.</p>",
+              "choices": [
+                {
+                  "key": "battle-master.student-of-war.tool",
+                  "name": "Artisan’s Tools",
+                  "count": "1",
+                  "source": "Tool",
+                  "replace": "Never",
+                  "filter": "option.category == 'artisan'",
+                  "effects": [
+                    {
+                      "target": "proficiency.tool.$option",
+                      "op": "Proficiency",
+                      "value": "proficient"
+                    }
+                  ]
+                },
+                {
+                  "key": "battle-master.student-of-war.skill",
+                  "name": "Skill Proficiency",
+                  "count": "1",
+                  "source": "Skill",
+                  "replace": "Never",
+                  "filter": "oneOf(option.key, 'acrobatics', 'animal-handling', 'athletics', 'history', 'insight', 'intimidation', 'persuasion', 'perception', 'survival')",
+                  "effects": [
+                    {
+                      "target": "skill.$option.prof",
+                      "op": "Proficiency",
+                      "value": "proficient"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "key": "battle-master.know-your-enemy",
+              "name": "Know Your Enemy",
+              "level": 7,
+              "description": "<p>As a Bonus Action, you can discern certain strengths and weaknesses of a creature you can see within 30 feet of yourself; you know whether that creature has any Immunities, Resistances, or Vulnerabilities, and if the creature has any, you know what they are.</p><p>Once you use this feature, you can’t do so again until you finish a Long Rest. You can also restore a use of the feature by expending one Superiority Die (no action required).</p>",
+              "resources": [
+                {
+                  "key": "know-your-enemy",
+                  "name": "Know Your Enemy",
+                  "max": "1",
+                  "recharge": "LongRest"
+                }
+              ]
+            },
+            {
+              "key": "battle-master.improved-combat-superiority",
+              "name": "Improved Combat Superiority",
+              "level": 10,
+              "description": "<p>Your Superiority Die becomes a d10.</p>"
+            },
+            {
+              "key": "battle-master.relentless",
+              "name": "Relentless",
+              "level": 15,
+              "description": "<p>Once per turn, when you use a maneuver, you can roll 1d8 and use the number rolled instead of expending a Superiority Die.</p>"
+            },
+            {
+              "key": "battle-master.ultimate-combat-superiority",
+              "name": "Ultimate Combat Superiority",
+              "level": 18,
+              "description": "<p>Your Superiority Die becomes a d12.</p>"
+            }
+          ]
+        },
+        {
+          "key": "champion",
+          "name": "Champion",
+          "description": "<p>Pursue physical excellence in combat. A Champion focuses on the development of martial prowess in a relentless pursuit of victory. Champions combine rigorous training with physical excellence to deal devastating blows, withstand peril, and garner glory.</p>",
+          "features": [
+            {
+              "key": "champion.improved-critical",
+              "name": "Improved Critical",
+              "level": 3,
+              "description": "<p>Your attack rolls with weapons and Unarmed Strikes can score a Critical Hit on a roll of 19 or 20 on the d20.</p>"
+            },
+            {
+              "key": "champion.remarkable-athlete",
+              "name": "Remarkable Athlete",
+              "level": 3,
+              "description": "<p>Thanks to your athleticism, you have Advantage on Initiative rolls and Strength (Athletics) checks.</p><p>In addition, immediately after you score a Critical Hit, you can move up to half your Speed without provoking Opportunity Attacks.</p>",
+              "effects": [
+                {
+                  "target": "initiative.advantage",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Remarkable Athlete"
+                },
+                {
+                  "target": "skill.athletics.advantage",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Remarkable Athlete"
+                }
+              ]
+            },
+            {
+              "key": "champion.additional-fighting-style",
+              "name": "Additional Fighting Style",
+              "level": 7,
+              "description": "<p>You gain another Fighting Style feat of your choice.</p>",
+              "choices": [
+                {
+                  "key": "champion.additional-fighting-style",
+                  "name": "Fighting Style Feat",
+                  "count": "1",
+                  "source": "Feat",
+                  "replace": "OneOnLevelUp",
+                  "filter": "option.category == 'fighting-style'"
+                }
+              ]
+            },
+            {
+              "key": "champion.heroic-warrior",
+              "name": "Heroic Warrior",
+              "level": 10,
+              "description": "<p>The thrill of battle drives you toward victory. During combat, you can give yourself Heroic Inspiration whenever you start your turn without it.</p>"
+            },
+            {
+              "key": "champion.superior-critical",
+              "name": "Superior Critical",
+              "level": 15,
+              "description": "<p>Your attack rolls with weapons and Unarmed Strikes can now score a Critical Hit on a roll of 18–20 on the d20.</p>"
+            },
+            {
+              "key": "champion.survivor",
+              "name": "Survivor",
+              "level": 18,
+              "description": "<p>You attain the pinnacle of resilience in battle, giving you these benefits.</p><p><strong><em>Defy Death.</em></strong> You have Advantage on Death Saving Throws. Moreover, when you roll 18–20 on a Death Saving Throw, you gain the benefit of rolling a 20 on it.</p><p><strong><em>Heroic Rally.</em></strong> At the start of each of your turns, you regain Hit Points equal to 5 plus your Constitution modifier if you are Bloodied and have at least 1 Hit Point.</p>"
+            }
+          ]
+        },
+        {
           "key": "eldritch-knight",
           "name": "Eldritch Knight",
           "scales": {
@@ -491,8 +665,266 @@
               "description": "<p>When you take the Attack action, you can replace two of the attacks with a casting of one of your level 1 or 2 Wizard spells that has a casting time of an action.</p>"
             }
           ]
+        },
+        {
+          "key": "psi-warrior",
+          "name": "Psi Warrior",
+          "description": "<p>Augment physical might with psionic power. Psi Warriors awaken the power of their minds to augment their physical might. They harness this psionic power to infuse their weapon strikes, lash out with telekinetic energy, and create barriers of mental force.</p>",
+          "scales": {
+            "psi-warrior.energy-dice": "0,0,4,4,6,6,6,6,8,8,8,8,10,10,10,10,12,12,12,12",
+            "psi-warrior.energy-die": "1d6,1d6,1d6,1d6,1d8,1d8,1d8,1d8,1d8,1d8,1d10,1d10,1d10,1d10,1d10,1d10,1d12,1d12,1d12,1d12"
+          },
+          "features": [
+            {
+              "key": "psi-warrior.psionic-power",
+              "name": "Psionic Power",
+              "level": 3,
+              "description": "<p>You harbor a wellspring of psionic energy within yourself. It is represented by your Psionic Energy Dice, which fuel powers you have from this subclass. The number and size of these dice increase as you gain Fighter levels: four d6s at level 3, six d8s at level 5, eight d8s at level 9, eight d10s at level 11, ten d10s at level 13, and twelve d12s at level 17.</p><p>Any features in this subclass that use a Psionic Energy Die use only the dice from this subclass. Some of your powers expend the Psionic Energy Die, as specified in a power’s description, and you can’t use a power if it requires you to use a die when all your Psionic Energy Dice are expended.</p><p>You regain one of your expended Psionic Energy Dice when you finish a Short Rest, and you regain all of them when you finish a Long Rest.</p><p><strong><em>Protective Field.</em></strong> When you or another creature you can see within 30 feet of you takes damage, you can take a Reaction to expend one Psionic Energy Die, roll the die, and reduce the damage taken by the number rolled plus your Intelligence modifier (minimum reduction of 1), as you create a momentary shield of telekinetic force.</p><p><strong><em>Psionic Strike.</em></strong> You can propel your weapons with psionic force. Once on each of your turns, immediately after you hit a target within 30 feet of yourself with an attack and deal damage to it with a weapon, you can expend one Psionic Energy Die, rolling it and dealing Force damage to the target equal to the number rolled plus your Intelligence modifier.</p><p><strong><em>Telekinetic Movement.</em></strong> You can move an object or a creature with your mind. As a Magic action, choose one target you can see within 30 feet of yourself; the target must be a loose object that is Large or smaller or one willing creature other than you. You transport the target up to 30 feet to an unoccupied space you can see. Alternatively, if the target is a Tiny object, you can transport it to or from your hand.</p><p>Once you take this action, you can’t do so again until you finish a Short or Long Rest unless you expend a Psionic Energy Die (no action required) to restore your use of it.</p>",
+              "resources": [
+                {
+                  "key": "psionic-energy-dice",
+                  "name": "Psionic Energy Dice",
+                  "max": "scale('psi-warrior.energy-dice')",
+                  "die": "scale('psi-warrior.energy-die')",
+                  "recharge": "ShortRest"
+                },
+                {
+                  "key": "telekinetic-movement",
+                  "name": "Telekinetic Movement",
+                  "max": "1",
+                  "recharge": "ShortRest"
+                }
+              ]
+            },
+            {
+              "key": "psi-warrior.telekinetic-adept",
+              "name": "Telekinetic Adept",
+              "level": 7,
+              "description": "<p>You have mastered new ways to use your telekinetic abilities, detailed below.</p><p><strong><em>Psi-Powered Leap.</em></strong> As a Bonus Action, you gain a Fly Speed equal to twice your Speed until the end of the current turn. Once you take this Bonus Action, you can’t do so again until you finish a Short or Long Rest unless you expend a Psionic Energy Die (no action required) to restore your use of it.</p><p><strong><em>Telekinetic Thrust.</em></strong> When you deal damage to a target with your Psionic Strike, you can force the target to make a Strength saving throw (DC 8 plus your Intelligence modifier and Proficiency Bonus). On a failed save, you can give the target the Prone condition or transport it up to 10 feet horizontally.</p>",
+              "resources": [
+                {
+                  "key": "psi-powered-leap",
+                  "name": "Psi-Powered Leap",
+                  "max": "1",
+                  "recharge": "ShortRest"
+                }
+              ]
+            },
+            {
+              "key": "psi-warrior.guarded-mind",
+              "name": "Guarded Mind",
+              "level": 10,
+              "description": "<p>You have Resistance to Psychic damage. Moreover, if you start your turn with the Charmed or Frightened condition, you can expend a Psionic Energy Die (no action required) and end every effect on yourself giving you those conditions.</p>",
+              "effects": [
+                {
+                  "target": "damage.resist.psychic",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Guarded Mind"
+                }
+              ]
+            },
+            {
+              "key": "psi-warrior.bulwark-of-force",
+              "name": "Bulwark of Force",
+              "level": 15,
+              "description": "<p>You can shield yourself and others with telekinetic force. As a Bonus Action, you can choose creatures, including yourself, within 30 feet of yourself, up to a number of creatures equal to your Intelligence modifier (minimum of one creature). Each of the chosen creatures has Half Cover for 1 minute or until you have the Incapacitated condition.</p><p>Once you use this feature, you can’t do so again until you finish a Long Rest unless you expend a Psionic Energy Die (no action required) to restore your use of it.</p>",
+              "resources": [
+                {
+                  "key": "bulwark-of-force",
+                  "name": "Bulwark of Force",
+                  "max": "1",
+                  "recharge": "LongRest"
+                }
+              ]
+            },
+            {
+              "key": "psi-warrior.telekinetic-master",
+              "name": "Telekinetic Master",
+              "level": 18,
+              "description": "<p>You always have the Telekinesis spell prepared. With this feature, you can cast it without a spell slot or components, and your spellcasting ability for it is Intelligence. On each of your turns while you maintain Concentration on it, including the turn when you cast it, you can make one attack with a weapon as a Bonus Action.</p><p>Once you cast the spell with this feature, you can’t do so in this way again until you finish a Long Rest unless you expend a Psionic Energy Die (no action required) to restore your use of it.</p>",
+              "effects": [
+                {
+                  "target": "spell.telekinesis",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Telekinetic Master"
+                }
+              ],
+              "resources": [
+                {
+                  "key": "telekinetic-master",
+                  "name": "Telekinetic Master",
+                  "max": "1",
+                  "recharge": "LongRest"
+                }
+              ]
+            }
+          ]
         }
       ]
+    }
+  ],
+  "features": [
+    {
+      "key": "maneuver.ambush",
+      "name": "Ambush",
+      "ownerType": "Option",
+      "category": "maneuver",
+      "sheetSection": "ClassFeatures",
+      "description": "<p>When you make a Dexterity (Stealth) check or an Initiative roll, you can expend one Superiority Die and add the die to the roll, unless you have the Incapacitated condition.</p>"
+    },
+    {
+      "key": "maneuver.bait-and-switch",
+      "name": "Bait and Switch",
+      "ownerType": "Option",
+      "category": "maneuver",
+      "sheetSection": "ClassFeatures",
+      "description": "<p>When you’re within 5 feet of a creature on your turn, you can expend one Superiority Die and switch places with that creature, provided you spend at least 5 feet of movement and the creature is willing and doesn’t have the Incapacitated condition. This movement doesn’t provoke Opportunity Attacks.</p><p>Roll the Superiority Die. Until the start of your next turn, you or the other creature (your choice) gains a bonus to AC equal to the number rolled.</p>"
+    },
+    {
+      "key": "maneuver.commanders-strike",
+      "name": "Commander’s Strike",
+      "ownerType": "Option",
+      "category": "maneuver",
+      "sheetSection": "ClassFeatures",
+      "description": "<p>When you take the Attack action on your turn, you can replace one of your attacks to direct one of your companions to strike. When you do so, choose a willing creature who can see or hear you and expend one Superiority Die. That creature can immediately use its Reaction to make one attack with a weapon or an Unarmed Strike, adding the Superiority Die to the attack’s damage roll on a hit.</p>"
+    },
+    {
+      "key": "maneuver.commanding-presence",
+      "name": "Commanding Presence",
+      "ownerType": "Option",
+      "category": "maneuver",
+      "sheetSection": "ClassFeatures",
+      "description": "<p>When you make a Charisma (Intimidation, Performance, or Persuasion) check, you can expend one Superiority Die and add that die to the roll.</p>"
+    },
+    {
+      "key": "maneuver.disarming-attack",
+      "name": "Disarming Attack",
+      "ownerType": "Option",
+      "category": "maneuver",
+      "sheetSection": "ClassFeatures",
+      "description": "<p>When you hit a creature with an attack roll, you can expend one Superiority Die to attempt to disarm the target. Add the Superiority Die roll to the attack’s damage roll. The target must succeed on a Strength saving throw or drop one object of your choice that it’s holding, with the object landing in its space.</p>"
+    },
+    {
+      "key": "maneuver.distracting-strike",
+      "name": "Distracting Strike",
+      "ownerType": "Option",
+      "category": "maneuver",
+      "sheetSection": "ClassFeatures",
+      "description": "<p>When you hit a creature with an attack roll, you can expend one Superiority Die to distract the target. Add the Superiority Die roll to the attack’s damage roll. The next attack roll against the target by an attacker other than you has Advantage if the attack is made before the start of your next turn.</p>"
+    },
+    {
+      "key": "maneuver.evasive-footwork",
+      "name": "Evasive Footwork",
+      "ownerType": "Option",
+      "category": "maneuver",
+      "sheetSection": "ClassFeatures",
+      "description": "<p>As a Bonus Action, you can expend one Superiority Die and take the Disengage action. You also roll the die and add the number rolled to your AC until the start of your next turn.</p>"
+    },
+    {
+      "key": "maneuver.feinting-attack",
+      "name": "Feinting Attack",
+      "ownerType": "Option",
+      "category": "maneuver",
+      "sheetSection": "ClassFeatures",
+      "description": "<p>As a Bonus Action, you can expend one Superiority Die to feint, choosing one creature within 5 feet of yourself as your target. You have Advantage on your next attack roll against that target this turn. If that attack hits, add the Superiority Die to the attack’s damage roll.</p>"
+    },
+    {
+      "key": "maneuver.goading-attack",
+      "name": "Goading Attack",
+      "ownerType": "Option",
+      "category": "maneuver",
+      "sheetSection": "ClassFeatures",
+      "description": "<p>When you hit a creature with an attack roll, you can expend one Superiority Die to attempt to goad the target into attacking you. Add the Superiority Die to the attack’s damage roll. The target must succeed on a Wisdom saving throw or have Disadvantage on attack rolls against targets other than you until the end of your next turn.</p>"
+    },
+    {
+      "key": "maneuver.lunging-attack",
+      "name": "Lunging Attack",
+      "ownerType": "Option",
+      "category": "maneuver",
+      "sheetSection": "ClassFeatures",
+      "description": "<p>As a Bonus Action, you can expend one Superiority Die and take the Dash action. If you move at least 5 feet in a straight line immediately before hitting with a melee attack as part of the Attack action on this turn, you can add the Superiority Die to the attack’s damage roll.</p>"
+    },
+    {
+      "key": "maneuver.maneuvering-attack",
+      "name": "Maneuvering Attack",
+      "ownerType": "Option",
+      "category": "maneuver",
+      "sheetSection": "ClassFeatures",
+      "description": "<p>When you hit a creature with an attack roll, you can expend one Superiority Die to maneuver one of your comrades into another position. Add the Superiority Die roll to the attack’s damage roll, and choose a willing creature who can see or hear you. That creature can use its Reaction to move up to half its Speed without provoking an Opportunity Attack from the target of your attack.</p>"
+    },
+    {
+      "key": "maneuver.menacing-attack",
+      "name": "Menacing Attack",
+      "ownerType": "Option",
+      "category": "maneuver",
+      "sheetSection": "ClassFeatures",
+      "description": "<p>When you hit a creature with an attack roll, you can expend one Superiority Die to attempt to frighten the target. Add the Superiority Die to the attack’s damage roll. The target must succeed on a Wisdom saving throw or have the Frightened condition until the end of your next turn.</p>"
+    },
+    {
+      "key": "maneuver.parry",
+      "name": "Parry",
+      "ownerType": "Option",
+      "category": "maneuver",
+      "sheetSection": "ClassFeatures",
+      "description": "<p>When another creature damages you with a melee attack roll, you can take a Reaction and expend one Superiority Die to reduce the damage by the number you roll on your Superiority Die plus your Strength or Dexterity modifier (your choice).</p>"
+    },
+    {
+      "key": "maneuver.precision-attack",
+      "name": "Precision Attack",
+      "ownerType": "Option",
+      "category": "maneuver",
+      "sheetSection": "ClassFeatures",
+      "description": "<p>When you miss with an attack roll, you can expend one Superiority Die, roll that die, and add it to the attack roll, potentially causing the attack to hit.</p>"
+    },
+    {
+      "key": "maneuver.pushing-attack",
+      "name": "Pushing Attack",
+      "ownerType": "Option",
+      "category": "maneuver",
+      "sheetSection": "ClassFeatures",
+      "description": "<p>When you hit a creature with an attack roll using a weapon or an Unarmed Strike, you can expend one Superiority Die to attempt to drive the target back. Add the Superiority Die to the attack’s damage roll. If the target is Large or smaller, it must succeed on a Strength saving throw or be pushed up to 15 feet directly away from you.</p>"
+    },
+    {
+      "key": "maneuver.rally",
+      "name": "Rally",
+      "ownerType": "Option",
+      "category": "maneuver",
+      "sheetSection": "ClassFeatures",
+      "description": "<p>As a Bonus Action, you can expend one Superiority Die to bolster the resolve of a companion. Choose an ally of yours within 30 feet of yourself who can see or hear you. That creature gains Temporary Hit Points equal to the Superiority Die roll plus half your Fighter level (round down).</p>"
+    },
+    {
+      "key": "maneuver.riposte",
+      "name": "Riposte",
+      "ownerType": "Option",
+      "category": "maneuver",
+      "sheetSection": "ClassFeatures",
+      "description": "<p>When a creature misses you with a melee attack roll, you can take a Reaction and expend one Superiority Die to make a melee attack roll with a weapon or an Unarmed Strike against the creature. If you hit, add the Superiority Die to the attack’s damage.</p>"
+    },
+    {
+      "key": "maneuver.sweeping-attack",
+      "name": "Sweeping Attack",
+      "ownerType": "Option",
+      "category": "maneuver",
+      "sheetSection": "ClassFeatures",
+      "description": "<p>When you hit a creature with a melee attack roll using a weapon or an Unarmed Strike, you can expend one Superiority Die to attempt to damage another creature. Choose another creature within 5 feet of the original target and within your reach. If the original attack roll would hit the second creature, it takes damage equal to the number you roll on your Superiority Die. The damage is of the same type dealt by the original attack.</p>"
+    },
+    {
+      "key": "maneuver.tactical-assessment",
+      "name": "Tactical Assessment",
+      "ownerType": "Option",
+      "category": "maneuver",
+      "sheetSection": "ClassFeatures",
+      "description": "<p>When you make an Intelligence (History or Investigation) check or a Wisdom (Insight) check, you can expend one Superiority Die and add that die to the ability check.</p>"
+    },
+    {
+      "key": "maneuver.trip-attack",
+      "name": "Trip Attack",
+      "ownerType": "Option",
+      "category": "maneuver",
+      "sheetSection": "ClassFeatures",
+      "description": "<p>When you hit a creature with an attack roll using a weapon or an Unarmed Strike, you can expend one Superiority Die and add the die to the attack’s damage roll. If the target is Large or smaller, it must succeed on a Strength saving throw or have the Prone condition.</p>"
     }
   ]
 }
