@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest"
+import { afterEach, describe, expect, it, vi } from "vitest"
 import { DeleteCharacterIntent, GetCharacterIntent, GetCharacterSheetPdfIntent, UpdateCharacterIntent } from "../intents/characters"
 import { LoginIntent } from "../intents/auth"
 import { ListSpellsIntent } from "../intents/rules"
@@ -9,17 +9,27 @@ function json(status: number, body: unknown, contentType = "application/json") {
   return new Response(JSON.stringify(body), { status, headers: { "Content-Type": contentType } })
 }
 
+/**
+ * Client whose requests go to a fake global fetch answering with `response`
+ */
 function client(response: Response | (() => Promise<Response>), options: HttpClientOptions = {}) {
-  const fetch = vi.fn<typeof globalThis.fetch>(typeof response === "function" ? response : async () => response)
-  return { http: new HttpClient({ fetch, getAccessToken: () => "token-1", ...options }), fetch }
+  const fetchMock = vi.fn<typeof fetch>(typeof response === "function" ? response : async () => response)
+  vi.stubGlobal("fetch", fetchMock)
+  return { http: new HttpClient({ getAccessToken: () => "token-1", ...options }), fetch: fetchMock }
 }
 
-function request(fetch: ReturnType<typeof vi.fn<typeof globalThis.fetch>>) {
-  const [url, init] = fetch.mock.calls[0]
+/**
+ * URL, options and headers of the first request sent to the fake fetch
+ */
+function request(fetchMock: ReturnType<typeof vi.fn<typeof fetch>>) {
+  const [url, init] = fetchMock.mock.calls[0]
   return { url: String(url), init: init!, headers: new Headers(init!.headers) }
 }
 
 describe("HttpClient", () => {
+  // put the real fetch back for the other test files
+  afterEach(() => vi.unstubAllGlobals())
+
   it("builds the url with the query and leaves out empty values", async () => {
     const { http, fetch } = client(json(200, { items: [], page: 2, pageSize: 10, totalCount: 0, totalPages: 0 }), { baseUrl: "http://api" })
 

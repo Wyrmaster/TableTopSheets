@@ -8,8 +8,6 @@ export interface HttpClientOptions {
   getAccessToken?: () => string | null
   /** Called when an authenticated request answers 401 (token missing, expired or signed by another API start) */
   onUnauthorized?: () => void
-  /** fetch implementation (tests) */
-  fetch?: typeof fetch
 }
 
 /**
@@ -50,8 +48,7 @@ export class HttpClient {
     // 3. send; fetch only rejects when the API wasn't reached (offline, CORS, aborted), not for error statuses
     let response: Response
     try {
-      const fetcher = this.options.fetch ?? globalThis.fetch.bind(globalThis)
-      response = await fetcher(this.url(intent), { method: intent.method, headers, body, signal })
+      response = await fetch(this.url(intent), { method: intent.method, headers, body, signal })
     } catch (error) {
       return HttpClient.failure(error, signal)
     }
