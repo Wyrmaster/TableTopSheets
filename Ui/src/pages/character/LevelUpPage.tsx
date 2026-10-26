@@ -5,6 +5,7 @@ import {
   Card,
   Dialog,
   Flex,
+  Grid,
   Heading,
   HStack,
   NativeSelect,
@@ -19,9 +20,13 @@ import {
 import { useState } from 'react'
 import {
   type ClassSummaryDto,
+  GetChoiceOptionsIntent,
+  type Guid,
   LevelUpIntent,
   ListClassesIntent,
   PreviewLevelUpIntent,
+  type ReplacementDto,
+  type SelectionInfoDto,
   type TakeStartingEquipmentDto,
   UndoLevelIntent,
 } from '@/api'
@@ -34,6 +39,7 @@ import { useRuleStartingEquipment } from '@/components/startingEquipment/useRule
 import { Icon } from '@/components/Icon'
 import { levelUpIcon, undoIcon } from '@/components/icons'
 import { InfoButton } from '@/components/InfoButton'
+import { SkillProficiencies } from '@/components/SkillProficiencies'
 import { useApiAction } from '@/hooks/useApiAction'
 import { useIntentQuery } from '@/hooks/useIntentQuery'
 import { useCharacter } from './useCharacter'
@@ -41,38 +47,57 @@ import { useCharacter } from './useCharacter'
 const dieSize = (die: string) => Number(die.slice(1))
 
 /**
- * Open choices of the character, gaining a level (class, subclass, hit points) and undoing the last level
+ * Open choices of the character, gaining a level (class, subclass, hit points) and undoing the last level; the
+ * proficiencies on the right show what is already known while choosing skills or expertise
  */
 export function LevelUpPage() {
   const {
     id,
     state,
+    sheet,
     applyState,
   } = useCharacter()
 
   return (
-    <Stack gap='8'>
-      {state.pendingChoices.length > 0 && (
-        <Stack gap='3'>
-          <Heading size='lg'>Open choices</Heading>
-          <ChoiceList
-            characterId={id}
-            choices={state.pendingChoices}
-            onState={applyState}
-          />
-          <ApiHint>
-            <code>GET …/choices/{'{choiceKey}'}/options</code> for large lists,
-            <code> POST /api/characters/{'{id}'}/choices</code>
-            {' '}to save, <code>DELETE …/selections/{'{selectionId}'}</code> to take one back
-          </ApiHint>
-        </Stack>
-      )}
-      <StartingEquipmentCard
-        state={state}
-        onState={applyState}
-      />
-      <GainLevel />
-    </Stack>
+    <Grid
+      templateColumns={{
+        base: '1fr',
+        lg: 'minmax(0, 1fr) 280px',
+      }}
+      gap='6'
+      alignItems='start'
+    >
+      <Stack gap='8'>
+        {state.pendingChoices.length > 0 && (
+          <Stack gap='3'>
+            <Heading size='lg'>Open choices</Heading>
+            <ChoiceList
+              characterId={id}
+              choices={state.pendingChoices}
+              onState={applyState}
+            />
+            <ApiHint>
+              <code>GET …/choices/{'{choiceKey}'}/options</code> for large lists,
+              <code> POST /api/characters/{'{id}'}/choices</code>
+              {' '}to save, <code>DELETE …/selections/{'{selectionId}'}</code> to take one back
+            </ApiHint>
+          </Stack>
+        )}
+        <StartingEquipmentCard
+          state={state}
+          onState={applyState}
+        />
+        <GainLevel />
+      </Stack>
+      <Box
+        position={{
+          lg: 'sticky',
+        }}
+        top='20'
+      >
+        <SkillProficiencies sheet={sheet} />
+      </Box>
+    </Grid>
   )
 }
 
@@ -90,6 +115,7 @@ function GainLevel() {
   const [hitPoints, setHitPoints] = useState<'average' | 'roll'>('average')
   const [roll, setRoll] = useState(1)
   const [equipment, setEquipment] = useState<TakeStartingEquipmentDto | null>(null)
+  const [replacement, setReplacement] = useState<ReplacementDto | null>(null)
 
   // the first class of a character brings its starting equipment
   const first = state.level === 0
@@ -108,6 +134,7 @@ function GainLevel() {
     setSubclassKey('')
     setRoll(1)
     setEquipment(null)
+    setReplacement(null)
   }
 
   const levelUp = async () => {
@@ -116,10 +143,12 @@ function GainLevel() {
       subclassKey: subclassKey || null,
       hitPointRoll: hitPoints === 'roll' ? roll : null,
       startingEquipment: first ? equipment : null,
+      replacements: replacement?.optionKey ? [replacement] : [],
     }), { success: `${state.name} is now level ${state.level + 1}` })
     if (result.ok) {
       setSubclassKey('')
       setEquipment(null)
+      setReplacement(null)
       applyState(result.data)
     }
   }
@@ -321,24 +350,27 @@ function GainLevel() {
                       {choice.name} · {choice.remaining}
                     </Badge>
                   ))}
-                  {preview.data.replaceable.length > 0 && (
-                    <Badge
-                      size='lg'
-                      colorPalette='brand'
-                    >
-                      may swap one of {preview.data.replaceable.length}
-                    </Badge>
-                  )}
                 </HStack>
               )}
-              <Text
-                mt='2'
-                fontSize='sm'
-                color='fg.muted'
-              >
-                The choices are answered after the level is saved, under “Open choices”.
-              </Text>
+              {preview.data && !needsSubclass && preview.data.pendingChoices.length > 0 && (
+                <Text
+                  mt='2'
+                  fontSize='sm'
+                  color='fg.muted'
+                >
+                  The choices are answered after the level is saved, under “Open choices” at the top of this page.
+                </Text>
+              )}
             </Box>
+
+            {preview.data && !needsSubclass && preview.data.replaceable.length > 0 && (
+              <SwapChoice
+                characterId={id}
+                replaceable={preview.data.replaceable}
+                value={replacement}
+                onChange={setReplacement}
+              />
+            )}
 
             <Flex justify='flex-end'>
               <Button
@@ -361,6 +393,104 @@ function GainLevel() {
         <code> DELETE …/levels/last</code>; multiclass requirements are checked by the API (422 with the reason)
       </ApiHint>
     </Stack>
+  )
+}
+
+/**
+ * Optional swap of one earlier selection (a Fighting Style, a known spell …). It can only be made together with the
+ * level up, so it's part of this form and not an open choice afterwards
+ */
+function SwapChoice({
+  characterId,
+  replaceable,
+  value,
+  onChange,
+}: {
+  characterId: Guid
+  replaceable: SelectionInfoDto[]
+  value: ReplacementDto | null
+  onChange: (value: ReplacementDto | null) => void
+}) {
+  const selection = replaceable.find((entry) => entry.id === value?.selectionId)
+  const options = useIntentQuery(
+    () => (selection
+      ? new GetChoiceOptionsIntent(characterId, selection.choiceKey, {
+        parentRef: selection.parentId ?? undefined,
+        pageSize: 200,
+        sort: 'name',
+      })
+      : null),
+    selection ? `${characterId}|${selection.id}` : '',
+  )
+
+  return (
+    <Box>
+      <Text fontWeight='medium'>Swap (optional)</Text>
+      <Text
+        fontSize='sm'
+        color='fg.muted'
+        mb='1.5'
+      >
+        This level lets you replace one earlier choice; it's saved with the level.
+      </Text>
+      <Flex
+        gap='2'
+        wrap='wrap'
+      >
+        <NativeSelect.Root
+          size='sm'
+          maxW='sm'
+        >
+          <NativeSelect.Field
+            aria-label='Selection to replace'
+            value={value?.selectionId ?? ''}
+            onChange={(event) => onChange(event.target.value
+              ? {
+                selectionId: event.target.value,
+                optionKey: '',
+              }
+              : null)}
+          >
+            <option value=''>Keep everything</option>
+            {replaceable.map((entry) => (
+              <option
+                key={entry.id}
+                value={entry.id}
+              >
+                {entry.choiceName}: {entry.optionName}
+              </option>
+            ))}
+          </NativeSelect.Field>
+          <NativeSelect.Indicator />
+        </NativeSelect.Root>
+        {selection && (
+          <NativeSelect.Root
+            size='sm'
+            maxW='sm'
+          >
+            <NativeSelect.Field
+              aria-label={`New ${selection.choiceName}`}
+              value={value?.optionKey ?? ''}
+              onChange={(event) => onChange({
+                selectionId: selection.id,
+                optionKey: event.target.value,
+              })}
+            >
+              <option value=''>{options.loading ? 'Loading…' : `Replace ${selection.optionName} with…`}</option>
+              {(options.data?.items ?? []).map((option) => (
+                <option
+                  key={option.key}
+                  value={option.key}
+                >
+                  {option.name}
+                </option>
+              ))}
+            </NativeSelect.Field>
+            <NativeSelect.Indicator />
+          </NativeSelect.Root>
+        )}
+      </Flex>
+    </Box>
   )
 }
 

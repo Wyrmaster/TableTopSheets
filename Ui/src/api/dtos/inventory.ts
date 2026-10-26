@@ -10,6 +10,11 @@ export interface AddItemDto {
   purchase?: boolean
 }
 
+/** Pieces added to an item stack without paying (at least 1) */
+export interface AddToStackDto {
+  quantity: number
+}
+
 /** Coins of a character, or for a change the coins added (positive) or removed (negative) per kind */
 export interface CoinsDto {
   copper: number

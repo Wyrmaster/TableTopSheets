@@ -1,5 +1,5 @@
 import { Badge, Box, Button, Card, Flex, HStack, IconButton, Input, Spinner, Stack, Text } from '@chakra-ui/react'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   type CharacterStateDto,
   GetChoiceOptionsIntent,
@@ -16,6 +16,9 @@ import { useApiAction } from '@/hooks/useApiAction'
 import { useIntentQuery } from '@/hooks/useIntentQuery'
 
 const PageSize = 20
+
+/** Height of the option list; longer lists scroll inside it, so search, paging and Save stay in place */
+const ListHeight = '320px'
 
 const inputLabel = {
   SingleSelect: 'pick one',
@@ -84,6 +87,12 @@ export function ChoiceCard({
     `${choice.optionsUrl}|${search}|${page}`,
   )
   const options = choice.options ?? remote.data?.items ?? []
+  const list = useRef<HTMLDivElement>(null)
+
+  // a new page or search starts at the top of the list
+  useEffect(() => {
+    list.current?.scrollTo({ top: 0 })
+  }, [page, search])
   const totalPages = remote.data?.totalPages ?? 1
 
   const picked = Object.values(picks).reduce((sum, count) => sum + count, 0)
@@ -136,7 +145,7 @@ export function ChoiceCard({
   }
 
   return (
-    <Card.Root>
+    <Card.Root size='sm'>
       <Card.Body gap='3'>
         <Flex
           wrap='wrap'
@@ -210,12 +219,15 @@ export function ChoiceCard({
         )}
 
         <Box
+          ref={list}
           role='listbox'
           aria-label={choice.name}
           aria-multiselectable={!single}
           borderWidth='1px'
           rounded='md'
-          overflow='hidden'
+          maxH={ListHeight}
+          overflowY='auto'
+          overscrollBehavior='contain'
         >
           {remote.loading && !choice.options && (
             <Box p='3'>
@@ -319,7 +331,7 @@ function OptionRow({
       align='center'
       gap='3'
       px='3'
-      py='2'
+      py='1.5'
       borderTopWidth='1px'
       _first={{ borderTopWidth: '0' }}
       bg={selected ? 'brand.subtle' : undefined}
@@ -341,12 +353,18 @@ function OptionRow({
         flex='1'
         gap='0'
       >
-        <Text fontWeight='medium'>{option.name}</Text>
+        <Text
+          fontSize='sm'
+          fontWeight='medium'
+        >
+          {option.name}
+        </Text>
         {(option.summary || meta) && (
           <Text
-            fontSize='sm'
+            fontSize='xs'
             color='fg.muted'
-            lineClamp={2}
+            lineClamp={1}
+            title={option.summary ?? undefined}
           >
             {[meta, option.summary].filter(Boolean).join(' – ')}
           </Text>

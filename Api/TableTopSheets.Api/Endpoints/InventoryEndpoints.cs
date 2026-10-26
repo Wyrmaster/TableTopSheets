@@ -45,6 +45,10 @@ public static class InventoryEndpoints
       .WithSummary("Remove an item or part of a stack")
       .WithDescription("quantity removes that many pieces (default: the whole stack); sell=true credits half of the item's cost per piece to the coins.");
     group
+      .MapPost("/items/{itemId:guid}/stack", AddToStack)
+      .WithName("AddToStack")
+      .WithSummary("Add pieces to an item stack without paying (ammunition recovered after a fight)");
+    group
       .MapPut("/coins", SetCoins)
       .WithName("SetCoins")
       .WithSummary("Replace the coins of the character");
@@ -127,6 +131,9 @@ public static class InventoryEndpoints
 
   private static async Task<Ok<CharacterStateDto>> RemoveItem(ICharacterService service, Guid id, Guid itemId, int? quantity, bool? sell, CancellationToken cancellationToken)
     => TypedResults.Ok(StateMapper.State(await service.RemoveItemAsync(id, itemId, quantity, sell == true, cancellationToken)));
+
+  private static async Task<Ok<CharacterStateDto>> AddToStack(ICharacterService service, Guid id, Guid itemId, AddToStackDto dto, CancellationToken cancellationToken)
+    => TypedResults.Ok(StateMapper.State(await service.AddToStackAsync(id, itemId, dto.Quantity, cancellationToken)));
 
   private static async Task<Ok<CharacterStateDto>> SetCoins(ICharacterService service, Guid id, CoinsDto dto, CancellationToken cancellationToken)
     => TypedResults.Ok(StateMapper.State(await service.SetCoinsAsync(id, dto.Copper, dto.Silver, dto.Electrum, dto.Gold, dto.Platinum, cancellationToken)));

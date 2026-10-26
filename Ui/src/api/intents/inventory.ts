@@ -4,6 +4,7 @@ import type { CharacterStateDto } from '../dtos/character'
 import type { Guid } from '../dtos/common'
 import type {
   AddItemDto,
+  AddToStackDto,
   ArmorClassDto,
   AttuneDto,
   CoinPaymentDto,
@@ -174,6 +175,30 @@ export class AddItemIntent extends BodyIntent<AddItemDto, CharacterStateDto> {
   /** Route of the intent */
   get path() {
     return characterPath(this.characterId, '/items')
+  }
+}
+
+/** POST /api/characters/{id}/items/{itemId}/stack: add pieces to a stack without paying (recovered ammunition) */
+export class AddToStackIntent extends BodyIntent<AddToStackDto, CharacterStateDto> {
+  readonly method = 'POST'
+
+  readonly characterId: Guid
+  readonly itemId: Guid
+
+  /**
+   * @param characterId id of the character
+   * @param itemId id of the owned item
+   * @param body pieces to add
+   */
+  constructor(characterId: Guid, itemId: Guid, body: AddToStackDto) {
+    super(body)
+    this.characterId = characterId
+    this.itemId = itemId
+  }
+
+  /** Route of the intent */
+  get path() {
+    return characterPath(this.characterId, `/items/${segment(this.itemId)}/stack`)
   }
 }
 

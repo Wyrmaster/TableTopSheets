@@ -26,6 +26,7 @@ import {
   type CharacterStateDto,
   CreateCharacterIntent,
   GetCharacterIntent,
+  GetCharacterSheetIntent,
   LevelUpIntent,
   type StartingEquipmentOptionDto,
   type TakeStartingEquipmentDto,
@@ -33,6 +34,7 @@ import {
 } from '@/api'
 import { ApiHint } from '@/components/ApiHint'
 import { ChoiceList } from '@/components/choices/ChoiceList'
+import { SkillProficiencies } from '@/components/SkillProficiencies'
 import { equipmentComplete } from '@/components/startingEquipment/startingEquipment'
 import { StartingEquipmentCard } from '@/components/startingEquipment/StartingEquipmentCard'
 import { StartingEquipmentPicker } from '@/components/startingEquipment/StartingEquipmentPicker'
@@ -444,63 +446,78 @@ function Summary({
   state?: CharacterStateDto
 }) {
   const open = state?.pendingChoices.filter((choice) => !choice.optional).length
+  // the sheet knows the skills; it's loaded again whenever a choice is answered or taken back
+  const answered = state?.pendingChoices.map((choice) => `${choice.id}:${choice.selected}`).join(',')
+  const sheet = useIntentQuery(
+    () => (state ? new GetCharacterSheetIntent(state.id) : null),
+    state ? `${state.id}|${state.level}|${answered}` : '',
+  )
+
   return (
-    <Card.Root
+    <Stack
+      gap='4'
       position={{
         lg: 'sticky',
       }}
       top='20'
     >
-      <Card.Body gap='3'>
-        <Box>
-          <Heading size='md'>{name || 'New character'}</Heading>
-          <Text
-            fontSize='sm'
-            color='fg.muted'
-          >
-            {[species, background, state?.classes.map((entry) => `${entry.name} ${entry.level}`).join(' / ') || 'draft']
-              .filter(Boolean)
-              .join(' · ')}
-          </Text>
-        </Box>
-        {state && (
-          <HStack>
-            <Badge size='lg'>AC {state.armorClass}</Badge>
-            <Badge size='lg'>HP {state.hitPointMaximum || '–'}</Badge>
-            <Badge size='lg'>PB +{state.proficiencyBonus}</Badge>
-          </HStack>
-        )}
-        <Grid
-          templateColumns='repeat(3, 1fr)'
-          gap='1.5'
-        >
-          {AbilityKeys.map((key) => (
-            <Box
-              key={key}
-              textAlign='center'
-              py='1.5'
-              rounded='md'
-              bg='bg.subtle'
+      <Card.Root>
+        <Card.Body gap='3'>
+          <Box>
+            <Heading size='md'>{name || 'New character'}</Heading>
+            <Text
+              fontSize='sm'
+              color='fg.muted'
             >
-              <Text
-                fontSize='xs'
-                color='fg.muted'
-                textTransform='uppercase'
+              {[
+                species,
+                background,
+                state?.classes.map((entry) => `${entry.name} ${entry.level}`).join(' / ') || 'draft',
+              ]
+                .filter(Boolean)
+                .join(' · ')}
+            </Text>
+          </Box>
+          {state && (
+            <HStack>
+              <Badge size='lg'>AC {state.armorClass}</Badge>
+              <Badge size='lg'>HP {state.hitPointMaximum || '–'}</Badge>
+              <Badge size='lg'>PB +{state.proficiencyBonus}</Badge>
+            </HStack>
+          )}
+          <Grid
+            templateColumns='repeat(3, 1fr)'
+            gap='1.5'
+          >
+            {AbilityKeys.map((key) => (
+              <Box
+                key={key}
+                textAlign='center'
+                py='1.5'
+                rounded='md'
+                bg='bg.subtle'
               >
-                {key}
-              </Text>
-              <Text fontWeight='bold'>{scores[key]}</Text>
-              <Text fontSize='xs'>{modifier(scores[key]) >= 0 ? '+' : ''}{modifier(scores[key])}</Text>
-            </Box>
-          ))}
-        </Grid>
-        {state && (
-          <Text fontSize='sm'>
-            {open ? `${open} open choice${open > 1 ? 's' : ''}` : 'All choices made'}
-          </Text>
-        )}
-      </Card.Body>
-    </Card.Root>
+                <Text
+                  fontSize='xs'
+                  color='fg.muted'
+                  textTransform='uppercase'
+                >
+                  {key}
+                </Text>
+                <Text fontWeight='bold'>{scores[key]}</Text>
+                <Text fontSize='xs'>{modifier(scores[key]) >= 0 ? '+' : ''}{modifier(scores[key])}</Text>
+              </Box>
+            ))}
+          </Grid>
+          {state && (
+            <Text fontSize='sm'>
+              {open ? `${open} open choice${open > 1 ? 's' : ''}` : 'All choices made'}
+            </Text>
+          )}
+        </Card.Body>
+      </Card.Root>
+      {sheet.data && <SkillProficiencies sheet={sheet.data} />}
+    </Stack>
   )
 }
 

@@ -51,13 +51,17 @@ Start the API with `dotnet run --project Api/TableTopSheets.Api` from the reposi
 | `src/pages/character/playState.ts` | current HP, charges, hit dice and slots per character in local storage (not stored by the API yet) |
 
 **Equipped weapons:** the inventory switch equips a weapon as `Ready` (any number); "Main hand" / "Off hand" take it into
-a hand, "Stow" puts it back. Only equipped weapons are attacks on the sheet. **Spells** come from
+a hand, "Stow" puts it back. Only equipped weapons are attacks on the sheet. Only weapons, armor and items to attune
+have the switch (tools and gear have no effect when equipped); the armor class is shown on the armor card, always the
+best calculation. **Level up:** a level that lets an earlier choice be replaced (a Fighting Style) offers "Swap
+(optional)"; it's sent with the level (`replacements`), not answered afterwards. **Spells** come from
 `GET /api/characters/{id}/spells` (per class: spellbook, prepared and always prepared spells, limits); classes that
 prepare after a long rest get the loadout editor, spellbook classes "Copy into spellbook".
 
 **Coins and items:** the shop's "Buy" pays with the character's coins (`purchase: true`, change comes back), "Add free"
 doesn't. The inventory's coins card edits the coins and pays amounts; each item's menu sells (half the cost) or removes
-one piece or the whole stack. Items sold in bundles (20 arrows) are bought as a bundle; the shop filters by category
+one piece or the whole stack; ammunition and bundles get − / + (use one, recover one for free:
+`POST …/items/{itemId}/stack`). Items sold in bundles (20 arrows) are bought as a bundle; the shop filters by category
 (ammunition, focuses, mounts, vehicles …). The coins card adds or removes coins of one kind (pp, gp, ep, sp, cp) or pays
 an amount with change.
 

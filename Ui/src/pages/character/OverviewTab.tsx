@@ -1,10 +1,11 @@
 import { Box, Button, Card, Flex, Grid, Heading, HStack, IconButton, SimpleGrid, Stack, Text } from '@chakra-ui/react'
-import { type AbilitySheet, type FeatureSheet, ProficiencyLevels } from '@/api'
+import type { AbilitySheet, FeatureSheet } from '@/api'
 import { ApiHint } from '@/components/ApiHint'
 import { Icon } from '@/components/Icon'
 import { featuresIcon, heartIcon, minusIcon, plusIcon, resourcesIcon } from '@/components/icons'
 import { useInspector } from '@/components/inspector/useInspector'
 import { Pips } from '@/components/Pips'
+import { ProficiencyMarker } from '@/components/ProficiencyMarker'
 import { useCharacter } from './useCharacter'
 
 const signed = (value: number) => (value >= 0 ? `+${value}` : `${value}`)
@@ -42,24 +43,6 @@ export function OverviewTab() {
         API yet – they live in this browser
       </ApiHint>
     </Stack>
-  )
-}
-
-/** Proficiency marker: empty, half, filled (proficient) or ringed (expertise) */
-function Marker({ level }: { level: number }) {
-  const proficient = level >= ProficiencyLevels.Proficient
-  return (
-    <Box
-      flexShrink='0'
-      boxSize='2.5'
-      rounded='full'
-      borderWidth='1.5px'
-      borderColor={level > 0 ? 'brand.solid' : 'fg.subtle'}
-      bg={proficient ? 'brand.solid' : level > 0 ? 'brand.muted' : 'transparent'}
-      outline={level >= ProficiencyLevels.Expertise ? '1.5px solid' : undefined}
-      outlineColor='brand.solid'
-      outlineOffset='2px'
-    />
   )
 }
 
@@ -122,7 +105,7 @@ function AbilityBox({ ability }: { ability: AbilitySheet }) {
           fontSize='sm'
           fontWeight='semibold'
         >
-          <Marker level={ability.saveProficiency} />
+          <ProficiencyMarker level={ability.saveProficiency} />
           Saving throw
           <Box flex='1' />
           {signed(ability.saveBonus)}
@@ -143,7 +126,7 @@ function AbilityBox({ ability }: { ability: AbilitySheet }) {
             key={skill.key}
             fontSize='sm'
           >
-            <Marker level={skill.proficiency} />
+            <ProficiencyMarker level={skill.proficiency} />
             {skill.name}
             {skill.advantage && <Text
               as='span'

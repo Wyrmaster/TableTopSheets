@@ -119,6 +119,11 @@ public interface ICharacterService
   Task<CharacterEvaluation> RemoveItemAsync(Guid characterId, Guid characterItemId, int? quantity = null, bool sell = false, CancellationToken cancellationToken = default);
 
   /// <summary>
+  ///   Add pieces to an item stack without paying (arrows recovered after a fight); the stack keeps its slot and attunement
+  /// </summary>
+  Task<CharacterEvaluation> AddToStackAsync(Guid characterId, Guid characterItemId, int quantity, CancellationToken cancellationToken = default);
+
+  /// <summary>
   ///   Starting equipment the character can take: from the background, and from the first class once it has a level
   /// </summary>
   Task<IReadOnlyList<StartingEquipmentOffer>> GetStartingEquipmentAsync(Guid characterId, CancellationToken cancellationToken = default);

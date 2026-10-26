@@ -9,7 +9,6 @@ import {
   HStack,
   IconButton,
   Menu,
-  NativeSelect,
   Portal,
   SimpleGrid,
   Stack,
@@ -18,10 +17,10 @@ import {
 } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 import {
+  AddToStackIntent,
   AttuneItemIntent,
   type AttackSheet,
   type CharacterItemDto,
-  ChooseArmorClassIntent,
   type EquipSlotEnum,
   EquipItemIntent,
   type ItemDetailDto,
@@ -34,10 +33,11 @@ import {
   armorIcon,
   bagIcon,
   meleeIcon,
+  minusIcon,
   moreIcon,
+  plusIcon,
   rangedIcon,
   ringIcon,
-  shieldIcon,
 } from '@/components/icons'
 import { InfoButton } from '@/components/InfoButton'
 import { useApiAction } from '@/hooks/useApiAction'
@@ -55,6 +55,16 @@ function equippedHint(items: CharacterItemDto[]) {
   const inHand = items.filter((item) => item.slot === 'MainHand' || item.slot === 'OffHand').length
   return `${equipped} equipped${inHand ? ` · ${inHand} in hand` : ''}`
 }
+
+/** Ammunition and items sold in bundles: pieces are used up and recovered, so the stack gets − / + */
+const isStackable = (detail?: ItemDetailDto) => detail?.item.category?.toLowerCase() === 'ammunition'
+  || (detail?.item.bundle ?? 1) > 1
+
+/** Only weapons, armor and items to attune have a rule effect when equipped (tools and gear don't) */
+const isEquippable = (item: CharacterItemDto) => item.kind === 'Weapon'
+  || item.kind === 'Armor'
+  || item.requiresAttunement
+  || item.slot !== 'None'
 
 const isShield = (detail?: ItemDetailDto) => detail?.item.category?.toLowerCase() === 'shield'
   || detail?.item.key === 'shield'
@@ -157,8 +167,9 @@ export function InventoryTab() {
     }
   }
 
-  const chooseArmorClass = async (label: string) => {
-    const result = await run(new ChooseArmorClassIntent(id, { label: label || null }))
+  // recovered ammunition joins the stack for free; buying more is the shop's job
+  const addToStack = async (item: CharacterItemDto) => {
+    const result = await run(new AddToStackIntent(id, item.id, { quantity: 1 }))
     if (result.ok) {
       applyState(result.data)
     }
@@ -189,10 +200,17 @@ export function InventoryTab() {
       detail={details.get(item.itemKey)}
       attack={attack(item)}
       violations={itemViolations(item).map((violation) => violation.message)}
-      onToggle={item.kind === 'Gear' && !item.requiresAttunement ? undefined : () => toggle(item)}
+      onToggle={isEquippable(item) ? () => toggle(item) : undefined}
       extra={(
         <>
           {extra?.(item)}
+          {isStackable(details.get(item.itemKey)) && (
+            <StackStepper
+              item={item}
+              onAdd={() => addToStack(item)}
+              onRemove={() => remove(item, { quantity: 1 })}
+            />
+          )}
           <ItemMenu
             item={item}
             costCp={details.get(item.itemKey)?.item.costCp}
@@ -232,57 +250,13 @@ export function InventoryTab() {
         <Section
           icon={armorIcon}
           title='Armor & shield'
+          hint={`AC ${sheet.armorClass}`}
+          hintTitle={sheet.armorClassSources
+            .map((source) => `${source.label} ${source.value >= 0 ? '+' : ''}${source.value}`)
+            .join(' · ')}
         >
           {rows(bySection('armor'))}
         </Section>
-        <Card.Root>
-          <Card.Body gap='3'>
-            <HStack justify='space-between'>
-              <Heading size='md'>
-                <HStack>
-                  <Icon path={shieldIcon} />
-                  Armor class
-                </HStack>
-              </Heading>
-              <Text
-                fontSize='2xl'
-                fontWeight='bold'
-              >
-                {sheet.armorClass}
-              </Text>
-            </HStack>
-            <Text
-              fontSize='sm'
-              fontWeight='medium'
-            >
-              Calculation
-            </Text>
-            <NativeSelect.Root size='sm'>
-              <NativeSelect.Field onChange={(event) => chooseArmorClass(event.target.value)}>
-                <option value=''>Best</option>
-                {sheet.armorClassOptions.map((option) => (
-                  <option
-                    key={option.label}
-                    value={option.label}
-                  >
-                    {option.label} ({option.value})
-                  </option>
-                ))}
-              </NativeSelect.Field>
-              <NativeSelect.Indicator />
-            </NativeSelect.Root>
-            {sheet.armorClassSources.length > 0 && (
-              <Text
-                fontSize='sm'
-                color='fg.muted'
-              >
-                {sheet.armorClassSources
-                  .map((source) => `${source.label} ${source.value >= 0 ? '+' : ''}${source.value}`)
-                  .join(' · ')}
-              </Text>
-            )}
-          </Card.Body>
-        </Card.Root>
       </SimpleGrid>
 
       <SimpleGrid
@@ -336,7 +310,8 @@ export function InventoryTab() {
         equip = <code>PUT /api/characters/{'{id}'}/items/{'{itemId}'}/slot</code> with slot <code>Ready</code>
         (any number of weapons), <code>MainHand</code> / <code>OffHand</code> (one item each), <code>Armor</code>,
         <code> Worn</code> or
-        <code> None</code>; attunement = <code>PUT …/attunement</code>, AC calculation = <code>PUT …/armor-class</code>
+        <code> None</code>; attunement = <code>PUT …/attunement</code>; recovered ammunition =
+        <code> POST …/items/{'{itemId}'}/stack</code>; the AC is the best calculation of the equipped armor
       </ApiHint>
     </Stack>
   )
@@ -346,11 +321,14 @@ function Section({
   icon,
   title,
   hint,
+  hintTitle,
   children,
 }: {
   icon: string,
   title: string,
   hint?: string,
+  /** tooltip of the hint, e.g. how the armor class is made up */
+  hintTitle?: string,
   children: ReactNode[]
 }) {
   return (
@@ -366,6 +344,7 @@ function Section({
           {hint && <Text
             fontSize='xs'
             color='fg.muted'
+            title={hintTitle}
           >
             {hint}
           </Text>}
@@ -482,6 +461,47 @@ function ItemRow({
         </HStack>
       ))}
     </Flex>
+  )
+}
+
+/**
+ * − / + for ammunition: one piece used up (removed without selling) or recovered after a fight (added for free)
+ */
+function StackStepper({
+  item,
+  onAdd,
+  onRemove,
+}: {
+  item: CharacterItemDto
+  onAdd: () => void
+  onRemove: () => void
+}) {
+  return (
+    <HStack
+      gap='0'
+      borderWidth='1px'
+      rounded='md'
+    >
+      <IconButton
+        size='xs'
+        variant='ghost'
+        aria-label={`Use one ${item.name}`}
+        title='Use one (remove the last piece with the menu)'
+        disabled={item.quantity <= 1}
+        onClick={onRemove}
+      >
+        <Icon path={minusIcon} />
+      </IconButton>
+      <IconButton
+        size='xs'
+        variant='ghost'
+        aria-label={`Recover one ${item.name}`}
+        title='Recover one (free)'
+        onClick={onAdd}
+      >
+        <Icon path={plusIcon} />
+      </IconButton>
+    </HStack>
   )
 }
 

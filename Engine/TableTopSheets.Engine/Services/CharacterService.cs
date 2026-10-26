@@ -618,6 +618,22 @@ public sealed class CharacterService(TableTopSheetsContext context, IRulesCatalo
     return await this.EvaluateAsync(character, cancellationToken);
   }
 
+  /// <inheritdoc />
+  public async Task<CharacterEvaluation> AddToStackAsync(Guid characterId, Guid characterItemId, int quantity, CancellationToken cancellationToken = default)
+  {
+    if (quantity < 1)
+    {
+      throw new RuleViolationException("The quantity has to be at least 1");
+    }
+
+    Character character = await this.LoadAsync(characterId, cancellationToken);
+    CharacterItem entry = character.Items.SingleOrDefault(item => item.Id == characterItemId)
+                          ?? throw new RuleViolationException($"Item {characterItemId} doesn't belong to the character");
+    entry.Quantity += quantity;
+    await context.SaveChangesAsync(cancellationToken);
+    return await this.EvaluateAsync(character, cancellationToken);
+  }
+
   #endregion
 
   #region Starting Equipment

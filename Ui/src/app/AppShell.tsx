@@ -8,6 +8,9 @@ import { Toaster } from '@/components/ui/toaster'
 import { useIntentQuery } from '@/hooks/useIntentQuery'
 import { useSettings } from './settings/useSettings'
 
+/** Maximum width of the pages; wider screens center them (the title bar spans the screen, its content lines up) */
+const PageWidth = '1400px'
+
 /**
  * Title bar and page area. Signed out: logo and theme toggle only; signed in: navigation and the user section.
  */
@@ -32,7 +35,7 @@ export function AppShell() {
         h='14'
         px={{
           base: '3',
-          md: '6',
+          md: `max(1.5rem, calc((100% - ${PageWidth}) / 2 + 1.5rem))`,
         }}
         borderBottomWidth='1px'
         bg='bg'
@@ -60,9 +63,13 @@ export function AppShell() {
         <ColorModeButton />
       </Flex>
 
+      {/* wide screens: the pages keep a readable width, centered */}
       <Box
         as='main'
         flex='1'
+        w='full'
+        maxW={PageWidth}
+        mx='auto'
       >
         <Outlet />
       </Box>

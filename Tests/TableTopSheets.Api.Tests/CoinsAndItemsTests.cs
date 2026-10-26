@@ -102,5 +102,23 @@ public sealed class CoinsAndItemsTests(ApiFactory factory): IClassFixture<ApiFac
       () => this._api.DeleteAsync<CharacterStateDto>($"/api/characters/{id}/items/{daggers.Id}")));
   }
 
+  [Fact]
+  public async Task AddToStack_AddsPiecesWithoutPaying()
+  {
+    CharacterStateDto state = await this._api.CreateDraftAsync();
+    state = await this._api.PostAsync<CharacterStateDto>($"/api/characters/{state.Id}/items", new AddItemDto("arrows", Quantity: 20));
+    CharacterItemDto arrows = state.Items.Single(entry => entry.ItemKey == "arrows");
+    CoinsDto coins = state.Coins;
+
+    // arrows recovered after a fight join the stack
+    state = await this._api.PostAsync<CharacterStateDto>($"/api/characters/{state.Id}/items/{arrows.Id}/stack", new AddToStackDto(3));
+    Assert.Equal(23, state.Items.Single(entry => entry.ItemKey == "arrows").Quantity);
+    Assert.Equal(coins, state.Coins);
+
+    Guid id = state.Id;
+    Assert.Equal(HttpStatusCode.UnprocessableEntity, await ApiClient.StatusOf(
+      () => this._api.PostAsync<CharacterStateDto>($"/api/characters/{id}/items/{arrows.Id}/stack", new AddToStackDto(0))));
+  }
+
   #endregion
 }
