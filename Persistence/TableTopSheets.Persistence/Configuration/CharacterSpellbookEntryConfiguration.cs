@@ -8,6 +8,10 @@ public class CharacterSpellbookEntryConfiguration: IEntityTypeConfiguration<Char
 {
   public void Configure(EntityTypeBuilder<CharacterSpellbookEntry> builder)
   {
-    builder.HasOne(entity => entity.Spell).WithMany().HasForeignKey(entity => entity.SpellId).OnDelete(DeleteBehavior.Restrict);
+    builder
+      .HasOne(entity => entity.Spell)
+      .WithMany()
+      .HasForeignKey(entity => entity.SpellId)
+      .OnDelete(DeleteBehavior.Restrict);
   }
 }

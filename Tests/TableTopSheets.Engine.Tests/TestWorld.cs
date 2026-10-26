@@ -116,7 +116,10 @@ public sealed class TestWorld: IAsyncDisposable
       SpeciesKey = species,
       BackgroundKey = background,
       Abilities = abilities ?? StandardArray,
-      Selections = backgroundIncreases.Select(entry => new SelectionRequest($"{background}.ability-scores", entry)).Concat(originSelections).ToList(),
+      Selections = backgroundIncreases
+        .Select(entry => new SelectionRequest($"{background}.ability-scores", entry))
+        .Concat(originSelections)
+        .ToList(),
       AllowIncomplete = true,
     });
     await this.AutoCompleteAsync(service, character);
@@ -171,13 +174,17 @@ public sealed class TestWorld: IAsyncDisposable
     while (true)
     {
       CharacterEvaluation evaluation = await service.EvaluateAsync(character);
-      PendingChoice? pending = ChoiceService.Pending(evaluation).FirstOrDefault(entry => !entry.Choice.Optional);
+      PendingChoice? pending = ChoiceService
+        .Pending(evaluation)
+        .FirstOrDefault(entry => !entry.Choice.Optional);
       if (pending == null)
       {
         return;
       }
 
-      OptionDescriptor option = ChoiceService.AvailableOptions(evaluation, pending.Choice, pending.Owner).FirstOrDefault()
+      OptionDescriptor option = ChoiceService
+        .AvailableOptions(evaluation, pending.Choice, pending.Owner)
+        .FirstOrDefault()
                                 ?? throw new InvalidOperationException($"No option left for '{pending.Choice.Key}'");
       await service.SelectAsync(character, [new SelectionRequest(pending.Choice.Key, option.Key, ParentRef: pending.ParentSelectionId?.ToString())]);
     }

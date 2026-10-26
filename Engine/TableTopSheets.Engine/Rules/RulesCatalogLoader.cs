@@ -41,7 +41,9 @@ public sealed class RulesCatalogLoader(TableTopSheetsContext context): IRulesCat
   public async Task<RulesCatalog> LoadAsync(Character character, CancellationToken cancellationToken = default)
   {
     SmallTables small = this._small ??= await SmallTables.LoadAsync(context, cancellationToken);
-    HashSet<string> optionKeys = character.Choices.Select(entry => entry.OptionKey).ToHashSet(StringComparer.Ordinal);
+    HashSet<string> optionKeys = character.Choices
+      .Select(entry => entry.OptionKey)
+      .ToHashSet(StringComparer.Ordinal);
 
     List<Species> species = await this._species.GetAsync(context.Species, Ids(character.SpeciesId), [], cancellationToken);
     List<Background> backgrounds = await this._backgrounds.GetAsync(context.Backgrounds, Ids(character.BackgroundId), [], cancellationToken);
@@ -50,7 +52,10 @@ public sealed class RulesCatalogLoader(TableTopSheetsContext context): IRulesCat
     List<Feat> ownedFeats = await this._feats.GetAsync
     (
       context.Feats,
-      backgrounds.Select(entry => entry.OriginFeatId).OfType<Guid>().ToHashSet(),
+      backgrounds
+        .Select(entry => entry.OriginFeatId)
+        .OfType<Guid>()
+        .ToHashSet(),
       optionKeys,
       cancellationToken
     );
@@ -61,12 +66,16 @@ public sealed class RulesCatalogLoader(TableTopSheetsContext context): IRulesCat
       .. Ids(character.BackgroundId),
       .. ownedFeats.Select(entry => entry.Id),
       .. character.Levels.Select(entry => entry.ClassId),
-      .. character.Levels.Select(entry => entry.SubclassId).OfType<Guid>(),
+      .. character.Levels
+        .Select(entry => entry.SubclassId)
+        .OfType<Guid>(),
       .. character.Items.Select(entry => entry.ItemId),
     ];
     HashSet<string> featureKeys = [.. optionKeys, .. character.ActiveToggles];
     HashSet<Guid> grantedIds = new();
-    HashSet<(Guid ChoiceId, string Key)> selected = character.Choices.Select(entry => (entry.ChoiceId, entry.OptionKey)).ToHashSet();
+    HashSet<(Guid ChoiceId, string Key)> selected = character.Choices
+      .Select(entry => (entry.ChoiceId, entry.OptionKey))
+      .ToHashSet();
 
     // static options grant further features whose choices can grant more, so read until nothing new is granted
     List<Feature> features;
@@ -106,7 +115,9 @@ public sealed class RulesCatalogLoader(TableTopSheetsContext context): IRulesCat
     List<Feat> feats = await this._feats.GetAsync
     (
       context.Feats,
-      [.. ownedFeats.Select(entry => entry.Id), .. features.Select(entry => entry.FeatId).OfType<Guid>()],
+      [.. ownedFeats.Select(entry => entry.Id), .. features
+        .Select(entry => entry.FeatId)
+        .OfType<Guid>()],
       optionKeys,
       cancellationToken
     );
@@ -116,7 +127,9 @@ public sealed class RulesCatalogLoader(TableTopSheetsContext context): IRulesCat
       [
         .. character.SpellbookEntries.Select(entry => entry.SpellId),
         .. character.PreparedSpells.Select(entry => entry.SpellId),
-        .. features.Select(entry => entry.SpellId).OfType<Guid>(),
+        .. features
+          .Select(entry => entry.SpellId)
+          .OfType<Guid>(),
       ],
       referencedKeys,
       cancellationToken
@@ -124,15 +137,22 @@ public sealed class RulesCatalogLoader(TableTopSheetsContext context): IRulesCat
     List<Item> items = await this._items.GetAsync
     (
       context.Items,
-      [.. character.Items.Select(entry => entry.ItemId), .. features.Select(entry => entry.ItemId).OfType<Guid>()],
+      [.. character.Items.Select(entry => entry.ItemId), .. features
+        .Select(entry => entry.ItemId)
+        .OfType<Guid>()],
       referencedKeys,
       cancellationToken
     );
 
-    List<Choice> choices = features.SelectMany(entry => entry.Choices).ToList();
+    List<Choice> choices = features
+      .SelectMany(entry => entry.Choices)
+      .ToList();
     List<Choice> extraChoices = await this.ReadChoicesAsync
     (
-      character.Choices.Select(entry => entry.ChoiceId).Where(id => choices.All(choice => choice.Id != id)).ToHashSet(),
+      character.Choices
+        .Select(entry => entry.ChoiceId)
+        .Where(id => choices.All(choice => choice.Id != id))
+        .ToHashSet(),
       cancellationToken
     );
 
@@ -157,7 +177,10 @@ public sealed class RulesCatalogLoader(TableTopSheetsContext context): IRulesCat
   /// <inheritdoc />
   public async Task DescribeAsync(RulesCatalog catalog, IEnumerable<(Choice Choice, string Key)> options, CancellationToken cancellationToken = default)
   {
-    List<(Choice Choice, string Key)> missing = options.Distinct().Where(entry => !catalog.TryDescribe(entry.Choice, entry.Key, out _)).ToList();
+    List<(Choice Choice, string Key)> missing = options
+      .Distinct()
+      .Where(entry => !catalog.TryDescribe(entry.Choice, entry.Key, out _))
+      .ToList();
     if (missing.Count == 0)
     {
       return;
@@ -169,7 +192,11 @@ public sealed class RulesCatalogLoader(TableTopSheetsContext context): IRulesCat
       {
         static Guid? GrantOf(Choice choice, string key) => choice.Options.FirstOrDefault(option => option.Key == key)?.GrantsFeatureId;
 
-        List<Guid> ids = group.Select(entry => GrantOf(entry.Choice, entry.Key)).OfType<Guid>().Distinct().ToList();
+        List<Guid> ids = group
+          .Select(entry => GrantOf(entry.Choice, entry.Key))
+          .OfType<Guid>()
+          .Distinct()
+          .ToList();
         Dictionary<Guid, OptionText> granted = (await context.Features
             .Where(entry => ids.Contains(entry.Id))
             .Select(entry => new { entry.Id, entry.Name, entry.DescriptionHtml })
@@ -183,15 +210,28 @@ public sealed class RulesCatalogLoader(TableTopSheetsContext context): IRulesCat
         continue;
       }
 
-      List<string> keys = group.Select(entry => entry.Key).Distinct().ToList();
+      List<string> keys = group
+        .Select(entry => entry.Key)
+        .Distinct()
+        .ToList();
       IQueryable<KeyValuePair<string, string>>? query = group.Key switch
       {
-        OptionSourceEnum.Spell => context.Spells.Where(entry => keys.Contains(entry.Key)).Select(entry => new KeyValuePair<string, string>(entry.Key, entry.DescriptionHtml)),
-        OptionSourceEnum.Feat => context.Feats.Where(entry => keys.Contains(entry.Key)).Select(entry => new KeyValuePair<string, string>(entry.Key, entry.DescriptionHtml)),
-        OptionSourceEnum.FeatureCategory => context.Features.Where(entry => keys.Contains(entry.Key)).Select(entry => new KeyValuePair<string, string>(entry.Key, entry.DescriptionHtml)),
+        OptionSourceEnum.Spell => context.Spells
+          .Where(entry => keys.Contains(entry.Key))
+          .Select(entry => new KeyValuePair<string, string>(entry.Key, entry.DescriptionHtml)),
+        OptionSourceEnum.Feat => context.Feats
+          .Where(entry => keys.Contains(entry.Key))
+          .Select(entry => new KeyValuePair<string, string>(entry.Key, entry.DescriptionHtml)),
+        OptionSourceEnum.FeatureCategory => context.Features
+          .Where(entry => keys.Contains(entry.Key))
+          .Select(entry => new KeyValuePair<string, string>(entry.Key, entry.DescriptionHtml)),
         OptionSourceEnum.Tool or OptionSourceEnum.Item or OptionSourceEnum.Weapon
-          => context.Items.Where(entry => keys.Contains(entry.Key)).Select(entry => new KeyValuePair<string, string>(entry.Key, entry.DescriptionHtml)),
-        OptionSourceEnum.Language => context.Languages.Where(entry => keys.Contains(entry.Key)).Select(entry => new KeyValuePair<string, string>(entry.Key, entry.DescriptionHtml)),
+          => context.Items
+            .Where(entry => keys.Contains(entry.Key))
+            .Select(entry => new KeyValuePair<string, string>(entry.Key, entry.DescriptionHtml)),
+        OptionSourceEnum.Language => context.Languages
+          .Where(entry => keys.Contains(entry.Key))
+          .Select(entry => new KeyValuePair<string, string>(entry.Key, entry.DescriptionHtml)),
         _ => null,
       };
       Dictionary<string, string> html = query == null ? new() : await query.ToDictionaryAsync(entry => entry.Key, entry => entry.Value, cancellationToken);
@@ -207,10 +247,13 @@ public sealed class RulesCatalogLoader(TableTopSheetsContext context): IRulesCat
     => this.DescribeAsync
     (
       evaluation.Catalog,
-      ChoiceService.Pending(evaluation)
+      ChoiceService
+        .Pending(evaluation)
         .SelectMany(pending =>
         {
-          List<OptionDescriptor> available = ChoiceService.AvailableOptions(evaluation, pending.Choice, pending.Owner).ToList();
+          List<OptionDescriptor> available = ChoiceService
+            .AvailableOptions(evaluation, pending.Choice, pending.Owner)
+            .ToList();
           return available.Count <= ChoiceService.EmbeddedOptionLimit ? available.Select(option => (pending.Choice, option.Key)) : [];
         })
         .ToList(),
@@ -231,9 +274,16 @@ public sealed class RulesCatalogLoader(TableTopSheetsContext context): IRulesCat
   /// </summary>
   private async Task ReadFeaturesAsync(IEnumerable<Guid> owners, IEnumerable<string> keys, IEnumerable<Guid> ids, CancellationToken cancellationToken)
   {
-    List<Guid?> newOwners = owners.Where(this._featureOwnersRead.Add).Select(entry => (Guid?)entry).ToList();
-    List<string> newKeys = keys.Where(this._featureKeysRead.Add).ToList();
-    List<Guid> newIds = ids.Where(entry => !this._features.ContainsKey(entry)).ToList();
+    List<Guid?> newOwners = owners
+      .Where(this._featureOwnersRead.Add)
+      .Select(entry => (Guid?)entry)
+      .ToList();
+    List<string> newKeys = keys
+      .Where(this._featureKeysRead.Add)
+      .ToList();
+    List<Guid> newIds = ids
+      .Where(entry => !this._features.ContainsKey(entry))
+      .ToList();
     bool core = !this._coreFeaturesRead;
     if (newOwners.Count == 0 && newKeys.Count == 0 && newIds.Count == 0 && !core)
     {
@@ -244,8 +294,10 @@ public sealed class RulesCatalogLoader(TableTopSheetsContext context): IRulesCat
       .AsNoTracking()
       .AsSplitQuery()
       .Include(entry => entry.Effects)
-      .Include(entry => entry.Choices).ThenInclude(entry => entry.Options)
-      .Include(entry => entry.Choices).ThenInclude(entry => entry.Effects)
+      .Include(entry => entry.Choices)
+      .ThenInclude(entry => entry.Options)
+      .Include(entry => entry.Choices)
+      .ThenInclude(entry => entry.Effects)
       .Include(entry => entry.Resources)
       .Include(entry => entry.Spellcasting)
       .Where(entry => (core && entry.OwnerType == OwnerTypeEnum.Core)
@@ -268,16 +320,24 @@ public sealed class RulesCatalogLoader(TableTopSheetsContext context): IRulesCat
 
   private async Task<List<Choice>> ReadChoicesAsync(HashSet<Guid> ids, CancellationToken cancellationToken)
   {
-    List<Guid> missing = ids.Where(id => !this._choices.ContainsKey(id)).ToList();
+    List<Guid> missing = ids
+      .Where(id => !this._choices.ContainsKey(id))
+      .ToList();
     if (missing.Count > 0)
     {
-      foreach (Choice choice in await context.Choices.AsNoTracking().Where(entry => missing.Contains(entry.Id)).ToListAsync(cancellationToken))
+      foreach (Choice choice in await context.Choices
+        .AsNoTracking()
+        .Where(entry => missing.Contains(entry.Id))
+        .ToListAsync(cancellationToken))
       {
         this._choices[choice.Id] = choice;
       }
     }
 
-    return ids.Select(id => this._choices.GetValueOrDefault(id)).OfType<Choice>().ToList();
+    return ids
+      .Select(id => this._choices.GetValueOrDefault(id))
+      .OfType<Choice>()
+      .ToList();
   }
 
   private async Task<Dictionary<string, IReadOnlyList<OptionDescriptor>>> OptionListsAsync(IEnumerable<Choice> choices, SmallTables small, CancellationToken cancellationToken)
@@ -295,16 +355,30 @@ public sealed class RulesCatalogLoader(TableTopSheetsContext context): IRulesCat
       {
         options = choice.OptionSource switch
         {
-          OptionSourceEnum.Tool => await context.Items.OfType<Tool>().Select(OptionProjections.Tool).ToListAsync(cancellationToken),
-          OptionSourceEnum.Language => small.Languages.Select(OptionProjections.LanguageOption).ToList(),
-          OptionSourceEnum.Spell => await context.Spells.Select(OptionProjections.Spell).ToListAsync(cancellationToken),
-          OptionSourceEnum.Feat => await context.Feats.Select(OptionProjections.Feat).ToListAsync(cancellationToken),
+          OptionSourceEnum.Tool => await context.Items
+            .OfType<Tool>()
+            .Select(OptionProjections.Tool)
+            .ToListAsync(cancellationToken),
+          OptionSourceEnum.Language => small.Languages
+            .Select(OptionProjections.LanguageOption)
+            .ToList(),
+          OptionSourceEnum.Spell => await context.Spells
+            .Select(OptionProjections.Spell)
+            .ToListAsync(cancellationToken),
+          OptionSourceEnum.Feat => await context.Feats
+            .Select(OptionProjections.Feat)
+            .ToListAsync(cancellationToken),
           OptionSourceEnum.FeatureCategory => await context.Features
             .Where(entry => entry.Category != null && entry.Category == choice.Category)
             .Select(OptionProjections.Feature)
             .ToListAsync(cancellationToken),
-          OptionSourceEnum.Item => await context.Items.Select(OptionProjections.Item).ToListAsync(cancellationToken),
-          OptionSourceEnum.Weapon => await context.Items.OfType<Weapon>().Select(OptionProjections.Weapon).ToListAsync(cancellationToken),
+          OptionSourceEnum.Item => await context.Items
+            .Select(OptionProjections.Item)
+            .ToListAsync(cancellationToken),
+          OptionSourceEnum.Weapon => await context.Items
+            .OfType<Weapon>()
+            .Select(OptionProjections.Weapon)
+            .ToListAsync(cancellationToken),
           _ => [],
         };
         this._optionLists[key] = options;
@@ -334,11 +408,22 @@ public sealed class RulesCatalogLoader(TableTopSheetsContext context): IRulesCat
   {
     public static async Task<SmallTables> LoadAsync(TableTopSheetsContext context, CancellationToken cancellationToken) => new
     (
-      await context.Classes.AsNoTracking().Include(entry => entry.Subclasses).ToListAsync(cancellationToken),
-      await context.ScaleValues.AsNoTracking().ToListAsync(cancellationToken),
-      await context.SpellSlotRows.AsNoTracking().ToListAsync(cancellationToken),
-      await context.Languages.AsNoTracking().ToListAsync(cancellationToken),
-      await context.WeaponMasteries.AsNoTracking().ToListAsync(cancellationToken)
+      await context.Classes
+        .AsNoTracking()
+        .Include(entry => entry.Subclasses)
+        .ToListAsync(cancellationToken),
+      await context.ScaleValues
+        .AsNoTracking()
+        .ToListAsync(cancellationToken),
+      await context.SpellSlotRows
+        .AsNoTracking()
+        .ToListAsync(cancellationToken),
+      await context.Languages
+        .AsNoTracking()
+        .ToListAsync(cancellationToken),
+      await context.WeaponMasteries
+        .AsNoTracking()
+        .ToListAsync(cancellationToken)
     );
   }
 
@@ -354,18 +439,27 @@ public sealed class RulesCatalogLoader(TableTopSheetsContext context): IRulesCat
     {
       HashSet<Guid> ids = idList.ToHashSet();
       HashSet<string> keys = keyList.ToHashSet(StringComparer.Ordinal);
-      List<Guid> newIds = ids.Where(id => !this._rows.ContainsKey(id)).ToList();
-      List<string> newKeys = keys.Where(this._keysRead.Add).ToList();
+      List<Guid> newIds = ids
+        .Where(id => !this._rows.ContainsKey(id))
+        .ToList();
+      List<string> newKeys = keys
+        .Where(this._keysRead.Add)
+        .ToList();
       if (newIds.Count > 0 || newKeys.Count > 0)
       {
-        foreach (T row in await source.AsNoTracking().Where(entry => newIds.Contains(entry.Id) || newKeys.Contains(entry.Key)).ToListAsync(cancellationToken))
+        foreach (T row in await source
+          .AsNoTracking()
+          .Where(entry => newIds.Contains(entry.Id) || newKeys.Contains(entry.Key))
+          .ToListAsync(cancellationToken))
         {
           this._rows.TryAdd(row.Id, row);
           this._keysRead.Add(row.Key);
         }
       }
 
-      return this._rows.Values.Where(entry => ids.Contains(entry.Id) || keys.Contains(entry.Key)).ToList();
+      return this._rows.Values
+        .Where(entry => ids.Contains(entry.Id) || keys.Contains(entry.Key))
+        .ToList();
     }
   }
 

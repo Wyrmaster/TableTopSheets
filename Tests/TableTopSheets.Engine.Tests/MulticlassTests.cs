@@ -97,7 +97,10 @@ public class MulticlassTests
 
     Assert.Equal(ArmorEnum.Light | ArmorEnum.Medium | ArmorEnum.Shield, sheet.ArmorTraining);
     Assert.Contains("Martial Weapons", sheet.WeaponProficiencies);
-    Assert.Equal(["int", "wis"], sheet.Abilities.Where(entry => entry.SaveProficiency > 0).Select(entry => entry.Key).Order());
+    Assert.Equal(["int", "wis"], sheet.Abilities
+      .Where(entry => entry.SaveProficiency > 0)
+      .Select(entry => entry.Key)
+      .Order());
     // Wizard 1: 6 + Fighter 2nd level: 6 (average of d10), Constitution 15 (+2) and Dwarven Toughness (+1) per level
     Assert.Equal(6 + 6 + 2 * (2 + 1), sheet.HitPointMaximum);
     Assert.Equal("Wizard 1 / Fighter 1", sheet.Classes);

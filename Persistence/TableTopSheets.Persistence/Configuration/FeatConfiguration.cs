@@ -10,6 +10,10 @@ public class FeatConfiguration: RuleEntityConfiguration<Feat>
 {
   protected override void WithConfigure(EntityTypeBuilder<Feat> builder)
   {
-    builder.HasMany(entity => entity.Features).WithOne(entity => entity.Feat).HasForeignKey(entity => entity.FeatId).OnDelete(DeleteBehavior.Cascade);
+    builder
+      .HasMany(entity => entity.Features)
+      .WithOne(entity => entity.Feat)
+      .HasForeignKey(entity => entity.FeatId)
+      .OnDelete(DeleteBehavior.Cascade);
   }
 }

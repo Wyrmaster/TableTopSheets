@@ -16,17 +16,30 @@ public static class AuthEndpoints
 
   public static IEndpointRouteBuilder MapAuthEndpoints(this IEndpointRouteBuilder routes)
   {
-    RouteGroupBuilder auth = routes.MapGroup("/api/auth").WithTags("Authentication").AllowAnonymous();
-    routes.ServiceProvider.GetRequiredService<IAuthenticationProvider>().MapEndpoints(auth);
+    RouteGroupBuilder auth = routes
+      .MapGroup("/api/auth")
+      .WithTags("Authentication")
+      .AllowAnonymous();
+    routes.ServiceProvider
+      .GetRequiredService<IAuthenticationProvider>()
+      .MapEndpoints(auth);
 
-    RouteGroupBuilder users = routes.MapGroup("/api/users").WithTags("Users").RequireUser();
-    users.MapGet("/me", Me).WithName("GetCurrentUser").WithSummary("The signed in user");
+    RouteGroupBuilder users = routes
+      .MapGroup("/api/users")
+      .WithTags("Users")
+      .RequireUser();
+    users
+      .MapGet("/me", Me)
+      .WithName("GetCurrentUser")
+      .WithSummary("The signed in user");
     return routes;
   }
 
   private static async Task<Ok<CurrentUserDto>> Me(TableTopSheetsContext context, CurrentUser currentUser, CancellationToken cancellationToken)
   {
-    User user = await context.Users.AsNoTracking().SingleAsync(entry => entry.Id == currentUser.UserId, cancellationToken);
+    User user = await context.Users
+      .AsNoTracking()
+      .SingleAsync(entry => entry.Id == currentUser.UserId, cancellationToken);
     int characters = await context.Characters.CountAsync(entry => entry.OwnerId == user.Id, cancellationToken);
     return TypedResults.Ok(new CurrentUserDto(user.Id, user.UserName, user.Email, characters));
   }

@@ -54,7 +54,9 @@ public class CharacterSheetDocument: Document
     SpeciesTraits speciesTraits = new(Text(sheet.SpeciesTraits));
     Feats feats = new(Text(sheet.Feats));
     EquipmentBox equipmentBox = new(sheet.ArmorTraining, string.Join(", ", sheet.WeaponProficiencies), string.Join(", ", sheet.ToolProficiencies));
-    WeaponDamageBox weaponDamage = new(sheet.Attacks.Select(ToAttack).ToArray());
+    WeaponDamageBox weaponDamage = new(sheet.Attacks
+      .Select(ToAttack)
+      .ToArray());
 
     new ComponentPage
     (
@@ -65,7 +67,9 @@ public class CharacterSheetDocument: Document
       new Logo(),
       new AbilitySection(sheet.ProficiencyBonus, Ability("str"), Ability("dex"), Ability("con"), Ability("int"), Ability("wis"), Ability("cha")),
       equipmentBox,
-      new OtherContainer(Signed(sheet.Initiative), sheet.Speed.ToString(CultureInfo.InvariantCulture), sheet.Size.ToString().ToUpperInvariant(), sheet.PassivePerception.ToString(CultureInfo.InvariantCulture)),
+      new OtherContainer(Signed(sheet.Initiative), sheet.Speed.ToString(CultureInfo.InvariantCulture), sheet.Size
+        .ToString()
+        .ToUpperInvariant(), sheet.PassivePerception.ToString(CultureInfo.InvariantCulture)),
       weaponDamage,
       classFeature,
       speciesTraits,
@@ -74,7 +78,9 @@ public class CharacterSheetDocument: Document
 
     SpellcastingSheet? casting = sheet.Spellcasting.FirstOrDefault();
     List<string> attuned = sheet.AttunedItems.ToList();
-    Spells spells = new(sheet.Spells.Select(ToSpell).ToArray());
+    Spells spells = new(sheet.Spells
+      .Select(ToSpell)
+      .ToArray());
     Languages languages = new(string.Join(", ", sheet.Languages));
     Equipment equipment = new(string.Join(Environment.NewLine, sheet.Equipment), attuned.ElementAtOrDefault(0), attuned.ElementAtOrDefault(1), attuned.ElementAtOrDefault(2));
     new ComponentPage
@@ -83,10 +89,18 @@ public class CharacterSheetDocument: Document
       new SecondPageLogo(),
       new SpellCasting
       (
-        string.Join(" / ", sheet.Spellcasting.Select(entry => entry.Ability).Distinct()),
-        casting == null ? string.Empty : string.Join(" / ", sheet.Spellcasting.Select(entry => Signed(entry.Modifier)).Distinct()),
-        casting == null ? string.Empty : string.Join(" / ", sheet.Spellcasting.Select(entry => entry.SaveDc.ToString(CultureInfo.InvariantCulture)).Distinct()),
-        casting == null ? string.Empty : string.Join(" / ", sheet.Spellcasting.Select(entry => Signed(entry.AttackBonus)).Distinct())
+        string.Join(" / ", sheet.Spellcasting
+          .Select(entry => entry.Ability)
+          .Distinct()),
+        casting == null ? string.Empty : string.Join(" / ", sheet.Spellcasting
+          .Select(entry => Signed(entry.Modifier))
+          .Distinct()),
+        casting == null ? string.Empty : string.Join(" / ", sheet.Spellcasting
+          .Select(entry => entry.SaveDc.ToString(CultureInfo.InvariantCulture))
+          .Distinct()),
+        casting == null ? string.Empty : string.Join(" / ", sheet.Spellcasting
+          .Select(entry => Signed(entry.AttackBonus))
+          .Distinct())
       ),
       new SpellSlots(sheet.SpellSlots.ToArray()),
       spells,
@@ -158,7 +172,9 @@ public class CharacterSheetDocument: Document
     AbilityName = ability.Name.ToUpperInvariant(),
     Score = ability.Score,
     SavingThrow = ability.SaveProficiency > 0,
-    Skill = ability.Skills.Select(skill => ((SkillModifierEnum)skill.Proficiency, skill.Name)).ToList(),
+    Skill = ability.Skills
+      .Select(skill => ((SkillModifierEnum)skill.Proficiency, skill.Name))
+      .ToList(),
   };
 
   /// <summary>
@@ -168,7 +184,9 @@ public class CharacterSheetDocument: Document
   {
     Name = attack.Name,
     AttackRollModifier = (sbyte)attack.AttackBonus,
-    DamageRoll = attack.DamageDice.Concat(Enumerable.Repeat(DiceEnum.D1, Math.Max(0, attack.DamageBonus))).ToArray(),
+    DamageRoll = attack.DamageDice
+      .Concat(Enumerable.Repeat(DiceEnum.D1, Math.Max(0, attack.DamageBonus)))
+      .ToArray(),
     DamageType = attack.DamageType ?? DamageTypeEnum.Force,
     Notes = attack.Notes,
     AttackRollText = attack.SaveDc is { } dc ? $"DC {dc}" : null,

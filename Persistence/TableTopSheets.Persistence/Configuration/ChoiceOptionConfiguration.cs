@@ -10,7 +10,13 @@ public class ChoiceOptionConfiguration: IEntityTypeConfiguration<ChoiceOption>
 {
   public void Configure(EntityTypeBuilder<ChoiceOption> builder)
   {
-    builder.HasIndex(entity => new { entity.ChoiceId, entity.Key }).IsUnique();
-    builder.HasOne(entity => entity.GrantsFeature).WithMany().HasForeignKey(entity => entity.GrantsFeatureId).OnDelete(DeleteBehavior.SetNull);
+    builder
+      .HasIndex(entity => new { entity.ChoiceId, entity.Key })
+      .IsUnique();
+    builder
+      .HasOne(entity => entity.GrantsFeature)
+      .WithMany()
+      .HasForeignKey(entity => entity.GrantsFeatureId)
+      .OnDelete(DeleteBehavior.SetNull);
   }
 }

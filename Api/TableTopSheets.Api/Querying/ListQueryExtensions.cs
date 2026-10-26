@@ -26,8 +26,13 @@ public static class ListQueryExtensions
       source = source.Where(entry => searchText(entry).Any(text => text?.Contains(search, StringComparison.OrdinalIgnoreCase) == true));
     }
 
-    List<T> sorted = sorts.Apply(source, query.Sort ?? defaultSort).ToList();
-    return new PagedResult<T>(sorted.Skip((page - 1) * pageSize).Take(pageSize).ToList(), page, pageSize, sorted.Count);
+    List<T> sorted = sorts
+      .Apply(source, query.Sort ?? defaultSort)
+      .ToList();
+    return new PagedResult<T>(sorted
+      .Skip((page - 1) * pageSize)
+      .Take(pageSize)
+      .ToList(), page, pageSize, sorted.Count);
   }
 
   /// <summary>
@@ -44,12 +49,19 @@ public static class ListQueryExtensions
     (int page, int pageSize) = Paging(query);
     if (!string.IsNullOrWhiteSpace(query.Search))
     {
-      string search = query.Search.Trim().ToLowerInvariant();
-      source = source.Where(entry => entry.Name.ToLower().Contains(search) || entry.Key.ToLower().Contains(search));
+      string search = query.Search
+        .Trim()
+        .ToLowerInvariant();
+      source = source.Where(entry => entry.Name
+        .ToLower()
+        .Contains(search) || entry.Key
+        .ToLower()
+        .Contains(search));
     }
 
     int total = await source.CountAsync(cancellationToken);
-    List<T> items = await sorts.Apply(source.AsNoTracking(), query.Sort ?? defaultSort, entry => entry.Key)
+    List<T> items = await sorts
+      .Apply(source.AsNoTracking(), query.Sort ?? defaultSort, entry => entry.Key)
       .Skip((page - 1) * pageSize)
       .Take(pageSize)
       .ToListAsync(cancellationToken);
@@ -60,7 +72,9 @@ public static class ListQueryExtensions
   ///   Map the entries of a page (e.g. to load descriptions only for the visible entries)
   /// </summary>
   public static PagedResult<TResult> Select<T, TResult>(this PagedResult<T> page, Func<T, TResult> map)
-    => new(page.Items.Select(map).ToList(), page.Page, page.PageSize, page.TotalCount);
+    => new(page.Items
+      .Select(map)
+      .ToList(), page.Page, page.PageSize, page.TotalCount);
 
   /// <summary>
   ///   Map the entries of a page read from the database

@@ -34,7 +34,9 @@ public class Logo: BaseComponent
 
     const double radius = Height / 2;
     
-    XImage logo = XImage.FromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("TableTopSheets.Pdf.Resources.SheetLogo.png")!);
+    XImage logo = XImage.FromStream(Assembly
+      .GetExecutingAssembly()
+      .GetManifestResourceStream("TableTopSheets.Pdf.Resources.SheetLogo.png")!);
 
     double scale = (Height / 1.85 ) / logo.PixelHeight;
     gfx.DrawImage(

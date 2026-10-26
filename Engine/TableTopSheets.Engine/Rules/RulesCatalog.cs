@@ -49,7 +49,9 @@ public sealed class RulesCatalog
   )
   {
     this.Classes = classes.ToDictionary(entry => entry.Id);
-    this.Subclasses = this.Classes.Values.SelectMany(entry => entry.Subclasses).ToDictionary(entry => entry.Id);
+    this.Subclasses = this.Classes.Values
+      .SelectMany(entry => entry.Subclasses)
+      .ToDictionary(entry => entry.Id);
     this.Species = species.ToDictionary(entry => entry.Id);
     this.Backgrounds = backgrounds.ToDictionary(entry => entry.Id);
     this.Feats = feats.ToDictionary(entry => entry.Id);
@@ -65,7 +67,9 @@ public sealed class RulesCatalog
     this.FeaturesByKey = this.Features.Values.ToDictionary(entry => entry.Key);
     this.SpellsByKey = this.Spells.Values.ToDictionary(entry => entry.Key);
     this.ItemsByKey = this.Items.Values.ToDictionary(entry => entry.Key);
-    Dictionary<Guid, Choice> choices = this.Features.Values.SelectMany(entry => entry.Choices).ToDictionary(entry => entry.Id);
+    Dictionary<Guid, Choice> choices = this.Features.Values
+      .SelectMany(entry => entry.Choices)
+      .ToDictionary(entry => entry.Id);
     foreach (Choice choice in extraChoices ?? [])
     {
       choices.TryAdd(choice.Id, choice);
@@ -73,15 +77,21 @@ public sealed class RulesCatalog
 
     this.Choices = choices;
     this.ChoicesByKey = this.Choices.Values.ToDictionary(entry => entry.Key);
-    this.Resources = this.Features.Values.SelectMany(entry => entry.Resources).ToList();
+    this.Resources = this.Features.Values
+      .SelectMany(entry => entry.Resources)
+      .ToList();
     this.FeaturesByCategory = this.Features.Values
       .Where(entry => entry.Category != null)
       .GroupBy(entry => entry.Category!)
-      .ToDictionary(group => group.Key, group => (IReadOnlyList<Feature>)group.OrderBy(entry => entry.Name).ToList());
+      .ToDictionary(group => group.Key, group => (IReadOnlyList<Feature>)group
+        .OrderBy(entry => entry.Name)
+        .ToList());
 
     this.ScaleValues = scaleValues
       .GroupBy(entry => entry.Key)
-      .ToDictionary(group => group.Key, group => (IReadOnlyList<ScaleValue>)group.OrderBy(entry => entry.Level).ToList());
+      .ToDictionary(group => group.Key, group => (IReadOnlyList<ScaleValue>)group
+        .OrderBy(entry => entry.Level)
+        .ToList());
 
     this.SpellSlotTables = spellSlotRows
       .GroupBy(entry => entry.TableKey)
@@ -179,8 +189,10 @@ public sealed class RulesCatalog
       .AsNoTracking()
       .AsSplitQuery()
       .Include(entry => entry.Effects)
-      .Include(entry => entry.Choices).ThenInclude(entry => entry.Options)
-      .Include(entry => entry.Choices).ThenInclude(entry => entry.Effects)
+      .Include(entry => entry.Choices)
+      .ThenInclude(entry => entry.Options)
+      .Include(entry => entry.Choices)
+      .ThenInclude(entry => entry.Effects)
       .Include(entry => entry.Resources)
       .Include(entry => entry.Spellcasting)
       .ToListAsync(cancellationToken);
@@ -188,16 +200,34 @@ public sealed class RulesCatalog
     return new RulesCatalog
     (
       classes,
-      await context.Species.AsNoTracking().ToListAsync(cancellationToken),
-      await context.Backgrounds.AsNoTracking().ToListAsync(cancellationToken),
-      await context.Feats.AsNoTracking().ToListAsync(cancellationToken),
+      await context.Species
+        .AsNoTracking()
+        .ToListAsync(cancellationToken),
+      await context.Backgrounds
+        .AsNoTracking()
+        .ToListAsync(cancellationToken),
+      await context.Feats
+        .AsNoTracking()
+        .ToListAsync(cancellationToken),
       features,
-      await context.ScaleValues.AsNoTracking().ToListAsync(cancellationToken),
-      await context.SpellSlotRows.AsNoTracking().ToListAsync(cancellationToken),
-      await context.Spells.AsNoTracking().ToListAsync(cancellationToken),
-      await context.Items.AsNoTracking().ToListAsync(cancellationToken),
-      await context.Languages.AsNoTracking().ToListAsync(cancellationToken),
-      await context.WeaponMasteries.AsNoTracking().ToListAsync(cancellationToken)
+      await context.ScaleValues
+        .AsNoTracking()
+        .ToListAsync(cancellationToken),
+      await context.SpellSlotRows
+        .AsNoTracking()
+        .ToListAsync(cancellationToken),
+      await context.Spells
+        .AsNoTracking()
+        .ToListAsync(cancellationToken),
+      await context.Items
+        .AsNoTracking()
+        .ToListAsync(cancellationToken),
+      await context.Languages
+        .AsNoTracking()
+        .ToListAsync(cancellationToken),
+      await context.WeaponMasteries
+        .AsNoTracking()
+        .ToListAsync(cancellationToken)
     );
   }
 
@@ -284,16 +314,32 @@ public sealed class RulesCatalog
   {
     Dictionary<string, IReadOnlyList<OptionDescriptor>> lists = new()
     {
-      [nameof(OptionSourceEnum.Tool)] = this.Items.Values.OfType<Tool>().Select(OptionProjections.ToolOption).ToList(),
-      [nameof(OptionSourceEnum.Language)] = this.Languages.Values.Select(OptionProjections.LanguageOption).ToList(),
-      [nameof(OptionSourceEnum.Spell)] = this.Spells.Values.Select(OptionProjections.SpellOption).ToList(),
-      [nameof(OptionSourceEnum.Feat)] = this.Feats.Values.Select(OptionProjections.FeatOption).ToList(),
-      [nameof(OptionSourceEnum.Item)] = this.Items.Values.Select(OptionProjections.ItemOption).ToList(),
-      [nameof(OptionSourceEnum.Weapon)] = this.Items.Values.OfType<Weapon>().Select(OptionProjections.WeaponOption).ToList(),
+      [nameof(OptionSourceEnum.Tool)] = this.Items.Values
+        .OfType<Tool>()
+        .Select(OptionProjections.ToolOption)
+        .ToList(),
+      [nameof(OptionSourceEnum.Language)] = this.Languages.Values
+        .Select(OptionProjections.LanguageOption)
+        .ToList(),
+      [nameof(OptionSourceEnum.Spell)] = this.Spells.Values
+        .Select(OptionProjections.SpellOption)
+        .ToList(),
+      [nameof(OptionSourceEnum.Feat)] = this.Feats.Values
+        .Select(OptionProjections.FeatOption)
+        .ToList(),
+      [nameof(OptionSourceEnum.Item)] = this.Items.Values
+        .Select(OptionProjections.ItemOption)
+        .ToList(),
+      [nameof(OptionSourceEnum.Weapon)] = this.Items.Values
+        .OfType<Weapon>()
+        .Select(OptionProjections.WeaponOption)
+        .ToList(),
     };
     foreach ((string category, IReadOnlyList<Feature> features) in this.FeaturesByCategory)
     {
-      lists[$"{OptionSourceEnum.FeatureCategory}:{category}"] = features.Select(OptionProjections.FeatureOption).ToList();
+      lists[$"{OptionSourceEnum.FeatureCategory}:{category}"] = features
+        .Select(OptionProjections.FeatureOption)
+        .ToList();
     }
 
     return lists;

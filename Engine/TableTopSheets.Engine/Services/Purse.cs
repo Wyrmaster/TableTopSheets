@@ -21,7 +21,9 @@ public static class Purse
   /// <summary>
   ///   Value of all coins in copper pieces
   /// </summary>
-  public static long Value(CharacterPlayState purse) => Counts(purse).Select((count, index) => (long)count * Values[index]).Sum();
+  public static long Value(CharacterPlayState purse) => Counts(purse)
+    .Select((count, index) => (long)count * Values[index])
+    .Sum();
 
   /// <summary>
   ///   Pays an amount: coins are spent from the lowest value up; when no exact payment is possible, one larger coin is

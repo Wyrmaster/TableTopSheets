@@ -33,7 +33,9 @@ public static class ChoiceMapper
   public static PendingChoiceDto Pending(CharacterEvaluation evaluation, PendingChoice pending, string? preview = null)
   {
     Choice choice = pending.Choice;
-    List<OptionDescriptor> available = ChoiceService.AvailableOptions(evaluation, choice, pending.Owner).ToList();
+    List<OptionDescriptor> available = ChoiceService
+      .AvailableOptions(evaluation, choice, pending.Owner)
+      .ToList();
     string? parentRef = pending.ParentSelectionId?.ToString();
 
     return new PendingChoiceDto
@@ -54,17 +56,23 @@ public static class ChoiceMapper
       OptionFilters = OptionFilters(choice.OptionSource),
       OptionCount = available.Count,
       Options = available.Count <= EmbeddedOptionLimit
-        ? available.Select(entry => Option(evaluation.Catalog, choice, entry, null, false)).ToList()
+        ? available
+          .Select(entry => Option(evaluation.Catalog, choice, entry, null, false))
+          .ToList()
         : null,
       OptionsUrl = OptionsUrl(evaluation.Character.Id, choice.Key, parentRef, preview),
-      SelectedOptions = evaluation.SelectionsOf(choice, pending.Owner)
+      SelectedOptions = evaluation
+        .SelectionsOf(choice, pending.Owner)
         .Select(entry => new SelectedOptionDto(entry.Selection.Id, entry.Selection.OptionKey, evaluation.OptionName(choice, entry.Selection.OptionKey)))
         .ToList(),
     };
   }
 
   public static IReadOnlyList<PendingChoiceDto> Pending(CharacterEvaluation evaluation, string? preview = null)
-    => ChoiceService.Pending(evaluation).Select(entry => Pending(evaluation, entry, preview)).ToList();
+    => ChoiceService
+      .Pending(evaluation)
+      .Select(entry => Pending(evaluation, entry, preview))
+      .ToList();
 
   public static ChoiceInputKind InputKind(Choice choice, int total)
     => choice.AllowDuplicates && choice.MaxPerOption > 1 && total > 1

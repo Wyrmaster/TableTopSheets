@@ -32,7 +32,9 @@ public static class SeedLoader
         continue;
       }
 
-      foreach (string file in Directory.GetFiles(path, "*.json", SearchOption.AllDirectories).Order(StringComparer.Ordinal))
+      foreach (string file in Directory
+        .GetFiles(path, "*.json", SearchOption.AllDirectories)
+        .Order(StringComparer.Ordinal))
       {
         SeedDocument document;
         try

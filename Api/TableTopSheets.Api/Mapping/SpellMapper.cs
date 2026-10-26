@@ -29,7 +29,11 @@ public static class SpellMapper
 
   private static SpellcastingClassDto Class(CharacterEvaluation evaluation, SpellcastingProfile profile, IEnumerable<KnownSpell> spells)
   {
-    List<KnownSpellDto> list = spells.Select(Spell).OrderBy(entry => entry.Level).ThenBy(entry => entry.Name).ToList();
+    List<KnownSpellDto> list = spells
+      .Select(Spell)
+      .OrderBy(entry => entry.Level)
+      .ThenBy(entry => entry.Name)
+      .ToList();
     return new SpellcastingClassDto
     (
       evaluation.Catalog.Classes[profile.ClassId].Key,
@@ -47,7 +51,9 @@ public static class SpellMapper
     );
   }
 
-  private static int Count(CharacterEvaluation evaluation, string? scaleKey) => scaleKey == null ? 0 : (int)evaluation.Scale(scaleKey).AsNumber();
+  private static int Count(CharacterEvaluation evaluation, string? scaleKey) => scaleKey == null ? 0 : (int)evaluation
+    .Scale(scaleKey)
+    .AsNumber();
 
   private static KnownSpellDto Spell(KnownSpell entry) => new
   (

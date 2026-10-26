@@ -53,7 +53,9 @@ public static class RuleKeys
   /// <summary>
   ///   All skill keys
   /// </summary>
-  public static IReadOnlyList<string> Skills { get; } = SkillToKey.Values.Select(entry => entry.Key).ToList();
+  public static IReadOnlyList<string> Skills { get; } = SkillToKey.Values
+    .Select(entry => entry.Key)
+    .ToList();
 
   #endregion
 
@@ -69,7 +71,9 @@ public static class RuleKeys
 
   public static SkillEnum ToSkill(string key) => SkillToKey.Single(entry => entry.Value.Key == key).Key;
 
-  public static string SkillAbilityKey(string skillKey) => ToSkill(skillKey).Ability().Key();
+  public static string SkillAbilityKey(string skillKey) => ToSkill(skillKey)
+    .Ability()
+    .Key();
 
   public static bool IsAbility(string key) => AbilityToKey.ContainsValue(key);
 

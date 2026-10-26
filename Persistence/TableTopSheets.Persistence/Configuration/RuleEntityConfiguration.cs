@@ -16,10 +16,20 @@ public abstract class RuleEntityConfiguration<TEntity>: IEntityTypeConfiguration
   public void Configure(EntityTypeBuilder<TEntity> builder)
   {
     builder.HasKey(entity => entity.Id);
-    builder.Property(entity => entity.Key).HasMaxLength(128);
-    builder.Property(entity => entity.Name).HasMaxLength(256);
-    builder.HasIndex(entity => entity.Key).IsUnique();
-    builder.HasOne(entity => entity.Source).WithMany().HasForeignKey(entity => entity.SourceId).OnDelete(DeleteBehavior.SetNull);
+    builder
+      .Property(entity => entity.Key)
+      .HasMaxLength(128);
+    builder
+      .Property(entity => entity.Name)
+      .HasMaxLength(256);
+    builder
+      .HasIndex(entity => entity.Key)
+      .IsUnique();
+    builder
+      .HasOne(entity => entity.Source)
+      .WithMany()
+      .HasForeignKey(entity => entity.SourceId)
+      .OnDelete(DeleteBehavior.SetNull);
 
     this.WithConfigure(builder);
   }

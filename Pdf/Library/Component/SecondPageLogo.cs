@@ -120,12 +120,24 @@ public class SecondPageLogo: BaseComponent
     
     #region Images
     
-    XImage image1 = XImage.FromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("TableTopSheets.Pdf.Resources.SecondPageItem1.png")!);
-    XImage image2 = XImage.FromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("TableTopSheets.Pdf.Resources.SecondPageItem2.png")!);
-    XImage image3 = XImage.FromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("TableTopSheets.Pdf.Resources.SecondPageItem3.png")!);
-    XImage image4 = XImage.FromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("TableTopSheets.Pdf.Resources.SecondPageItem4.png")!);
-    XImage image5 = XImage.FromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("TableTopSheets.Pdf.Resources.SecondPageItem5.png")!);
-    XImage logo = XImage.FromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("TableTopSheets.Pdf.Resources.SecondPageLogo.png")!);
+    XImage image1 = XImage.FromStream(Assembly
+      .GetExecutingAssembly()
+      .GetManifestResourceStream("TableTopSheets.Pdf.Resources.SecondPageItem1.png")!);
+    XImage image2 = XImage.FromStream(Assembly
+      .GetExecutingAssembly()
+      .GetManifestResourceStream("TableTopSheets.Pdf.Resources.SecondPageItem2.png")!);
+    XImage image3 = XImage.FromStream(Assembly
+      .GetExecutingAssembly()
+      .GetManifestResourceStream("TableTopSheets.Pdf.Resources.SecondPageItem3.png")!);
+    XImage image4 = XImage.FromStream(Assembly
+      .GetExecutingAssembly()
+      .GetManifestResourceStream("TableTopSheets.Pdf.Resources.SecondPageItem4.png")!);
+    XImage image5 = XImage.FromStream(Assembly
+      .GetExecutingAssembly()
+      .GetManifestResourceStream("TableTopSheets.Pdf.Resources.SecondPageItem5.png")!);
+    XImage logo = XImage.FromStream(Assembly
+      .GetExecutingAssembly()
+      .GetManifestResourceStream("TableTopSheets.Pdf.Resources.SecondPageLogo.png")!);
 
     void DrawImage(XImage image, double xOffset, double scaleY = 1)
     {

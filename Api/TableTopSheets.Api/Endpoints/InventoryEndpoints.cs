@@ -17,30 +17,61 @@ public static class InventoryEndpoints
 
   public static RouteGroupBuilder MapInventoryEndpoints(this IEndpointRouteBuilder routes)
   {
-    RouteGroupBuilder group = routes.MapGroup("/api/characters/{id:guid}").WithTags("Inventory").WithCharacterProblems().RequireUser();
+    RouteGroupBuilder group = routes
+      .MapGroup("/api/characters/{id:guid}")
+      .WithTags("Inventory")
+      .WithCharacterProblems()
+      .RequireUser();
 
-    group.MapGet("/starting-equipment", GetStartingEquipment).WithName("GetStartingEquipment")
+    group
+      .MapGet("/starting-equipment", GetStartingEquipment)
+      .WithName("GetStartingEquipment")
       .WithSummary("Starting equipment of the background and the first class, and which alternative was taken");
-    group.MapPost("/starting-equipment/{source}", TakeStartingEquipment).WithName("TakeStartingEquipment")
+    group
+      .MapPost("/starting-equipment/{source}", TakeStartingEquipment)
+      .WithName("TakeStartingEquipment")
       .WithSummary("Take an alternative of the starting equipment (source Background or Class)")
       .WithDescription("Adds the items and coins of the alternative once per source. Entries with options need a pick keyed by the entry key; "
                        + "a pick of a \"same as above\" entry also answers that tool choice while it is open. Errors answer 422.");
-    group.MapPost("/items", AddItem).WithName("AddItem")
+    group
+      .MapPost("/items", AddItem)
+      .WithName("AddItem")
       .WithSummary("Add an item to the inventory")
       .WithDescription("With purchase true the item's cost is paid from the coins; change is returned. Items sold in bundles (20 arrows) cost per "
                        + "started bundle, the quantity counts pieces. Not enough coins answer 422.");
-    group.MapDelete("/items/{itemId:guid}", RemoveItem).WithName("RemoveItem")
+    group
+      .MapDelete("/items/{itemId:guid}", RemoveItem)
+      .WithName("RemoveItem")
       .WithSummary("Remove an item or part of a stack")
       .WithDescription("quantity removes that many pieces (default: the whole stack); sell=true credits half of the item's cost per piece to the coins.");
-    group.MapPut("/coins", SetCoins).WithName("SetCoins").WithSummary("Replace the coins of the character");
-    group.MapPost("/coins/change", ChangeCoins).WithName("ChangeCoins")
+    group
+      .MapPut("/coins", SetCoins)
+      .WithName("SetCoins")
+      .WithSummary("Replace the coins of the character");
+    group
+      .MapPost("/coins/change", ChangeCoins)
+      .WithName("ChangeCoins")
       .WithSummary("Add (positive) or remove (negative) coins of each kind");
-    group.MapPost("/coins/payments", Pay).WithName("PayCoins")
+    group
+      .MapPost("/coins/payments", Pay)
+      .WithName("PayCoins")
       .WithSummary("Pay an amount in copper pieces; coins are spent and change is returned (422 when not enough)");
-    group.MapPut("/items/{itemId:guid}/slot", Equip).WithName("EquipItem").WithSummary("Equip an item (slot None unequips it)");
-    group.MapPut("/items/{itemId:guid}/attunement", Attune).WithName("AttuneItem").WithSummary("Attune to an item or end the attunement");
-    group.MapPut("/toggles/{featureKey}", Toggle).WithName("ToggleFeature").WithSummary("Switch a toggleable feature on or off");
-    group.MapPut("/armor-class", ArmorClass).WithName("ChooseArmorClass").WithSummary("Choose the armor class calculation");
+    group
+      .MapPut("/items/{itemId:guid}/slot", Equip)
+      .WithName("EquipItem")
+      .WithSummary("Equip an item (slot None unequips it)");
+    group
+      .MapPut("/items/{itemId:guid}/attunement", Attune)
+      .WithName("AttuneItem")
+      .WithSummary("Attune to an item or end the attunement");
+    group
+      .MapPut("/toggles/{featureKey}", Toggle)
+      .WithName("ToggleFeature")
+      .WithSummary("Switch a toggleable feature on or off");
+    group
+      .MapPut("/armor-class", ArmorClass)
+      .WithName("ChooseArmorClass")
+      .WithSummary("Choose the armor class calculation");
     return group;
   }
 

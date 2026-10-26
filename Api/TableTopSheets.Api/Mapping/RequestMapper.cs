@@ -11,7 +11,9 @@ public static class RequestMapper
   #region Methods
 
   public static IReadOnlyList<SelectionRequest> Selections(IReadOnlyList<SelectionDto>? selections)
-    => (selections ?? []).Select(entry => new SelectionRequest(entry.ChoiceKey, entry.OptionKey, entry.Ref, entry.ParentRef)).ToList();
+    => (selections ?? [])
+      .Select(entry => new SelectionRequest(entry.ChoiceKey, entry.OptionKey, entry.Ref, entry.ParentRef))
+      .ToList();
 
   public static CreateCharacterRequest Create(CreateCharacterDto dto) => new()
   {
@@ -32,7 +34,9 @@ public static class RequestMapper
     SubclassKey = dto.SubclassKey,
     HitPointRoll = dto.HitPointRoll,
     Selections = Selections(dto.Selections),
-    Replacements = (dto.Replacements ?? []).Select(entry => new ReplacementRequest(entry.SelectionId, entry.OptionKey)).ToList(),
+    Replacements = (dto.Replacements ?? [])
+      .Select(entry => new ReplacementRequest(entry.SelectionId, entry.OptionKey))
+      .ToList(),
     StartingEquipment = StartingEquipment(dto.StartingEquipment),
     AllowIncomplete = dto.AllowIncomplete,
   };

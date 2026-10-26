@@ -36,7 +36,9 @@ public sealed class QuerySortMap<T>
     Type underlying = Enum.GetUnderlyingType(typeof(TEnum));
     Expression number = Expression.Convert(member.Body, underlying);
     Expression body = Expression.Constant(null, typeof(string));
-    foreach (TEnum value in Enum.GetValues<TEnum>().Reverse())
+    foreach (TEnum value in Enum
+      .GetValues<TEnum>()
+      .Reverse())
     {
       body = Expression.Condition
       (

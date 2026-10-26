@@ -31,17 +31,41 @@ public static class CharacterEndpoints
 
   public static RouteGroupBuilder MapCharacterEndpoints(this IEndpointRouteBuilder routes)
   {
-    RouteGroupBuilder group = routes.MapGroup("/api/characters").WithTags("Characters").WithCharacterProblems().RequireUser();
+    RouteGroupBuilder group = routes
+      .MapGroup("/api/characters")
+      .WithTags("Characters")
+      .WithCharacterProblems()
+      .RequireUser();
 
-    group.MapGet("/", List).WithName("ListCharacters").WithSummary("List the characters of the signed in user");
-    group.MapPost("/", Create).WithName("CreateCharacter")
+    group
+      .MapGet("/", List)
+      .WithName("ListCharacters")
+      .WithSummary("List the characters of the signed in user");
+    group
+      .MapPost("/", Create)
+      .WithName("CreateCharacter")
       .WithSummary("Create a character from its origin (species, background, ability scores)")
       .WithDescription("Saves the character even when origin choices are open (unless allowIncomplete is false). The answer lists the pending choices.");
-    group.MapGet("/{id:guid}", Get).WithName("GetCharacter").WithSummary("Current state with pending choices");
-    group.MapPatch("/{id:guid}", Update).WithName("UpdateCharacter").WithSummary("Change name, alignment, appearance, backstory or experience");
-    group.MapDelete("/{id:guid}", Delete).WithName("DeleteCharacter").WithSummary("Delete a character");
-    group.MapGet("/{id:guid}/sheet", Sheet).WithName("GetCharacterSheet").WithSummary("Every computed value of the character sheet");
-    group.MapGet("/{id:guid}/sheet.pdf", Pdf).WithName("GetCharacterSheetPdf").WithSummary("Printable character sheet")
+    group
+      .MapGet("/{id:guid}", Get)
+      .WithName("GetCharacter")
+      .WithSummary("Current state with pending choices");
+    group
+      .MapPatch("/{id:guid}", Update)
+      .WithName("UpdateCharacter")
+      .WithSummary("Change name, alignment, appearance, backstory or experience");
+    group
+      .MapDelete("/{id:guid}", Delete)
+      .WithName("DeleteCharacter")
+      .WithSummary("Delete a character");
+    group
+      .MapGet("/{id:guid}/sheet", Sheet)
+      .WithName("GetCharacterSheet")
+      .WithSummary("Every computed value of the character sheet");
+    group
+      .MapGet("/{id:guid}/sheet.pdf", Pdf)
+      .WithName("GetCharacterSheetPdf")
+      .WithSummary("Printable character sheet")
       .Produces(StatusCodes.Status200OK, contentType: "application/pdf");
     return group;
   }
@@ -63,7 +87,10 @@ public static class CharacterEndpoints
       .Where(entry => entry.OwnerId == currentUser.UserId)
       .WhereIf(species != null, entry => entry.Species != null && entry.Species.Key.ToLower() == species)
       .ToListAsync(cancellationToken);
-    Dictionary<Guid, CharacterClass> classes = await context.Classes.AsNoTracking().Include(entry => entry.Subclasses).ToDictionaryAsync(entry => entry.Id, cancellationToken);
+    Dictionary<Guid, CharacterClass> classes = await context.Classes
+      .AsNoTracking()
+      .Include(entry => entry.Subclasses)
+      .ToDictionaryAsync(entry => entry.Id, cancellationToken);
     Dictionary<Guid, string> speciesNames = await context.Species.ToDictionaryAsync(entry => entry.Id, entry => entry.Name, cancellationToken);
     Dictionary<Guid, string> backgroundNames = await context.Backgrounds.ToDictionaryAsync(entry => entry.Id, entry => entry.Name, cancellationToken);
 
@@ -110,7 +137,11 @@ public static class CharacterEndpoints
 
   private static string FileName(string name)
   {
-    string cleaned = new(name.Select(entry => Path.GetInvalidFileNameChars().Contains(entry) || char.IsWhiteSpace(entry) ? '-' : entry).ToArray());
+    string cleaned = new(name
+      .Select(entry => Path
+        .GetInvalidFileNameChars()
+        .Contains(entry) || char.IsWhiteSpace(entry) ? '-' : entry)
+      .ToArray());
     return cleaned.Length == 0 ? "character" : cleaned;
   }
 

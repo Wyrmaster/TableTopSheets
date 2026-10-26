@@ -90,7 +90,10 @@ public class TableTopSheetsContext: DbContext
     base.ConfigureConventions(configurationBuilder);
 
     // enums are stored as text so the database stays readable and seed data survives enum reordering
-    configurationBuilder.Properties<System.Enum>().HaveConversion<string>().HaveMaxLength(64);
+    configurationBuilder
+      .Properties<System.Enum>()
+      .HaveConversion<string>()
+      .HaveMaxLength(64);
   }
 
   protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -100,7 +103,9 @@ public class TableTopSheetsContext: DbContext
     modelBuilder.ApplyConfigurationsFromAssembly(typeof(TableTopSheetsContext).Assembly);
 
     // ids are always assigned in code (deterministic for seed data), so entities added through a navigation are inserted
-    foreach (IMutableEntityType entityType in modelBuilder.Model.GetEntityTypes().Where(entry => typeof(BaseEntity).IsAssignableFrom(entry.ClrType) && entry.BaseType == null))
+    foreach (IMutableEntityType entityType in modelBuilder.Model
+      .GetEntityTypes()
+      .Where(entry => typeof(BaseEntity).IsAssignableFrom(entry.ClrType) && entry.BaseType == null))
     {
       entityType.FindProperty(nameof(BaseEntity.Id))!.ValueGenerated = ValueGenerated.Never;
     }

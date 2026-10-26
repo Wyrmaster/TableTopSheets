@@ -87,10 +87,13 @@ public class RulesCatalogLoaderTests
     return slice;
   }
 
-  private static object Describe(CharacterEvaluation evaluation) => ChoiceService.Pending(evaluation)
+  private static object Describe(CharacterEvaluation evaluation) => ChoiceService
+    .Pending(evaluation)
     .Select(pending =>
     {
-      List<OptionAvailability> options = ChoiceService.EvaluateOptions(evaluation, pending.Choice, pending.Owner).ToList();
+      List<OptionAvailability> options = ChoiceService
+        .EvaluateOptions(evaluation, pending.Choice, pending.Owner)
+        .ToList();
       bool embedded = options.Count(entry => entry.Available) <= ChoiceService.EmbeddedOptionLimit;
       return new
       {

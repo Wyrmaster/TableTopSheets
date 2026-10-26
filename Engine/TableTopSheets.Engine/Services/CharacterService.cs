@@ -66,9 +66,13 @@ public sealed class CharacterService(TableTopSheetsContext context, IRulesCatalo
   /// <inheritdoc />
   public async Task<Character> CreateAsync(CreateCharacterRequest request, CancellationToken cancellationToken = default)
   {
-    Species species = await context.Species.AsNoTracking().SingleOrDefaultAsync(entry => entry.Key == request.SpeciesKey, cancellationToken)
+    Species species = await context.Species
+      .AsNoTracking()
+      .SingleOrDefaultAsync(entry => entry.Key == request.SpeciesKey, cancellationToken)
                       ?? throw new RuleViolationException($"Unknown species '{request.SpeciesKey}'");
-    Background background = await context.Backgrounds.AsNoTracking().SingleOrDefaultAsync(entry => entry.Key == request.BackgroundKey, cancellationToken)
+    Background background = await context.Backgrounds
+      .AsNoTracking()
+      .SingleOrDefaultAsync(entry => entry.Key == request.BackgroundKey, cancellationToken)
                             ?? throw new RuleViolationException($"Unknown background '{request.BackgroundKey}'");
 
     byte Score(string ability) => request.Abilities.TryGetValue(ability, out byte score)
@@ -199,7 +203,9 @@ public sealed class CharacterService(TableTopSheetsContext context, IRulesCatalo
 
   /// <inheritdoc />
   public async Task<IReadOnlyList<PendingChoice>> PreviewLevelUpAsync(Guid characterId, string classKey, string? subclassKey = null, CancellationToken cancellationToken = default)
-    => await this.PreviewLevelUpAsync(characterId, classKey, subclassKey, evaluation => ChoiceService.Pending(evaluation).ToList(), cancellationToken);
+    => await this.PreviewLevelUpAsync(characterId, classKey, subclassKey, evaluation => ChoiceService
+      .Pending(evaluation)
+      .ToList(), cancellationToken);
 
   /// <inheritdoc />
   public Task<T> PreviewLevelUpAsync<T>(Guid characterId, string classKey, string? subclassKey, Func<CharacterEvaluation, T> project, CancellationToken cancellationToken = default)
@@ -370,7 +376,9 @@ public sealed class CharacterService(TableTopSheetsContext context, IRulesCatalo
     CharacterLevel level = character.Levels.MaxBy(entry => entry.Number)
                            ?? throw new RuleViolationException("The character has no level to undo");
 
-    foreach (CharacterChoice choice in character.Choices.Where(entry => entry.LevelId == level.Id).ToList())
+    foreach (CharacterChoice choice in character.Choices
+      .Where(entry => entry.LevelId == level.Id)
+      .ToList())
     {
       RemoveSelection(character, choice);
     }
@@ -450,21 +458,30 @@ public sealed class CharacterService(TableTopSheetsContext context, IRulesCatalo
                                   ?? throw new RuleViolationException($"The character doesn't prepare {@class.Name} spells on a long rest");
 
     List<string> errors = new();
-    int limit = profile.PreparedCountKey == null ? 0 : (int)evaluation.Scale(profile.PreparedCountKey).AsNumber();
+    int limit = profile.PreparedCountKey == null ? 0 : (int)evaluation
+      .Scale(profile.PreparedCountKey)
+      .AsNumber();
     if (spellKeys.Count > limit)
     {
       errors.Add($"Only {limit} {@class.Name} spells can be prepared");
     }
 
-    if (spellKeys.Distinct().Count() != spellKeys.Count)
+    if (spellKeys
+      .Distinct()
+      .Count() != spellKeys.Count)
     {
       errors.Add("A spell can only be prepared once");
     }
 
     int maxLevel = evaluation.MaxSpellLevel(profile);
     IReadOnlySet<Guid> spellbook = evaluation.SpellbookSpellIds();
-    List<string> keys = spellKeys.Distinct().ToList();
-    Dictionary<string, Spell> known = await context.Spells.AsNoTracking().Where(entry => keys.Contains(entry.Key)).ToDictionaryAsync(entry => entry.Key, cancellationToken);
+    List<string> keys = spellKeys
+      .Distinct()
+      .ToList();
+    Dictionary<string, Spell> known = await context.Spells
+      .AsNoTracking()
+      .Where(entry => keys.Contains(entry.Key))
+      .ToDictionaryAsync(entry => entry.Key, cancellationToken);
     List<Spell> spells = new();
     foreach (string key in spellKeys)
     {
@@ -492,7 +509,9 @@ public sealed class CharacterService(TableTopSheetsContext context, IRulesCatalo
       throw new RuleViolationException(errors);
     }
 
-    foreach (CharacterPreparedSpell prepared in character.PreparedSpells.Where(entry => entry.ClassId == @class.Id).ToList())
+    foreach (CharacterPreparedSpell prepared in character.PreparedSpells
+      .Where(entry => entry.ClassId == @class.Id)
+      .ToList())
     {
       character.PreparedSpells.Remove(prepared);
       context.CharacterPreparedSpells.Remove(prepared);
@@ -514,14 +533,18 @@ public sealed class CharacterService(TableTopSheetsContext context, IRulesCatalo
     CharacterEvaluation evaluation = await this.EvaluateRulesAsync(character, cancellationToken);
     SpellcastingProfile profile = evaluation.SpellcastingProfiles.FirstOrDefault(entry => entry.Pool == SpellPoolEnum.Spellbook)
                                   ?? throw new RuleViolationException("The character has no spellbook");
-    Spell spell = await context.Spells.AsNoTracking().SingleOrDefaultAsync(entry => entry.Key == spellKey, cancellationToken)
+    Spell spell = await context.Spells
+      .AsNoTracking()
+      .SingleOrDefaultAsync(entry => entry.Key == spellKey, cancellationToken)
                   ?? throw new RuleViolationException($"Unknown spell '{spellKey}'");
     if (spell.Level == 0 || spell.Level > evaluation.MaxSpellLevel(profile) || !spell.Lists.Contains(profile.SpellListKey))
     {
       throw new RuleViolationException($"{spell.Name} can't be copied into the spellbook");
     }
 
-    if (evaluation.SpellbookSpellIds().Contains(spell.Id))
+    if (evaluation
+      .SpellbookSpellIds()
+      .Contains(spell.Id))
     {
       throw new RuleViolationException($"{spell.Name} is already in the spellbook");
     }
@@ -544,7 +567,9 @@ public sealed class CharacterService(TableTopSheetsContext context, IRulesCatalo
     }
 
     Character character = await this.LoadAsync(characterId, cancellationToken);
-    Item item = await context.Items.AsNoTracking().SingleOrDefaultAsync(entry => entry.Key == itemKey, cancellationToken)
+    Item item = await context.Items
+      .AsNoTracking()
+      .SingleOrDefaultAsync(entry => entry.Key == itemKey, cancellationToken)
                 ?? throw new RuleViolationException($"Unknown item '{itemKey}'");
     // items sold in bundles (20 arrows) cost per started bundle; the quantity counts pieces
     if (purchase)
@@ -572,7 +597,9 @@ public sealed class CharacterService(TableTopSheetsContext context, IRulesCatalo
 
     if (sell)
     {
-      Item item = await context.Items.AsNoTracking().SingleAsync(rule => rule.Id == entry.ItemId, cancellationToken);
+      Item item = await context.Items
+        .AsNoTracking()
+        .SingleAsync(rule => rule.Id == entry.ItemId, cancellationToken);
       Purse.Add(character.PlayState, (long)item.CostCp * removed / item.Bundle / 2);
     }
 
@@ -698,7 +725,10 @@ public sealed class CharacterService(TableTopSheetsContext context, IRulesCatalo
 
     await this.ApplySelectionsAsync(character, owner.LevelId, selections, cancellationToken);
 
-    List<string> keys = picked.Select(entry => entry.ItemKey).Distinct().ToList();
+    List<string> keys = picked
+      .Select(entry => entry.ItemKey)
+      .Distinct()
+      .ToList();
     Dictionary<string, Guid> items = await context.Items
       .Where(entry => keys.Contains(entry.Key))
       .ToDictionaryAsync(entry => entry.Key, entry => entry.Id, cancellationToken);
@@ -803,7 +833,9 @@ public sealed class CharacterService(TableTopSheetsContext context, IRulesCatalo
     Character character = await this.LoadAsync(characterId, cancellationToken);
     CharacterItem entry = character.Items.SingleOrDefault(item => item.Id == characterItemId)
                           ?? throw new RuleViolationException($"Item {characterItemId} doesn't belong to the character");
-    Item item = await context.Items.AsNoTracking().SingleAsync(rule => rule.Id == entry.ItemId, cancellationToken);
+    Item item = await context.Items
+      .AsNoTracking()
+      .SingleAsync(rule => rule.Id == entry.ItemId, cancellationToken);
 
     bool allowed = slot switch
     {
@@ -821,8 +853,14 @@ public sealed class CharacterService(TableTopSheetsContext context, IRulesCatalo
 
     if (slot is EquipSlotEnum.Armor or EquipSlotEnum.MainHand or EquipSlotEnum.OffHand)
     {
-      List<Guid> others = character.Items.Where(other => other.EquipSlot == slot && other.Id != entry.Id).Select(other => other.ItemId).ToList();
-      Dictionary<Guid, Item> displaced = await context.Items.AsNoTracking().Where(rule => others.Contains(rule.Id)).ToDictionaryAsync(rule => rule.Id, cancellationToken);
+      List<Guid> others = character.Items
+        .Where(other => other.EquipSlot == slot && other.Id != entry.Id)
+        .Select(other => other.ItemId)
+        .ToList();
+      Dictionary<Guid, Item> displaced = await context.Items
+        .AsNoTracking()
+        .Where(rule => others.Contains(rule.Id))
+        .ToDictionaryAsync(rule => rule.Id, cancellationToken);
       foreach (CharacterItem other in character.Items.Where(other => other.EquipSlot == slot && other.Id != entry.Id))
       {
         other.EquipSlot = slot != EquipSlotEnum.Armor && displaced[other.ItemId] is Weapon ? EquipSlotEnum.Ready : EquipSlotEnum.None;
@@ -840,7 +878,9 @@ public sealed class CharacterService(TableTopSheetsContext context, IRulesCatalo
     Character character = await this.LoadAsync(characterId, cancellationToken);
     CharacterItem entry = character.Items.SingleOrDefault(item => item.Id == characterItemId)
                           ?? throw new RuleViolationException($"Item {characterItemId} doesn't belong to the character");
-    Item item = await context.Items.AsNoTracking().SingleAsync(rule => rule.Id == entry.ItemId, cancellationToken);
+    Item item = await context.Items
+      .AsNoTracking()
+      .SingleAsync(rule => rule.Id == entry.ItemId, cancellationToken);
     if (attuned && !item.RequiresAttunement)
     {
       throw new RuleViolationException($"{item.Name} doesn't require attunement");
@@ -860,7 +900,9 @@ public sealed class CharacterService(TableTopSheetsContext context, IRulesCatalo
   public async Task<CharacterEvaluation> ToggleAsync(Guid characterId, string featureKey, bool active, CancellationToken cancellationToken = default)
   {
     Character character = await this.LoadAsync(characterId, cancellationToken);
-    Feature feature = await context.Features.AsNoTracking().SingleOrDefaultAsync(entry => entry.Key == featureKey, cancellationToken)
+    Feature feature = await context.Features
+      .AsNoTracking()
+      .SingleOrDefaultAsync(entry => entry.Key == featureKey, cancellationToken)
                       ?? throw new RuleViolationException($"Unknown feature '{featureKey}'");
     if (!feature.Toggleable)
     {
@@ -874,8 +916,13 @@ public sealed class CharacterService(TableTopSheetsContext context, IRulesCatalo
     }
 
     character.ActiveToggles = active
-      ? character.ActiveToggles.Append(feature.Key).Distinct().ToList()
-      : character.ActiveToggles.Where(entry => entry != feature.Key).ToList();
+      ? character.ActiveToggles
+        .Append(feature.Key)
+        .Distinct()
+        .ToList()
+      : character.ActiveToggles
+        .Where(entry => entry != feature.Key)
+        .ToList();
     await context.SaveChangesAsync(cancellationToken);
     return await this.EvaluateAsync(character, cancellationToken);
   }
@@ -923,8 +970,14 @@ public sealed class CharacterService(TableTopSheetsContext context, IRulesCatalo
     Dictionary<string, Guid> references = new();
 
     // a choice of a feature granted by an earlier selection is only part of the rules once that selection is made
-    List<string> choiceKeys = pending.Select(entry => entry.ChoiceKey).Distinct().ToList();
-    HashSet<string> known = (await context.Choices.Where(entry => choiceKeys.Contains(entry.Key)).Select(entry => entry.Key).ToListAsync(cancellationToken)).ToHashSet();
+    List<string> choiceKeys = pending
+      .Select(entry => entry.ChoiceKey)
+      .Distinct()
+      .ToList();
+    HashSet<string> known = (await context.Choices
+      .Where(entry => choiceKeys.Contains(entry.Key))
+      .Select(entry => entry.Key)
+      .ToListAsync(cancellationToken)).ToHashSet();
     if (choiceKeys.FirstOrDefault(entry => !known.Contains(entry)) is { } unknown)
     {
       throw new RuleViolationException($"Unknown choice '{unknown}'");
@@ -988,7 +1041,9 @@ public sealed class CharacterService(TableTopSheetsContext context, IRulesCatalo
 
       if (applied == null)
       {
-        throw new RuleViolationException(pending.Select(entry => $"'{entry.ChoiceKey}' is not an available choice").ToList());
+        throw new RuleViolationException(pending
+          .Select(entry => $"'{entry.ChoiceKey}' is not an available choice")
+          .ToList());
       }
 
       pending.Remove(applied);
@@ -997,7 +1052,8 @@ public sealed class CharacterService(TableTopSheetsContext context, IRulesCatalo
 
   private static void EnsureComplete(CharacterEvaluation evaluation)
   {
-    List<string> errors = ChoiceService.Pending(evaluation)
+    List<string> errors = ChoiceService
+      .Pending(evaluation)
       .Where(entry => !entry.Choice.Optional)
       .Select(entry => $"'{entry.Choice.Key}' ({entry.Owner.Source}) needs {entry.Remaining} more selection(s)")
       .ToList();
@@ -1015,7 +1071,9 @@ public sealed class CharacterService(TableTopSheetsContext context, IRulesCatalo
 
   private static void RemoveSelection(Character character, CharacterChoice selection)
   {
-    foreach (CharacterChoice child in character.Choices.Where(entry => entry.ParentId == selection.Id).ToList())
+    foreach (CharacterChoice child in character.Choices
+      .Where(entry => entry.ParentId == selection.Id)
+      .ToList())
     {
       RemoveSelection(character, child);
     }
@@ -1037,12 +1095,16 @@ public sealed class CharacterService(TableTopSheetsContext context, IRulesCatalo
     }
     catch
     {
-      foreach (CharacterLevel added in character.Levels.Except(levels).ToList())
+      foreach (CharacterLevel added in character.Levels
+        .Except(levels)
+        .ToList())
       {
         character.Levels.Remove(added);
       }
 
-      foreach (CharacterChoice added in character.Choices.Except(choices).ToList())
+      foreach (CharacterChoice added in character.Choices
+        .Except(choices)
+        .ToList())
       {
         character.Choices.Remove(added);
       }

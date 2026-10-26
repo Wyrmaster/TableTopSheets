@@ -8,6 +8,8 @@ public class CharacterResourceUsageConfiguration: IEntityTypeConfiguration<Chara
 {
   public void Configure(EntityTypeBuilder<CharacterResourceUsage> builder)
   {
-    builder.HasIndex(entity => new { entity.CharacterId, entity.Key }).IsUnique();
+    builder
+      .HasIndex(entity => new { entity.CharacterId, entity.Key })
+      .IsUnique();
   }
 }

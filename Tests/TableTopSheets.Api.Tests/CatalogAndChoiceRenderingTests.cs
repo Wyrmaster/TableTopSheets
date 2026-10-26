@@ -29,9 +29,14 @@ public sealed class CatalogAndChoiceRenderingTests(ApiFactory factory): IClassFi
     PagedResult<SpellSummaryDto> page = await this._api.GetAsync<PagedResult<SpellSummaryDto>>("/api/rules/spells?class=wizard&level=1&pageSize=10&page=2");
 
     Assert.Equal(all.TotalCount, page.TotalCount);
-    Assert.Equal(all.Items.Skip(10).Take(10).Select(entry => entry.Key), page.Items.Select(entry => entry.Key));
+    Assert.Equal(all.Items
+      .Skip(10)
+      .Take(10)
+      .Select(entry => entry.Key), page.Items.Select(entry => entry.Key));
     Assert.All(all.Items, entry => Assert.True(entry.Level == 1 && entry.Lists.Contains("wizard")));
-    Assert.Equal(all.Items.Select(entry => entry.Name).Order(StringComparer.CurrentCulture), all.Items.Select(entry => entry.Name));
+    Assert.Equal(all.Items
+      .Select(entry => entry.Name)
+      .Order(StringComparer.CurrentCulture), all.Items.Select(entry => entry.Name));
 
     PagedResult<SpellSummaryDto> byLevel = await this._api.GetAsync<PagedResult<SpellSummaryDto>>("/api/rules/spells?sort=-level,name&pageSize=5");
     Assert.All(byLevel.Items, entry => Assert.Equal(9, entry.Level));
@@ -69,8 +74,12 @@ public sealed class CatalogAndChoiceRenderingTests(ApiFactory factory): IClassFi
     Assert.Equal(ChoiceInputKind.Distribution, abilities.Input);
     Assert.Equal(2, abilities.Constraints.MaxPerOption);
     Assert.Equal(3, abilities.Constraints.Min);
-    Assert.Equal([[2, 1], [1, 1, 1]], abilities.Constraints.AllowedPatterns!.Select(entry => entry.ToArray()).ToArray());
-    Assert.Equal(["con", "int", "wis"], abilities.Options!.Select(entry => entry.Key).Order());
+    Assert.Equal([[2, 1], [1, 1, 1]], abilities.Constraints.AllowedPatterns!
+      .Select(entry => entry.ToArray())
+      .ToArray());
+    Assert.Equal(["con", "int", "wis"], abilities.Options!
+      .Select(entry => entry.Key)
+      .Order());
 
     PendingChoiceDto senses = draft.PendingChoices.Single(entry => entry.ChoiceKey == "elf.keen-senses");
     Assert.Equal(ChoiceInputKind.SingleSelect, senses.Input);
@@ -116,10 +125,14 @@ public sealed class CatalogAndChoiceRenderingTests(ApiFactory factory): IClassFi
   public async Task OpenApi_DescribesTheOperations()
   {
     using JsonDocument document = JsonDocument.Parse(await this._api.Http.GetStringAsync("/openapi/v1.json"));
-    List<string> operations = document.RootElement.GetProperty("paths").EnumerateObject()
+    List<string> operations = document.RootElement
+      .GetProperty("paths")
+      .EnumerateObject()
       .SelectMany(path => path.Value.EnumerateObject())
       .Where(operation => operation.Value.ValueKind == JsonValueKind.Object && operation.Value.TryGetProperty("operationId", out _))
-      .Select(operation => operation.Value.GetProperty("operationId").GetString()!)
+      .Select(operation => operation.Value
+        .GetProperty("operationId")
+        .GetString()!)
       .ToList();
 
     Assert.Contains("CreateCharacter", operations);
@@ -129,7 +142,10 @@ public sealed class CatalogAndChoiceRenderingTests(ApiFactory factory): IClassFi
     Assert.Contains("PreviewLevelUp", operations);
     Assert.Contains("LevelUp", operations);
     Assert.Contains("UndoLevel", operations);
-    Assert.True(document.RootElement.GetProperty("components").GetProperty("schemas").TryGetProperty("ChoiceInputKind", out _));
+    Assert.True(document.RootElement
+      .GetProperty("components")
+      .GetProperty("schemas")
+      .TryGetProperty("ChoiceInputKind", out _));
   }
 
   #endregion

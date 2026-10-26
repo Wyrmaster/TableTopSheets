@@ -35,12 +35,17 @@ public sealed class Expression
   public IEnumerable<(string Function, IReadOnlyList<string?> LiteralArguments)> Calls => this._root
     .Descendants()
     .OfType<CallNode>()
-    .Select(call => (call.Function, (IReadOnlyList<string?>)call.Arguments.Select(argument => (argument as LiteralNode)?.Value.AsString()).ToList()));
+    .Select(call => (call.Function, (IReadOnlyList<string?>)call.Arguments
+      .Select(argument => (argument as LiteralNode)?.Value.AsString())
+      .ToList()));
 
   /// <summary>
   ///   Identifiers referenced by the expression
   /// </summary>
-  public IEnumerable<string> Identifiers => this._root.Descendants().OfType<IdentifierNode>().Select(node => node.Name);
+  public IEnumerable<string> Identifiers => this._root
+    .Descendants()
+    .OfType<IdentifierNode>()
+    .Select(node => node.Name);
 
   #endregion
 
@@ -60,9 +65,13 @@ public sealed class Expression
     }
   }
 
-  public double EvaluateNumber(IExpressionContext context) => this.Evaluate(context).AsNumber();
+  public double EvaluateNumber(IExpressionContext context) => this
+    .Evaluate(context)
+    .AsNumber();
 
-  public bool EvaluateBoolean(IExpressionContext context) => this.Evaluate(context).AsBoolean();
+  public bool EvaluateBoolean(IExpressionContext context) => this
+    .Evaluate(context)
+    .AsBoolean();
 
   public override string ToString() => this.Source;
 

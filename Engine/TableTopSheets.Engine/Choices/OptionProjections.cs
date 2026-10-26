@@ -19,7 +19,9 @@ public static class OptionProjections
     entry.Key,
     entry.Name,
     entry.Level,
-    entry.School.ToString().ToLowerInvariant(),
+    entry.School
+      .ToString()
+      .ToLowerInvariant(),
     entry.Ritual,
     null,
     null,
@@ -77,7 +79,9 @@ public static class OptionProjections
     0,
     null,
     false,
-    entry.Kind.ToString().ToLowerInvariant(),
+    entry.Kind
+      .ToString()
+      .ToLowerInvariant(),
     null,
     false,
     null,
@@ -105,7 +109,9 @@ public static class OptionProjections
     0,
     null,
     false,
-    entry.Category.ToString().ToLowerInvariant(),
+    entry.Category
+      .ToString()
+      .ToLowerInvariant(),
     null,
     false,
     null,

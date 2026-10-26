@@ -21,7 +21,9 @@ public static class AuthenticationSetup
   /// </summary>
   public static WebApplicationBuilder AddTableTopSheetsAuthentication(this WebApplicationBuilder builder)
   {
-    AuthenticationOptions options = builder.Configuration.GetSection(AuthenticationOptions.Section).Get<AuthenticationOptions>() ?? new AuthenticationOptions();
+    AuthenticationOptions options = builder.Configuration
+      .GetSection(AuthenticationOptions.Section)
+      .Get<AuthenticationOptions>() ?? new AuthenticationOptions();
     IAuthenticationProvider provider = options.Provider switch
     {
       AuthenticationProvider.Oidc => new OidcAuthenticationProvider(options),
@@ -32,7 +34,9 @@ public static class AuthenticationSetup
     builder.Services.AddSingleton(provider);
     builder.Services.AddScoped<CurrentUser>();
     builder.Services.AddScoped<ICurrentUser>(services => services.GetRequiredService<CurrentUser>());
-    builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(provider.ConfigureJwtBearer);
+    builder.Services
+      .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+      .AddJwtBearer(provider.ConfigureJwtBearer);
     builder.Services.AddAuthorization();
     return builder;
   }

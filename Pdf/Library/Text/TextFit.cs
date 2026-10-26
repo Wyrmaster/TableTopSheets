@@ -115,7 +115,10 @@ public static class TextFit
   /// </summary>
   public static (XFont Font, string Text, bool Truncated) FitSingleLine(XGraphics gfx, string text, string family, XFontStyleEx style, double maxSize, double minSize, double width, double maxHeight = double.MaxValue)
   {
-    string line = string.Join(" ", text.Replace("\r", " ").Replace("\n", " ").Split(' ', StringSplitOptions.RemoveEmptyEntries));
+    string line = string.Join(" ", text
+      .Replace("\r", " ")
+      .Replace("\n", " ")
+      .Split(' ', StringSplitOptions.RemoveEmptyEntries));
     for (double size = maxSize; size >= minSize - Epsilon; size -= Step)
     {
       XFont font = new(family, size, style);
@@ -157,7 +160,9 @@ public static class TextFit
   private static List<IReadOnlyList<string>> Fill(LineBreaker breaker, XRect[] rects, XFont font, string? ellipsis, XGraphics gfx)
   {
     double lineHeight = LineHeight(font);
-    int[] capacity = rects.Select(rect => Math.Max(0, (int)Math.Floor((rect.Height + Epsilon) / lineHeight))).ToArray();
+    int[] capacity = rects
+      .Select(rect => Math.Max(0, (int)Math.Floor((rect.Height + Epsilon) / lineHeight)))
+      .ToArray();
     int lastRect = Array.FindLastIndex(capacity, entry => entry > 0);
 
     List<IReadOnlyList<string>> result = [];

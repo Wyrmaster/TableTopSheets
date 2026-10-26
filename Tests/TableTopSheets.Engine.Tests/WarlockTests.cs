@@ -90,7 +90,10 @@ public class WarlockTests
     Guid id = await world.CreateCharacterAsync(TestWorld.Scores(8, 14, 13, 13, 12, 15), "entertainer", "cha", "cha", "dex");
     await world.LevelUpAsync(id, "warlock");
     CharacterEvaluation level2 = await world.LevelUpAsync(id, "warlock");
-    List<Guid> invocations = level2.Selections.Where(entry => entry.Choice.Key == "warlock.invocations").Select(entry => entry.Selection.Id).ToList();
+    List<Guid> invocations = level2.Selections
+      .Where(entry => entry.Choice.Key == "warlock.invocations")
+      .Select(entry => entry.Selection.Id)
+      .ToList();
 
     await Assert.ThrowsAsync<RuleViolationException>(() => world.LevelUpAsync(id, "warlock", "fiend-patron", replacements:
     [

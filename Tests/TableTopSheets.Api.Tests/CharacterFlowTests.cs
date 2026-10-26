@@ -73,7 +73,9 @@ public sealed class CharacterFlowTests(ApiFactory factory): IClassFixture<ApiFac
     Assert.Equal(17, state.Abilities.Single(entry => entry.Key == "int").Score);
 
     // without the nested selections the strict request is rejected
-    HttpResponseMessage rejected = await this._api.PostRawAsync("/api/characters", request with { Selections = request.Selections.Take(9).ToList() });
+    HttpResponseMessage rejected = await this._api.PostRawAsync("/api/characters", request with { Selections = request.Selections
+      .Take(9)
+      .ToList() });
     Assert.Equal(HttpStatusCode.UnprocessableEntity, rejected.StatusCode);
   }
 
@@ -91,7 +93,9 @@ public sealed class CharacterFlowTests(ApiFactory factory): IClassFixture<ApiFac
     PendingChoiceDto abilities = state.PendingChoices.Single(entry => entry.ChoiceKey == "ability-score-improvement.abilities");
     Assert.Equal(ChoiceInputKind.Distribution, abilities.Input);
     Assert.NotNull(abilities.ParentRef);
-    Assert.Equal([[2], [1, 1]], abilities.Constraints.AllowedPatterns!.Select(entry => entry.ToArray()).ToArray());
+    Assert.Equal([[2], [1, 1]], abilities.Constraints.AllowedPatterns!
+      .Select(entry => entry.ToArray())
+      .ToArray());
 
     int before = state.Abilities.Single(entry => entry.Key == "int").Score;
     state = await this._api.SelectAsync
@@ -231,7 +235,9 @@ public sealed class CharacterFlowTests(ApiFactory factory): IClassFixture<ApiFac
     Assert.Equal("application/pdf", response.Content.Headers.ContentType?.MediaType);
     byte[] content = await response.Content.ReadAsByteArrayAsync();
     Assert.True(content.Length > 1000);
-    Assert.Equal("%PDF"u8.ToArray(), content.Take(4).ToArray());
+    Assert.Equal("%PDF"u8.ToArray(), content
+      .Take(4)
+      .ToArray());
   }
 
   #endregion

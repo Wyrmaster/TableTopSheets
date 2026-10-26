@@ -118,7 +118,10 @@ internal sealed class LineBreaker
       .Skip(this._paragraph + 1)
       .Select(entry => string.Join(" ", entry))
       .Prepend(string.Join(" ", current));
-    string rest = string.Join("\n", paragraphs).TrimStart('\n').TrimEnd();
+    string rest = string
+      .Join("\n", paragraphs)
+      .TrimStart('\n')
+      .TrimEnd();
     return rest.Length == 0 ? null : rest;
   }
 
@@ -130,7 +133,11 @@ internal sealed class LineBreaker
 
   private static string[][] Paragraphs(string text)
   {
-    string normalized = text.Replace("\r\n", "\n").Replace('\r', '\n').Replace('\t', ' ').TrimEnd();
+    string normalized = text
+      .Replace("\r\n", "\n")
+      .Replace('\r', '\n')
+      .Replace('\t', ' ')
+      .TrimEnd();
     if (normalized.Length == 0)
     {
       return [];

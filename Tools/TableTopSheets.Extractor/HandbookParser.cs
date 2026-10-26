@@ -35,7 +35,9 @@ internal sealed partial class HandbookParser(string[] lines)
     List<SeedSpell> spells = new();
     foreach ((string name, List<string> block) in this.Blocks("## Spell Descriptions", "# Appendix A", "#### "))
     {
-      List<string> content = block.Where(line => !string.IsNullOrWhiteSpace(line)).ToList();
+      List<string> content = block
+        .Where(line => !string.IsNullOrWhiteSpace(line))
+        .ToList();
       if (content.Count == 0)
       {
         continue;
@@ -57,7 +59,10 @@ internal sealed partial class HandbookParser(string[] lines)
       string classes = content.FirstOrDefault(line => line.StartsWith("**Classes:**", StringComparison.Ordinal))?["**Classes:**".Length..] ?? string.Empty;
 
       int descriptionStart = block.FindIndex(line => line.Trim() == "---") + 1;
-      List<string> description = block.Skip(descriptionStart).Where(line => !line.StartsWith("**Classes:**", StringComparison.Ordinal)).ToList();
+      List<string> description = block
+        .Skip(descriptionStart)
+        .Where(line => !line.StartsWith("**Classes:**", StringComparison.Ordinal))
+        .ToList();
 
       (string? damage, DamageTypeEnum? damageType, List<string>? tiers) = header.Success ? (null, null, null) : CantripDamage(description);
       string plain = Markdown.Plain(string.Join(" ", description));
@@ -81,7 +86,10 @@ internal sealed partial class HandbookParser(string[] lines)
         Material = material.Success ? material.Groups[1].Value : null,
         Concentration = duration.StartsWith("Concentration", StringComparison.Ordinal),
         Duration = duration,
-        Lists = classes.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Select(SeedKeys.Slug).ToList(),
+        Lists = classes
+          .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+          .Select(SeedKeys.Slug)
+          .ToList(),
         Description = Markdown.ToHtml(description),
       });
     }
@@ -191,7 +199,10 @@ internal sealed partial class HandbookParser(string[] lines)
     foreach (Match ability in AbilityPrerequisiteRegex().Matches(text))
     {
       string score = ability.Groups[2].Value;
-      List<string> abilities = AbilityNameRegex().Matches(ability.Groups[1].Value).Select(entry => AbilityKeys[entry.Value]).ToList();
+      List<string> abilities = AbilityNameRegex()
+        .Matches(ability.Groups[1].Value)
+        .Select(entry => AbilityKeys[entry.Value])
+        .ToList();
       string expression = string.Join(" || ", abilities.Select(entry => $"score('{entry}') >= {score}"));
       parts.Add(abilities.Count > 1 ? $"({expression})" : expression);
     }
@@ -219,7 +230,10 @@ internal sealed partial class HandbookParser(string[] lines)
     foreach ((string name, List<string> block) in this.Blocks("# Species Descriptions", "# Chapter 5: Feats", "## "))
     {
       string key = SeedKeys.Slug(name);
-      List<string> bullets = block.Where(line => line.StartsWith("- **", StringComparison.Ordinal)).TakeWhile(_ => true).ToList();
+      List<string> bullets = block
+        .Where(line => line.StartsWith("- **", StringComparison.Ordinal))
+        .TakeWhile(_ => true)
+        .ToList();
       string Field(string field) => Markdown.Plain(bullets.FirstOrDefault(line => line.StartsWith($"- **{field}:**", StringComparison.Ordinal))?[($"- **{field}:**".Length)..] ?? string.Empty);
 
       SeedSpecies entry = new()
@@ -345,9 +359,15 @@ internal sealed partial class HandbookParser(string[] lines)
       }
 
       string key = SeedKeys.Slug(name);
-      List<string> abilityKeys = abilities.Split(',', StringSplitOptions.TrimEntries).Select(entry => AbilityKeys[entry]).ToList();
+      List<string> abilityKeys = abilities
+        .Split(',', StringSplitOptions.TrimEntries)
+        .Select(entry => AbilityKeys[entry])
+        .ToList();
       string feat = Field("Feat");
-      List<string> skills = Field("Skill Proficiencies").Split(',', StringSplitOptions.TrimEntries).Select(SeedKeys.Slug).ToList();
+      List<string> skills = Field("Skill Proficiencies")
+        .Split(',', StringSplitOptions.TrimEntries)
+        .Select(SeedKeys.Slug)
+        .ToList();
       string tool = Field("Tool Proficiency");
       Match chooseTool = ChooseToolRegex().Match(tool);
 
@@ -386,7 +406,9 @@ internal sealed partial class HandbookParser(string[] lines)
       {
         Key = $"{key}.skills",
         Name = "Skill Proficiencies",
-        Effects = skills.Select(entry => new SeedEffect { Target = $"skill.{entry}.prof", Op = EffectOperationEnum.Proficiency, Value = "proficient", Label = name }).ToList(),
+        Effects = skills
+          .Select(entry => new SeedEffect { Target = $"skill.{entry}.prof", Op = EffectOperationEnum.Proficiency, Value = "proficient", Label = name })
+          .ToList(),
       });
 
       SeedFeature toolFeature = new() { Key = $"{key}.tool", Name = "Tool Proficiency" };
@@ -446,12 +468,18 @@ internal sealed partial class HandbookParser(string[] lines)
   /// <param name="toolChoice">choice of the tool proficiency ("same as above" picks the same tool)</param>
   private List<SeedStartingEquipment> StartingEquipment(string text, string? toolChoice)
   {
-    HashSet<string> items = this.Items().Select(entry => entry.Key).ToHashSet();
+    HashSet<string> items = this
+      .Items()
+      .Select(entry => entry.Key)
+      .ToHashSet();
     List<SeedStartingEquipment> options = new();
     foreach (Match alternative in EquipmentOptionRegex().Matches(text))
     {
       SeedStartingEquipment option = new() { Key = alternative.Groups[1].Value.ToLowerInvariant() };
-      foreach (string part in PropertySplitRegex().Split(alternative.Groups[2].Value).Select(entry => entry.Trim()).Where(entry => entry.Length > 0))
+      foreach (string part in PropertySplitRegex()
+        .Split(alternative.Groups[2].Value)
+        .Select(entry => entry.Trim())
+        .Where(entry => entry.Length > 0))
       {
         Match gold = GoldRegex().Match(part);
         if (gold.Success)
@@ -540,7 +568,9 @@ internal sealed partial class HandbookParser(string[] lines)
       names.Add($"{words[1]}, {words[0]}");
     }
 
-    return names.Select(SeedKeys.Slug).FirstOrDefault(items.Contains)
+    return names
+      .Select(SeedKeys.Slug)
+      .FirstOrDefault(items.Contains)
            ?? throw new InvalidOperationException($"Starting equipment item '{name}' not found");
   }
 
@@ -637,7 +667,9 @@ internal sealed partial class HandbookParser(string[] lines)
     items.AddRange(this.Weapons());
     items.AddRange(this.Armor());
     items.AddRange(this.Tools());
-    items.AddRange(this.Gear(items.Select(entry => entry.Key).ToHashSet()));
+    items.AddRange(this.Gear(items
+      .Select(entry => entry.Key)
+      .ToHashSet()));
     items.AddRange(this.Ammunition());
     items.AddRange(this.Focuses(items.Single(entry => entry.Key == "quarterstaff")));
     items.AddRange(this.Mounts());
@@ -652,7 +684,9 @@ internal sealed partial class HandbookParser(string[] lines)
     bool ranged = false;
     foreach (string[] cells in this.TableRows("##### Weapons"))
     {
-      if (cells.Length == 1 || cells.Skip(1).All(string.IsNullOrEmpty))
+      if (cells.Length == 1 || cells
+        .Skip(1)
+        .All(string.IsNullOrEmpty))
       {
         string group = Markdown.Plain(cells[0]);
         category = group.StartsWith("Martial", StringComparison.Ordinal) ? WeaponCategoryEnum.Martial : WeaponCategoryEnum.Simple;
@@ -666,7 +700,10 @@ internal sealed partial class HandbookParser(string[] lines)
       string? versatile = null;
       short? rangeNormal = null;
       short? rangeLong = null;
-      foreach (string property in PropertySplitRegex().Split(cells[2]).Select(entry => entry.Trim()).Where(entry => entry is not ("—" or "")))
+      foreach (string property in PropertySplitRegex()
+        .Split(cells[2])
+        .Select(entry => entry.Trim())
+        .Where(entry => entry is not ("—" or "")))
       {
         Match range = RangeRegex().Match(property);
         if (range.Success)
@@ -722,7 +759,9 @@ internal sealed partial class HandbookParser(string[] lines)
     ArmorEnum category = ArmorEnum.Light;
     foreach (string[] cells in this.TableRows("##### Armor"))
     {
-      if (cells.Length == 1 || cells.Skip(1).All(string.IsNullOrEmpty))
+      if (cells.Length == 1 || cells
+        .Skip(1)
+        .All(string.IsNullOrEmpty))
       {
         string group = Markdown.Plain(cells[0]);
         category = group.StartsWith("Light", StringComparison.Ordinal) ? ArmorEnum.Light
@@ -771,7 +810,10 @@ internal sealed partial class HandbookParser(string[] lines)
         continue;
       }
 
-      List<string> block = lines.Skip(index + 1).TakeWhile(entry => !entry.StartsWith("#", StringComparison.Ordinal)).ToList();
+      List<string> block = lines
+        .Skip(index + 1)
+        .TakeWhile(entry => !entry.StartsWith("#", StringComparison.Ordinal))
+        .ToList();
       string name = match.Groups[1].Value.Trim();
       string? variants = block.FirstOrDefault(entry => entry.StartsWith("- **Variants:**", StringComparison.Ordinal));
       if (variants != null)
@@ -788,7 +830,9 @@ internal sealed partial class HandbookParser(string[] lines)
             ToolGroup = variantGroup,
             Cost = Cost(variant.Groups[2].Value),
             Weight = Weight(variant.Groups[2].Value),
-            Description = Markdown.ToHtml(block.Where(entry => !entry.StartsWith("- **Variants:**", StringComparison.Ordinal)).Prepend($"*{name}*")),
+            Description = Markdown.ToHtml(block
+              .Where(entry => !entry.StartsWith("- **Variants:**", StringComparison.Ordinal))
+              .Prepend($"*{name}*")),
           };
         }
 
@@ -817,7 +861,10 @@ internal sealed partial class HandbookParser(string[] lines)
       Match match = ItemHeadingRegex().Match(lines[index]);
       if (lines[index].StartsWith("#### ", StringComparison.Ordinal) && match.Success)
       {
-        descriptions[SeedKeys.Slug(match.Groups[1].Value)] = lines.Skip(index + 1).TakeWhile(entry => !entry.StartsWith("#### ", StringComparison.Ordinal)).ToList();
+        descriptions[SeedKeys.Slug(match.Groups[1].Value)] = lines
+          .Skip(index + 1)
+          .TakeWhile(entry => !entry.StartsWith("#### ", StringComparison.Ordinal))
+          .ToList();
       }
     }
 
@@ -890,7 +937,9 @@ internal sealed partial class HandbookParser(string[] lines)
         string? remark = form.Success ? form.Groups[2].Value : null;
         bool staff = remark?.Contains("Quarterstaff", StringComparison.Ordinal) == true;
         string name = $"{kindName} ({formName})";
-        List<string> text = remark == null || staff ? description : description.Append($"*{formName}:* {remark}.").ToList();
+        List<string> text = remark == null || staff ? description : description
+          .Append($"*{formName}:* {remark}.")
+          .ToList();
         yield return new SeedItem
         {
           Key = SeedKeys.Slug(name),
@@ -928,7 +977,9 @@ internal sealed partial class HandbookParser(string[] lines)
         Kind = ItemKindEnum.Gear,
         Category = "mount",
         Cost = Cost(cells[2]),
-        Description = Markdown.ToHtml(cargo.Prepend($"**Carrying Capacity:** {cells[1]}").Prepend(string.Empty)),
+        Description = Markdown.ToHtml(cargo
+          .Prepend($"**Carrying Capacity:** {cells[1]}")
+          .Prepend(string.Empty)),
       };
     }
 
@@ -937,7 +988,9 @@ internal sealed partial class HandbookParser(string[] lines)
     foreach (string[] cells in this.TableRows("##### Tack, Harness, and Drawn Vehicles"))
     {
       string name = Markdown.Plain(cells[0]);
-      if (cells.Length < 3 || cells.Skip(1).All(string.IsNullOrEmpty))
+      if (cells.Length < 3 || cells
+        .Skip(1)
+        .All(string.IsNullOrEmpty))
       {
         parent = name;
         continue;
@@ -996,7 +1049,10 @@ internal sealed partial class HandbookParser(string[] lines)
         Kind = ItemKindEnum.Gear,
         Category = "ship",
         Cost = Cost(cells[8]),
-        Description = Markdown.ToHtml(stats.Select(entry => $"- {entry}").Append(string.Empty).Concat(notes)),
+        Description = Markdown.ToHtml(stats
+          .Select(entry => $"- {entry}")
+          .Append(string.Empty)
+          .Concat(notes)),
       };
     }
   }
@@ -1046,12 +1102,15 @@ internal sealed partial class HandbookParser(string[] lines)
   private List<string> SectionText(string heading)
     => lines
       .Skip(this.Find(heading) + 1)
-      .TakeWhile(line => !line.StartsWith('#') && !line.TrimStart().StartsWith('|'))
+      .TakeWhile(line => !line.StartsWith('#') && !line
+        .TrimStart()
+        .StartsWith('|'))
       .Where(line => !line.StartsWith("![", StringComparison.Ordinal))
       .ToList();
 
   public List<SeedNamed> Masteries()
-    => this.Blocks("### Mastery Properties", "## Armor", "#### ")
+    => this
+      .Blocks("### Mastery Properties", "## Armor", "#### ")
       .Select(entry => new SeedNamed { Key = SeedKeys.Slug(entry.Name), Name = entry.Name, Description = Markdown.ToHtml(entry.Block) })
       .ToList();
 
@@ -1118,7 +1177,9 @@ internal sealed partial class HandbookParser(string[] lines)
   {
     for (int index = from; index < lines.Length; index++)
     {
-      if (lines[index].TrimEnd().StartsWith(heading, StringComparison.Ordinal))
+      if (lines[index]
+        .TrimEnd()
+        .StartsWith(heading, StringComparison.Ordinal))
       {
         return index;
       }
@@ -1140,7 +1201,9 @@ internal sealed partial class HandbookParser(string[] lines)
     {
       string line = lines[index];
       bool heading = line.StartsWith(prefix, StringComparison.Ordinal);
-      bool higherHeading = !heading && line.StartsWith('#') && line.TakeWhile(character => character == '#').Count() < prefix.Trim().Length;
+      bool higherHeading = !heading && line.StartsWith('#') && line
+        .TakeWhile(character => character == '#')
+        .Count() < prefix.Trim().Length;
       if (heading || higherHeading)
       {
         if (name != null)
@@ -1169,9 +1232,16 @@ internal sealed partial class HandbookParser(string[] lines)
   {
     int index = this.Find(heading) + 1;
     bool header = true;
-    for (; index < lines.Length && lines[index].TrimStart().StartsWith('|'); index++)
+    for (; index < lines.Length && lines[index]
+      .TrimStart()
+      .StartsWith('|'); index++)
     {
-      string[] cells = lines[index].Trim().Trim('|').Split('|').Select(cell => cell.Trim()).ToArray();
+      string[] cells = lines[index]
+        .Trim()
+        .Trim('|')
+        .Split('|')
+        .Select(cell => cell.Trim())
+        .ToArray();
       if (header)
       {
         header = false;

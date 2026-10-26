@@ -33,18 +33,40 @@ public static class ChoiceEndpoints
 
   public static RouteGroupBuilder MapChoiceEndpoints(this IEndpointRouteBuilder routes)
   {
-    RouteGroupBuilder group = routes.MapGroup("/api/characters/{id:guid}").WithTags("Choices").WithCharacterProblems().RequireUser();
+    RouteGroupBuilder group = routes
+      .MapGroup("/api/characters/{id:guid}")
+      .WithTags("Choices")
+      .WithCharacterProblems()
+      .RequireUser();
 
-    group.MapGet("/choices", Pending).WithName("GetPendingChoices").WithSummary("Choices that still need selections");
-    group.MapPost("/choices", Select).WithName("SelectOptions")
+    group
+      .MapGet("/choices", Pending)
+      .WithName("GetPendingChoices")
+      .WithSummary("Choices that still need selections");
+    group
+      .MapPost("/choices", Select)
+      .WithName("SelectOptions")
       .WithSummary("Answer open choices")
       .WithDescription("Selections are applied in order and each one is validated against the character including the previous ones, so a feat and the choices it opens can be sent together (use ref / parentRef). All or nothing.");
-    group.MapPost("/choices/validate", ValidateSelections).WithName("ValidateSelections").WithSummary("Check selections without saving them");
-    group.MapGet("/choices/{choiceKey}/options", Options).WithName("GetChoiceOptions").WithSummary("Paged, filterable options of a choice instance");
-    group.MapGet("/selections", Selections).WithName("GetSelections").WithSummary("Active selections");
-    group.MapDelete("/selections/{selectionId:guid}", Deselect).WithName("RemoveSelection")
+    group
+      .MapPost("/choices/validate", ValidateSelections)
+      .WithName("ValidateSelections")
+      .WithSummary("Check selections without saving them");
+    group
+      .MapGet("/choices/{choiceKey}/options", Options)
+      .WithName("GetChoiceOptions")
+      .WithSummary("Paged, filterable options of a choice instance");
+    group
+      .MapGet("/selections", Selections)
+      .WithName("GetSelections")
+      .WithSummary("Active selections");
+    group
+      .MapDelete("/selections/{selectionId:guid}", Deselect)
+      .WithName("RemoveSelection")
       .WithSummary("Take back a selection of the latest level (or of the origin before the first level) with the selections that depend on it");
-    group.MapPost("/selections/{selectionId:guid}/rest-replace", RestReplace).WithName("ReplaceSelectionOnRest")
+    group
+      .MapPost("/selections/{selectionId:guid}/rest-replace", RestReplace)
+      .WithName("ReplaceSelectionOnRest")
       .WithSummary("Change a selection whose choice allows changes on a rest");
     return group;
   }
@@ -131,7 +153,9 @@ public static class ChoiceEndpoints
                     ?? throw new RuleViolationException($"'{choiceKey}' is not an available choice{scope}");
     FeatureInstance owner = ChoiceService.FindOwner(evaluation, choice, parent)
                             ?? throw new RuleViolationException($"'{choice.Key}' is not an available choice{scope}");
-    return new ChoiceOptions(evaluation.Catalog, choice, ChoiceService.EvaluateOptions(evaluation, choice, owner).ToList());
+    return new ChoiceOptions(evaluation.Catalog, choice, ChoiceService
+      .EvaluateOptions(evaluation, choice, owner)
+      .ToList());
   }
 
   private static async Task<Ok<IReadOnlyList<SelectionInfoDto>>> Selections(ICharacterService service, Guid id, CancellationToken cancellationToken)

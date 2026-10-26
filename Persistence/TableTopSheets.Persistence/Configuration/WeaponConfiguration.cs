@@ -10,6 +10,10 @@ public class WeaponConfiguration: IEntityTypeConfiguration<Weapon>
 {
   public void Configure(EntityTypeBuilder<Weapon> builder)
   {
-    builder.HasOne(entity => entity.Mastery).WithMany().HasForeignKey(entity => entity.MasteryId).OnDelete(DeleteBehavior.SetNull);
+    builder
+      .HasOne(entity => entity.Mastery)
+      .WithMany()
+      .HasForeignKey(entity => entity.MasteryId)
+      .OnDelete(DeleteBehavior.SetNull);
   }
 }

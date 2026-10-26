@@ -165,7 +165,9 @@ public sealed partial class CharacterEvaluation
     }
 
     // always prepared spells granted by effects (domain spells, species spells ...)
-    foreach (AppliedEffect effect in this.Effects.Where(entry => entry.Target.StartsWith("spell.", StringComparison.Ordinal)).ToList())
+    foreach (AppliedEffect effect in this.Effects
+      .Where(entry => entry.Target.StartsWith("spell.", StringComparison.Ordinal))
+      .ToList())
     {
       string key = effect.Target["spell.".Length..];
       if (!this.Catalog.SpellsByKey.TryGetValue(key, out Spell? spell) || this.Stat(effect.Target) <= 0)
@@ -177,7 +179,10 @@ public sealed partial class CharacterEvaluation
       Add(spell, effect.Label, profiles.FirstOrDefault(entry => entry.ClassId == @class?.Id), effect.Owner, alwaysPrepared: true, prepared: true);
     }
 
-    return spells.Values.OrderBy(entry => entry.Spell.Level).ThenBy(entry => entry.Spell.Name).ToList();
+    return spells.Values
+      .OrderBy(entry => entry.Spell.Level)
+      .ThenBy(entry => entry.Spell.Name)
+      .ToList();
   }
 
   #endregion

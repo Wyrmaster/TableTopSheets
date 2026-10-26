@@ -399,7 +399,9 @@ public class Spells: InformationBox, IOverflowComponent
     }
 
     // spells with a cut cell are repeated in full, spells without a row follow
-    List<Spell> overflow = cut.Concat(this._spells.Skip(Rows)).ToList();
+    List<Spell> overflow = cut
+      .Concat(this._spells.Skip(Rows))
+      .ToList();
     this.Overflow = overflow.Count == 0 ? null : string.Join("\n", overflow.Select(Describe));
 
     #endregion
@@ -435,7 +437,9 @@ public class Spells: InformationBox, IOverflowComponent
   /// </summary>
   private static string Describe(Spell spell)
   {
-    string flags = string.Join(", ", new[] { (spell.Concentration, "C"), (spell.Ritual, "R"), (spell.Material, "M") }.Where(entry => entry.Item1).Select(entry => entry.Item2));
+    string flags = string.Join(", ", new[] { (spell.Concentration, "C"), (spell.Ritual, "R"), (spell.Material, "M") }
+      .Where(entry => entry.Item1)
+      .Select(entry => entry.Item2));
     string level = spell.Level == "C" ? "Cantrip" : $"Level {spell.Level}";
     string[] parts = [spell.Name, spell.CastingTime, spell.Range ?? string.Empty, flags, spell.Notes];
     return $"{level}: {string.Join(" — ", parts.Where(entry => !string.IsNullOrWhiteSpace(entry)))}";

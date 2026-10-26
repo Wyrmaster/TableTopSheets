@@ -14,13 +14,25 @@ public static class SpellEndpoints
 
   public static RouteGroupBuilder MapSpellEndpoints(this IEndpointRouteBuilder routes)
   {
-    RouteGroupBuilder group = routes.MapGroup("/api/characters/{id:guid}").WithTags("Spells").WithCharacterProblems().RequireUser();
+    RouteGroupBuilder group = routes
+      .MapGroup("/api/characters/{id:guid}")
+      .WithTags("Spells")
+      .WithCharacterProblems()
+      .RequireUser();
 
-    group.MapGet("/spells", Spells).WithName("GetSpells")
+    group
+      .MapGet("/spells", Spells)
+      .WithName("GetSpells")
       .WithSummary("Spells per spellcasting class: spellbook, prepared and always prepared spells with the limits")
       .WithDescription("A class with prepareChange LongRest changes its prepared spells with PUT prepared-spells/{classKey}: from the spellbook (pool Spellbook) or from its spell list (pool ClassList, see GET /api/rules/spells?class={spellList}&maxLevel={maxSpellLevel}).");
-    group.MapPut("/prepared-spells/{classKey}", Prepare).WithName("SetPreparedSpells").WithSummary("Replace the prepared spells of a class (long rest)");
-    group.MapPost("/spellbook", CopyToSpellbook).WithName("CopyToSpellbook").WithSummary("Copy a spell into the spellbook");
+    group
+      .MapPut("/prepared-spells/{classKey}", Prepare)
+      .WithName("SetPreparedSpells")
+      .WithSummary("Replace the prepared spells of a class (long rest)");
+    group
+      .MapPost("/spellbook", CopyToSpellbook)
+      .WithName("CopyToSpellbook")
+      .WithSummary("Copy a spell into the spellbook");
     return group;
   }
 

@@ -10,6 +10,10 @@ public class SpellcastingProfileConfiguration: IEntityTypeConfiguration<Spellcas
 {
   public void Configure(EntityTypeBuilder<SpellcastingProfile> builder)
   {
-    builder.HasOne(entity => entity.Class).WithMany().HasForeignKey(entity => entity.ClassId).OnDelete(DeleteBehavior.Restrict);
+    builder
+      .HasOne(entity => entity.Class)
+      .WithMany()
+      .HasForeignKey(entity => entity.ClassId)
+      .OnDelete(DeleteBehavior.Restrict);
   }
 }

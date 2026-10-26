@@ -57,12 +57,18 @@ public static class RuleMapper
   public static ItemSummaryDto Summary(Item item)
     => new(item.Key, item.Name, item.Kind, ItemCategory(item), item.CostCp, item.Weight, item.Magic, item.RequiresAttunement, item.Bundle);
 
-  public static string SchoolKey(Spell spell) => spell.School.ToString().ToLowerInvariant();
+  public static string SchoolKey(Spell spell) => spell.School
+    .ToString()
+    .ToLowerInvariant();
 
   public static string? ItemCategory(Item item) => item switch
   {
-    Weapon weapon => weapon.Category.ToString().ToLowerInvariant(),
-    Armor armor => armor.Category.ToString().ToLowerInvariant(),
+    Weapon weapon => weapon.Category
+      .ToString()
+      .ToLowerInvariant(),
+    Armor armor => armor.Category
+      .ToString()
+      .ToLowerInvariant(),
     _ => item.Group,
   };
 
@@ -76,7 +82,9 @@ public static class RuleMapper
     feature.Name,
     feature.Level,
     HtmlText.ToPlain(feature.DescriptionHtml),
-    feature.Choices.Select(Choice).ToList()
+    feature.Choices
+      .Select(Choice)
+      .ToList()
   );
 
   public static ChoiceDefinitionDto Choice(Choice choice) => new
@@ -148,7 +156,9 @@ public static class RuleMapper
               itemKey,
               entry.Quantity,
               entry.Note,
-              entry.Options.Select(key => new ItemOptionDto(key, names.GetValueOrDefault(key, key))).ToList(),
+              entry.Options
+                .Select(key => new ItemOptionDto(key, names.GetValueOrDefault(key, key)))
+                .ToList(),
               entry.SameAs
             );
           })
@@ -182,7 +192,11 @@ public static class RuleMapper
   ///   Features ordered by level and authored order
   /// </summary>
   public static IReadOnlyList<FeatureDto> Features(IEnumerable<Feature> features)
-    => features.OrderBy(entry => entry.Level ?? 0).ThenBy(entry => entry.Order).Select(Feature).ToList();
+    => features
+      .OrderBy(entry => entry.Level ?? 0)
+      .ThenBy(entry => entry.Order)
+      .Select(Feature)
+      .ToList();
 
   private static Dictionary<string, string> Properties(Item item)
   {

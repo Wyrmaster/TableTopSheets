@@ -13,7 +13,9 @@ using TableTopSheets.Persistence.Sqlite;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-DatabaseOptions database = builder.Configuration.GetSection(DatabaseOptions.Section).Get<DatabaseOptions>() ?? new DatabaseOptions();
+DatabaseOptions database = builder.Configuration
+  .GetSection(DatabaseOptions.Section)
+  .Get<DatabaseOptions>() ?? new DatabaseOptions();
 builder.Services.Configure<DatabaseOptions>(builder.Configuration.GetSection(DatabaseOptions.Section));
 string connectionString = database.ConnectionString(builder.Configuration);
 builder.Services.AddDbContext<TableTopSheetsContext>(options =>
@@ -47,7 +49,8 @@ WebApplication app = builder.Build();
 
 await DatabaseInitializer.InitializeAsync(app.Services);
 
-app.UseExceptionHandler()
+app
+  .UseExceptionHandler()
   .UseStatusCodePages()
   .UseAuthentication()
   .UseAuthorization();
@@ -72,7 +75,9 @@ if (hostsUi)
 }
 else
 {
-  app.MapGet("/", () => Results.Redirect("/swagger")).ExcludeFromDescription();
+  app
+    .MapGet("/", () => Results.Redirect("/swagger"))
+    .ExcludeFromDescription();
 }
 
 // each returns its own route group, so they must not be chained (that would nest the groups)
@@ -87,7 +92,9 @@ app.MapSpellEndpoints();
 if (hostsUi)
 {
   // client side routes load the app; unknown API routes stay a 404
-  app.MapFallback("/api/{**path}", () => Results.NotFound()).ExcludeFromDescription();
+  app
+    .MapFallback("/api/{**path}", () => Results.NotFound())
+    .ExcludeFromDescription();
   app.MapFallbackToFile("index.html");
 }
 

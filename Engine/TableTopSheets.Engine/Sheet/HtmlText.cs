@@ -15,7 +15,9 @@ public static partial class HtmlText
     string text = BreakRegex().Replace(html, "\n");
     text = TagRegex().Replace(text, string.Empty);
     text = WebUtility.HtmlDecode(text);
-    return MultiNewLineRegex().Replace(text, "\n").Trim();
+    return MultiNewLineRegex()
+      .Replace(text, "\n")
+      .Trim();
   }
 
   [GeneratedRegex(@"</p>|<br\s*/?>|</li>", RegexOptions.IgnoreCase)]

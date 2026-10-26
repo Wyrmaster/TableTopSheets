@@ -60,8 +60,12 @@ public sealed partial class CharacterEvaluation
     return what switch
     {
       "shield" => this.WieldedShield != null,
-      "weapon" => held.OfType<Weapon>().Any(),
-      "two-weapons" => held.OfType<Weapon>().Count() >= 2,
+      "weapon" => held
+        .OfType<Weapon>()
+        .Any(),
+      "two-weapons" => held
+        .OfType<Weapon>()
+        .Count() >= 2,
       _ => held.Any(entry => entry.Key == what),
     };
   }
@@ -69,10 +73,14 @@ public sealed partial class CharacterEvaluation
   /// <summary>
   ///   Proficiency with the armor category (<c>proficiency.armor.*</c>)
   /// </summary>
-  public bool HasArmorTraining(ArmorEnum category) => this.Stat($"proficiency.armor.{category.ToString().ToLowerInvariant()}") > 0;
+  public bool HasArmorTraining(ArmorEnum category) => this.Stat($"proficiency.armor.{category
+    .ToString()
+    .ToLowerInvariant()}") > 0;
 
   public bool IsProficient(Weapon weapon)
-    => this.Stat($"proficiency.weapon.{weapon.Category.ToString().ToLowerInvariant()}") > 0
+    => this.Stat($"proficiency.weapon.{weapon.Category
+      .ToString()
+      .ToLowerInvariant()}") > 0
        || this.Stat($"proficiency.weapon.{weapon.Key}") > 0;
 
   #endregion

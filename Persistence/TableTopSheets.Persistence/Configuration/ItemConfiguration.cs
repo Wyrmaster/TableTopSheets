@@ -16,8 +16,16 @@ public class ItemConfiguration: RuleEntityConfiguration<Item>
       .HasValue<Weapon>(ItemKindEnum.Weapon)
       .HasValue<Armor>(ItemKindEnum.Armor)
       .HasValue<Tool>(ItemKindEnum.Tool);
-    builder.Property(entity => entity.Group).HasMaxLength(64);
-    builder.Property(entity => entity.Bundle).HasDefaultValue(1);
-    builder.HasMany(entity => entity.Features).WithOne(entity => entity.Item).HasForeignKey(entity => entity.ItemId).OnDelete(DeleteBehavior.Cascade);
+    builder
+      .Property(entity => entity.Group)
+      .HasMaxLength(64);
+    builder
+      .Property(entity => entity.Bundle)
+      .HasDefaultValue(1);
+    builder
+      .HasMany(entity => entity.Features)
+      .WithOne(entity => entity.Item)
+      .HasForeignKey(entity => entity.ItemId)
+      .OnDelete(DeleteBehavior.Cascade);
   }
 }

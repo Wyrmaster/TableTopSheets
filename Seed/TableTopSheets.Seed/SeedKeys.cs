@@ -14,8 +14,13 @@ public static partial class SeedKeys
   /// </summary>
   public static string Slug(string name)
   {
-    string text = name.ToLowerInvariant().Replace("'", string.Empty).Replace("’", string.Empty);
-    return NonAlphaNumericRegex().Replace(text, "-").Trim('-');
+    string text = name
+      .ToLowerInvariant()
+      .Replace("'", string.Empty)
+      .Replace("’", string.Empty);
+    return NonAlphaNumericRegex()
+      .Replace(text, "-")
+      .Trim('-');
   }
 
   /// <summary>

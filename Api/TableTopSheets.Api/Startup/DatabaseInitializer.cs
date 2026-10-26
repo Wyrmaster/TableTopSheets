@@ -18,7 +18,9 @@ public static class DatabaseInitializer
     await using AsyncServiceScope scope = services.CreateAsyncScope();
     DatabaseOptions options = scope.ServiceProvider.GetRequiredService<IOptions<DatabaseOptions>>().Value;
     TableTopSheetsContext context = scope.ServiceProvider.GetRequiredService<TableTopSheetsContext>();
-    ILogger logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger(typeof(DatabaseInitializer));
+    ILogger logger = scope.ServiceProvider
+      .GetRequiredService<ILoggerFactory>()
+      .CreateLogger(typeof(DatabaseInitializer));
 
     if (options.MigrateOnStartup)
     {

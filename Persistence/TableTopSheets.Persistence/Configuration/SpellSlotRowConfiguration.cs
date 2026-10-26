@@ -10,6 +10,8 @@ public class SpellSlotRowConfiguration: IEntityTypeConfiguration<SpellSlotRow>
 {
   public void Configure(EntityTypeBuilder<SpellSlotRow> builder)
   {
-    builder.HasIndex(entity => new { entity.TableKey, entity.CasterLevel, entity.SpellLevel }).IsUnique();
+    builder
+      .HasIndex(entity => new { entity.TableKey, entity.CasterLevel, entity.SpellLevel })
+      .IsUnique();
   }
 }

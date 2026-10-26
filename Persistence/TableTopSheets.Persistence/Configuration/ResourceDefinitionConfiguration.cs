@@ -10,6 +10,8 @@ public class ResourceDefinitionConfiguration: IEntityTypeConfiguration<ResourceD
 {
   public void Configure(EntityTypeBuilder<ResourceDefinition> builder)
   {
-    builder.HasIndex(entity => entity.Key).IsUnique();
+    builder
+      .HasIndex(entity => entity.Key)
+      .IsUnique();
   }
 }

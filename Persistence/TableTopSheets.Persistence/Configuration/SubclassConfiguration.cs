@@ -10,6 +10,10 @@ public class SubclassConfiguration: RuleEntityConfiguration<Subclass>
 {
   protected override void WithConfigure(EntityTypeBuilder<Subclass> builder)
   {
-    builder.HasMany(entity => entity.Features).WithOne(entity => entity.Subclass).HasForeignKey(entity => entity.SubclassId).OnDelete(DeleteBehavior.Cascade);
+    builder
+      .HasMany(entity => entity.Features)
+      .WithOne(entity => entity.Subclass)
+      .HasForeignKey(entity => entity.SubclassId)
+      .OnDelete(DeleteBehavior.Cascade);
   }
 }

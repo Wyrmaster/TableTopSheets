@@ -19,16 +19,29 @@ public static class LevelEndpoints
 
   public static RouteGroupBuilder MapLevelEndpoints(this IEndpointRouteBuilder routes)
   {
-    RouteGroupBuilder group = routes.MapGroup("/api/characters/{id:guid}").WithTags("Levels").WithCharacterProblems().RequireUser();
+    RouteGroupBuilder group = routes
+      .MapGroup("/api/characters/{id:guid}")
+      .WithTags("Levels")
+      .WithCharacterProblems()
+      .RequireUser();
 
-    group.MapGet("/level-up/preview", Preview).WithName("PreviewLevelUp")
+    group
+      .MapGet("/level-up/preview", Preview)
+      .WithName("PreviewLevelUp")
       .WithSummary("Choices a level in the class would open (nothing is saved)")
       .WithDescription("When the level grants the subclass and no subclass is given, only requiresSubclass and the subclasses are returned.");
-    group.MapPost("/levels", LevelUp).WithName("LevelUp")
+    group
+      .MapPost("/levels", LevelUp)
+      .WithName("LevelUp")
       .WithSummary("Gain a level")
       .WithDescription("Saves the level even when its choices are open (unless allowIncomplete is false); open choices are answered with POST /choices and belong to this level, so undoing it removes them too.");
-    group.MapPost("/levels/validate", ValidateLevelUp).WithName("ValidateLevelUp").WithSummary("Check a level up without saving it");
-    group.MapDelete("/levels/last", Undo).WithName("UndoLevel")
+    group
+      .MapPost("/levels/validate", ValidateLevelUp)
+      .WithName("ValidateLevelUp")
+      .WithSummary("Check a level up without saving it");
+    group
+      .MapDelete("/levels/last", Undo)
+      .WithName("UndoLevel")
       .WithSummary("Remove the highest level with its selections; selections it replaced become active again");
     return group;
   }
@@ -43,7 +56,10 @@ public static class LevelEndpoints
     CancellationToken cancellationToken
   )
   {
-    CharacterClass characterClass = await context.Classes.AsNoTracking().Include(entry => entry.Subclasses).FirstOrDefaultAsync(entry => entry.Key == @class, cancellationToken)
+    CharacterClass characterClass = await context.Classes
+      .AsNoTracking()
+      .Include(entry => entry.Subclasses)
+      .FirstOrDefaultAsync(entry => entry.Key == @class, cancellationToken)
                                     ?? throw new RuleViolationException($"Unknown class '{@class}'");
     CharacterEvaluation current = await service.EvaluateAsync(await service.LoadAsync(id, cancellationToken), cancellationToken);
     int classLevel = current.ClassLevel(characterClass.Id) + 1;

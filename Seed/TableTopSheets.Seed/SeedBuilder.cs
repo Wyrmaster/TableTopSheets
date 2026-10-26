@@ -220,12 +220,15 @@ public sealed class SeedBuilder
   private void CheckUniqueIds()
   {
     IEnumerable<(string Type, Guid Id)> ids = this._result.Features
-      .SelectMany(feature => feature.Effects.Select(entry => ($"effect of '{feature.Key}'", entry.Id))
+      .SelectMany(feature => feature.Effects
+        .Select(entry => ($"effect of '{feature.Key}'", entry.Id))
         .Concat(feature.Choices.Select(entry => ($"choice '{entry.Key}'", entry.Id)))
         .Concat(feature.Choices.SelectMany(choice => choice.Effects.Select(entry => ($"effect of choice '{choice.Key}'", entry.Id))))
         .Concat(feature.Choices.SelectMany(choice => choice.Options.Select(entry => ($"option '{choice.Key}:{entry.Key}'", entry.Id))))
         .Concat(feature.Resources.Select(entry => ($"resource '{entry.Key}'", entry.Id))));
-    foreach (IGrouping<Guid, (string Type, Guid Id)> duplicate in ids.GroupBy(entry => entry.Id).Where(group => group.Count() > 1))
+    foreach (IGrouping<Guid, (string Type, Guid Id)> duplicate in ids
+      .GroupBy(entry => entry.Id)
+      .Where(group => group.Count() > 1))
     {
       this._errors.Add($"duplicate id: {string.Join(", ", duplicate.Select(entry => entry.Type))}");
     }
@@ -246,7 +249,9 @@ public sealed class SeedBuilder
 
     this.AddScales(@class, seed.Scales);
 
-    List<SeedClassFeatureText> texts = this._document.ClassFeatureTexts.Where(entry => entry.Class == seed.Key).ToList();
+    List<SeedClassFeatureText> texts = this._document.ClassFeatureTexts
+      .Where(entry => entry.Class == seed.Key)
+      .ToList();
     List<SeedFeature> features = seed.Features.ToList();
     HashSet<SeedClassFeatureText> used = new();
 
@@ -264,7 +269,9 @@ public sealed class SeedBuilder
     used.UnionWith(texts.Where(text => features.Any(feature => feature.Level == text.Level && feature.Name == text.Name)));
 
     // every other feature of the rule book is added as text so the sheet is complete even without mechanics
-    foreach (SeedClassFeatureText text in texts.Except(used).Where(entry => entry.Name != "Subclass Feature" && !entry.Name.EndsWith(" Subclass", StringComparison.Ordinal)))
+    foreach (SeedClassFeatureText text in texts
+      .Except(used)
+      .Where(entry => entry.Name != "Subclass Feature" && !entry.Name.EndsWith(" Subclass", StringComparison.Ordinal)))
     {
       string key = $"{seed.Key}.{SeedKeys.Slug(text.Name)}";
       if (texts.Count(entry => entry.Name == text.Name) > 1 || features.Any(entry => entry.Key == key))
@@ -566,7 +573,9 @@ public sealed class SeedBuilder
   {
     foreach ((string owner, string choiceKey) in this._pendingSameAs)
     {
-      if (this._features.Values.SelectMany(feature => feature.Choices).All(choice => choice.Key != choiceKey))
+      if (this._features.Values
+        .SelectMany(feature => feature.Choices)
+        .All(choice => choice.Key != choiceKey))
       {
         this._errors.Add($"{owner}: starting equipment refers to the unknown choice '{choiceKey}'");
       }

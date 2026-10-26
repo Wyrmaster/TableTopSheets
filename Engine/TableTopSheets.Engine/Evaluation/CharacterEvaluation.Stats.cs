@@ -61,15 +61,20 @@ public sealed partial class CharacterEvaluation
   ///   All stat keys targeted by an effect that start with the prefix and are non zero
   /// </summary>
   public IEnumerable<string> StatKeysWithPrefix(string prefix)
-    => this._effects.Keys.Where(key => key.StartsWith(prefix, StringComparison.Ordinal) && this.Stat(key) != 0).Order();
+    => this._effects.Keys
+      .Where(key => key.StartsWith(prefix, StringComparison.Ordinal) && this.Stat(key) != 0)
+      .Order();
 
   /// <summary>
   ///   Applicable <see cref="EffectOperationEnum.Candidate"/> formulas of a stat
   /// </summary>
   public IEnumerable<(string Label, double Value)> Candidates(string key)
-    => this.ApplicableEffects(key)
+    => this
+      .ApplicableEffects(key)
       .Where(entry => entry.Effect.Operation == EffectOperationEnum.Candidate)
-      .Select(entry => (entry.Label, Expression.Parse(entry.ValueExpr).EvaluateNumber(this)));
+      .Select(entry => (entry.Label, Expression
+        .Parse(entry.ValueExpr)
+        .EvaluateNumber(this)));
 
   public int Score(string ability) => (int)this.Stat($"ability.{ability}.score");
 
@@ -81,7 +86,9 @@ public sealed partial class CharacterEvaluation
 
   private IEnumerable<AppliedEffect> ApplicableEffects(string key)
     => this._effects.TryGetValue(key, out List<AppliedEffect>? effects)
-      ? effects.Where(entry => entry.Effect.ConditionExpr == null || Expression.Parse(entry.Effect.ConditionExpr).EvaluateBoolean(this))
+      ? effects.Where(entry => entry.Effect.ConditionExpr == null || Expression
+        .Parse(entry.Effect.ConditionExpr)
+        .EvaluateBoolean(this))
       : [];
 
   private double DefaultValue(string key)
@@ -111,14 +118,19 @@ public sealed partial class CharacterEvaluation
     List<StatSource> sources = new();
     this._statSources[key] = sources;
 
-    List<(AppliedEffect Effect, double Value)> effects = this.ApplicableEffects(key)
+    List<(AppliedEffect Effect, double Value)> effects = this
+      .ApplicableEffects(key)
       .Where(entry => entry.Effect.Operation != EffectOperationEnum.Candidate)
-      .Select(entry => (entry, Expression.Parse(entry.ValueExpr).EvaluateNumber(this)))
+      .Select(entry => (entry, Expression
+        .Parse(entry.ValueExpr)
+        .EvaluateNumber(this)))
       .ToList();
 
     double value = this.DefaultValue(key);
 
-    List<(AppliedEffect Effect, double Value)> sets = effects.Where(entry => entry.Effect.Effect.Operation == EffectOperationEnum.Set).ToList();
+    List<(AppliedEffect Effect, double Value)> sets = effects
+      .Where(entry => entry.Effect.Effect.Operation == EffectOperationEnum.Set)
+      .ToList();
     if (sets.Count > 0)
     {
       (AppliedEffect effect, double setValue) = sets.MaxBy(entry => entry.Value);
@@ -127,7 +139,9 @@ public sealed partial class CharacterEvaluation
     }
 
     // additions stack, except effects of the same stack group: only the highest of those counts
-    List<(AppliedEffect Effect, double Value)> additions = effects.Where(entry => entry.Effect.Effect.Operation == EffectOperationEnum.Add).ToList();
+    List<(AppliedEffect Effect, double Value)> additions = effects
+      .Where(entry => entry.Effect.Effect.Operation == EffectOperationEnum.Add)
+      .ToList();
     IEnumerable<(AppliedEffect Effect, double Value)> counted = additions
       .Where(entry => entry.Effect.Effect.StackGroup == null)
       .Concat(additions

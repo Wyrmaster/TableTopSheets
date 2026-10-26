@@ -8,8 +8,18 @@ public class CharacterPreparedSpellConfiguration: IEntityTypeConfiguration<Chara
 {
   public void Configure(EntityTypeBuilder<CharacterPreparedSpell> builder)
   {
-    builder.HasIndex(entity => new { entity.CharacterId, entity.ClassId, entity.SpellId }).IsUnique();
-    builder.HasOne(entity => entity.Class).WithMany().HasForeignKey(entity => entity.ClassId).OnDelete(DeleteBehavior.Restrict);
-    builder.HasOne(entity => entity.Spell).WithMany().HasForeignKey(entity => entity.SpellId).OnDelete(DeleteBehavior.Restrict);
+    builder
+      .HasIndex(entity => new { entity.CharacterId, entity.ClassId, entity.SpellId })
+      .IsUnique();
+    builder
+      .HasOne(entity => entity.Class)
+      .WithMany()
+      .HasForeignKey(entity => entity.ClassId)
+      .OnDelete(DeleteBehavior.Restrict);
+    builder
+      .HasOne(entity => entity.Spell)
+      .WithMany()
+      .HasForeignKey(entity => entity.SpellId)
+      .OnDelete(DeleteBehavior.Restrict);
   }
 }

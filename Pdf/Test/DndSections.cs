@@ -24,7 +24,10 @@ public class DndSections
   public DndSections()
   {
     this._basePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
-    Process.GetProcessesByName("chrome").ToList().ForEach(process => process.Kill());
+    Process
+      .GetProcessesByName("chrome")
+      .ToList()
+      .ForEach(process => process.Kill());
   }
 
   #endregion

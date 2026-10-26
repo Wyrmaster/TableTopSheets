@@ -27,7 +27,9 @@ public static class ViolationChecker
   {
     List<SheetViolation> violations = new();
 
-    foreach (PendingChoice pending in ChoiceService.Pending(evaluation).Where(entry => !entry.Choice.Optional))
+    foreach (PendingChoice pending in ChoiceService
+      .Pending(evaluation)
+      .Where(entry => !entry.Choice.Optional))
     {
       violations.Add(new("choice.pending", $"{pending.Owner.Source}: '{pending.Choice.Name}' needs {pending.Remaining} more selection(s)"));
     }
@@ -40,8 +42,12 @@ public static class ViolationChecker
 
     foreach (SelectionInstance selection in evaluation.Selections.Where(entry => entry.Owner.Active))
     {
-      OptionDescriptor? option = ChoiceService.AllOptions(evaluation.Catalog, selection.Choice).FirstOrDefault(entry => entry.Key == selection.Selection.OptionKey);
-      if (option?.PrerequisiteExpr != null && !Expression.Parse(option.PrerequisiteExpr).EvaluateBoolean(new OptionContext(evaluation, option)))
+      OptionDescriptor? option = ChoiceService
+        .AllOptions(evaluation.Catalog, selection.Choice)
+        .FirstOrDefault(entry => entry.Key == selection.Selection.OptionKey);
+      if (option?.PrerequisiteExpr != null && !Expression
+        .Parse(option.PrerequisiteExpr)
+        .EvaluateBoolean(new OptionContext(evaluation, option)))
       {
         violations.Add(new("prerequisite.unmet", $"'{option.Name}' ({selection.Choice.Name}) no longer meets its prerequisite"));
       }
@@ -66,7 +72,9 @@ public static class ViolationChecker
         continue;
       }
 
-      int limit = profile.PreparedCountKey == null ? 0 : (int)evaluation.Scale(profile.PreparedCountKey).AsNumber();
+      int limit = profile.PreparedCountKey == null ? 0 : (int)evaluation
+        .Scale(profile.PreparedCountKey)
+        .AsNumber();
       if (group.Count() > limit)
       {
         violations.Add(new("prepared.over-limit", $"{group.Count()} {className} spells are prepared but only {limit} are allowed"));

@@ -10,6 +10,8 @@ public class SourceConfiguration: IEntityTypeConfiguration<Source>
 {
   public void Configure(EntityTypeBuilder<Source> builder)
   {
-    builder.HasIndex(entity => entity.Key).IsUnique();
+    builder
+      .HasIndex(entity => entity.Key)
+      .IsUnique();
   }
 }

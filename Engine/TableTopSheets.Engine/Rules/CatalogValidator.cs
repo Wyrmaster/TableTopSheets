@@ -103,7 +103,9 @@ public static class CatalogValidator
   private static void CheckEffect(RulesCatalog catalog, List<string> errors, string where, Effect effect, Choice? choice)
   {
     string sample = choice == null ? "x" : SampleOption(catalog, choice);
-    string target = effect.Target.Replace("$option", sample).Replace("$value", choice?.Options.FirstOrDefault()?.Value ?? sample);
+    string target = effect.Target
+      .Replace("$option", sample)
+      .Replace("$value", choice?.Options.FirstOrDefault()?.Value ?? sample);
     if (!StatKeys.IsValid(target))
     {
       errors.Add($"{where}: unknown stat '{effect.Target}'");
@@ -114,7 +116,9 @@ public static class CatalogValidator
       errors.Add($"{where}: spell '{target["spell.".Length..]}' doesn't exist");
     }
 
-    string value = effect.ValueExpr.Replace("$value", choice?.Options.FirstOrDefault()?.Value ?? "1").Replace("$option", "1");
+    string value = effect.ValueExpr
+      .Replace("$value", choice?.Options.FirstOrDefault()?.Value ?? "1")
+      .Replace("$option", "1");
     CheckExpression(catalog, errors, where, $"value of '{effect.Target}'", value, optionContext: false);
     CheckExpression(catalog, errors, where, $"condition of '{effect.Target}'", effect.ConditionExpr, optionContext: false);
   }

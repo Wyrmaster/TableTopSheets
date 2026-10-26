@@ -37,7 +37,9 @@ public class StartingEquipmentTests
     Assert.Equal(8, evaluation.Character.PlayState.GoldPieces);
     Assert.Equal(
       ["book", "calligraphers-supplies", "holy-symbol-amulet", "parchment", "robe"],
-      Items(evaluation).Select(entry => entry.Key).Order());
+      Items(evaluation)
+        .Select(entry => entry.Key)
+        .Order());
     Assert.Equal(10, Items(evaluation).Single(entry => entry.Key == "parchment").Item.Quantity);
     Assert.Equal("prayers", Items(evaluation).Single(entry => entry.Key == "book").Item.Notes);
   }
@@ -216,7 +218,9 @@ public class StartingEquipmentTests
   private static Dictionary<string, string> Picks(string entry, string item) => new() { [entry] = item };
 
   private static List<(string Key, CharacterItem Item)> Items(CharacterEvaluation evaluation)
-    => evaluation.Character.Items.Select(entry => (evaluation.Catalog.Items[entry.ItemId].Key, entry)).ToList();
+    => evaluation.Character.Items
+      .Select(entry => (evaluation.Catalog.Items[entry.ItemId].Key, entry))
+      .ToList();
 
   #endregion
 }

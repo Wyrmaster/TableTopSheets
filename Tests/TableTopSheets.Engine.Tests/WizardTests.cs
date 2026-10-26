@@ -16,7 +16,9 @@ public class WizardTests
     CharacterSheet sheet1 = await world.SheetAsync(id);
 
     Assert.Equal(17, sheet1.Abilities.Single(entry => entry.Key == "int").Score);
-    Assert.Equal(3, level1.KnownSpells().Count(entry => entry.Spell.Level == 0 && entry.Source == "Wizard"));
+    Assert.Equal(3, level1
+      .KnownSpells()
+      .Count(entry => entry.Spell.Level == 0 && entry.Source == "Wizard"));
     Assert.Equal(6, level1.SpellbookSpellIds().Count);
     Assert.Equal([0, 2, 0, 0, 0, 0, 0, 0, 0, 0], level1.SpellSlots());
     SpellcastingSheet casting = Assert.Single(sheet1.Spellcasting);
@@ -30,7 +32,9 @@ public class WizardTests
     CharacterEvaluation level5 = await world.LevelUpManyAsync(id, "wizard", 4, "evoker");
     CharacterSheet sheet5 = await world.SheetAsync(id);
 
-    Assert.Equal(4, level5.KnownSpells().Count(entry => entry.Spell.Level == 0 && entry.Source == "Wizard"));
+    Assert.Equal(4, level5
+      .KnownSpells()
+      .Count(entry => entry.Spell.Level == 0 && entry.Source == "Wizard"));
     // 6 + 2 per level after the first, plus Evocation Savant (one spell per spell slot level: 3)
     Assert.Equal(6 + 2 * 4 + 3, level5.SpellbookSpellIds().Count);
     Assert.Equal([0, 4, 3, 2, 0, 0, 0, 0, 0, 0], level5.SpellSlots());

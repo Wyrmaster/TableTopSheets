@@ -54,15 +54,29 @@ public static class SeedWriter
     await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
 
     // child rows that are owned completely by the seed data
-    await context.Effects.Where(entry => !seeded.Contains(entry.Id)).ExecuteDeleteAsync(cancellationToken);
-    await context.ChoiceOptions.Where(entry => !seeded.Contains(entry.Id)).ExecuteDeleteAsync(cancellationToken);
-    await context.ScaleValues.Where(entry => !seeded.Contains(entry.Id)).ExecuteDeleteAsync(cancellationToken);
-    await context.SpellSlotRows.Where(entry => !seeded.Contains(entry.Id)).ExecuteDeleteAsync(cancellationToken);
-    await context.Resources.Where(entry => !seeded.Contains(entry.Id)).ExecuteDeleteAsync(cancellationToken);
-    await context.SpellcastingProfiles.Where(entry => !seeded.Contains(entry.Id)).ExecuteDeleteAsync(cancellationToken);
+    await context.Effects
+      .Where(entry => !seeded.Contains(entry.Id))
+      .ExecuteDeleteAsync(cancellationToken);
+    await context.ChoiceOptions
+      .Where(entry => !seeded.Contains(entry.Id))
+      .ExecuteDeleteAsync(cancellationToken);
+    await context.ScaleValues
+      .Where(entry => !seeded.Contains(entry.Id))
+      .ExecuteDeleteAsync(cancellationToken);
+    await context.SpellSlotRows
+      .Where(entry => !seeded.Contains(entry.Id))
+      .ExecuteDeleteAsync(cancellationToken);
+    await context.Resources
+      .Where(entry => !seeded.Contains(entry.Id))
+      .ExecuteDeleteAsync(cancellationToken);
+    await context.SpellcastingProfiles
+      .Where(entry => !seeded.Contains(entry.Id))
+      .ExecuteDeleteAsync(cancellationToken);
 
     HashSet<Guid> existing = (await ExistingIds(context, cancellationToken)).ToHashSet();
-    existing.UnionWith(await context.Sources.Select(entry => entry.Id).ToListAsync(cancellationToken));
+    existing.UnionWith(await context.Sources
+      .Select(entry => entry.Id)
+      .ToListAsync(cancellationToken));
 
     foreach (object root in roots)
     {
@@ -104,29 +118,66 @@ public static class SeedWriter
       .Concat(result.Masteries)
       .Concat(result.ScaleValues)
       .Concat(result.SpellSlotRows);
-    return entities.Select(entry => entry.Id).Append(result.Source.Id).ToHashSet();
+    return entities
+      .Select(entry => entry.Id)
+      .Append(result.Source.Id)
+      .ToHashSet();
   }
 
   private static async Task<List<Guid>> ExistingIds(TableTopSheetsContext context, CancellationToken cancellationToken)
   {
     List<Guid> ids = new();
-    ids.AddRange(await context.Languages.Select(entry => entry.Id).ToListAsync(cancellationToken));
-    ids.AddRange(await context.WeaponMasteries.Select(entry => entry.Id).ToListAsync(cancellationToken));
-    ids.AddRange(await context.Spells.Select(entry => entry.Id).ToListAsync(cancellationToken));
-    ids.AddRange(await context.Items.Select(entry => entry.Id).ToListAsync(cancellationToken));
-    ids.AddRange(await context.Feats.Select(entry => entry.Id).ToListAsync(cancellationToken));
-    ids.AddRange(await context.Species.Select(entry => entry.Id).ToListAsync(cancellationToken));
-    ids.AddRange(await context.Backgrounds.Select(entry => entry.Id).ToListAsync(cancellationToken));
-    ids.AddRange(await context.Classes.Select(entry => entry.Id).ToListAsync(cancellationToken));
-    ids.AddRange(await context.Subclasses.Select(entry => entry.Id).ToListAsync(cancellationToken));
-    ids.AddRange(await context.Features.Select(entry => entry.Id).ToListAsync(cancellationToken));
-    ids.AddRange(await context.Effects.Select(entry => entry.Id).ToListAsync(cancellationToken));
-    ids.AddRange(await context.Choices.Select(entry => entry.Id).ToListAsync(cancellationToken));
-    ids.AddRange(await context.ChoiceOptions.Select(entry => entry.Id).ToListAsync(cancellationToken));
-    ids.AddRange(await context.Resources.Select(entry => entry.Id).ToListAsync(cancellationToken));
-    ids.AddRange(await context.SpellcastingProfiles.Select(entry => entry.Id).ToListAsync(cancellationToken));
-    ids.AddRange(await context.ScaleValues.Select(entry => entry.Id).ToListAsync(cancellationToken));
-    ids.AddRange(await context.SpellSlotRows.Select(entry => entry.Id).ToListAsync(cancellationToken));
+    ids.AddRange(await context.Languages
+      .Select(entry => entry.Id)
+      .ToListAsync(cancellationToken));
+    ids.AddRange(await context.WeaponMasteries
+      .Select(entry => entry.Id)
+      .ToListAsync(cancellationToken));
+    ids.AddRange(await context.Spells
+      .Select(entry => entry.Id)
+      .ToListAsync(cancellationToken));
+    ids.AddRange(await context.Items
+      .Select(entry => entry.Id)
+      .ToListAsync(cancellationToken));
+    ids.AddRange(await context.Feats
+      .Select(entry => entry.Id)
+      .ToListAsync(cancellationToken));
+    ids.AddRange(await context.Species
+      .Select(entry => entry.Id)
+      .ToListAsync(cancellationToken));
+    ids.AddRange(await context.Backgrounds
+      .Select(entry => entry.Id)
+      .ToListAsync(cancellationToken));
+    ids.AddRange(await context.Classes
+      .Select(entry => entry.Id)
+      .ToListAsync(cancellationToken));
+    ids.AddRange(await context.Subclasses
+      .Select(entry => entry.Id)
+      .ToListAsync(cancellationToken));
+    ids.AddRange(await context.Features
+      .Select(entry => entry.Id)
+      .ToListAsync(cancellationToken));
+    ids.AddRange(await context.Effects
+      .Select(entry => entry.Id)
+      .ToListAsync(cancellationToken));
+    ids.AddRange(await context.Choices
+      .Select(entry => entry.Id)
+      .ToListAsync(cancellationToken));
+    ids.AddRange(await context.ChoiceOptions
+      .Select(entry => entry.Id)
+      .ToListAsync(cancellationToken));
+    ids.AddRange(await context.Resources
+      .Select(entry => entry.Id)
+      .ToListAsync(cancellationToken));
+    ids.AddRange(await context.SpellcastingProfiles
+      .Select(entry => entry.Id)
+      .ToListAsync(cancellationToken));
+    ids.AddRange(await context.ScaleValues
+      .Select(entry => entry.Id)
+      .ToListAsync(cancellationToken));
+    ids.AddRange(await context.SpellSlotRows
+      .Select(entry => entry.Id)
+      .ToListAsync(cancellationToken));
     return ids;
   }
 

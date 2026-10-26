@@ -25,7 +25,9 @@ public sealed partial class CharacterEvaluation
   {
     this.Catalog = catalog;
     this.Character = character;
-    this.Levels = character.Levels.OrderBy(entry => entry.Number).ToList();
+    this.Levels = character.Levels
+      .OrderBy(entry => entry.Number)
+      .ToList();
 
     this.ClassLevels = this.Levels
       .GroupBy(entry => entry.ClassId)
@@ -144,7 +146,9 @@ public sealed partial class CharacterEvaluation
     {
       CharacterClass @class = this.Catalog.Classes[classId];
       bool firstClass = this.FirstClass?.Id == classId;
-      foreach (Feature feature in this.Catalog.FeaturesOf(classId).Where(entry => (entry.Level ?? 1) <= level))
+      foreach (Feature feature in this.Catalog
+        .FeaturesOf(classId)
+        .Where(entry => (entry.Level ?? 1) <= level))
       {
         bool granted = feature.GrantMode switch
         {
@@ -160,7 +164,9 @@ public sealed partial class CharacterEvaluation
 
       if (this.Subclasses.TryGetValue(classId, out Subclass? subclass))
       {
-        foreach (Feature feature in this.Catalog.FeaturesOf(subclass.Id).Where(entry => (entry.Level ?? 1) <= level))
+        foreach (Feature feature in this.Catalog
+          .FeaturesOf(subclass.Id)
+          .Where(entry => (entry.Level ?? 1) <= level))
         {
           Add(feature, null, $"{subclass.Name} {feature.Level ?? 1}");
         }
@@ -192,12 +198,16 @@ public sealed partial class CharacterEvaluation
       Add(feature, null, "Spell");
     }
 
-    List<CharacterChoice> stored = this.Character.Choices.Where(entry => entry.SupersededByLevelId == null).ToList();
+    List<CharacterChoice> stored = this.Character.Choices
+      .Where(entry => entry.SupersededByLevelId == null)
+      .ToList();
     while (queue.TryDequeue(out FeatureInstance? instance))
     {
       foreach (Choice choice in instance.Feature.Choices)
       {
-        foreach (CharacterChoice selection in stored.Where(entry => entry.ChoiceId == choice.Id && entry.ParentId == instance.SelectionScope).OrderBy(entry => entry.CreatedAt))
+        foreach (CharacterChoice selection in stored
+          .Where(entry => entry.ChoiceId == choice.Id && entry.ParentId == instance.SelectionScope)
+          .OrderBy(entry => entry.CreatedAt))
         {
           ChoiceOption? option = choice.OptionSource == OptionSourceEnum.Static
             ? choice.Options.FirstOrDefault(entry => entry.Key == selection.OptionKey)

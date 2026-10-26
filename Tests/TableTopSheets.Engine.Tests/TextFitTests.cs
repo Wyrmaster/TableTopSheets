@@ -57,7 +57,9 @@ public class TextFitTests
   public void VeryLongTextOverflowsWithoutLosingWords()
   {
     using XGraphics gfx = MeasureContext();
-    string text = string.Join("\n\n", Enumerable.Range(1, 40).Select(index => $"Feature{index}. {Sentence}"));
+    string text = string.Join("\n\n", Enumerable
+      .Range(1, 40)
+      .Select(index => $"Feature{index}. {Sentence}"));
     XRect[] columns = [Box, Box with { X = 160 }];
 
     TextFitResult result = TextFit.Fit(gfx, text, TextFit.Family, XFontStyleEx.Regular, columns, TextFit.BodyMaxSize, TextFit.BodyMinSize);
@@ -69,7 +71,9 @@ public class TextFitTests
     Assert.EndsWith(TextFit.Ellipsis, last);
     Assert.True(gfx.MeasureString(last, result.Font).Width <= Box.Width);
 
-    string drawn = string.Join(" ", result.AllLines).Replace(TextFit.Ellipsis, string.Empty);
+    string drawn = string
+      .Join(" ", result.AllLines)
+      .Replace(TextFit.Ellipsis, string.Empty);
     Assert.Equal(Words(text), Words(drawn).Concat(Words(result.Overflow!)));
   }
 
@@ -84,7 +88,9 @@ public class TextFitTests
     Assert.True(truncated);
     Assert.Equal(TextFit.CellMinSize, font.Size);
     Assert.EndsWith(TextFit.Ellipsis, line);
-    Assert.StartsWith(line.TrimEnd('…').TrimEnd(), text);
+    Assert.StartsWith(line
+      .TrimEnd('…')
+      .TrimEnd(), text);
     Assert.True(gfx.MeasureString(line, font).Width <= 80);
   }
 

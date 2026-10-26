@@ -33,7 +33,9 @@ public static class ChoiceService
   ///   Total number of selections a choice instance allows right now
   /// </summary>
   public static int Total(CharacterEvaluation evaluation, Choice choice)
-    => (int)Expression.Parse(choice.CountExpr).EvaluateNumber(evaluation);
+    => (int)Expression
+      .Parse(choice.CountExpr)
+      .EvaluateNumber(evaluation);
 
   /// <summary>
   ///   Choice instances with fewer selections than allowed
@@ -45,7 +47,9 @@ public static class ChoiceService
       foreach (Choice choice in owner.Feature.Choices)
       {
         int total = Total(evaluation, choice);
-        int selected = evaluation.SelectionsOf(choice, owner).Count();
+        int selected = evaluation
+          .SelectionsOf(choice, owner)
+          .Count();
         if (total > selected)
         {
           yield return new(choice, owner, total, selected);
@@ -81,14 +85,19 @@ public static class ChoiceService
   ///   Options that may be selected for a choice instance right now
   /// </summary>
   public static IEnumerable<OptionDescriptor> AvailableOptions(CharacterEvaluation evaluation, Choice choice, FeatureInstance owner)
-    => EvaluateOptions(evaluation, choice, owner).Where(entry => entry.Available).Select(entry => entry.Option);
+    => EvaluateOptions(evaluation, choice, owner)
+      .Where(entry => entry.Available)
+      .Select(entry => entry.Option);
 
   /// <summary>
   ///   Every option of a choice instance with the reason it can't be selected right now (null when it can)
   /// </summary>
   public static IEnumerable<OptionAvailability> EvaluateOptions(CharacterEvaluation evaluation, Choice choice, FeatureInstance owner)
   {
-    List<string> selected = evaluation.SelectionsOf(choice, owner).Select(entry => entry.Selection.OptionKey).ToList();
+    List<string> selected = evaluation
+      .SelectionsOf(choice, owner)
+      .Select(entry => entry.Selection.OptionKey)
+      .ToList();
     HashSet<string> feats = KnownFeats(evaluation);
     HashSet<string> knownSpells = choice.OptionSource == OptionSourceEnum.Spell ? KnownSpellKeys(evaluation, choice, owner) : [];
     Expression? filter = choice.FilterExpr == null ? null : Expression.Parse(choice.FilterExpr);
@@ -138,7 +147,9 @@ public static class ChoiceService
       return "The spell is already known";
     }
 
-    if (option.PrerequisiteExpr != null && !Expression.Parse(option.PrerequisiteExpr).EvaluateBoolean(context))
+    if (option.PrerequisiteExpr != null && !Expression
+      .Parse(option.PrerequisiteExpr)
+      .EvaluateBoolean(context))
     {
       return "Prerequisite not met";
     }
@@ -152,7 +163,9 @@ public static class ChoiceService
   public static string? Validate(CharacterEvaluation evaluation, Choice choice, FeatureInstance owner, string optionKey)
   {
     int total = Total(evaluation, choice);
-    int selected = evaluation.SelectionsOf(choice, owner).Count();
+    int selected = evaluation
+      .SelectionsOf(choice, owner)
+      .Count();
     if (selected >= total)
     {
       return $"'{choice.Name}' allows only {total} selection(s)";
@@ -204,7 +217,9 @@ public static class ChoiceService
     FeatCategoryEnum.General => "general",
     FeatCategoryEnum.FightingStyle => "fighting-style",
     FeatCategoryEnum.EpicBoon => "epic-boon",
-    _ => category.ToString().ToLowerInvariant(),
+    _ => category
+      .ToString()
+      .ToLowerInvariant(),
   };
 
   #endregion

@@ -119,7 +119,9 @@ public sealed class ApiClient(HttpClient http)
                                          ?? (await this.GetAsync<PagedResult<OptionDto>>($"{choice.OptionsUrl}{(choice.OptionsUrl.Contains('?') ? '&' : '?')}pageSize=200")).Items;
       if (choice.OptionSource == Common.Enum.Rules.OptionSourceEnum.Feat && options.Any(entry => entry.Key == "ability-score-improvement"))
       {
-        options = options.Where(entry => entry.Key == "ability-score-improvement").ToList();
+        options = options
+          .Where(entry => entry.Key == "ability-score-improvement")
+          .ToList();
       }
 
       List<SelectionDto> selections = [];

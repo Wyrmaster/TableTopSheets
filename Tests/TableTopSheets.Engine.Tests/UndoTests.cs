@@ -41,8 +41,15 @@ public class UndoTests
     Guid id = await world.CreateCharacterAsync(TestWorld.Scores(8, 14, 13, 15, 12, 10), "sage", "int", "int", "con");
     CharacterEvaluation wizard = await world.LevelUpManyAsync(id, "wizard", 5, "evoker");
 
-    List<string> spellbook = wizard.SpellbookSpellIds().Select(entry => wizard.Catalog.Spells[entry]).OrderByDescending(entry => entry.Level).Select(entry => entry.Key).ToList();
-    await world.Service.SetPreparedSpellsAsync(id, "wizard", spellbook.Take(9).ToList());
+    List<string> spellbook = wizard
+      .SpellbookSpellIds()
+      .Select(entry => wizard.Catalog.Spells[entry])
+      .OrderByDescending(entry => entry.Level)
+      .Select(entry => entry.Key)
+      .ToList();
+    await world.Service.SetPreparedSpellsAsync(id, "wizard", spellbook
+      .Take(9)
+      .ToList());
 
     world.Context.ChangeTracker.Clear();
     CharacterEvaluation undone = await world.Service.UndoLastLevelAsync(id);

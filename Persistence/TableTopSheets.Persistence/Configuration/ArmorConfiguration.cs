@@ -10,6 +10,8 @@ public class ArmorConfiguration: IEntityTypeConfiguration<Armor>
 {
   public void Configure(EntityTypeBuilder<Armor> builder)
   {
-    builder.Property(entity => entity.Category).HasColumnName("ArmorCategory");
+    builder
+      .Property(entity => entity.Category)
+      .HasColumnName("ArmorCategory");
   }
 }

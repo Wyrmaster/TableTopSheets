@@ -33,7 +33,9 @@ public static class CharacterSheetBuilder
       Background = character.BackgroundId is { } backgroundId ? evaluation.Catalog.Backgrounds[backgroundId].Name : string.Empty,
       Species = character.SpeciesId is { } speciesId ? evaluation.Catalog.Species[speciesId].Name : string.Empty,
       Classes = string.Join(" / ", classLevels.Select(entry => $"{entry.Class} {entry.Level}")),
-      Subclasses = string.Join(" / ", classLevels.Where(entry => entry.Subclass != null).Select(entry => entry.Subclass)),
+      Subclasses = string.Join(" / ", classLevels
+        .Where(entry => entry.Subclass != null)
+        .Select(entry => entry.Subclass)),
       ClassLevels = classLevels,
       Level = evaluation.TotalLevel,
       Experience = character.Experience,
@@ -67,11 +69,14 @@ public static class CharacterSheetBuilder
       AttacksPerAction = 1 + (int)evaluation.Stat("attack.extraAttacks"),
       Attacks = Attacks(evaluation),
       Resistances = Names(evaluation, "damage.resist."),
-      Immunities = Names(evaluation, "damage.immune.").Concat(Names(evaluation, "condition.immune.")).ToList(),
+      Immunities = Names(evaluation, "damage.immune.")
+        .Concat(Names(evaluation, "condition.immune."))
+        .ToList(),
       Vulnerabilities = Names(evaluation, "damage.vulnerable."),
 
       ArmorTraining = ArmorTraining(evaluation),
-      WeaponProficiencies = evaluation.StatKeysWithPrefix("proficiency.weapon.")
+      WeaponProficiencies = evaluation
+        .StatKeysWithPrefix("proficiency.weapon.")
         .Select(key => key["proficiency.weapon.".Length..])
         .Select(key => key switch
         {
@@ -80,11 +85,16 @@ public static class CharacterSheetBuilder
           _ => ItemName(evaluation, key),
         })
         .ToList(),
-      WeaponMasteries = evaluation.StatKeysWithPrefix("mastery.").Select(key => ItemName(evaluation, key["mastery.".Length..])).ToList(),
-      ToolProficiencies = evaluation.StatKeysWithPrefix("proficiency.tool.")
+      WeaponMasteries = evaluation
+        .StatKeysWithPrefix("mastery.")
+        .Select(key => ItemName(evaluation, key["mastery.".Length..]))
+        .ToList(),
+      ToolProficiencies = evaluation
+        .StatKeysWithPrefix("proficiency.tool.")
         .Select(key => ItemName(evaluation, key["proficiency.tool.".Length..]) + (evaluation.Stat(key) >= 20 ? " (Expertise)" : string.Empty))
         .ToList(),
-      Languages = evaluation.StatKeysWithPrefix("language.")
+      Languages = evaluation
+        .StatKeysWithPrefix("language.")
         .Select(key => key["language.".Length..])
         .Select(key => evaluation.Catalog.Languages.TryGetValue(key, out Language? language) ? language.Name : Naming.Title(key))
         .ToList(),
@@ -104,7 +114,10 @@ public static class CharacterSheetBuilder
                          + (entry.entry.Quantity > 1 ? $" ×{entry.entry.Quantity}" : string.Empty)
                          + (entry.entry.Equipped ? " (equipped)" : string.Empty))
         .ToList(),
-      AttunedItems = character.Items.Where(entry => entry.Attuned).Select(entry => evaluation.Catalog.Items[entry.ItemId].Name).ToList(),
+      AttunedItems = character.Items
+        .Where(entry => entry.Attuned)
+        .Select(entry => evaluation.Catalog.Items[entry.ItemId].Name)
+        .ToList(),
       Coins = new Coins
       {
         Copper = character.PlayState.CopperPieces,
@@ -169,12 +182,17 @@ public static class CharacterSheetBuilder
   /// </summary>
   private static (int ArmorClass, List<SourceValue> Options, List<SourceValue> Sources) ArmorClass(CharacterEvaluation evaluation)
   {
-    List<SourceValue> options = evaluation.Candidates("ac.base").Select(entry => new SourceValue(entry.Label, (int)entry.Value)).ToList();
+    List<SourceValue> options = evaluation
+      .Candidates("ac.base")
+      .Select(entry => new SourceValue(entry.Label, (int)entry.Value))
+      .ToList();
 
     SourceValue? @base = options.FirstOrDefault(entry => entry.Label == evaluation.Character.ArmorClassChoice)
                          ?? options.MaxBy(entry => entry.Value);
     List<SourceValue> sources = @base == null ? [] : [@base];
-    sources.AddRange(evaluation.Sources("ac.bonus").Select(entry => new SourceValue(entry.Label, (int)entry.Value)));
+    sources.AddRange(evaluation
+      .Sources("ac.bonus")
+      .Select(entry => new SourceValue(entry.Label, (int)entry.Value)));
     return (sources.Sum(entry => entry.Value), options, sources);
   }
 
@@ -219,7 +237,10 @@ public static class CharacterSheetBuilder
     bool meleeDexterity = evaluation.Stat("attack.melee.dex") > 0;
 
     // equipped weapons only: ready ones and the ones in hand
-    foreach (Weapon weapon in evaluation.EquippedItems.Select(entry => evaluation.Catalog.Items[entry.ItemId]).OfType<Weapon>().DistinctBy(entry => entry.Id))
+    foreach (Weapon weapon in evaluation.EquippedItems
+      .Select(entry => evaluation.Catalog.Items[entry.ItemId])
+      .OfType<Weapon>()
+      .DistinctBy(entry => entry.Id))
     {
       bool finesse = weapon.Properties.HasFlag(WeaponPropertyEnum.Finesse);
       int modifier = weapon.Ranged
@@ -284,7 +305,10 @@ public static class CharacterSheetBuilder
   /// </summary>
   private static IEnumerable<AttackSheet> CantripAttacks(CharacterEvaluation evaluation)
   {
-    List<KnownSpell> cantrips = evaluation.KnownSpells().Where(entry => entry.Spell.Level == 0 && (entry.Prepared || entry.AlwaysPrepared)).ToList();
+    List<KnownSpell> cantrips = evaluation
+      .KnownSpells()
+      .Where(entry => entry.Spell.Level == 0 && (entry.Prepared || entry.AlwaysPrepared))
+      .ToList();
     foreach (KnownSpell known in cantrips)
     {
       string? damage = evaluation.CantripDamage(known.Spell);
@@ -316,7 +340,11 @@ public static class CharacterSheetBuilder
       (
         duplicate ? $"{known.Spell.Name} ({known.Source})" : known.Spell.Name,
         evaluation.ProficiencyBonus + modifier + (int)evaluation.Stat("spellcasting.attack.bonus"),
-        damage.Contains('×') && bonus != 0 ? $"{damage.Split('×')[0].Trim()} × ({Damage(damage.Split('×')[1].Trim(), bonus)})" : Damage(damage, bonus),
+        damage.Contains('×') && bonus != 0 ? $"{damage
+          .Split('×')[0]
+          .Trim()} × ({Damage(damage
+          .Split('×')[1]
+          .Trim(), bonus)})" : Damage(damage, bonus),
         SpellDice(damage),
         bonus,
         known.Spell.DamageType,
@@ -332,10 +360,15 @@ public static class CharacterSheetBuilder
   /// </summary>
   private static List<DiceEnum> SpellDice(string damage)
   {
-    string[] beams = damage.Split(" or ")[0].Split('×', StringSplitOptions.TrimEntries);
+    string[] beams = damage
+      .Split(" or ")[0]
+      .Split('×', StringSplitOptions.TrimEntries);
     int count = beams.Length == 2 ? int.Parse(beams[0], CultureInfo.InvariantCulture) : 1;
     List<DiceEnum> dice = Dice(beams[^1]);
-    return Enumerable.Range(0, count).SelectMany(_ => dice).ToList();
+    return Enumerable
+      .Range(0, count)
+      .SelectMany(_ => dice)
+      .ToList();
   }
 
   private static List<SpellcastingSheet> Spellcasting(CharacterEvaluation evaluation) => evaluation.SpellcastingProfiles
@@ -349,8 +382,12 @@ public static class CharacterSheetBuilder
         modifier,
         8 + evaluation.ProficiencyBonus + modifier + (int)evaluation.Stat("spellcasting.dc.bonus"),
         evaluation.ProficiencyBonus + modifier + (int)evaluation.Stat("spellcasting.attack.bonus"),
-        profile.PreparedCountKey == null ? 0 : (int)evaluation.Scale(profile.PreparedCountKey).AsNumber(),
-        profile.CantripCountKey == null ? 0 : (int)evaluation.Scale(profile.CantripCountKey).AsNumber()
+        profile.PreparedCountKey == null ? 0 : (int)evaluation
+          .Scale(profile.PreparedCountKey)
+          .AsNumber(),
+        profile.CantripCountKey == null ? 0 : (int)evaluation
+          .Scale(profile.CantripCountKey)
+          .AsNumber()
       );
     })
     .ToList();
@@ -376,7 +413,8 @@ public static class CharacterSheetBuilder
     return slots;
   }
 
-  private static List<SpellSheet> Spells(CharacterEvaluation evaluation) => evaluation.KnownSpells()
+  private static List<SpellSheet> Spells(CharacterEvaluation evaluation) => evaluation
+    .KnownSpells()
     .Where(entry => entry.Prepared || entry.AlwaysPrepared || (entry.InSpellbook && entry.Spell.Ritual && entry.Profile?.RitualMode == RitualModeEnum.FromSpellbook))
     .Select(entry =>
     {
@@ -430,9 +468,14 @@ public static class CharacterSheetBuilder
     (
       resource.Key,
       resource.Name,
-      (int)Expression.Parse(resource.MaxExpr).EvaluateNumber(evaluation),
+      (int)Expression
+        .Parse(resource.MaxExpr)
+        .EvaluateNumber(evaluation),
       evaluation.Character.ResourceUsages.FirstOrDefault(entry => entry.Key == $"resource.{resource.Key}")?.Used ?? 0,
-      resource.DieExpr == null ? null : Expression.Parse(resource.DieExpr).Evaluate(evaluation).AsString(),
+      resource.DieExpr == null ? null : Expression
+        .Parse(resource.DieExpr)
+        .Evaluate(evaluation)
+        .AsString(),
       resource.Recharge.ToString()
     ))
     .ToList();
@@ -456,13 +499,17 @@ public static class CharacterSheetBuilder
   }
 
   private static List<string> Names(CharacterEvaluation evaluation, string prefix)
-    => evaluation.StatKeysWithPrefix(prefix).Select(key => Naming.Title(key[prefix.Length..])).ToList();
+    => evaluation
+      .StatKeysWithPrefix(prefix)
+      .Select(key => Naming.Title(key[prefix.Length..]))
+      .ToList();
 
   private static string ItemName(CharacterEvaluation evaluation, string key)
     => evaluation.Catalog.ItemsByKey.TryGetValue(key, out Item? item) ? item.Name : Naming.Title(key);
 
   private static IEnumerable<string> PropertyNames(WeaponPropertyEnum properties)
-    => System.Enum.GetValues<WeaponPropertyEnum>()
+    => System.Enum
+      .GetValues<WeaponPropertyEnum>()
       .Where(entry => entry != WeaponPropertyEnum.None && properties.HasFlag(entry))
       .Select(entry => entry == WeaponPropertyEnum.TwoHanded ? "Two-Handed" : entry.ToString());
 
@@ -481,8 +528,12 @@ public static class CharacterSheetBuilder
   {
     ExprValue value = ExprValue.Parse(dice);
     return value.Kind == ExprValueKind.Dice
-      ? Enumerable.Repeat((DiceEnum)value.DiceSides, value.DiceCount).ToList()
-      : Enumerable.Repeat(DiceEnum.D1, Math.Max(1, (int)value.AsNumber())).ToList();
+      ? Enumerable
+        .Repeat((DiceEnum)value.DiceSides, value.DiceCount)
+        .ToList()
+      : Enumerable
+        .Repeat(DiceEnum.D1, Math.Max(1, (int)value.AsNumber()))
+        .ToList();
   }
 
   #endregion

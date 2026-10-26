@@ -256,7 +256,9 @@ public class WeaponDamageBox: InformationBox, IOverflowComponent
     }
 
     // attacks with a cut cell are repeated in full, attacks without a row follow
-    List<Attack> overflow = cut.Concat(this._attacks.Skip(Rows)).ToList();
+    List<Attack> overflow = cut
+      .Concat(this._attacks.Skip(Rows))
+      .ToList();
     this.Overflow = overflow.Count == 0 ? null : string.Join("\n", overflow.Select(Describe));
   }
 

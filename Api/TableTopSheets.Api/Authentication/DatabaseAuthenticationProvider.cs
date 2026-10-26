@@ -52,13 +52,17 @@ public sealed class DatabaseAuthenticationProvider(AuthenticationOptions options
   {
     if (options.Database.AllowRegistration)
     {
-      group.MapPost("/register", this.Register).WithName("Register")
+      group
+        .MapPost("/register", this.Register)
+        .WithName("Register")
         .WithSummary("Create a user and sign in")
         .ProducesValidationProblem()
         .ProducesProblem(StatusCodes.Status409Conflict);
     }
 
-    group.MapPost("/login", this.Login).WithName("Login")
+    group
+      .MapPost("/login", this.Login)
+      .WithName("Login")
       .WithSummary("Sign in with user name and password")
       .ProducesProblem(StatusCodes.Status401Unauthorized);
   }
@@ -155,7 +159,9 @@ public sealed class DatabaseAuthenticationProvider(AuthenticationOptions options
       {
         [JwtClaims.Subject] = user.Id.ToString(),
         [JwtClaims.Name] = user.UserName,
-        [JwtClaims.TokenId] = Guid.NewGuid().ToString(),
+        [JwtClaims.TokenId] = Guid
+          .NewGuid()
+          .ToString(),
       },
     });
     return new TokenDto(token, "Bearer", expires, new UserDto(user.Id, user.UserName, user.Email));

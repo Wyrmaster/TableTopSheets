@@ -73,7 +73,9 @@ public sealed class EquipmentAndSpellsTests(ApiFactory factory): IClassFixture<A
     Assert.Equal(1, wizard.MaxSpellLevel);
     Assert.True(wizard.PreparedLimit > 0);
     Assert.True(wizard.CantripLimit > 0);
-    List<KnownSpellDto> spellbook = wizard.Spells.Where(entry => entry.InSpellbook).ToList();
+    List<KnownSpellDto> spellbook = wizard.Spells
+      .Where(entry => entry.InSpellbook)
+      .ToList();
     Assert.Equal(6, spellbook.Count);
     Assert.All(wizard.Spells.Where(entry => entry.Level == 0), entry => Assert.True(entry.Prepared));
 
@@ -81,14 +83,19 @@ public sealed class EquipmentAndSpellsTests(ApiFactory factory): IClassFixture<A
     Assert.NotEmpty(spells.Other);
 
     // prepare a loadout from the spellbook
-    List<string> loadout = spellbook.Take(Math.Min(wizard.PreparedLimit, spellbook.Count)).Select(entry => entry.Key).ToList();
+    List<string> loadout = spellbook
+      .Take(Math.Min(wizard.PreparedLimit, spellbook.Count))
+      .Select(entry => entry.Key)
+      .ToList();
     await this._api.PutAsync<CharacterStateDto>($"/api/characters/{state.Id}/prepared-spells/wizard", new PreparedSpellsDto(loadout));
     wizard = (await this._api.GetAsync<CharacterSpellsDto>($"/api/characters/{state.Id}/spells")).Classes.Single();
     Assert.Equal(loadout.Count, wizard.PreparedCount);
     Assert.All(loadout, key => Assert.True(wizard.Spells.Single(entry => entry.Key == key).Prepared));
 
     // more than the limit is a rule violation
-    List<string> tooMany = spellbook.Select(entry => entry.Key).ToList();
+    List<string> tooMany = spellbook
+      .Select(entry => entry.Key)
+      .ToList();
     if (tooMany.Count > wizard.PreparedLimit)
     {
       HttpStatusCode status = await ApiClient.StatusOf(() => this._api.PutAsync<CharacterStateDto>(

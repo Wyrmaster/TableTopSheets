@@ -15,7 +15,9 @@ public class RobotoFontResolver: IFontResolver
 
   public FontResolverInfo ResolveTypeface(string familyName, bool isBold, bool isItalic)
   {
-    var name = familyName.ToLower().Trim('#');
+    var name = familyName
+      .ToLower()
+      .Trim('#');
 
     // Deal with the fonts we know.
     switch (name)
@@ -79,7 +81,9 @@ public class RobotoFontResolver: IFontResolver
 
   private void LoadFontFromAssembly(string faceName, string keyString)
   {
-    Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(keyString);
+    Stream stream = Assembly
+      .GetExecutingAssembly()
+      .GetManifestResourceStream(keyString);
     byte[] data = new byte[stream!.Length];
 
     stream.Read(data, 0, data.Length);

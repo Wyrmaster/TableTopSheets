@@ -18,7 +18,9 @@ public sealed class OidcAuthTests(OidcApiFactory factory): IClassFixture<OidcApi
   public async Task FirstRequest_CreatesTheUser_WhoseCharactersStayLinked()
   {
     ApiClient api = new(factory.CreateClient());
-    string subject = Guid.NewGuid().ToString();
+    string subject = Guid
+      .NewGuid()
+      .ToString();
     api.UseToken(OidcApiFactory.Token(subject, "gandalf"));
 
     CurrentUserDto me = await api.GetAsync<CurrentUserDto>("/api/users/me");
@@ -34,7 +36,9 @@ public sealed class OidcAuthTests(OidcApiFactory factory): IClassFixture<OidcApi
     Assert.Equal([hero.Id], list.Items.Select(entry => entry.Id));
 
     // another subject with the same name gets its own user
-    api.UseToken(OidcApiFactory.Token(Guid.NewGuid().ToString(), "gandalf"));
+    api.UseToken(OidcApiFactory.Token(Guid
+      .NewGuid()
+      .ToString(), "gandalf"));
     CurrentUserDto other = await api.GetAsync<CurrentUserDto>("/api/users/me");
     Assert.NotEqual(me.Id, other.Id);
     Assert.NotEqual(me.UserName, other.UserName);
@@ -45,7 +49,9 @@ public sealed class OidcAuthTests(OidcApiFactory factory): IClassFixture<OidcApi
   public async Task TokensForOtherAudiences_AndPasswordEndpoints_AreRejected()
   {
     ApiClient api = new(factory.CreateClient());
-    api.UseToken(OidcApiFactory.Token(Guid.NewGuid().ToString(), "saruman", "someone-else"));
+    api.UseToken(OidcApiFactory.Token(Guid
+      .NewGuid()
+      .ToString(), "saruman", "someone-else"));
     Assert.Equal(HttpStatusCode.Unauthorized, await ApiClient.StatusOf(() => api.GetAsync<CurrentUserDto>("/api/users/me")));
 
     api.UseToken(null);

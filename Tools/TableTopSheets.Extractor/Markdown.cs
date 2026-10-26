@@ -22,13 +22,19 @@ internal static partial class Markdown
     {
       if (paragraph.Count > 0)
       {
-        html.Append("<p>").Append(Inline(string.Join(" ", paragraph))).Append("</p>");
+        html
+          .Append("<p>")
+          .Append(Inline(string.Join(" ", paragraph)))
+          .Append("</p>");
         paragraph.Clear();
       }
 
       if (list.Count > 0)
       {
-        html.Append("<ul>").Append(string.Concat(list.Select(entry => $"<li>{Inline(entry)}</li>"))).Append("</ul>");
+        html
+          .Append("<ul>")
+          .Append(string.Concat(list.Select(entry => $"<li>{Inline(entry)}</li>")))
+          .Append("</ul>");
         list.Clear();
       }
 
@@ -75,7 +81,10 @@ internal static partial class Markdown
       else if (trimmed.StartsWith('#'))
       {
         Flush();
-        html.Append("<h5>").Append(Inline(trimmed.TrimStart('#', ' '))).Append("</h5>");
+        html
+          .Append("<h5>")
+          .Append(Inline(trimmed.TrimStart('#', ' ')))
+          .Append("</h5>");
       }
       else
       {
@@ -100,7 +109,9 @@ internal static partial class Markdown
 
   public static string Inline(string text)
   {
-    text = WebUtility.HtmlEncode(text).Replace("&#39;", "'");
+    text = WebUtility
+      .HtmlEncode(text)
+      .Replace("&#39;", "'");
     text = LinkRegex().Replace(text, "$2");
     text = BoldItalicRegex().Replace(text, "<strong><em>$1</em></strong>");
     text = BoldRegex().Replace(text, "<strong>$1</strong>");
@@ -111,7 +122,10 @@ internal static partial class Markdown
   /// <summary>
   ///   Remove markdown emphasis from a short text
   /// </summary>
-  public static string Plain(string text) => LinkRegex().Replace(text, "$2").Replace("*", string.Empty).Trim();
+  public static string Plain(string text) => LinkRegex()
+    .Replace(text, "$2")
+    .Replace("*", string.Empty)
+    .Trim();
 
   private static string Table(List<string> rows)
   {
@@ -119,18 +133,27 @@ internal static partial class Markdown
     bool header = true;
     foreach (string row in rows)
     {
-      string[] cells = row.Trim('|').Split('|').Select(cell => cell.Trim()).ToArray();
+      string[] cells = row
+        .Trim('|')
+        .Split('|')
+        .Select(cell => cell.Trim())
+        .ToArray();
       if (cells.All(cell => cell.Length == 0 || cell.All(character => character is '-' or ':')))
       {
         continue;
       }
 
       string tag = header ? "th" : "td";
-      html.Append("<tr>").Append(string.Concat(cells.Select(cell => $"<{tag}>{Inline(cell)}</{tag}>"))).Append("</tr>");
+      html
+        .Append("<tr>")
+        .Append(string.Concat(cells.Select(cell => $"<{tag}>{Inline(cell)}</{tag}>")))
+        .Append("</tr>");
       header = false;
     }
 
-    return html.Append("</table>").ToString();
+    return html
+      .Append("</table>")
+      .ToString();
   }
 
   [GeneratedRegex(@"\[([^\]]*)\]\(([^)]*)\)")]

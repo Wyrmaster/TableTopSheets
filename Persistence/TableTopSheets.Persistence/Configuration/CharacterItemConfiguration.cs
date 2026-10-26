@@ -9,6 +9,10 @@ public class CharacterItemConfiguration: IEntityTypeConfiguration<CharacterItem>
   public void Configure(EntityTypeBuilder<CharacterItem> builder)
   {
     builder.Ignore(entity => entity.Equipped);
-    builder.HasOne(entity => entity.Item).WithMany().HasForeignKey(entity => entity.ItemId).OnDelete(DeleteBehavior.Restrict);
+    builder
+      .HasOne(entity => entity.Item)
+      .WithMany()
+      .HasForeignKey(entity => entity.ItemId)
+      .OnDelete(DeleteBehavior.Restrict);
   }
 }

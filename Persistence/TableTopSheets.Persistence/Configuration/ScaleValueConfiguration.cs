@@ -10,7 +10,13 @@ public class ScaleValueConfiguration: IEntityTypeConfiguration<ScaleValue>
 {
   public void Configure(EntityTypeBuilder<ScaleValue> builder)
   {
-    builder.HasIndex(entity => new { entity.Key, entity.Level }).IsUnique();
-    builder.HasOne(entity => entity.Class).WithMany().HasForeignKey(entity => entity.ClassId).OnDelete(DeleteBehavior.Cascade);
+    builder
+      .HasIndex(entity => new { entity.Key, entity.Level })
+      .IsUnique();
+    builder
+      .HasOne(entity => entity.Class)
+      .WithMany()
+      .HasForeignKey(entity => entity.ClassId)
+      .OnDelete(DeleteBehavior.Cascade);
   }
 }

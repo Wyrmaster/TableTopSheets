@@ -31,7 +31,9 @@ public class ExpressionTests
   [InlineData("-level + 1", -4)]
   [InlineData("7 % 4", 3)]
   public void EvaluatesNumbers(string source, double expected)
-    => Assert.Equal(expected, Expression.Parse(source).EvaluateNumber(new Context()));
+    => Assert.Equal(expected, Expression
+      .Parse(source)
+      .EvaluateNumber(new Context()));
 
   [Theory]
   [InlineData("level >= 5 && !(level > 6)", true)]
@@ -40,12 +42,16 @@ public class ExpressionTests
   [InlineData("option.key == 'str'", false)]
   [InlineData("option.key != \"str\"", true)]
   public void EvaluatesBooleans(string source, bool expected)
-    => Assert.Equal(expected, Expression.Parse(source).EvaluateBoolean(new Context()));
+    => Assert.Equal(expected, Expression
+      .Parse(source)
+      .EvaluateBoolean(new Context()));
 
   [Fact]
   public void DiceLiteralsKeepCountAndSides()
   {
-    ExprValue value = Expression.Parse("2d6").Evaluate(new Context());
+    ExprValue value = Expression
+      .Parse("2d6")
+      .Evaluate(new Context());
 
     Assert.Equal(ExprValueKind.Dice, value.Kind);
     Assert.Equal(2, value.DiceCount);
@@ -62,5 +68,7 @@ public class ExpressionTests
 
   [Fact]
   public void UnknownIdentifierFails()
-    => Assert.Throws<ExpressionException>(() => Expression.Parse("unknown + 1").Evaluate(new Context()));
+    => Assert.Throws<ExpressionException>(() => Expression
+      .Parse("unknown + 1")
+      .Evaluate(new Context()));
 }

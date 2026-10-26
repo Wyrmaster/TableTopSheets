@@ -38,13 +38,17 @@ public static class StateMapper
       ProficiencyBonus = evaluation.ProficiencyBonus,
       HitPointMaximum = sheet.HitPointMaximum,
       ArmorClass = sheet.ArmorClass,
-      Items = character.Items.Select(entry => Item(evaluation, entry)).ToList(),
+      Items = character.Items
+        .Select(entry => Item(evaluation, entry))
+        .ToList(),
       Coins = new CoinsDto(sheet.Coins.Copper, sheet.Coins.Silver, sheet.Coins.Electrum, sheet.Coins.Gold, sheet.Coins.Platinum),
       BackgroundEquipment = character.BackgroundEquipment,
       ClassEquipment = character.ClassEquipment,
       Complete = pending.All(entry => entry.Optional),
       PendingChoices = pending,
-      Violations = sheet.Violations.Select(entry => new ViolationDto(entry.Code, entry.Message, entry.Severity)).ToList(),
+      Violations = sheet.Violations
+        .Select(entry => new ViolationDto(entry.Code, entry.Message, entry.Severity))
+        .ToList(),
     };
   }
 
@@ -59,7 +63,9 @@ public static class StateMapper
     IReadOnlyDictionary<Guid, string> backgrounds
   )
   {
-    List<CharacterLevel> levels = character.Levels.OrderBy(entry => entry.Number).ToList();
+    List<CharacterLevel> levels = character.Levels
+      .OrderBy(entry => entry.Number)
+      .ToList();
     return new CharacterSummaryDto
     (
       character.Id,
@@ -72,7 +78,9 @@ public static class StateMapper
         .Select(group =>
         {
           CharacterClass @class = classes[group.Key];
-          Guid? subclassId = group.Select(entry => entry.SubclassId).LastOrDefault(entry => entry != null);
+          Guid? subclassId = group
+            .Select(entry => entry.SubclassId)
+            .LastOrDefault(entry => entry != null);
           string? subclass = subclassId is { } id ? @class.Subclasses.Single(entry => entry.Id == id).Key : null;
           return new ClassLevelDto(@class.Key, @class.Name, group.Count(), subclass);
         })
@@ -95,7 +103,9 @@ public static class StateMapper
   public static IReadOnlyList<SelectionInfoDto> Selections(CharacterEvaluation evaluation)
   {
     Guid? latest = evaluation.Levels.MaxBy(entry => entry.Number)?.Id;
-    return evaluation.Selections.Select(entry => Selection(evaluation, entry, entry.Selection.LevelId == latest)).ToList();
+    return evaluation.Selections
+      .Select(entry => Selection(evaluation, entry, entry.Selection.LevelId == latest))
+      .ToList();
   }
 
   public static SelectionInfoDto Selection(CharacterEvaluation evaluation, SelectionInstance selection, bool removable) => new
