@@ -14,6 +14,10 @@ export interface SpeciesSummaryDto {
   key: string
   name: string
   creatureType: string
+  /** picture (`/api/images/…`); null when there is none */
+  imageUrl: string | null
+  /** small version of the picture for lists and cards */
+  thumbnailUrl: string | null
 }
 
 /** Background in a list */
@@ -22,6 +26,10 @@ export interface BackgroundSummaryDto {
   name: string
   abilityOptions: string[]
   originFeat: string | null
+  /** picture (`/api/images/…`); null when there is none */
+  imageUrl: string | null
+  /** small version of the picture for lists and cards */
+  thumbnailUrl: string | null
 }
 
 /** Subclass of a class */
@@ -39,6 +47,10 @@ export interface ClassSummaryDto {
   primaryAbilityMode: PrimaryAbilityModeEnum
   subclassLevel: number
   subclasses: SubclassSummaryDto[]
+  /** picture (`/api/images/…`); null when there is none */
+  imageUrl: string | null
+  /** small version of the picture for lists and cards */
+  thumbnailUrl: string | null
 }
 
 /** Feat in a list */
@@ -63,6 +75,10 @@ export interface SpellSummaryDto {
   damage: string | null
   damageType: DamageTypeEnum | null
   lists: string[]
+  /** picture (`/api/images/…`); null when there is none */
+  imageUrl: string | null
+  /** small version of the picture for lists and cards */
+  thumbnailUrl: string | null
 }
 
 /** Item in a list; cost and weight are per `bundle` (20 arrows for 1 gp), quantities count pieces */
@@ -78,6 +94,10 @@ export interface ItemSummaryDto {
   requiresAttunement: boolean
   /** pieces sold together (1 for most items) */
   bundle: number
+  /** picture (`/api/images/item/{key}`); null when there is none */
+  imageUrl: string | null
+  /** small version of the picture for rows */
+  thumbnailUrl: string | null
 }
 
 /** Definition of a choice as authored in the rules (independent of a character) */
@@ -110,6 +130,9 @@ export interface RuleDetailDto {
   features: FeatureDto[]
   /** starting equipment of a background (empty for the others) */
   startingEquipment: StartingEquipmentOptionDto[]
+  /** picture of a species or background; null for feats and subclasses */
+  imageUrl: string | null
+  thumbnailUrl: string | null
 }
 
 /** Class with its features per level and subclasses */

@@ -84,6 +84,7 @@ else
 // each returns its own route group, so they must not be chained (that would nest the groups)
 app.MapAuthEndpoints();
 app.MapRulesEndpoints();
+app.MapImageEndpoints();
 app.MapCharacterEndpoints();
 app.MapChoiceEndpoints();
 app.MapLevelEndpoints();

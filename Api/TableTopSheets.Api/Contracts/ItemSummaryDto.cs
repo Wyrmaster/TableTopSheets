@@ -15,4 +15,11 @@ public sealed record ItemSummaryDto
   bool Magic,
   bool RequiresAttunement,
   int Bundle
-);
+)
+{
+  /// <summary>Picture (<c>/api/images/item/{key}</c>); null when there is none</summary>
+  public string? ImageUrl { get; init; }
+
+  /// <summary>Small version of the picture for lists and rows; null when there is none</summary>
+  public string? ThumbnailUrl { get; init; }
+}

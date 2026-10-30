@@ -4,6 +4,7 @@ import {
   Flex,
   Heading,
   HStack,
+  Image,
   NativeSelect,
   NumberInput,
   SimpleGrid,
@@ -11,11 +12,17 @@ import {
   Text,
 } from '@chakra-ui/react'
 import { useState } from 'react'
-import { ChangeCoinsIntent, type CoinsDto, PayCoinsIntent, SetCoinsIntent } from '@/api'
+import {
+  ChangeCoinsIntent,
+  coinImageUrl,
+  type CoinsDto,
+  PayCoinsIntent,
+  SetCoinsIntent,
+} from '@/api'
 import { Icon } from '@/components/Icon'
 import { bagIcon } from '@/components/icons'
 import { useApiAction } from '@/hooks/useApiAction'
-import { CoinKinds, coinValue, formatCoins, formatPrice } from './coins'
+import { CoinKinds, coinValue, formatPrice } from './coins'
 import { useCharacter } from './useCharacter'
 
 /**
@@ -91,13 +98,28 @@ export function CoinsCard() {
             gap='3'
             align='center'
           >
-            <Text
+            <Flex
               flex='1'
+              wrap='wrap'
+              gap='3'
+              align='center'
               fontSize='lg'
               fontWeight='semibold'
             >
-              {formatCoins(state.coins)}
-            </Text>
+              {CoinKinds
+                .filter((entry) => state.coins[entry.key])
+                .map((entry) => (
+                  <HStack
+                    key={entry.key}
+                    gap='1.5'
+                    title={entry.label}
+                  >
+                    <CoinImage kind={entry.key} />
+                    {state.coins[entry.key]} {entry.short}
+                  </HStack>
+                ))}
+              {coinValue(state.coins) === 0 && 'no coins'}
+            </Flex>
             <Button
               size='xs'
               variant='outline'
@@ -122,7 +144,13 @@ export function CoinsCard() {
                   key={kind.key}
                   gap='1'
                 >
-                  <Text fontSize='xs'>{kind.label}</Text>
+                  <HStack gap='1.5'>
+                    <CoinImage
+                      kind={kind.key}
+                      size='5'
+                    />
+                    <Text fontSize='xs'>{kind.label}</Text>
+                  </HStack>
                   <NumberInput.Root
                     size='sm'
                     min={0}
@@ -229,5 +257,27 @@ export function CoinsCard() {
         </HStack>
       </Card.Body>
     </Card.Root>
+  )
+}
+
+/**
+ * Picture of a coin kind; hidden when the API has none
+ */
+function CoinImage({ kind, size = '7' }: { kind: keyof CoinsDto, size?: string }) {
+  const [failed, setFailed] = useState(false)
+  if (failed) {
+    return null
+  }
+
+  return (
+    <Image
+      src={coinImageUrl(kind)}
+      alt=''
+      boxSize={size}
+      flexShrink='0'
+      rounded='full'
+      objectFit='cover'
+      onError={() => setFailed(true)}
+    />
   )
 }

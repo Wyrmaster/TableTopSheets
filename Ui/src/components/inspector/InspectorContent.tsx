@@ -14,6 +14,7 @@ import {
 } from '@/api'
 import { ApiHint } from '@/components/ApiHint'
 import { Facts, Prose } from '@/components/Facts'
+import { RuleImage } from '@/components/RuleImage'
 import { StartingEquipmentList } from '@/components/startingEquipment/StartingEquipmentList'
 import { useIntentQuery } from '@/hooks/useIntentQuery'
 import type { InspectTarget } from './InspectorContext'
@@ -136,6 +137,12 @@ function SpellView({ spell }: { spell: SpellDetailDto }) {
         label={`${levelName(summary.level)} · ${summary.school}`}
         title={summary.name}
       />
+      {summary.imageUrl && (
+        <RuleImage
+          src={summary.imageUrl}
+          alt={summary.name}
+        />
+      )}
       <HStack>
         {summary.concentration && <Badge>Concentration</Badge>}
         {summary.ritual && <Badge>Ritual</Badge>}
@@ -154,6 +161,14 @@ function ClassView({ detail }: { detail: ClassDetailDto }) {
         label='Class'
         title={detail.class.name}
       />
+      {detail.class.imageUrl && (
+        <RuleImage
+          src={detail.class.imageUrl}
+          alt={detail.class.name}
+          ratio={4 / 3}
+          position='50% 20%'
+        />
+      )}
       <Facts
         items={[
           ['Hit die', detail.class.hitDie.toLowerCase()],
@@ -205,6 +220,12 @@ function ItemView({ detail }: { detail: ItemDetailDto }) {
         label={`${item.kind}${item.category ? ` · ${item.category}` : ''}`}
         title={item.name}
       />
+      {item.imageUrl && (
+        <RuleImage
+          src={item.imageUrl}
+          alt={item.name}
+        />
+      )}
       <HStack>
         {item.magic && <Badge colorPalette='brand'>Magic</Badge>}
         {item.requiresAttunement && <Badge>Requires attunement</Badge>}
@@ -238,6 +259,12 @@ function RuleView(
         label={label}
         title={detail.name}
       />
+      {detail.imageUrl && (
+        <RuleImage
+          src={detail.imageUrl}
+          alt={detail.name}
+        />
+      )}
       {detail.description && <Prose text={detail.description} />}
       <StartingEquipmentList options={detail.startingEquipment ?? []} />
       {detail.features.map((feature) => (

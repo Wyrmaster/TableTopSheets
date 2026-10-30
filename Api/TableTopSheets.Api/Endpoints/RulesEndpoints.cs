@@ -110,25 +110,37 @@ public static class RulesEndpoints
     return group;
   }
 
-  private static Task<PagedResult<SpeciesSummaryDto>> ListSpecies(TableTopSheetsContext context, [AsParameters] ListQuery query, CancellationToken cancellationToken)
-    => context.Species
+  private static async Task<PagedResult<SpeciesSummaryDto>> ListSpecies(TableTopSheetsContext context, [AsParameters] ListQuery query, CancellationToken cancellationToken)
+  {
+    IReadOnlySet<string> images = await context.ImageOwnersAsync(ImageCategoryEnum.Species, cancellationToken);
+    return await context.Species
       .ToPagedAsync(query, SpeciesSorts, cancellationToken: cancellationToken)
-      .Select(RuleMapper.Summary);
+      .Select(entry => RuleMapper
+        .Summary(entry)
+        .WithImage(images));
+  }
 
   private static async Task<Results<Ok<RuleDetailDto>, NotFound>> GetSpecies(TableTopSheetsContext context, string key, CancellationToken cancellationToken)
     => await context.Species
       .AsNoTracking()
       .FirstOrDefaultAsync(entry => entry.Key == key, cancellationToken) is { } species
-      ? TypedResults.Ok(RuleMapper.Detail(species, await Features(context)
-        .Where(entry => entry.SpeciesId == species.Id)
-        .ToListAsync(cancellationToken)))
+      ? TypedResults.Ok(RuleMapper
+        .Detail(species, await Features(context)
+          .Where(entry => entry.SpeciesId == species.Id)
+          .ToListAsync(cancellationToken))
+        .WithImage(ImageCategoryEnum.Species, await context.ImageOwnersAsync(ImageCategoryEnum.Species, cancellationToken)))
       : TypedResults.NotFound();
 
-  private static Task<PagedResult<BackgroundSummaryDto>> ListBackgrounds(TableTopSheetsContext context, [AsParameters] ListQuery query, CancellationToken cancellationToken)
-    => context.Backgrounds
+  private static async Task<PagedResult<BackgroundSummaryDto>> ListBackgrounds(TableTopSheetsContext context, [AsParameters] ListQuery query, CancellationToken cancellationToken)
+  {
+    IReadOnlySet<string> images = await context.ImageOwnersAsync(ImageCategoryEnum.Background, cancellationToken);
+    return await context.Backgrounds
       .Include(entry => entry.OriginFeat)
       .ToPagedAsync(query, BackgroundSorts, cancellationToken: cancellationToken)
-      .Select(RuleMapper.Summary);
+      .Select(entry => RuleMapper
+        .Summary(entry)
+        .WithImage(images));
+  }
 
   private static async Task<Results<Ok<RuleDetailDto>, NotFound>> GetBackground(TableTopSheetsContext context, string key, CancellationToken cancellationToken)
   {
@@ -144,14 +156,22 @@ public static class RulesEndpoints
       .Where(entry => entry.BackgroundId == background.Id)
       .ToListAsync(cancellationToken);
     IReadOnlyDictionary<string, string> names = await ItemNamesAsync(context, background.StartingEquipment, cancellationToken);
-    return TypedResults.Ok(RuleMapper.Detail(background, features, RuleMapper.StartingEquipment(background.StartingEquipment, names)));
+    IReadOnlySet<string> images = await context.ImageOwnersAsync(ImageCategoryEnum.Background, cancellationToken);
+    return TypedResults.Ok(RuleMapper
+      .Detail(background, features, RuleMapper.StartingEquipment(background.StartingEquipment, names))
+      .WithImage(ImageCategoryEnum.Background, images));
   }
 
-  private static Task<PagedResult<ClassSummaryDto>> ListClasses(TableTopSheetsContext context, [AsParameters] ListQuery query, CancellationToken cancellationToken)
-    => context.Classes
+  private static async Task<PagedResult<ClassSummaryDto>> ListClasses(TableTopSheetsContext context, [AsParameters] ListQuery query, CancellationToken cancellationToken)
+  {
+    IReadOnlySet<string> images = await context.ImageOwnersAsync(ImageCategoryEnum.Class, cancellationToken);
+    return await context.Classes
       .Include(entry => entry.Subclasses)
       .ToPagedAsync(query, ClassSorts, cancellationToken: cancellationToken)
-      .Select(RuleMapper.Summary);
+      .Select(entry => RuleMapper
+        .Summary(entry)
+        .WithImage(images));
+  }
 
   private static async Task<Results<Ok<ClassDetailDto>, NotFound>> GetClass(TableTopSheetsContext context, string key, CancellationToken cancellationToken)
   {
@@ -171,7 +191,9 @@ public static class RulesEndpoints
       .Where(entry => entry.ClassId == @class.Id || subclasses.Contains(entry.SubclassId))
       .ToListAsync(cancellationToken);
     IReadOnlyDictionary<string, string> names = await ItemNamesAsync(context, @class.StartingEquipment, cancellationToken);
-    return TypedResults.Ok(RuleMapper.Detail(@class, features, RuleMapper.StartingEquipment(@class.StartingEquipment, names)));
+    IReadOnlySet<string> images = await context.ImageOwnersAsync(ImageCategoryEnum.Class, cancellationToken);
+    ClassDetailDto detail = RuleMapper.Detail(@class, features, RuleMapper.StartingEquipment(@class.StartingEquipment, names));
+    return TypedResults.Ok(detail with { Class = detail.Class.WithImage(images) });
   }
 
   private static Task<PagedResult<FeatSummaryDto>> ListFeats(TableTopSheetsContext context, [AsParameters] ListQuery query, [AsParameters] FeatFilter filter, CancellationToken cancellationToken)
@@ -194,13 +216,14 @@ public static class RulesEndpoints
         .ToListAsync(cancellationToken)))
       : TypedResults.NotFound();
 
-  private static Task<PagedResult<SpellSummaryDto>> ListSpells(TableTopSheetsContext context, [AsParameters] ListQuery query, [AsParameters] SpellFilter filter, CancellationToken cancellationToken)
+  private static async Task<PagedResult<SpellSummaryDto>> ListSpells(TableTopSheetsContext context, [AsParameters] ListQuery query, [AsParameters] SpellFilter filter, CancellationToken cancellationToken)
   {
+    IReadOnlySet<string> images = await context.ImageOwnersAsync(ImageCategoryEnum.Spell, cancellationToken);
     // spell list keys are stored in lower case
     string? list = filter.Class?.ToLowerInvariant();
     string? castingTime = filter.CastingTime?.ToLowerInvariant();
     List<SpellSchoolEnum> schools = Matching<SpellSchoolEnum>(filter.School, SchoolKey);
-    return context.Spells
+    return await context.Spells
       .WhereIf(list != null, entry => entry.Lists.Contains(list!))
       .WhereIf(filter.Level != null, entry => entry.Level == filter.Level)
       .WhereIf(filter.MinLevel != null, entry => entry.Level >= filter.MinLevel)
@@ -214,18 +237,29 @@ public static class RulesEndpoints
         .ToLower()
         .Contains(castingTime!))
       .ToPagedAsync(query, SpellSorts, cancellationToken: cancellationToken)
-      .Select(RuleMapper.Summary);
+      .Select(entry => RuleMapper
+        .Summary(entry)
+        .WithImage(images));
   }
 
   private static async Task<Results<Ok<SpellDetailDto>, NotFound>> GetSpell(TableTopSheetsContext context, string key, CancellationToken cancellationToken)
-    => await context.Spells
-      .AsNoTracking()
-      .FirstOrDefaultAsync(entry => entry.Key == key, cancellationToken) is { } spell
-      ? TypedResults.Ok(RuleMapper.Detail(spell))
-      : TypedResults.NotFound();
-
-  private static Task<PagedResult<ItemSummaryDto>> ListItems(TableTopSheetsContext context, [AsParameters] ListQuery query, [AsParameters] ItemFilter filter, CancellationToken cancellationToken)
   {
+    Spell? spell = await context.Spells
+      .AsNoTracking()
+      .FirstOrDefaultAsync(entry => entry.Key == key, cancellationToken);
+    if (spell == null)
+    {
+      return TypedResults.NotFound();
+    }
+
+    IReadOnlySet<string> images = await context.ImageOwnersAsync(ImageCategoryEnum.Spell, cancellationToken);
+    SpellDetailDto detail = RuleMapper.Detail(spell);
+    return TypedResults.Ok(detail with { Spell = detail.Spell.WithImage(images) });
+  }
+
+  private static async Task<PagedResult<ItemSummaryDto>> ListItems(TableTopSheetsContext context, [AsParameters] ListQuery query, [AsParameters] ItemFilter filter, CancellationToken cancellationToken)
+  {
+    IReadOnlySet<string> images = await context.ImageOwnersAsync(ImageCategoryEnum.Item, cancellationToken);
     // the category is the weapon category, the armor category, the tool group or the gear category (see RuleMapper.ItemCategory)
     string? category = filter.Category?.ToLowerInvariant();
     List<WeaponCategoryEnum> weapons = Matching<WeaponCategoryEnum>(category, entry => entry
@@ -234,7 +268,7 @@ public static class RulesEndpoints
     List<ArmorEnum> armors = Matching<ArmorEnum>(category, entry => entry
       .ToString()
       .ToLowerInvariant());
-    return context.Items
+    return await context.Items
       .WhereIf(filter.Kind != null, entry => entry.Kind == filter.Kind)
       .WhereIf(category != null, entry => (entry is Weapon && weapons.Contains(((Weapon)entry).Category))
                                           || (entry is Armor && armors.Contains(((Armor)entry).Category))
@@ -242,18 +276,28 @@ public static class RulesEndpoints
       .WhereIf(filter.Magic != null, entry => entry.Magic == filter.Magic)
       .WhereIf(filter.Attunement != null, entry => entry.RequiresAttunement == filter.Attunement)
       .ToPagedAsync(query, ItemSorts, cancellationToken: cancellationToken)
-      .Select(RuleMapper.Summary);
+      .Select(entry => RuleMapper
+        .Summary(entry)
+        .WithImage(images));
   }
 
   private static async Task<Results<Ok<ItemDetailDto>, NotFound>> GetItem(TableTopSheetsContext context, string key, CancellationToken cancellationToken)
-    => await context.Items
+  {
+    Item? item = await context.Items
       .AsNoTracking()
       .Include(entry => ((Weapon)entry).Mastery)
-      .FirstOrDefaultAsync(entry => entry.Key == key, cancellationToken) is { } item
-      ? TypedResults.Ok(RuleMapper.Detail(item, await Features(context)
-        .Where(entry => entry.ItemId == item.Id)
-        .ToListAsync(cancellationToken)))
-      : TypedResults.NotFound();
+      .FirstOrDefaultAsync(entry => entry.Key == key, cancellationToken);
+    if (item == null)
+    {
+      return TypedResults.NotFound();
+    }
+
+    IReadOnlySet<string> images = await context.ImageOwnersAsync(ImageCategoryEnum.Item, cancellationToken);
+    ItemDetailDto detail = RuleMapper.Detail(item, await Features(context)
+      .Where(entry => entry.ItemId == item.Id)
+      .ToListAsync(cancellationToken));
+    return TypedResults.Ok(detail with { Item = detail.Item.WithImage(images) });
+  }
 
   /// <summary>
   ///   Names of the items named by starting equipment, by key

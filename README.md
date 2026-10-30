@@ -615,6 +615,10 @@ Exit codes: `0` done, `1` failed (invalid rules, database error), `2` bad comman
   deleted. Child rows of a seeded rule that the seed no longer contains (an effect, a choice option, a scale value …) are
   removed, but only for rules the seed owns: rows of other rules (homebrew) stay, and so does an option that a character
   has selected.
+- **Images:** after the rules, every run brings the `Images` table in line with `Data/Images` (see
+  [Images](#images)), independently from the rules hash: new images are inserted, changed ones (other content hash)
+  written again, images whose file is gone removed, unchanged ones skipped. `validate` reports images whose spell,
+  class, species, background or item doesn't exist (and coins other than copper, silver, electrum, gold, platinum).
 
 The rules catalog is loaded once on startup and shared. A request gets its own `TableTopSheetsContext` and
 `CharacterService`.
@@ -701,6 +705,8 @@ sequenceDiagram
 | GET | `/api/users/me` | the signed in user and the number of their characters |
 | GET | `/api/rules/{species,backgrounds,classes,feats,spells,items}` | catalog lists (paged, filterable) |
 | GET | `/api/rules/{…}/{key}` | details: full text, features with their choice definitions; classes with features per level and subclasses |
+| GET | `/api/images/{spell,class,species,background,item,coin,scene}/{key}?thumb=` | artwork as WebP (anonymous; `ETag`, `Cache-Control`, 304); rule contracts link it as `imageUrl` / `thumbnailUrl` |
+| GET | `/api/images/scenes` | the scenes (mood pictures the UI shows at random) |
 | GET / POST | `/api/characters` | list of the user's characters (filter `class`, `species`, `minLevel`, `maxLevel`) / create a draft |
 | GET / PATCH / DELETE | `/api/characters/{id}` | state / name, alignment, appearance, backstory, experience / delete |
 | GET | `/api/characters/{id}/sheet`, `/sheet.pdf` | the computed `CharacterSheet` / the printable PDF |
@@ -776,6 +782,8 @@ Seed/TableTopSheets.Seed/Data/
     feats.json         feat mechanics
     options.json       invocation mechanics (prerequisites, effects, choices)
     spell-effects.json toggleable spell effects (Mage Armor …)
+  Images/              artwork (WebP), written by Tools/images/convert-images.sh – see "Images"
+    spells/  classes/  species/  backgrounds/  items/  coins/  scenes/      <key>.webp + <key>.thumb.webp
 ```
 
 **Merging:** both folders are read (Extracted first) and records are merged **by key**. A feature in `Rules` with the same
@@ -791,6 +799,32 @@ dotnet run --project Tools/TableTopSheets.Extractor -- "/path/to/Player's Handbo
 Then run the tests. `CatalogTests.SeedDataIsValid` loads and validates all data, and seeding the database validates again.
 `dotnet run --project Seed/TableTopSheets.Seed -- validate` does the same check from the command line, and `migrate`
 writes the new rules into an existing database.
+
+### Images
+
+Spells, classes, species, backgrounds, items and coins can have a picture, and *scenes* are mood pictures without an
+owner. The originals stay outside the repository; `Tools/images/convert-images.sh` shrinks them into the seed (it only
+reads the source folder and replaces the converted category folders of `Data/Images`, the others stay):
+
+```bash
+Tools/images/convert-images.sh ~/Documents/TableTop     # every category found: spells/ classes/ species/ backgrounds/ scenes/
+Tools/images/convert-images.sh ~/Pictures/tabletopv3/jim-lee-comic items coins   # only these: equipment/*/ and equipment/coins/
+dotnet run --project Seed/TableTopSheets.Seed           # writes new and changed images into the database
+```
+
+| Folder | Image | Thumbnail |
+|---|---|---|
+| `spells`, `items`, `coins` | 512 × 512 | 128 × 128 |
+| `classes` | 900 px tall | 256 px wide |
+| `species`, `backgrounds`, `scenes` | 1600 px wide | 400 px wide |
+
+WebP, quality 80. File name → key: a `-vN` suffix is a version (the highest wins); spells and scenes keep the rest of
+the name (`fireball`, `dragon-battle`), classes, species and backgrounds use the first word (`wizard-3-high-elf-male` →
+`wizard`, `acolyte-temple` → `acolyte`; `half-orc` → `orc`). Items come from every subfolder of `equipment/` but
+`coins/` (armor, gear, weapons …); an image name that differs from the item key is listed in
+`Tools/images/item-keys.txt` (`basic-poison poison-basic`, one image for several keys, `-` to leave it out). Coins drop
+`-piece` (`gold-piece` → `gold`, the keys of `CoinsDto`). The migrator stores each image with its thumbnail in one
+`Images` row (`Category` + `OwnerKey`, unique); the API serves them under `/api/images/…`.
 
 ### Keys
 
@@ -944,6 +978,7 @@ beyond the available rows are continued there too.
 | `Features`, `Effects`, `Choices`, `ChoiceOptions` | `CharacterLevels` (the journal) |
 | `ScaleValues`, `Resources`, `SpellcastingProfiles`, `SpellSlotRows` | `CharacterChoices` (selections; `LevelId`, `ParentId`, `SupersededByLevelId`) |
 | `Spells`, `Items` (weapons, armor, tools, gear), `Languages`, `WeaponMasteries`, `Sources` | `CharacterItems`, `CharacterPreparedSpells`, `CharacterSpellbookEntries`, `CharacterResourceUsages` |
+| `Images` (artwork of spells, classes, species, backgrounds, items, coins and scenes) | |
 
 ### Current content
 

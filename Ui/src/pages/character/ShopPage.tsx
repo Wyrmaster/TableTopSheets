@@ -19,6 +19,7 @@ import { Icon } from '@/components/Icon'
 import { shopIcon } from '@/components/icons'
 import { InfoButton } from '@/components/InfoButton'
 import { useInspector } from '@/components/inspector/useInspector'
+import { Thumbnail } from '@/components/Thumbnail'
 import { useApiAction } from '@/hooks/useApiAction'
 import { useIntentQuery } from '@/hooks/useIntentQuery'
 import { coinValue, formatCoins, formatPrice } from './coins'
@@ -226,6 +227,7 @@ export function ShopPage() {
               key: item.key,
             })}
           >
+            <Thumbnail src={item.thumbnailUrl} />
             <Box
               flex='1'
               minW='0'

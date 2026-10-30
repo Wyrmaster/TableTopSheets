@@ -16,6 +16,7 @@ import type {
   CharacterSummaryDto,
 } from './dtos/character'
 import type { OptionDto, PendingChoiceDto, ChoiceConstraintsDto, OptionMetaDto } from './dtos/choice'
+import type { SceneDto } from './dtos/images'
 import type { PagedResult } from './dtos/paging'
 import type {
   ItemOptionDto,
@@ -50,6 +51,7 @@ import {
   ListCharactersIntent,
 } from './intents/characters'
 import { GetChoiceOptionsIntent, GetSelectionsIntent, SelectOptionsIntent } from './intents/choices'
+import { ListScenesIntent } from './intents/images'
 import {
   AddItemIntent,
   ChangeCoinsIntent,
@@ -116,12 +118,16 @@ const Shapes = {
     key: true,
     name: true,
     creatureType: true,
+    imageUrl: true,
+    thumbnailUrl: true,
   }),
   background: keys<BackgroundSummaryDto>({
     key: true,
     name: true,
     abilityOptions: true,
     originFeat: true,
+    imageUrl: true,
+    thumbnailUrl: true,
   }),
   class: keys<ClassSummaryDto>({
     key: true,
@@ -131,6 +137,8 @@ const Shapes = {
     primaryAbilityMode: true,
     subclassLevel: true,
     subclasses: true,
+    imageUrl: true,
+    thumbnailUrl: true,
   }),
   classDetail: keys<ClassDetailDto>({
     class: true,
@@ -145,6 +153,16 @@ const Shapes = {
     description: true,
     features: true,
     startingEquipment: true,
+    imageUrl: true,
+    thumbnailUrl: true,
+  }),
+  scene: keys<SceneDto>({
+    key: true,
+    title: true,
+    width: true,
+    height: true,
+    imageUrl: true,
+    thumbnailUrl: true,
   }),
   startingEquipment: keys<StartingEquipmentDto>({
     source: true,
@@ -207,6 +225,8 @@ const Shapes = {
     damage: true,
     damageType: true,
     lists: true,
+    imageUrl: true,
+    thumbnailUrl: true,
   }),
   spellDetail: keys<SpellDetailDto>({
     spell: true,
@@ -227,6 +247,8 @@ const Shapes = {
     magic: true,
     requiresAttunement: true,
     bundle: true,
+    imageUrl: true,
+    thumbnailUrl: true,
   }),
   itemDetail: keys<ItemDetailDto>({
     item: true,
@@ -551,6 +573,9 @@ describe.skipIf(!apiUrl)('API integration', () => {
     expectShape(holySymbol.options[0], Shapes.itemOption)
     const elf = await ok(new GetSpeciesIntent('elf'))
     expectShape(elf, Shapes.ruleDetail)
+    expect(elf.imageUrl).toBe('/api/images/species/elf')
+    const scenes = await ok(new ListScenesIntent())
+    expectShape(scenes[0], Shapes.scene)
     expectShape(elf.features.flatMap((feature) => feature.choices)[0], Shapes.choiceDefinition)
 
     // origin

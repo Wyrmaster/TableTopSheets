@@ -11,4 +11,11 @@ public sealed record RuleDetailDto
   string Description,
   IReadOnlyList<FeatureDto> Features,
   IReadOnlyList<StartingEquipmentOptionDto> StartingEquipment
-);
+)
+{
+  /// <summary>Picture of a species or background; null when there is none (feats and subclasses have none)</summary>
+  public string? ImageUrl { get; init; }
+
+  /// <summary>Small version of the picture for lists and cards; null when there is none</summary>
+  public string? ThumbnailUrl { get; init; }
+}

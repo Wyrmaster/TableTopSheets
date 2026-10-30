@@ -6,7 +6,9 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TableTopSheets.Engine.Rules;
 using TableTopSheets.Persistence;
+using TableTopSheets.Common.Enum.Rules;
 using TableTopSheets.Persistence.Entity.Rules;
+using TableTopSheets.Seed.Images;
 
 namespace TableTopSheets.Seed.Migration;
 
@@ -49,6 +51,11 @@ public sealed class RulesetMigrator(TableTopSheetsContext context, IOptions<Rule
     }
   }
 
+  /// <summary>
+  ///   Artwork below the seed folder (<c>Data/Images</c>); may be missing, then there are no images
+  /// </summary>
+  private string ImagesDirectory => Path.Combine(this.DataDirectory, "Images");
+
   #endregion
 
   #region IRulesetMigrator
@@ -67,6 +74,47 @@ public sealed class RulesetMigrator(TableTopSheetsContext context, IOptions<Rule
       logger.LogInformation("Schema is up to date");
     }
 
+    RulesetMigration? migration = await this.WriteRulesAsync(force, cancellationToken);
+    await this.WriteImagesAsync(cancellationToken);
+    return migration;
+  }
+
+  /// <inheritdoc />
+  public IReadOnlyList<string> Validate()
+  {
+    try
+    {
+      SeedResult result = SeedBuilder.Build(SeedLoader.Load(this.DataDirectory));
+      return CatalogValidator
+        .Validate(result.ToCatalog())
+        .Concat(UnknownImageOwners(result, ImageLoader.Load(this.ImagesDirectory)))
+        .ToList();
+    }
+    catch (Exception exception) when (exception is InvalidDataException or DirectoryNotFoundException)
+    {
+      return [exception.Message];
+    }
+  }
+
+  /// <inheritdoc />
+  public async Task<RulesetStatus> StatusAsync(CancellationToken cancellationToken = default)
+  {
+    List<string> pending = (await context.Database.GetPendingMigrationsAsync(cancellationToken)).ToList();
+    RulesetMigration? last = pending.Any(entry => entry.EndsWith(HistoryMigration, StringComparison.Ordinal))
+      ? null
+      : await this.LastAppliedAsync(cancellationToken);
+    return new RulesetStatus(pending, last, this.ContentHash());
+  }
+
+  #endregion
+
+  #region Methods
+
+  /// <summary>
+  ///   Write the rules unless the same ruleset was written last
+  /// </summary>
+  private async Task<RulesetMigration?> WriteRulesAsync(bool force, CancellationToken cancellationToken)
+  {
     string hash = this.ContentHash();
     RulesetMigration? last = await this.LastAppliedAsync(cancellationToken);
     if (!force && last?.ContentHash == hash)
@@ -111,34 +159,51 @@ public sealed class RulesetMigrator(TableTopSheetsContext context, IOptions<Rule
     return migration;
   }
 
-  /// <inheritdoc />
-  public IReadOnlyList<string> Validate()
+  /// <summary>
+  ///   Bring the images in line with <c>Data/Images</c>; independent from the rules hash, unchanged images are skipped
+  /// </summary>
+  private async Task WriteImagesAsync(CancellationToken cancellationToken)
   {
-    try
-    {
-      return CatalogValidator.Validate(SeedBuilder
-        .Build(SeedLoader.Load(this.DataDirectory))
-        .ToCatalog());
-    }
-    catch (Exception exception) when (exception is InvalidDataException or DirectoryNotFoundException)
-    {
-      return [exception.Message];
-    }
+    List<RuleImage> images = ImageLoader.Load(this.ImagesDirectory);
+    ImageWriteReport report = await ImageWriter.WriteAsync(context, images, cancellationToken);
+    logger.LogInformation(
+      "Images: {Inserted} inserted, {Updated} updated, {Deleted} removed, {Unchanged} unchanged",
+      report.Inserted,
+      report.Updated,
+      report.Deleted,
+      report.Unchanged);
   }
 
-  /// <inheritdoc />
-  public async Task<RulesetStatus> StatusAsync(CancellationToken cancellationToken = default)
+  /// <summary>
+  ///   Images whose owner is not a spell, class, species, background or item of the seed or no coin (scenes have no
+  ///   owner)
+  /// </summary>
+  private static IEnumerable<string> UnknownImageOwners(SeedResult result, IReadOnlyList<RuleImage> images)
   {
-    List<string> pending = (await context.Database.GetPendingMigrationsAsync(cancellationToken)).ToList();
-    RulesetMigration? last = pending.Any(entry => entry.EndsWith(HistoryMigration, StringComparison.Ordinal))
-      ? null
-      : await this.LastAppliedAsync(cancellationToken);
-    return new RulesetStatus(pending, last, this.ContentHash());
+    Dictionary<ImageCategoryEnum, HashSet<string>> owners = new()
+    {
+      [ImageCategoryEnum.Spell] = result.Spells
+        .Select(entry => entry.Key)
+        .ToHashSet(),
+      [ImageCategoryEnum.Class] = result.Classes
+        .Select(entry => entry.Key)
+        .ToHashSet(),
+      [ImageCategoryEnum.Species] = result.Species
+        .Select(entry => entry.Key)
+        .ToHashSet(),
+      [ImageCategoryEnum.Background] = result.Backgrounds
+        .Select(entry => entry.Key)
+        .ToHashSet(),
+      [ImageCategoryEnum.Item] = result.Items
+        .Select(entry => entry.Key)
+        .ToHashSet(),
+      [ImageCategoryEnum.Coin] = ["copper", "silver", "electrum", "gold", "platinum"],
+    };
+
+    return images
+      .Where(image => owners.TryGetValue(image.Category, out HashSet<string>? keys) && !keys.Contains(image.OwnerKey))
+      .Select(image => $"Image '{image.Category}/{image.OwnerKey}' belongs to no {image.Category.ToString().ToLowerInvariant()} of the seed");
   }
-
-  #endregion
-
-  #region Methods
 
   /// <summary>
   ///   Hash of the seed files and of the code that turns them into rows: a new migrator version writes the rules again

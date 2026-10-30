@@ -24,15 +24,12 @@ import {
   type SpellcastingClassDto,
 } from '@/api'
 import { ApiHint } from '@/components/ApiHint'
-import { InfoButton } from '@/components/InfoButton'
-import { useInspector } from '@/components/inspector/useInspector'
 import { Pips } from '@/components/Pips'
+import { SpellRow } from '@/components/SpellRow'
 import { useApiAction } from '@/hooks/useApiAction'
 import { useIntentQuery } from '@/hooks/useIntentQuery'
 import { slotGroups } from './playState'
 import { useCharacter } from './useCharacter'
-
-const levelName = (level: number) => (level === 0 ? 'Cantrip' : `Level ${level}`)
 
 /**
  * Spellcasting per class, clickable spell slots, the spells of each class (cantrips, prepared, spellbook) with the
@@ -279,72 +276,6 @@ function SpellList({ spells }: { spells: KnownSpellDto[] }) {
         />
       ))}
     </Box>
-  )
-}
-
-function SpellRow({ spell, control }: {
-  spell: {
-    key: string,
-    name: string,
-    level: number,
-    school: string,
-    castingTime: string,
-    ritual: boolean,
-    concentration: boolean
-  }
-  control?: ReactNode
-}) {
-  const { inspect } = useInspector()
-  const known = spell as Partial<KnownSpellDto>
-  const tags = [
-    levelName(spell.level),
-    spell.school,
-    spell.castingTime,
-    spell.concentration && 'concentration',
-    spell.ritual && 'ritual',
-  ].filter(Boolean).join(' · ')
-
-  return (
-    <Flex
-      align='center'
-      gap='3'
-      px='3'
-      py='2.5'
-      borderTopWidth='1px'
-      _first={{ borderTopWidth: '0' }}
-    >
-      {control}
-      <Box
-        flex='1'
-        minW='0'
-      >
-        <Button
-          variant='plain'
-          p='0'
-          h='auto'
-          fontWeight='semibold'
-          onClick={() => inspect({
-            kind: 'spell',
-            key: spell.key,
-          })}
-        >
-          {spell.name}
-        </Button>
-        <Text
-          fontSize='sm'
-          color='fg.muted'
-        >
-          {tags}
-        </Text>
-      </Box>
-      {known.alwaysPrepared && spell.level > 0 && <Badge>always prepared</Badge>}
-      {known.source && <Badge hideBelow='md'>{known.source}</Badge>}
-      <InfoButton target={{
-        kind: 'spell',
-        key: spell.key,
-      }}
-      />
-    </Flex>
   )
 }
 

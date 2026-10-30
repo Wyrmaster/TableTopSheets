@@ -120,10 +120,11 @@ internal static partial class Markdown
   }
 
   /// <summary>
-  ///   Remove markdown emphasis from a short text
+  ///   Remove markdown emphasis and html tags (links of the handbook such as <c>&lt;a href=…&gt;Unarmed Strike&lt;/a&gt;</c>)
+  ///   from a short text
   /// </summary>
-  public static string Plain(string text) => LinkRegex()
-    .Replace(text, "$2")
+  public static string Plain(string text) => WebUtility
+    .HtmlDecode(HtmlTagRegex().Replace(LinkRegex().Replace(text, "$2"), string.Empty))
     .Replace("*", string.Empty)
     .Trim();
 
@@ -158,6 +159,9 @@ internal static partial class Markdown
 
   [GeneratedRegex(@"\[([^\]]*)\]\(([^)]*)\)")]
   private static partial Regex LinkRegex();
+
+  [GeneratedRegex("<[^>]+>")]
+  private static partial Regex HtmlTagRegex();
 
   [GeneratedRegex(@"\*\*\*(.+?)\*\*\*")]
   private static partial Regex BoldItalicRegex();

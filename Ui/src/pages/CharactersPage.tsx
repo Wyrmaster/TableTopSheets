@@ -19,6 +19,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { type CharacterSummaryDto, DeleteCharacterIntent, ListCharactersIntent, problemMessages } from '@/api'
 import { ApiHint } from '@/components/ApiHint'
+import { SceneBanner } from '@/components/SceneBanner'
 import { Icon } from '@/components/Icon'
 import { deleteIcon } from '@/components/icons'
 import { useApiAction } from '@/hooks/useApiAction'
@@ -50,6 +51,7 @@ export function CharactersPage() {
         md: '7',
       }}
     >
+      <SceneBanner />
       <Flex
         wrap='wrap'
         gap='3'

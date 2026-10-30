@@ -35,6 +35,7 @@ Start the API with `dotnet run --project Api/TableTopSheets.Api` from the reposi
 | `/characters/:id/sheet/:tab` | character sheet: `overview`, `inventory`, `spells` (`pages/character`) |
 | `/characters/:id/level-up` | open choices, gain a level, undo |
 | `/characters/:id/shop` | item catalog, add to the inventory |
+| `/spells` | every spell without a character: search, cantrip / spell slot, level, spell list, school, damage, ritual, concentration (`pages/SpellsPage.tsx`) |
 
 | Path | Purpose |
 |---|---|
@@ -44,6 +45,9 @@ Start the API with `dotnet run --project Api/TableTopSheets.Api` from the reposi
 | `src/hooks/useIntentQuery.ts` | load data: executes an intent per key, cancels outdated requests, `reload` / `setData` |
 | `src/hooks/useApiAction.ts` | writes: runs an intent, shows API errors (and optional success) as toasts |
 | `src/components/inspector` | detail view of spells, species, backgrounds, classes, feats, items, features (`useInspector().inspect(…)`) |
+| `src/components/SpellRow.tsx` | one spell in a list (spells page, character spells), with its thumbnail when the DTO has one |
+| `src/components/Thumbnail.tsx` | small square picture at the start of a row: spells, shop items, inventory items (from the item details); coin pictures in `CoinsCard` (`coinImageUrl`) |
+| `src/components/RuleImage.tsx`, `SceneBanner.tsx` | picture of a rule entity (inspector) / a random scene (`useRandomScene`) at the top of the characters and spells pages; the login page shows one too |
 | `src/components/choices` | `ChoiceCard` / `ChoiceList`: any pending choice rendered from its metadata |
 | `src/components/Icon.tsx`, `icons.ts` | Material Design Icons (`@mdi/js`); add new icons to `icons.ts` |
 | `src/components/ApiHint.tsx` | dashed developer hint with the API route, shown only when the setting is on |

@@ -58,6 +58,11 @@ public class TableTopSheetsContext: DbContext
   public DbSet<Item> Items => this.Set<Item>();
 
   /// <summary>
+  ///   Artwork of spells, classes, species and backgrounds, and scenes
+  /// </summary>
+  public DbSet<RuleImage> Images => this.Set<RuleImage>();
+
+  /// <summary>
   ///   History of the ruleset migrator runs
   /// </summary>
   public DbSet<RulesetMigration> RulesetMigrations => this.Set<RulesetMigration>();

@@ -98,6 +98,25 @@ public static class CatalogValidator
       CheckExpression(catalog, errors, $"feat '{feat.Key}'", "prerequisite", feat.PrerequisiteExpr, optionContext: true);
     }
 
+    // short fields are shown as they are; only descriptions are html
+    foreach (Spell spell in catalog.Spells.Values)
+    {
+      foreach ((string field, string? value) in new[]
+      {
+        ("casting time", spell.CastingTime),
+        ("range", spell.Range),
+        ("components", spell.Components),
+        ("material", spell.Material),
+        ("duration", spell.Duration),
+      })
+      {
+        if (value != null && (value.Contains('<') || value.Contains('>')))
+        {
+          errors.Add($"spell '{spell.Key}': {field} contains markup ({value})");
+        }
+      }
+    }
+
     return errors;
   }
 

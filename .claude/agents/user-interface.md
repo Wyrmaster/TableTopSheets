@@ -71,6 +71,8 @@ Base `http://localhost:5180`. All character routes are below `/api/characters/{i
 | GET | `/api/rules/{species,backgrounds,feats}/{key}` | | `RuleDetailDto` (description, features with choice definitions) |
 | GET | `/api/rules/classes/{key}` | | `ClassDetailDto` (features per level, subclasses) |
 | GET | `/api/rules/spells/{key}`, `/items/{key}` | | `SpellDetailDto`, `ItemDetailDto` |
+| GET | `/api/images/{spell,class,species,background,item,coin,scene}/{key}` | `thumb` | WebP (anonymous, use as `<img src>`); summaries (also `ItemSummaryDto`) carry `imageUrl` / `thumbnailUrl`; coins: `coinImageUrl(kind)` |
+| GET | `/api/images/scenes` | | `SceneDto[]` (random scene: `useRandomScene`) |
 | GET | `/api/characters` | paging, `class`, `species`, `minLevel`, `maxLevel` | `PagedResult<CharacterSummaryDto>` |
 | POST | `/api/characters` | `CreateCharacterDto` | `201 CharacterStateDto` (Location header) |
 | GET | `/{id}` | | `CharacterStateDto` |

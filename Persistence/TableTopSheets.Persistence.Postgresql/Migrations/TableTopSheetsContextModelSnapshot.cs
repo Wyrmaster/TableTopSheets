@@ -799,6 +799,58 @@ namespace TableTopSheets.Persistence.Postgresql.Migrations
                     b.ToTable("Resources");
                 });
 
+            modelBuilder.Entity("TableTopSheets.Persistence.Entity.Rules.RuleImage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("ContentHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<byte[]>("Data")
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<int>("Height")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("OwnerKey")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<byte[]>("ThumbnailData")
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<int>("Width")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Category", "OwnerKey")
+                        .IsUnique();
+
+                    b.ToTable("Images", (string)null);
+                });
+
             modelBuilder.Entity("TableTopSheets.Persistence.Entity.Rules.RulesetMigration", b =>
                 {
                     b.Property<Guid>("Id")

@@ -1,0 +1,41 @@
+# Item artwork whose file name is not the item key: <image name> <item key> [<item key> …]
+# "-" as the key leaves the image out (barding is a rule, not an item). Every other image name is its item key.
+ale ale-mug
+barding -
+basic-poison poison-basic
+bread bread-loaf
+bullseye-lantern lantern-bullseye
+cheese cheese-wedge
+crossbow-bolt-case case-crossbow-bolt
+crystal-focus arcane-focus-crystal
+dice-set dice
+draft-horse horse-draft
+dragonchess-set dragonchess
+exotic-saddle saddle-exotic
+feed feed-1-day
+fine-clothes clothes-fine
+firearm-bullets bullets-firearm
+glass-bottle bottle-glass
+holy-amulet holy-symbol-amulet
+holy-emblem holy-symbol-emblem
+holy-reliquary holy-symbol-reliquary
+hooded-lantern lantern-hooded
+iron-pot pot-iron
+iron-spikes spikes-iron
+map-case case-map-or-scroll
+military-saddle saddle-military
+mistletoe-focus druidic-focus-sprig-of-mistletoe
+orb-focus arcane-focus-orb
+portable-ram ram-portable
+riding-horse horse-riding
+riding-saddle saddle-riding
+rod-focus arcane-focus-rod
+sling-bullets bullets-sling
+spell-scroll spell-scroll-cantrip spell-scroll-level-1
+staff-focus arcane-focus-staff
+travelers-clothes clothes-travelers
+wand-focus arcane-focus-wand
+wine-common wine-common-bottle
+wine-fine wine-fine-bottle
+wooden-staff-focus druidic-focus-wooden-staff
+yew-wand-focus druidic-focus-yew-wand

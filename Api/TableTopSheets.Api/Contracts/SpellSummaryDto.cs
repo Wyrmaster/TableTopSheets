@@ -17,4 +17,11 @@ public sealed record SpellSummaryDto
   string? Damage,
   DamageTypeEnum? DamageType,
   IReadOnlyList<string> Lists
-);
+)
+{
+  /// <summary>Picture (<c>/api/images/spell/{key}</c>); null when there is none</summary>
+  public string? ImageUrl { get; init; }
+
+  /// <summary>Small version of the picture for lists and cards; null when there is none</summary>
+  public string? ThumbnailUrl { get; init; }
+}

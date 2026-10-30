@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <None Include="Data\**\*.json" CopyToOutputDirectory="PreserveNewest" LinkBase="Data" />
+    <None Include="Data\Images\**\*.webp" CopyToOutputDirectory="PreserveNewest" LinkBase="Data\Images" />
   </ItemGroup>
 
 </Project>

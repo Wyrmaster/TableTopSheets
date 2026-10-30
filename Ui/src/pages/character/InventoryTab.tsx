@@ -42,6 +42,7 @@ import {
 import { InfoButton } from '@/components/InfoButton'
 import { useApiAction } from '@/hooks/useApiAction'
 import { StartingEquipmentCard } from '@/components/startingEquipment/StartingEquipmentCard'
+import { Thumbnail } from '@/components/Thumbnail'
 import { useItemDetails } from '@/hooks/useItemDetails'
 import { formatPrice } from './coins'
 import { CoinsCard } from './CoinsCard'
@@ -424,6 +425,7 @@ function ItemRow({
           <Switch.Control />
         </Switch.Root>
       )}
+      <Thumbnail src={detail?.item.thumbnailUrl} />
       <Box
         flex='1'
         minW='160px'

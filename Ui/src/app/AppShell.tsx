@@ -2,7 +2,15 @@ import { Avatar, Box, Button, Flex, HStack, IconButton, Separator, Text } from '
 import { NavLink, Outlet, useNavigate } from 'react-router'
 import { GetCurrentUserIntent, useApi } from '@/api'
 import { Icon } from '@/components/Icon'
-import { charactersIcon, diceIcon, eyeIcon, eyeOffIcon, logoutIcon, newCharacterIcon } from '@/components/icons'
+import {
+  charactersIcon,
+  diceIcon,
+  eyeIcon,
+  eyeOffIcon,
+  logoutIcon,
+  newCharacterIcon,
+  spellsIcon,
+} from '@/components/icons'
 import { ColorModeButton } from '@/components/ui/color-mode'
 import { Toaster } from '@/components/ui/toaster'
 import { useIntentQuery } from '@/hooks/useIntentQuery'
@@ -90,6 +98,12 @@ function MainNavigation() {
       to: '/characters/new',
       label: 'New character',
       icon: newCharacterIcon,
+      end: false,
+    },
+    {
+      to: '/spells',
+      label: 'Spells',
+      icon: spellsIcon,
       end: false,
     },
   ]

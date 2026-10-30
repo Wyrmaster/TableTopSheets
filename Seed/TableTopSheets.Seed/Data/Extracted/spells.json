@@ -476,7 +476,7 @@
     {
       "level": 5,
       "school": "Conjuration",
-      "castingTime": "Bonus action, which you take immediately after hitting a creature with a Melee weapon or an <a href=\"variantrules.html#unarmed%20strike_xphb\"  onmouseover=\"Renderer.hover.pHandleLinkMouseOver(event, this)\" onmouseleave=\"Renderer.hover.handleLinkMouseLeave(event, this)\" onmousemove=\"Renderer.hover.handleLinkMouseMove(event, this)\" onclick=\"Renderer.hover.handleLinkClick(event, this)\" onwheel=\"Renderer.hover.handleLinkWheel(event, this)\" ondragstart=\"Renderer.hover.handleLinkDragStart(event, this)\" data-vet-page=\"variantrules.html\" data-vet-source=\"XPHB\" data-vet-hash=\"unarmed%20strike_xphb\" ontouchstart=\"Renderer.hover.handleTouchStart(event, this)\" >Unarmed Strike</a>",
+      "castingTime": "Bonus action, which you take immediately after hitting a creature with a Melee weapon or an Unarmed Strike",
       "ritual": false,
       "range": "Self",
       "components": "V",
@@ -702,7 +702,7 @@
     {
       "level": 3,
       "school": "Evocation",
-      "castingTime": "Bonus action, which you take immediately after hitting a creature with a Melee weapon or an <a href=\"variantrules.html#unarmed%20strike_xphb\"  onmouseover=\"Renderer.hover.pHandleLinkMouseOver(event, this)\" onmouseleave=\"Renderer.hover.handleLinkMouseLeave(event, this)\" onmousemove=\"Renderer.hover.handleLinkMouseMove(event, this)\" onclick=\"Renderer.hover.handleLinkClick(event, this)\" onwheel=\"Renderer.hover.handleLinkWheel(event, this)\" ondragstart=\"Renderer.hover.handleLinkDragStart(event, this)\" data-vet-page=\"variantrules.html\" data-vet-source=\"XPHB\" data-vet-hash=\"unarmed%20strike_xphb\" ontouchstart=\"Renderer.hover.handleTouchStart(event, this)\" >Unarmed Strike</a>",
+      "castingTime": "Bonus action, which you take immediately after hitting a creature with a Melee weapon or an Unarmed Strike",
       "ritual": false,
       "range": "Self",
       "components": "V",
@@ -2022,7 +2022,7 @@
     {
       "level": 1,
       "school": "Evocation",
-      "castingTime": "Bonus action, which you take immediately after hitting a target with a Melee weapon or an <a href=\"variantrules.html#unarmed%20strike_xphb\"  onmouseover=\"Renderer.hover.pHandleLinkMouseOver(event, this)\" onmouseleave=\"Renderer.hover.handleLinkMouseLeave(event, this)\" onmousemove=\"Renderer.hover.handleLinkMouseMove(event, this)\" onclick=\"Renderer.hover.handleLinkClick(event, this)\" onwheel=\"Renderer.hover.handleLinkWheel(event, this)\" ondragstart=\"Renderer.hover.handleLinkDragStart(event, this)\" data-vet-page=\"variantrules.html\" data-vet-source=\"XPHB\" data-vet-hash=\"unarmed%20strike_xphb\" ontouchstart=\"Renderer.hover.handleTouchStart(event, this)\" >Unarmed Strike</a>",
+      "castingTime": "Bonus action, which you take immediately after hitting a target with a Melee weapon or an Unarmed Strike",
       "ritual": false,
       "range": "Self",
       "components": "V",
@@ -5660,7 +5660,7 @@
     {
       "level": 1,
       "school": "Evocation",
-      "castingTime": "Bonus action, which you take immediately after hitting a target with a Melee weapon or an <a href=\"variantrules.html#unarmed%20strike_xphb\"  onmouseover=\"Renderer.hover.pHandleLinkMouseOver(event, this)\" onmouseleave=\"Renderer.hover.handleLinkMouseLeave(event, this)\" onmousemove=\"Renderer.hover.handleLinkMouseMove(event, this)\" onclick=\"Renderer.hover.handleLinkClick(event, this)\" onwheel=\"Renderer.hover.handleLinkWheel(event, this)\" ondragstart=\"Renderer.hover.handleLinkDragStart(event, this)\" data-vet-page=\"variantrules.html\" data-vet-source=\"XPHB\" data-vet-hash=\"unarmed%20strike_xphb\" ontouchstart=\"Renderer.hover.handleTouchStart(event, this)\" >Unarmed Strike</a>",
+      "castingTime": "Bonus action, which you take immediately after hitting a target with a Melee weapon or an Unarmed Strike",
       "ritual": false,
       "range": "Self",
       "components": "V",
@@ -5842,7 +5842,7 @@
     {
       "level": 2,
       "school": "Transmutation",
-      "castingTime": "Bonus action, which you take immediately after hitting a creature with a Melee weapon or an <a href=\"variantrules.html#unarmed%20strike_xphb\"  onmouseover=\"Renderer.hover.pHandleLinkMouseOver(event, this)\" onmouseleave=\"Renderer.hover.handleLinkMouseLeave(event, this)\" onmousemove=\"Renderer.hover.handleLinkMouseMove(event, this)\" onclick=\"Renderer.hover.handleLinkClick(event, this)\" onwheel=\"Renderer.hover.handleLinkWheel(event, this)\" ondragstart=\"Renderer.hover.handleLinkDragStart(event, this)\" data-vet-page=\"variantrules.html\" data-vet-source=\"XPHB\" data-vet-hash=\"unarmed%20strike_xphb\" ontouchstart=\"Renderer.hover.handleTouchStart(event, this)\" >Unarmed Strike</a>",
+      "castingTime": "Bonus action, which you take immediately after hitting a creature with a Melee weapon or an Unarmed Strike",
       "ritual": false,
       "range": "Self",
       "components": "V",
@@ -6170,7 +6170,7 @@
     {
       "level": 4,
       "school": "Enchantment",
-      "castingTime": "Bonus action, which you take immediately after hitting a creature with a Melee weapon or an <a href=\"variantrules.html#unarmed%20strike_xphb\"  onmouseover=\"Renderer.hover.pHandleLinkMouseOver(event, this)\" onmouseleave=\"Renderer.hover.handleLinkMouseLeave(event, this)\" onmousemove=\"Renderer.hover.handleLinkMouseMove(event, this)\" onclick=\"Renderer.hover.handleLinkClick(event, this)\" onwheel=\"Renderer.hover.handleLinkWheel(event, this)\" ondragstart=\"Renderer.hover.handleLinkDragStart(event, this)\" data-vet-page=\"variantrules.html\" data-vet-source=\"XPHB\" data-vet-hash=\"unarmed%20strike_xphb\" ontouchstart=\"Renderer.hover.handleTouchStart(event, this)\" >Unarmed Strike</a>",
+      "castingTime": "Bonus action, which you take immediately after hitting a creature with a Melee weapon or an Unarmed Strike",
       "ritual": false,
       "range": "Self",
       "components": "V",
@@ -6796,7 +6796,7 @@
     {
       "level": 1,
       "school": "Evocation",
-      "castingTime": "Bonus action, which you take immediately after hitting a target with a Melee weapon or an <a href=\"variantrules.html#unarmed%20strike_xphb\"  onmouseover=\"Renderer.hover.pHandleLinkMouseOver(event, this)\" onmouseleave=\"Renderer.hover.handleLinkMouseLeave(event, this)\" onmousemove=\"Renderer.hover.handleLinkMouseMove(event, this)\" onclick=\"Renderer.hover.handleLinkClick(event, this)\" onwheel=\"Renderer.hover.handleLinkWheel(event, this)\" ondragstart=\"Renderer.hover.handleLinkDragStart(event, this)\" data-vet-page=\"variantrules.html\" data-vet-source=\"XPHB\" data-vet-hash=\"unarmed%20strike_xphb\" ontouchstart=\"Renderer.hover.handleTouchStart(event, this)\" >Unarmed Strike</a>",
+      "castingTime": "Bonus action, which you take immediately after hitting a target with a Melee weapon or an Unarmed Strike",
       "ritual": false,
       "range": "Self",
       "components": "V",
@@ -7417,7 +7417,7 @@
     {
       "level": 1,
       "school": "Necromancy",
-      "castingTime": "Bonus action, which you take immediately after hitting a creature with a Melee weapon or an <a href=\"variantrules.html#unarmed%20strike_xphb\"  onmouseover=\"Renderer.hover.pHandleLinkMouseOver(event, this)\" onmouseleave=\"Renderer.hover.handleLinkMouseLeave(event, this)\" onmousemove=\"Renderer.hover.handleLinkMouseMove(event, this)\" onclick=\"Renderer.hover.handleLinkClick(event, this)\" onwheel=\"Renderer.hover.handleLinkWheel(event, this)\" ondragstart=\"Renderer.hover.handleLinkDragStart(event, this)\" data-vet-page=\"variantrules.html\" data-vet-source=\"XPHB\" data-vet-hash=\"unarmed%20strike_xphb\" ontouchstart=\"Renderer.hover.handleTouchStart(event, this)\" >Unarmed Strike</a>",
+      "castingTime": "Bonus action, which you take immediately after hitting a creature with a Melee weapon or an Unarmed Strike",
       "ritual": false,
       "range": "Self",
       "components": "V",

@@ -1,4 +1,4 @@
-import { Card, HStack, Input, SimpleGrid, Spinner, Stack, Text } from '@chakra-ui/react'
+import { Card, HStack, Image, Input, SimpleGrid, Spinner, Stack, Text } from '@chakra-ui/react'
 import { useState } from 'react'
 import { ListBackgroundsIntent, ListClassesIntent, ListSpeciesIntent } from '@/api'
 import { InfoButton } from '@/components/InfoButton'
@@ -10,6 +10,7 @@ interface CardEntry {
   key: string
   name: string
   info: string
+  thumbnailUrl: string | null
 }
 
 /**
@@ -37,6 +38,7 @@ export function RuleCards({
       key: entry.key,
       name: entry.name,
       info: entry.creatureType,
+      thumbnailUrl: entry.thumbnailUrl,
     }))
     : kind === 'background'
       ? (backgrounds.data?.items ?? []).map((entry) => ({
@@ -48,12 +50,14 @@ export function RuleCards({
         ]
           .filter(Boolean)
           .join(' · '),
+        thumbnailUrl: entry.thumbnailUrl,
       }))
       : (classes.data?.items ?? []).map((entry) => ({
         key: entry.key,
         name: entry.name,
         info: `${entry.hitDie.toLowerCase()} · ${
           entry.primaryAbilities.join(entry.primaryAbilityMode === 'Any' ? ' or ' : ' and ')}`,
+        thumbnailUrl: entry.thumbnailUrl,
       }))
   const loading = species.loading || backgrounds.loading || classes.loading
   const visible = entries.filter((entry) => entry.name.toLowerCase().includes(search.toLowerCase()))
@@ -76,8 +80,21 @@ export function RuleCards({
             cursor='pointer'
             borderColor={entry.key === selected ? 'brand.solid' : undefined}
             bg={entry.key === selected ? 'brand.subtle' : undefined}
+            overflow='hidden'
             onClick={() => onSelect(entry.key)}
           >
+            {entry.thumbnailUrl && (
+              <Image
+                src={entry.thumbnailUrl}
+                alt=''
+                w='full'
+                aspectRatio={kind === 'class' ? 4 / 3 : 16 / 9}
+                objectFit='cover'
+                objectPosition={kind === 'class' ? '50% 20%' : 'center'}
+                bg='bg.muted'
+                loading='lazy'
+              />
+            )}
             <Card.Body
               p='3.5'
               gap='1'

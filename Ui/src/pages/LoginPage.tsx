@@ -1,8 +1,22 @@
-import { Alert, Box, Button, Card, Field, Grid, Heading, Input, SegmentGroup, Stack, Text } from '@chakra-ui/react'
+import {
+  Alert,
+  Box,
+  Button,
+  Card,
+  Field,
+  Grid,
+  Heading,
+  Image,
+  Input,
+  SegmentGroup,
+  Stack,
+  Text,
+} from '@chakra-ui/react'
 import { type FormEvent, useState } from 'react'
 import { Navigate, useLocation, useNavigate } from 'react-router'
 import { LoginIntent, type ProblemDetails, problemMessages, RegisterIntent, useApi } from '@/api'
 import { ApiHint } from '@/components/ApiHint'
+import { useRandomScene } from '@/hooks/useRandomScene'
 
 type Mode = 'signin' | 'register'
 
@@ -20,6 +34,7 @@ export function LoginPage() {
   const [email, setEmail] = useState('')
   const [problem, setProblem] = useState<ProblemDetails | null>(null)
   const [sending, setSending] = useState(false)
+  const scene = useRandomScene()
 
   if (accessToken) {
     return (
@@ -83,12 +98,45 @@ export function LoginPage() {
         p='8'
         borderWidth='1px'
         rounded='xl'
+        overflow='hidden'
+        position='relative'
         bgGradient='to-br'
         gradientFrom='brand.muted'
         gradientTo='bg.subtle'
+        color={scene ? 'white' : undefined}
       >
-        <Heading size='2xl'>Build D&amp;D 2024 characters</Heading>
-        <Text color='fg.muted'>
+        {scene && (
+          <>
+            <Image
+              src={scene.imageUrl}
+              alt={scene.title}
+              position='absolute'
+              inset='0'
+              w='full'
+              h='full'
+              objectFit='cover'
+            />
+            {/* keeps the text readable on any picture */}
+            <Box
+              position='absolute'
+              inset='0'
+              bgGradient='to-t'
+              gradientFrom='blackAlpha.800'
+              gradientVia='blackAlpha.300'
+              gradientTo='transparent'
+            />
+          </>
+        )}
+        <Heading
+          size='2xl'
+          position='relative'
+        >
+          Build D&amp;D 2024 characters
+        </Heading>
+        <Text
+          position='relative'
+          color={scene ? 'whiteAlpha.900' : 'fg.muted'}
+        >
           Create a character step by step, level it up, manage the equipment and print the sheet.
         </Text>
       </Box>

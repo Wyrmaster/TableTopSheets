@@ -8,6 +8,7 @@ import { ShopPage } from '@/pages/character/ShopPage'
 import { CharactersPage } from '@/pages/CharactersPage'
 import { CreatorPage } from '@/pages/creator/CreatorPage'
 import { LoginPage } from '@/pages/LoginPage'
+import { SpellsPage } from '@/pages/SpellsPage'
 
 const router = createBrowserRouter([
   {
@@ -36,6 +37,10 @@ const router = createBrowserRouter([
           {
             path: '/characters/new/:id?',
             element: <CreatorPage />,
+          },
+          {
+            path: '/spells',
+            element: <SpellsPage />,
           },
           {
             path: '/characters/:id',
