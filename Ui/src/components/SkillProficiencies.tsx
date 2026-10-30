@@ -21,7 +21,7 @@ const groups = [
  * Skills the character is already proficient in (expertise, proficient, half) and its tools, so choices that grant
  * skills or expertise can be made without opening the sheet
  */
-export function SkillProficiencies({ sheet }: { sheet: CharacterSheet }) {
+export const SkillProficiencies = ({ sheet }: { sheet: CharacterSheet }) => {
   const skills = sheet.abilities.flatMap((ability) => ability.skills)
 
   return (

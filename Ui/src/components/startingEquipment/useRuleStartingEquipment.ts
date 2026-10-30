@@ -5,10 +5,10 @@ import { useIntentQuery } from '@/hooks/useIntentQuery'
  * Starting equipment alternatives of a background or class from the rules catalog (undefined while loading or
  * without a key)
  */
-export function useRuleStartingEquipment(
+export const useRuleStartingEquipment = (
   kind: 'background' | 'class',
   key: string,
-): StartingEquipmentOptionDto[] | undefined {
+): StartingEquipmentOptionDto[] | undefined => {
   const background = useIntentQuery(
     () => (kind === 'background' && key ? new GetBackgroundIntent(key) : null),
     `background|${key}`,

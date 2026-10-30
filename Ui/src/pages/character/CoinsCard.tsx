@@ -29,7 +29,7 @@ import { useCharacter } from './useCharacter'
  * Coins of the character (platinum, gold, electrum, silver, copper): edit all kinds at once, add or remove coins of one
  * kind (treasure, spending exact coins), or pay an amount (coins are spent, change comes back)
  */
-export function CoinsCard() {
+export const CoinsCard = () => {
   const {
     id,
     state,
@@ -263,7 +263,7 @@ export function CoinsCard() {
 /**
  * Picture of a coin kind; hidden when the API has none
  */
-function CoinImage({ kind, size = '7' }: { kind: keyof CoinsDto, size?: string }) {
+const CoinImage = ({ kind, size = '7' }: { kind: keyof CoinsDto, size?: string }) => {
   const [failed, setFailed] = useState(false)
   if (failed) {
     return null

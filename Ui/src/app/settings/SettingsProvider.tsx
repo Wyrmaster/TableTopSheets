@@ -4,7 +4,7 @@ import { type Settings, SettingsContext, type SettingsContextValue } from './Set
 const StorageKey = 'tabletopsheets.settings'
 const Defaults: Settings = { showApiHints: false }
 
-function readSettings(): Settings {
+const readSettings = (): Settings => {
   try {
     return {
       ...Defaults,
@@ -16,7 +16,7 @@ function readSettings(): Settings {
   }
 }
 
-function storeSettings(settings: Settings) {
+const storeSettings = (settings: Settings) => {
   try {
     localStorage.setItem(StorageKey, JSON.stringify(settings))
   }
@@ -28,7 +28,7 @@ function storeSettings(settings: Settings) {
 /**
  * User settings of this browser (kept in local storage)
  */
-export function SettingsProvider({ children }: { children: ReactNode }) {
+export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   const [settings, setSettings] = useState<Settings>(readSettings)
 
   const value = useMemo<SettingsContextValue>(() => ({

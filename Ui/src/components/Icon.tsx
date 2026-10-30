@@ -8,7 +8,7 @@ export interface IconProps extends ChakraIconProps {
 /**
  * Material Design Icon as a Chakra icon (inherits color and size from the text)
  */
-export function Icon({ path, ...props }: IconProps) {
+export const Icon = ({ path, ...props }: IconProps) => {
   // Chakra's Icon styles its child, so the svg element is passed in explicitly
   return (
     <ChakraIcon

@@ -31,7 +31,7 @@ import {
  * Base ability scores before the background increases: standard array, point buy, rolled or manual. Each method starts
  * without scores (point buy at 8 everywhere); a value of the array or the roll can be given to one ability only
  */
-export function AbilityScoresStep({
+export const AbilityScoresStep = ({
   method,
   scores,
   rolled,
@@ -45,7 +45,7 @@ export function AbilityScoresStep({
   onMethod: (method: AbilityMethod) => void
   onScores: (scores: DraftScores) => void
   onRolled: (values: number[]) => void
-}) {
+}) => {
   const pool = method === 'Rolled' ? rolled : StandardArray
   const problem = scoreProblem(method, scores, pool)
   const spent = pointsSpent(scores)
@@ -201,7 +201,7 @@ export function AbilityScoresStep({
 /**
  * Lower / raise one score of the point buy (8 – 15, within the budget)
  */
-function PointBuyControl({
+const PointBuyControl = ({
   name,
   score,
   spent,
@@ -211,7 +211,7 @@ function PointBuyControl({
   score: number
   spent: number
   onChange: (score: number) => void
-}) {
+}) => {
   return (
     <HStack>
       <IconButton

@@ -1,6 +1,6 @@
 // Enums of the API, serialized as their names (JsonStringEnumConverter).
-// Sources: Common/TableTopSheets.Common/Enum/**, Api/TableTopSheets.Api/Contracts/ChoiceDtos.cs (ChoiceInputKind),
-// Common/TableTopSheets.Common/Sheet/CharacterSheet.cs (ViolationSeverityEnum)
+// Sources: Common/Enum/**, Api/Library/Contracts/ChoiceDtos.cs (ChoiceInputKind),
+// Common/Sheet/CharacterSheet.cs (ViolationSeverityEnum)
 
 export const Alignments = [
   'Unaligned',

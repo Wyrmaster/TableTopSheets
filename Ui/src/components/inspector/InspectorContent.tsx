@@ -24,10 +24,10 @@ const levelName = (level: number) => (level === 0 ? 'Cantrip' : `Level ${level}`
 /**
  * Loads and renders one inspect target
  */
-export function InspectorContent({ target, onInspect }: {
+export const InspectorContent = ({ target, onInspect }: {
   target: InspectTarget
   onInspect: (next: InspectTarget) => void
-}) {
+}) => {
   if (target.kind === 'feature') {
     return (
       <Stack gap='3'>
@@ -48,7 +48,7 @@ export function InspectorContent({ target, onInspect }: {
   )
 }
 
-function Header({ label, title }: { label: string, title: string }) {
+const Header = ({ label, title }: { label: string, title: string }) => {
   return (
     <Box pr='10'>
       <Text
@@ -62,9 +62,9 @@ function Header({ label, title }: { label: string, title: string }) {
   )
 }
 
-function RuleContent(
+const RuleContent = (
   { target, onInspect }: { target: Extract<InspectTarget, { key: string }>, onInspect: (next: InspectTarget) => void },
-) {
+) => {
   const query = useIntentQuery<unknown>(() => {
     switch (target.kind) {
       case 'spell':
@@ -112,7 +112,7 @@ function RuleContent(
   )
 }
 
-function SpellView({ spell }: { spell: SpellDetailDto }) {
+const SpellView = ({ spell }: { spell: SpellDetailDto }) => {
   const summary = spell.spell
   const facts: [string, string][] = [
     ['Casting time', summary.castingTime],
@@ -153,7 +153,7 @@ function SpellView({ spell }: { spell: SpellDetailDto }) {
   )
 }
 
-function ClassView({ detail }: { detail: ClassDetailDto }) {
+const ClassView = ({ detail }: { detail: ClassDetailDto }) => {
   const features = [...detail.features].sort((a, b) => (a.level ?? 0) - (b.level ?? 0))
   return (
     <>
@@ -211,7 +211,7 @@ function ClassView({ detail }: { detail: ClassDetailDto }) {
   )
 }
 
-function ItemView({ detail }: { detail: ItemDetailDto }) {
+const ItemView = ({ detail }: { detail: ItemDetailDto }) => {
   const item = detail.item
   const properties = Object.entries(detail.properties).map(([key, value]): [string, string] => [key, value])
   return (
@@ -242,7 +242,7 @@ function ItemView({ detail }: { detail: ItemDetailDto }) {
   )
 }
 
-function RuleView(
+const RuleView = (
   {
     label,
     detail,
@@ -252,7 +252,7 @@ function RuleView(
     detail: RuleDetailDto,
     onInspect: (next: InspectTarget) => void
   },
-) {
+) => {
   return (
     <>
       <Header

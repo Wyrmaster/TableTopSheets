@@ -16,7 +16,7 @@ interface CardEntry {
 /**
  * Selectable cards of species, backgrounds or classes; the info button opens the details without selecting
  */
-export function RuleCards({
+export const RuleCards = ({
   kind,
   selected,
   onSelect,
@@ -24,7 +24,7 @@ export function RuleCards({
   kind: RuleKind,
   selected: string,
   onSelect: (key: string) => void
-}) {
+}) => {
   const [search, setSearch] = useState('')
   const species = useIntentQuery(() => (kind === 'species' ? new ListSpeciesIntent({ pageSize: 100 }) : null), kind)
   const backgrounds = useIntentQuery(

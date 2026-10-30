@@ -3,7 +3,7 @@ import { chakra, HStack } from '@chakra-ui/react'
 /**
  * Clickable charges: a filled pip is available (click spends it), an empty one is spent (click restores it)
  */
-export function Pips({
+export const Pips = ({
   max,
   used,
   onChange,
@@ -15,7 +15,7 @@ export function Pips({
   onChange: (used: number) => void
   square?: boolean
   label: string
-}) {
+}) => {
   const available = max - used
   return (
     <HStack

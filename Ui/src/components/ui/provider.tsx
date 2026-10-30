@@ -7,7 +7,7 @@ import {
   type ColorModeProviderProps,
 } from './color-mode'
 
-export function Provider(props: ColorModeProviderProps) {
+export const Provider = (props: ColorModeProviderProps) => {
   return (
     <ChakraProvider value={system}>
       {/* next-themes' inline script only matters for server rendering; as a data block React doesn't warn about it */}

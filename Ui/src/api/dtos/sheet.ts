@@ -1,5 +1,5 @@
-// Sources: Common/TableTopSheets.Common/Sheet/CharacterSheet.cs,
-// Common/TableTopSheets.Common/Container/Magic/SpellSlot.cs
+// Sources: Common/Sheet/CharacterSheet.cs,
+// Common/Container/Magic/SpellSlot.cs
 import type { Guid } from './common'
 import type { ArmorFlags, DamageTypeEnum, DiceEnum, PeriodEnum, SizeEnum, ViolationSeverityEnum } from './enums'
 

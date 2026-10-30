@@ -1,4 +1,4 @@
-// Sources: Api/TableTopSheets.Api/Contracts/CharacterDtos.cs, Contracts/Filters.cs (CharacterFilter)
+// Sources: Api/Library/Contracts/CharacterDtos.cs, Contracts/Filters.cs (CharacterFilter)
 import type { PendingChoiceDto } from './choice'
 import type { Guid } from './common'
 import type {

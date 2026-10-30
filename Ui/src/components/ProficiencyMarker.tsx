@@ -2,7 +2,7 @@ import { Box } from '@chakra-ui/react'
 import { ProficiencyLevels } from '@/api'
 
 /** Proficiency marker: empty, half, filled (proficient) or ringed (expertise) */
-export function ProficiencyMarker({ level }: { level: number }) {
+export const ProficiencyMarker = ({ level }: { level: number }) => {
   const proficient = level >= ProficiencyLevels.Proficient
   return (
     <Box

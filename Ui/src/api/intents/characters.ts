@@ -1,4 +1,4 @@
-// Routes: Api/TableTopSheets.Api/Endpoints/CharacterEndpoints.cs
+// Routes: Api/Library/Endpoints/CharacterEndpoints.cs
 import { BodyIntent, Intent, PagedIntent, segment } from '../core/Intent'
 import type {
   CharacterFilter,
@@ -17,7 +17,7 @@ import type { CharacterSheet } from '../dtos/sheet'
  * @param characterId id of the character
  * @param suffix rest of the route, e.g. `/choices`
  */
-export function characterPath(characterId: Guid, suffix = ''): string {
+export const characterPath = (characterId: Guid, suffix = ''): string => {
   return `/api/characters/${segment(characterId)}${suffix}`
 }
 

@@ -28,7 +28,7 @@ import { useIntentQuery } from '@/hooks/useIntentQuery'
 /**
  * The signed in user's characters; a card opens the character sheet (level 0 drafts open the creator)
  */
-export function CharactersPage() {
+export const CharactersPage = () => {
   const [search, setSearch] = useState('')
   const characters = useIntentQuery(
     () => new ListCharactersIntent({
@@ -97,7 +97,7 @@ export function CharactersPage() {
   )
 }
 
-function CharacterCard({ character, onDeleted }: { character: CharacterSummaryDto, onDeleted: () => void }) {
+const CharacterCard = ({ character, onDeleted }: { character: CharacterSummaryDto, onDeleted: () => void }) => {
   const navigate = useNavigate()
   const classes = character.classes
     .map((entry) => `${entry.name} ${entry.level}${entry.subclass ? ` (${entry.subclass})` : ''}`)
@@ -154,7 +154,7 @@ function CharacterCard({ character, onDeleted }: { character: CharacterSummaryDt
  * Deletes the character after a confirmation; clicks inside never open the character (React events bubble out of the
  * dialog's portal to the card)
  */
-function DeleteButton({ character, onDeleted }: { character: CharacterSummaryDto, onDeleted: () => void }) {
+const DeleteButton = ({ character, onDeleted }: { character: CharacterSummaryDto, onDeleted: () => void }) => {
   const { run, busy } = useApiAction()
 
   const remove = async () => {

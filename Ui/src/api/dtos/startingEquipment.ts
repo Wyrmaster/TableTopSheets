@@ -1,4 +1,4 @@
-// Source: Api/TableTopSheets.Api/Contracts/StartingEquipmentDtos.cs
+// Source: Api/Library/Contracts/StartingEquipmentDtos.cs
 import type { StartingEquipmentSourceEnum } from './enums'
 
 /** An item that can be picked */

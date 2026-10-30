@@ -5,7 +5,7 @@ import { ChoiceCard } from './ChoiceCard'
 /**
  * All pending choices of a character; follow-up choices appear after their parent was saved
  */
-export function ChoiceList({
+export const ChoiceList = ({
   characterId,
   choices,
   onState,
@@ -15,7 +15,7 @@ export function ChoiceList({
   choices: PendingChoiceDto[]
   onState: (state: CharacterStateDto) => void
   empty?: string
-}) {
+}) => {
   if (choices.length === 0) {
     return <Text color='fg.muted'>{empty}</Text>
   }

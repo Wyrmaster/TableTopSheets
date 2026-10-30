@@ -56,7 +56,7 @@ const pages = [
 /**
  * Loads a character (state and sheet) and frames its pages: header with stats, Character sheet · Level up · Shop
  */
-export function CharacterLayout() {
+export const CharacterLayout = () => {
   const { id = '' } = useParams()
   const state = useIntentQuery(() => new GetCharacterIntent(id), id)
   const sheet = useIntentQuery(() => new GetCharacterSheetIntent(id), id)
@@ -125,7 +125,7 @@ export function CharacterLayout() {
   )
 }
 
-function Header({
+const Header = ({
   state,
   sheet,
   hitPoints,
@@ -133,7 +133,7 @@ function Header({
   state: CharacterStateDto,
   sheet: CharacterSheet,
   hitPoints: number
-}) {
+}) => {
   const { run, busy } = useApiAction()
   const { pathname } = useLocation()
   const violations = state.violations.filter((violation) => violation.code !== 'choice.pending')
@@ -277,7 +277,7 @@ function Header({
   )
 }
 
-function PageTab({
+const PageTab = ({
   active,
   icon,
   label,
@@ -285,7 +285,7 @@ function PageTab({
   active: boolean,
   icon: string,
   label: string
-}) {
+}) => {
   return (
     <HStack
       px='4'
@@ -301,7 +301,7 @@ function PageTab({
   )
 }
 
-function MobileNavigation() {
+const MobileNavigation = () => {
   const { pathname } = useLocation()
   return (
     <Grid
@@ -345,7 +345,7 @@ function MobileNavigation() {
   )
 }
 
-function Stat({ value, label }: { value: string | number, label: string }) {
+const Stat = ({ value, label }: { value: string | number, label: string }) => {
   return (
     <Grid
       placeItems='center'
@@ -376,7 +376,7 @@ function Stat({ value, label }: { value: string | number, label: string }) {
 }
 
 /** Armor Class with its breakdown: the calculation the current equipment uses, then every bonus */
-function ArmorClassStat({ sheet }: { sheet: CharacterSheet }) {
+const ArmorClassStat = ({ sheet }: { sheet: CharacterSheet }) => {
   const signed = (value: number) => (value >= 0 ? `+${value}` : `${value}`)
   const breakdown = sheet.armorClassSources
     .map((source, index) => `${source.label} ${index === 0 ? source.value : signed(source.value)}`)

@@ -4,7 +4,7 @@ import { Image } from '@chakra-ui/react'
  * Picture of a rule entity (spell, class, species, background), cropped to a fixed aspect ratio so the layout doesn't
  * jump while it loads
  */
-export function RuleImage({
+export const RuleImage = ({
   src,
   alt,
   ratio = 16 / 9,
@@ -16,7 +16,7 @@ export function RuleImage({
   ratio?: number
   /** which part stays visible when cropped, e.g. `top` for portraits */
   position?: string
-}) {
+}) => {
   return (
     <Image
       src={src}

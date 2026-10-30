@@ -1,4 +1,4 @@
-// Source: Api/TableTopSheets.Api/Contracts/ChoiceDtos.cs
+// Source: Api/Library/Contracts/ChoiceDtos.cs
 import type { Guid } from './common'
 import type { ChoiceInputKind, OptionSourceEnum } from './enums'
 

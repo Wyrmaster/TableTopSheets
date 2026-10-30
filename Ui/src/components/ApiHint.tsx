@@ -5,7 +5,7 @@ import { useSettings } from '@/app/settings/useSettings'
 /**
  * Developer hint naming the API route behind a section; only shown when the "API hints" setting is on
  */
-export function ApiHint({ children }: { children: ReactNode }) {
+export const ApiHint = ({ children }: { children: ReactNode }) => {
   const { showApiHints } = useSettings()
   if (!showApiHints) {
     return null

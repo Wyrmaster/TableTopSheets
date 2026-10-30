@@ -8,7 +8,7 @@ const Later = 'later'
  * Choose an alternative of a starting equipment ("Choose A or B") and the items it leaves open (a Holy Symbol, a
  * Gaming Set). Without `allowLater` an alternative has to be chosen
  */
-export function StartingEquipmentPicker({
+export const StartingEquipmentPicker = ({
   options,
   value,
   onChange,
@@ -18,7 +18,7 @@ export function StartingEquipmentPicker({
   value: TakeStartingEquipmentDto | null
   onChange: (value: TakeStartingEquipmentDto | null) => void
   allowLater?: boolean
-}) {
+}) => {
   const selected = value && options.find((option) => option.key === value.optionKey)
 
   const choose = (key: string) => onChange(key === Later

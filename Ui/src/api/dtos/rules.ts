@@ -1,4 +1,4 @@
-// Sources: Api/TableTopSheets.Api/Contracts/RuleDtos.cs, Contracts/Filters.cs
+// Sources: Api/Library/Contracts/RuleDtos.cs, Contracts/Filters.cs
 import type {
   DamageTypeEnum,
   DiceEnum,

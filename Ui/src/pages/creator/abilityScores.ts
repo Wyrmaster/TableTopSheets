@@ -35,7 +35,7 @@ export const AbilityNames: Record<AbilityKey, string> = {
 export const modifier = (score: number) => Math.floor((score - 10) / 2)
 
 /** Modifier as text (`+2`, `-1`); `–` without a score */
-export function signedModifier(score: number | null) {
+export const signedModifier = (score: number | null) => {
   if (score === null) {
     return '–'
   }
@@ -47,13 +47,13 @@ export function signedModifier(score: number | null) {
 /**
  * Scores at the start of a method: point buy starts every ability at 8, the other methods leave them unassigned
  */
-export function initialScores(method: AbilityMethod): DraftScores {
+export const initialScores = (method: AbilityMethod): DraftScores => {
   const score = method === 'PointBuy' ? 8 : null
   return Object.fromEntries(AbilityKeys.map((key) => [key, score])) as DraftScores
 }
 
 /** The scores when every ability has one, otherwise null */
-export function completeScores(scores: DraftScores): Scores | null {
+export const completeScores = (scores: DraftScores): Scores | null => {
   return Object.values(scores).every((score) => score !== null) ? scores as Scores : null
 }
 
@@ -63,7 +63,7 @@ export const pointsSpent = (scores: DraftScores) => Object.values(scores)
 /**
  * 4d6, drop the lowest die, six times (highest first)
  */
-export function rollScores(): number[] {
+export const rollScores = (): number[] => {
   return Array.from({ length: 6 }, () => {
     const dice = Array.from({ length: 4 }, () => 1 + Math.floor(Math.random() * 6)).sort((a, b) => b - a)
     return dice[0] + dice[1] + dice[2]
@@ -73,7 +73,7 @@ export function rollScores(): number[] {
 /**
  * Problem of the scores for the method, or null when they are valid (the API doesn't check the method)
  */
-export function scoreProblem(method: AbilityMethod, draft: DraftScores, pool: number[]): string | null {
+export const scoreProblem = (method: AbilityMethod, draft: DraftScores, pool: number[]): string | null => {
   const scores = completeScores(draft)
   if (!scores) {
     return 'Assign a score to every ability.'

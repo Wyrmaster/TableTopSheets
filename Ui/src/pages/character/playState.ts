@@ -11,7 +11,7 @@ const emptyPlayState: PlayState = {
 
 const storageKey = (id: string) => `tabletopsheets.play.${id}`
 
-function readPlayState(id: string): PlayState {
+const readPlayState = (id: string): PlayState => {
   try {
     return {
       ...emptyPlayState,
@@ -26,7 +26,7 @@ function readPlayState(id: string): PlayState {
 /**
  * Play state of a character in local storage (until the API can store it)
  */
-export function usePlayState(id: string) {
+export const usePlayState = (id: string) => {
   const [play, setPlay] = useState<PlayState>(() => readPlayState(id))
 
   const updatePlay = useCallback((update: (play: PlayState) => PlayState) => {
@@ -55,7 +55,7 @@ export const slotKey = (level: number, period: string) => `${level}:${period}`
 /**
  * Spell slots of the sheet grouped by level and refresh period
  */
-export function slotGroups(sheet: CharacterSheet) {
+export const slotGroups = (sheet: CharacterSheet) => {
   const groups = new Map<string, {
     level: number,
     period: string,
@@ -83,7 +83,12 @@ export function slotGroups(sheet: CharacterSheet) {
 /**
  * Short rest: resources that recharge on a short rest come back, spent hit dice heal
  */
-export function shortRest(play: PlayState, sheet: CharacterSheet, healed: number, diceSpent: Record<string, number>) {
+export const shortRest = (
+  play: PlayState,
+  sheet: CharacterSheet,
+  healed: number,
+  diceSpent: Record<string, number>,
+) => {
   const resourcesUsed = { ...play.resourcesUsed }
   for (const resource of sheet.resources) {
     if (resource.recharge === 'ShortRest') {
@@ -116,6 +121,6 @@ export function shortRest(play: PlayState, sheet: CharacterSheet, healed: number
 /**
  * Long rest: everything comes back (hit points, all hit dice, resources and spell slots)
  */
-export function longRest(): PlayState {
+export const longRest = (): PlayState => {
   return emptyPlayState
 }

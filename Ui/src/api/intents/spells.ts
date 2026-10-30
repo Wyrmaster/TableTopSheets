@@ -1,4 +1,4 @@
-// Routes: Api/TableTopSheets.Api/Endpoints/SpellEndpoints.cs
+// Routes: Api/Library/Endpoints/SpellEndpoints.cs
 import { BodyIntent, Intent, segment } from '../core/Intent'
 import type { CharacterStateDto } from '../dtos/character'
 import type { Guid } from '../dtos/common'

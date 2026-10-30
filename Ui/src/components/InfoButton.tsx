@@ -7,7 +7,7 @@ import { useInspector } from '@/components/inspector/useInspector'
 /**
  * Opens the detail view; never triggers the card or row it sits on
  */
-export function InfoButton({ target }: { target: InspectTarget }) {
+export const InfoButton = ({ target }: { target: InspectTarget }) => {
   const { inspect } = useInspector()
   return (
     <IconButton

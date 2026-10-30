@@ -27,7 +27,7 @@ const inputLabel = {
 }
 
 /** Detail view of an option, when the option is a rule entity */
-function inspectTarget(choice: PendingChoiceDto, option: OptionDto): InspectTarget | null {
+const inspectTarget = (choice: PendingChoiceDto, option: OptionDto): InspectTarget | null => {
   switch (choice.optionSource) {
     case 'Spell':
       return {
@@ -61,7 +61,7 @@ function inspectTarget(choice: PendingChoiceDto, option: OptionDto): InspectTarg
  * One pending choice, rendered from its metadata: SingleSelect (pick one), MultiSelect (pick several), Distribution
  * (counters). Large option lists are paged and searchable. Saving sends the picks with the choice's parentRef.
  */
-export function ChoiceCard({
+export const ChoiceCard = ({
   characterId,
   choice,
   onState,
@@ -69,7 +69,7 @@ export function ChoiceCard({
   characterId: string
   choice: PendingChoiceDto
   onState: (state: CharacterStateDto) => void
-}) {
+}) => {
   const { run, busy } = useApiAction()
   const [picks, setPicks] = useState<Record<string, number>>({})
   const [search, setSearch] = useState('')
@@ -297,7 +297,7 @@ export function ChoiceCard({
   )
 }
 
-function OptionRow({
+const OptionRow = ({
   option,
   count,
   distribution,
@@ -313,7 +313,7 @@ function OptionRow({
   inspect: InspectTarget | null
   onToggle: () => void
   onCount: (delta: number) => void
-}) {
+}) => {
   const meta = [
     typeof option.meta.level === 'number' && (option.meta.level === 0 ? 'cantrip' : `level ${option.meta.level}`),
     option.meta.school,

@@ -4,7 +4,7 @@ import { useRandomScene } from '@/hooks/useRandomScene'
 /**
  * A random scene (tavern, dungeon …) as a wide strip at the top of a page; renders nothing until the scenes are loaded
  */
-export function SceneBanner() {
+export const SceneBanner = () => {
   const scene = useRandomScene()
   if (!scene) {
     return null

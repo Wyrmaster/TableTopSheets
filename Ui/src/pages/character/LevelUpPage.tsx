@@ -50,7 +50,7 @@ const dieSize = (die: string) => Number(die.slice(1))
  * Open choices of the character, gaining a level (class, subclass, hit points) and undoing the last level; the
  * proficiencies on the right show what is already known while choosing skills or expertise
  */
-export function LevelUpPage() {
+export const LevelUpPage = () => {
   const {
     id,
     state,
@@ -101,7 +101,7 @@ export function LevelUpPage() {
   )
 }
 
-function GainLevel() {
+const GainLevel = () => {
   const {
     id,
     state,
@@ -400,7 +400,7 @@ function GainLevel() {
  * Optional swap of one earlier selection (a Fighting Style, a known spell …). It can only be made together with the
  * level up, so it's part of this form and not an open choice afterwards
  */
-function SwapChoice({
+const SwapChoice = ({
   characterId,
   replaceable,
   value,
@@ -410,7 +410,7 @@ function SwapChoice({
   replaceable: SelectionInfoDto[]
   value: ReplacementDto | null
   onChange: (value: ReplacementDto | null) => void
-}) {
+}) => {
   const selection = replaceable.find((entry) => entry.id === value?.selectionId)
   const options = useIntentQuery(
     () => (selection
@@ -494,7 +494,7 @@ function SwapChoice({
   )
 }
 
-function UndoButton({ level, onUndo }: { level: number, onUndo: () => void }) {
+const UndoButton = ({ level, onUndo }: { level: number, onUndo: () => void }) => {
   return (
     <Dialog.Root placement='center'>
       <Dialog.Trigger asChild>

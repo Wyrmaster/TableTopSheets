@@ -81,11 +81,11 @@ import {
 const apiUrl = (globalThis as { process?: { env: Record<string, string | undefined> } }).process?.env.API_URL
 
 /** Every property name of T; the compiler rejects missing and unknown names */
-function keys<T>(record: Record<keyof T, true>): string[] {
+const keys = <T>(record: Record<keyof T, true>): string[] => {
   return Object.keys(record).sort()
 }
 
-function expectShape(value: unknown, expected: string[]) {
+const expectShape = (value: unknown, expected: string[]) => {
   expect(Object.keys(value as object).sort()).toEqual(expected)
 }
 
@@ -491,7 +491,7 @@ describe.skipIf(!apiUrl)('API integration', () => {
   let token: string | null = null
   const http = new HttpClient({ baseUrl: apiUrl, getAccessToken: () => token })
 
-  async function ok<T>(intent: Intent<T>): Promise<T> {
+  const ok = async <T>(intent: Intent<T>): Promise<T> => {
     const result: ApiResult<T> = await http.execute(intent)
     if (!result.ok) {
       throw new Error(`${intent.method} ${intent.path} answered ${result.status}: ${JSON.stringify(result.problem)}`)
@@ -501,7 +501,7 @@ describe.skipIf(!apiUrl)('API integration', () => {
   }
 
   /** Answers every pending choice with the first available options, like a generic GUI (ApiClient.AnswerAllAsync) */
-  async function answerAll(state: CharacterStateDto): Promise<CharacterStateDto> {
+  const answerAll = async (state: CharacterStateDto): Promise<CharacterStateDto> => {
     for (let round = 0; round < 30 && state.pendingChoices.length > 0; round++) {
       const choice = state.pendingChoices[0]
       expectShape(choice, Shapes.pending)

@@ -22,7 +22,7 @@ const PageWidth = '1400px'
 /**
  * Title bar and page area. Signed out: logo and theme toggle only; signed in: navigation and the user section.
  */
-export function AppShell() {
+export const AppShell = () => {
   const { accessToken } = useApi()
 
   return (
@@ -86,7 +86,7 @@ export function AppShell() {
   )
 }
 
-function MainNavigation() {
+const MainNavigation = () => {
   const links = [
     {
       to: '/characters',
@@ -141,7 +141,7 @@ function MainNavigation() {
   )
 }
 
-function UserSection() {
+const UserSection = () => {
   const { signOut } = useApi()
   const navigate = useNavigate()
   const { showApiHints, setShowApiHints } = useSettings()

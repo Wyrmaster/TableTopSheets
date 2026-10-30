@@ -1,4 +1,4 @@
-// Source: Api/TableTopSheets.Api/Contracts/SpellDtos.cs
+// Source: Api/Library/Contracts/SpellDtos.cs
 import type { PrepareChangeEnum, RitualModeEnum, SpellPoolEnum } from './enums'
 
 /** A spell the character knows, has prepared or has in the spellbook */

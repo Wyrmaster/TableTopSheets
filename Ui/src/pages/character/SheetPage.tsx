@@ -31,7 +31,7 @@ const tabs = [
 /**
  * Character sheet: Overview · Inventory · Spells, plus short and long rest
  */
-export function SheetPage() {
+export const SheetPage = () => {
   const { tab = 'overview' } = useParams()
   const navigate = useNavigate()
   if (!tabs.some((entry) => entry.value === tab)) {
@@ -77,7 +77,7 @@ export function SheetPage() {
   )
 }
 
-function RestButtons() {
+const RestButtons = () => {
   const {
     sheet,
     updatePlay,

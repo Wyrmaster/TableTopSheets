@@ -57,7 +57,7 @@ const priceLabel = (item: ItemSummaryDto) => `${formatPrice(item.costCp)}${item.
 /**
  * Item catalog with search, filters and paging; "Buy" pays with the character's coins, "Add free" doesn't
  */
-export function ShopPage() {
+export const ShopPage = () => {
   const {
     id,
     state,

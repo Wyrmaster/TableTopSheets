@@ -51,7 +51,7 @@ import { useCharacter } from './useCharacter'
 type Section = 'armor' | 'melee' | 'ranged' | 'worn' | 'backpack'
 
 /** "2 equipped · 1 in hand" */
-function equippedHint(items: CharacterItemDto[]) {
+const equippedHint = (items: CharacterItemDto[]) => {
   const equipped = items.filter((item) => item.slot !== 'None').length
   const inHand = items.filter((item) => item.slot === 'MainHand' || item.slot === 'OffHand').length
   return `${equipped} equipped${inHand ? ` · ${inHand} in hand` : ''}`
@@ -73,7 +73,7 @@ const isShield = (detail?: ItemDetailDto) => detail?.item.category?.toLowerCase(
 /**
  * Section of an item: armor & shield, melee or ranged weapon, worn item or backpack
  */
-function sectionOf(item: CharacterItemDto, detail?: ItemDetailDto): Section {
+const sectionOf = (item: CharacterItemDto, detail?: ItemDetailDto): Section => {
   if (item.kind === 'Armor') {
     return 'armor'
   }
@@ -87,7 +87,7 @@ function sectionOf(item: CharacterItemDto, detail?: ItemDetailDto): Section {
 /**
  * Armor & shield, melee and ranged weapons, worn items and the backpack, with equip switches and violations
  */
-export function InventoryTab() {
+export const InventoryTab = () => {
   const {
     id,
     state,
@@ -318,7 +318,7 @@ export function InventoryTab() {
   )
 }
 
-function Section({
+const Section = ({
   icon,
   title,
   hint,
@@ -331,7 +331,7 @@ function Section({
   /** tooltip of the hint, e.g. how the armor class is made up */
   hintTitle?: string,
   children: ReactNode[]
-}) {
+}) => {
   return (
     <Card.Root>
       <Card.Body gap='3'>
@@ -366,7 +366,7 @@ function Section({
   )
 }
 
-function ItemRow({
+const ItemRow = ({
   item,
   detail,
   attack,
@@ -380,7 +380,7 @@ function ItemRow({
   violations: string[]
   onToggle?: () => void
   extra?: ReactNode
-}) {
+}) => {
   const properties = detail?.properties ?? {}
   const description = attack
     ? [
@@ -469,7 +469,7 @@ function ItemRow({
 /**
  * − / + for ammunition: one piece used up (removed without selling) or recovered after a fight (added for free)
  */
-function StackStepper({
+const StackStepper = ({
   item,
   onAdd,
   onRemove,
@@ -477,7 +477,7 @@ function StackStepper({
   item: CharacterItemDto
   onAdd: () => void
   onRemove: () => void
-}) {
+}) => {
   return (
     <HStack
       gap='0'
@@ -510,7 +510,7 @@ function StackStepper({
 /**
  * Sell or remove an item: one piece of a stack, or all of it; selling credits half the cost (per piece of a bundle)
  */
-function ItemMenu({
+const ItemMenu = ({
   item,
   costCp,
   bundle = 1,
@@ -520,7 +520,7 @@ function ItemMenu({
   costCp?: number
   bundle?: number
   onRemove: (options: { quantity?: number, sell?: boolean }) => void
-}) {
+}) => {
   // the same rounding as the API: half the cost of the pieces, rounded down
   const sellValue = (pieces: number) => (costCp === undefined ? 0 : Math.floor(costCp * pieces / bundle / 2))
   const sellPrice = sellValue(1)

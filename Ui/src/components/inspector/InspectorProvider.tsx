@@ -7,7 +7,7 @@ import { InspectorContext, type InspectorContextValue, type InspectTarget } from
  * Detail view for rule entities: a floating panel (desktop) or bottom sheet (mobile) without backdrop. It is fixed to
  * the window, so it opens where the user is, and closes on a click outside or Escape.
  */
-export function InspectorProvider({ children }: { children: ReactNode }) {
+export const InspectorProvider = ({ children }: { children: ReactNode }) => {
   const [target, setTarget] = useState<InspectTarget | null>(null)
   const panel = useRef<HTMLDivElement>(null)
 

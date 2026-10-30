@@ -35,7 +35,7 @@ import { useCharacter } from './useCharacter'
  * Spellcasting per class, clickable spell slots, the spells of each class (cantrips, prepared, spellbook) with the
  * long rest loadout editor and copying into the spellbook, and spells from species and feats
  */
-export function SpellsTab() {
+export const SpellsTab = () => {
   const {
     id,
     state,
@@ -153,7 +153,7 @@ export function SpellsTab() {
   )
 }
 
-function ClassSpells({ entry, onChanged }: { entry: SpellcastingClassDto, onChanged: () => void }) {
+const ClassSpells = ({ entry, onChanged }: { entry: SpellcastingClassDto, onChanged: () => void }) => {
   const [mode, setMode] = useState<'view' | 'prepare' | 'copy'>('view')
   const cantrips = entry.spells.filter((spell) => spell.level === 0)
   const prepared = entry.spells.filter((spell) => spell.level > 0 && (spell.prepared || spell.alwaysPrepared))
@@ -241,7 +241,7 @@ function ClassSpells({ entry, onChanged }: { entry: SpellcastingClassDto, onChan
   )
 }
 
-function Group({ title, children }: { title: string, children: ReactNode }) {
+const Group = ({ title, children }: { title: string, children: ReactNode }) => {
   return (
     <Stack gap='2'>
       <Text
@@ -258,7 +258,7 @@ function Group({ title, children }: { title: string, children: ReactNode }) {
   )
 }
 
-function SpellList({ spells }: { spells: KnownSpellDto[] }) {
+const SpellList = ({ spells }: { spells: KnownSpellDto[] }) => {
   if (spells.length === 0) {
     return <Text color='fg.muted'>None</Text>
   }
@@ -282,7 +282,7 @@ function SpellList({ spells }: { spells: KnownSpellDto[] }) {
 /**
  * Long rest loadout: from the spellbook (wizard) or the whole class list up to the highest level (cleric, druid …)
  */
-function PrepareEditor({ entry, onDone }: { entry: SpellcastingClassDto, onDone: () => void }) {
+const PrepareEditor = ({ entry, onDone }: { entry: SpellcastingClassDto, onDone: () => void }) => {
   const { id, applyState } = useCharacter()
   const { run, busy } = useApiAction()
   const [selected, setSelected] = useState<string[]>(() => entry.spells
@@ -392,7 +392,7 @@ function PrepareEditor({ entry, onDone }: { entry: SpellcastingClassDto, onDone:
 /**
  * Copy a spell of the class list (level 1 to the highest level) into the spellbook
  */
-function CopyPicker({ entry, onDone }: { entry: SpellcastingClassDto, onDone: () => void }) {
+const CopyPicker = ({ entry, onDone }: { entry: SpellcastingClassDto, onDone: () => void }) => {
   const { id, applyState } = useCharacter()
   const { run } = useApiAction()
   const [search, setSearch] = useState('')

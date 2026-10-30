@@ -1,4 +1,4 @@
-// Source: Api/TableTopSheets.Api/Contracts/InventoryDtos.cs
+// Source: Api/Library/Contracts/InventoryDtos.cs
 import type { EquipSlotEnum } from './enums'
 
 /** Add an item to the inventory */

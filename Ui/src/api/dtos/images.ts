@@ -1,4 +1,4 @@
-// Source: Api/TableTopSheets.Api/Contracts/SceneDto.cs
+// Source: Api/Library/Contracts/SceneDto.cs
 
 /** Mood picture (tavern, dungeon …) shown at random */
 export interface SceneDto {

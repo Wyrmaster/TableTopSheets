@@ -1,4 +1,4 @@
-// Routes: Api/TableTopSheets.Api/Endpoints/InventoryEndpoints.cs
+// Routes: Api/Library/Endpoints/InventoryEndpoints.cs
 import { BodyIntent, Intent, type QueryParams, segment } from '../core/Intent'
 import type { CharacterStateDto } from '../dtos/character'
 import type { Guid } from '../dtos/common'

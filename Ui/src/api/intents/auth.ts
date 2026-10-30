@@ -1,4 +1,4 @@
-// Routes: Api/TableTopSheets.Api/Endpoints/AuthEndpoints.cs, Authentication/DatabaseAuthenticationProvider.cs
+// Routes: Api/Library/Endpoints/AuthEndpoints.cs, Authentication/DatabaseAuthenticationProvider.cs
 import { BodyIntent, Intent } from '../core/Intent'
 import type { CurrentUserDto, LoginDto, RegisterDto, TokenDto } from '../dtos/user'
 

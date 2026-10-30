@@ -1,4 +1,4 @@
-// Source: Api/TableTopSheets.Api/Contracts/Paging.cs
+// Source: Api/Library/Contracts/Paging.cs
 
 export const DefaultPageSize = 50
 export const MaxPageSize = 200

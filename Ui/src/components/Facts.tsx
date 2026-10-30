@@ -4,7 +4,7 @@ import type { ReactNode } from 'react'
 /**
  * Label / value grid (spell stats, class facts …)
  */
-export function Facts({ items }: { items: [string, ReactNode][] }) {
+export const Facts = ({ items }: { items: [string, ReactNode][] }) => {
   return (
     <SimpleGrid
       columns={2}
@@ -39,7 +39,7 @@ export function Facts({ items }: { items: [string, ReactNode][] }) {
 /**
  * Description text of the rules; line breaks become paragraphs
  */
-export function Prose({ text }: { text: string }) {
+export const Prose = ({ text }: { text: string }) => {
   return (
     <Box
       display='grid'

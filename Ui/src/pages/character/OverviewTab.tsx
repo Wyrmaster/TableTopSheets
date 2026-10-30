@@ -13,7 +13,7 @@ const signed = (value: number) => (value >= 0 ? `+${value}` : `${value}`)
 /**
  * Abilities with saving throws and skills, hit points, resources and features
  */
-export function OverviewTab() {
+export const OverviewTab = () => {
   const { sheet } = useCharacter()
 
   return (
@@ -46,7 +46,7 @@ export function OverviewTab() {
   )
 }
 
-function AbilityBox({ ability }: { ability: AbilitySheet }) {
+const AbilityBox = ({ ability }: { ability: AbilitySheet }) => {
   return (
     <Card.Root
       overflow='hidden'
@@ -151,7 +151,7 @@ function AbilityBox({ ability }: { ability: AbilitySheet }) {
   )
 }
 
-function CardTitle({
+const CardTitle = ({
   icon,
   title,
   hint,
@@ -159,7 +159,7 @@ function CardTitle({
   icon: string,
   title: string,
   hint?: string
-}) {
+}) => {
   return (
     <HStack
       justify='space-between'
@@ -181,7 +181,7 @@ function CardTitle({
   )
 }
 
-function HitPointsCard() {
+const HitPointsCard = () => {
   const {
     sheet,
     play,
@@ -271,7 +271,7 @@ function HitPointsCard() {
   )
 }
 
-function ResourcesCard() {
+const ResourcesCard = () => {
   const {
     sheet,
     play,
@@ -324,7 +324,7 @@ function ResourcesCard() {
   )
 }
 
-function FeaturesCard() {
+const FeaturesCard = () => {
   const { sheet } = useCharacter()
   const groups: [string, FeatureSheet[]][] = [
     ['Class features', sheet.classFeatures],
@@ -376,7 +376,7 @@ function FeaturesCard() {
   )
 }
 
-function FeatureButton({ feature }: { feature: FeatureSheet }) {
+const FeatureButton = ({ feature }: { feature: FeatureSheet }) => {
   const { inspect } = useInspector()
   return (
     <Button

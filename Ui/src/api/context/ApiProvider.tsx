@@ -32,7 +32,7 @@ class TokenStore {
 /**
  * Token of the previous page load in this tab (survives a reload, not closing the tab)
  */
-function readStoredToken(): string | null {
+const readStoredToken = (): string | null => {
   try {
     return sessionStorage.getItem(TokenStorageKey)
   }
@@ -45,7 +45,7 @@ function readStoredToken(): string | null {
 /**
  * Keep the token for a reload; null removes it
  */
-function storeToken(accessToken: string | null) {
+const storeToken = (accessToken: string | null) => {
   try {
     if (accessToken) {
       sessionStorage.setItem(TokenStorageKey, accessToken)
@@ -68,7 +68,7 @@ export interface ApiProviderProps {
 /**
  * Provides the HttpClient and the access token of the signed in user to the app (see useApi)
  */
-export function ApiProvider({ children, baseUrl = '' }: ApiProviderProps) {
+export const ApiProvider = ({ children, baseUrl = '' }: ApiProviderProps) => {
   // 1. token: kept in the store for the client and in state so components re-render on sign in / sign out
   const [tokens] = useState(() => new TokenStore(readStoredToken()))
   const [accessToken, setAccessTokenState] = useState<string | null>(() => tokens.get())

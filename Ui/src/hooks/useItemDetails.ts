@@ -7,7 +7,7 @@ const cache = new Map<string, ItemDetailDto>()
 /**
  * Details (properties such as `ranged`, `baseAc`) of the given item keys, loaded once per key
  */
-export function useItemDetails(keys: string[]): Map<string, ItemDetailDto> {
+export const useItemDetails = (keys: string[]): Map<string, ItemDetailDto> => {
   const { execute } = useApi()
   const [, setVersion] = useState(0)
   const missing = [...new Set(keys)].filter((key) => !cache.has(key)).sort()

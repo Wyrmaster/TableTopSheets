@@ -18,7 +18,7 @@ import { StartingEquipmentPicker } from './StartingEquipmentPicker'
  * Starting equipment of a saved character that wasn't taken yet (background, first class); renders nothing when all is
  * taken. `sources` limits it to some of them
  */
-export function StartingEquipmentCard({
+export const StartingEquipmentCard = ({
   state,
   onState,
   sources,
@@ -26,7 +26,7 @@ export function StartingEquipmentCard({
   state: CharacterStateDto
   onState: (state: CharacterStateDto) => void
   sources?: StartingEquipmentSourceEnum[]
-}) {
+}) => {
   const open = (sources ?? ['Background', 'Class']).filter((source) => (source === 'Background'
     ? state.backgroundEquipment === null
     : state.level > 0 && state.classEquipment === null))
@@ -63,7 +63,7 @@ export function StartingEquipmentCard({
   )
 }
 
-function Offer({
+const Offer = ({
   characterId,
   offer,
   onState,
@@ -71,7 +71,7 @@ function Offer({
   characterId: string
   offer: StartingEquipmentDto
   onState: (state: CharacterStateDto) => void
-}) {
+}) => {
   const { run, busy } = useApiAction()
   const [value, setValue] = useState<TakeStartingEquipmentDto | null>(null)
 

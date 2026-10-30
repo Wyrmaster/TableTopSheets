@@ -11,7 +11,7 @@ export interface ActionOptions {
  * Runs write intents: failures are shown as error toasts (backend messages, e.g. rule violations), success
  * optionally as a toast. `busy` is true while a request runs.
  */
-export function useApiAction() {
+export const useApiAction = () => {
   const { execute } = useApi()
   const [busy, setBusy] = useState(false)
 

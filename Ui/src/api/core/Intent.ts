@@ -13,7 +13,7 @@ export type QueryParams = Record<string, QueryValue>
 /**
  * Escapes a key or id for use as a path segment
  */
-export function segment(value: string): string {
+export const segment = (value: string): string => {
   return encodeURIComponent(value)
 }
 

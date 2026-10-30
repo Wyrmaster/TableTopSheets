@@ -5,7 +5,7 @@ import { optionSummary } from './startingEquipment'
 /**
  * The alternatives of a starting equipment as text ("A: Spear, 2 × Dagger … + 28 gp"); nothing when there are none
  */
-export function StartingEquipmentList({ options }: { options: StartingEquipmentOptionDto[] }) {
+export const StartingEquipmentList = ({ options }: { options: StartingEquipmentOptionDto[] }) => {
   if (!options.length) {
     return null
   }

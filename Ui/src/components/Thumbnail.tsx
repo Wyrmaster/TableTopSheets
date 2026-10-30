@@ -3,7 +3,7 @@ import { Image } from '@chakra-ui/react'
 /**
  * Small square picture at the start of a list row (spell, item); nothing without a URL
  */
-export function Thumbnail({ src }: { src?: string | null }) {
+export const Thumbnail = ({ src }: { src?: string | null }) => {
   if (!src) {
     return null
   }

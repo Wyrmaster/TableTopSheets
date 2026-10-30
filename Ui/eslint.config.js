@@ -49,6 +49,13 @@ export default [
         ignorePattern: String.raw`^\s*(['"\x60]).*\1,?$`,
       }],
 
+      // functions are `const name = () => {}`, never `function name() {}` (see ~/.claude/CLAUDE.md)
+      'func-style': ['error', 'expression'],
+      'no-restricted-syntax': ['error', {
+        selector: 'FunctionExpression:not(MethodDefinition > FunctionExpression, Property[method=true] > FunctionExpression, Property[kind!="init"] > FunctionExpression)',
+        message: 'Use an arrow function: const name = () => {}',
+      }],
+
       // keep autofixed code tidy
       '@stylistic/indent': ['error', 2],
       '@stylistic/comma-dangle': ['error', 'always-multiline'],

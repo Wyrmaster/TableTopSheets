@@ -1,4 +1,4 @@
-// Routes: Api/TableTopSheets.Api/Endpoints/LevelEndpoints.cs
+// Routes: Api/Library/Endpoints/LevelEndpoints.cs
 import { BodyIntent, Intent, type QueryParams } from '../core/Intent'
 import type { CharacterStateDto, LevelUpDto, LevelUpPreviewDto, ValidationResultDto } from '../dtos/character'
 import type { Guid } from '../dtos/common'

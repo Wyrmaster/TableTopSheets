@@ -21,7 +21,7 @@ interface QueryState<T> {
  * Executes the intent built by `create` whenever `key` changes and keeps the answer; `create` returning null skips
  * the request. Requests of a previous key are cancelled.
  */
-export function useIntentQuery<T>(create: () => Intent<T> | null, key: string): IntentQuery<T> {
+export const useIntentQuery = <T>(create: () => Intent<T> | null, key: string): IntentQuery<T> => {
   const { execute } = useApi()
   const [state, setState] = useState<QueryState<T>>({ loading: true })
   const [version, setVersion] = useState(0)

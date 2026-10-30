@@ -1,4 +1,4 @@
-// Routes: Api/TableTopSheets.Api/Endpoints/ChoiceEndpoints.cs
+// Routes: Api/Library/Endpoints/ChoiceEndpoints.cs
 import { BodyIntent, Intent, PagedIntent, segment } from '../core/Intent'
 import type { CharacterStateDto, SelectionInfoDto, SelectionsDto, ValidationResultDto } from '../dtos/character'
 import type { OptionDto, OptionQuery, PendingChoiceDto } from '../dtos/choice'

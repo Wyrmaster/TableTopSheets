@@ -79,7 +79,7 @@ interface Details {
  * (/characters/new/{id}), so the creator can be left and resumed. The name is set in the details step; "Finish" saves
  * the details.
  */
-export function CreatorPage() {
+export const CreatorPage = () => {
   const { id } = useParams()
   const navigate = useNavigate()
   const { run, busy } = useApiAction()
@@ -430,7 +430,7 @@ export function CreatorPage() {
 /**
  * Starting equipment of the selected background or class, chosen before it is saved
  */
-function EquipmentChoice({
+const EquipmentChoice = ({
   options,
   value,
   onChange,
@@ -440,7 +440,7 @@ function EquipmentChoice({
   value: TakeStartingEquipmentDto | null
   onChange: (value: TakeStartingEquipmentDto | null) => void
   hint: string
-}) {
+}) => {
   if (!options?.length) {
     return null
   }
@@ -471,7 +471,7 @@ function EquipmentChoice({
 /**
  * Class cards with the starting equipment of the chosen class
  */
-function ClassChoice({
+const ClassChoice = ({
   classKey,
   options,
   equipment,
@@ -483,7 +483,7 @@ function ClassChoice({
   equipment: TakeStartingEquipmentDto | null
   onClass: (key: string) => void
   onEquipment: (value: TakeStartingEquipmentDto | null) => void
-}) {
+}) => {
   return (
     <>
       <RuleCards
@@ -501,7 +501,7 @@ function ClassChoice({
   )
 }
 
-function StepTitle({ title, text }: { title: string, text: string }) {
+const StepTitle = ({ title, text }: { title: string, text: string }) => {
   return (
     <Box>
       <Heading size='xl'>{title}</Heading>
@@ -510,7 +510,7 @@ function StepTitle({ title, text }: { title: string, text: string }) {
   )
 }
 
-function Summary({
+const Summary = ({
   name,
   className,
   species,
@@ -525,7 +525,7 @@ function Summary({
   background: string
   scores: DraftScores
   state?: CharacterStateDto
-}) {
+}) => {
   const open = state?.pendingChoices.filter((choice) => !choice.optional).length
   // the sheet knows the skills; it's loaded again whenever a choice is answered or taken back
   const answered = state?.pendingChoices.map((choice) => `${choice.id}:${choice.selected}`).join(',')
@@ -602,7 +602,7 @@ function Summary({
   )
 }
 
-function DetailsStep({
+const DetailsStep = ({
   state,
   details,
   onChange,
@@ -610,7 +610,7 @@ function DetailsStep({
   state: CharacterStateDto
   details: Details
   onChange: (details: Details) => void
-}) {
+}) => {
   const open = state.pendingChoices.filter((choice) => !choice.optional).length
   const set = (change: Partial<Details>) => onChange({ ...details, ...change })
 

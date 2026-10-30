@@ -4,7 +4,7 @@ import { useApi } from '@/api'
 /**
  * Pages below need a signed in user; without a token the login page opens and returns here afterwards
  */
-export function RequireAuth() {
+export const RequireAuth = () => {
   const { accessToken } = useApi()
   const location = useLocation()
   if (!accessToken) {

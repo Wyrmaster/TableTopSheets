@@ -11,7 +11,7 @@ const levelName = (level: number) => (level === 0 ? 'Cantrip' : `Level ${level}`
  * One spell in a list: name (opens the details), level · school · casting time, badges of a known spell and an
  * optional control in front (checkbox, button); with a thumbnail URL it shows the spell's picture
  */
-export function SpellRow({ spell, control }: {
+export const SpellRow = ({ spell, control }: {
   spell: {
     key: string,
     name: string,
@@ -23,7 +23,7 @@ export function SpellRow({ spell, control }: {
     thumbnailUrl?: string | null
   }
   control?: ReactNode
-}) {
+}) => {
   const { inspect } = useInspector()
   const known = spell as Partial<KnownSpellDto>
   const tags = [

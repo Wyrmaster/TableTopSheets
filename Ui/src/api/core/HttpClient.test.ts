@@ -10,14 +10,14 @@ import { ListSpellsIntent } from '../intents/rules'
 import { problemMessages } from './ApiResult'
 import { HttpClient, type HttpClientOptions } from './HttpClient'
 
-function json(status: number, body: unknown, contentType = 'application/json') {
+const json = (status: number, body: unknown, contentType = 'application/json') => {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': contentType } })
 }
 
 /**
  * Client whose requests go to a fake global fetch answering with `response`
  */
-function client(response: Response | (() => Promise<Response>), options: HttpClientOptions = {}) {
+const client = (response: Response | (() => Promise<Response>), options: HttpClientOptions = {}) => {
   const fetchMock = vi.fn<typeof fetch>(typeof response === 'function' ? response : async () => response)
   vi.stubGlobal('fetch', fetchMock)
   return { http: new HttpClient({ getAccessToken: () => 'token-1', ...options }), fetch: fetchMock }
@@ -26,7 +26,7 @@ function client(response: Response | (() => Promise<Response>), options: HttpCli
 /**
  * URL, options and headers of the first request sent to the fake fetch
  */
-function request(fetchMock: ReturnType<typeof vi.fn<typeof fetch>>) {
+const request = (fetchMock: ReturnType<typeof vi.fn<typeof fetch>>) => {
   const [url, init] = fetchMock.mock.calls[0]
   return {
     url: String(url),

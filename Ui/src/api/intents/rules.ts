@@ -1,4 +1,4 @@
-// Routes: Api/TableTopSheets.Api/Endpoints/RulesEndpoints.cs. The rules catalog doesn't need a token
+// Routes: Api/Library/Endpoints/RulesEndpoints.cs. The rules catalog doesn't need a token
 import { Intent, PagedIntent, segment } from '../core/Intent'
 import type { ListQuery } from '../dtos/paging'
 import type {

@@ -61,7 +61,7 @@ const capitalize = (text: string) => text.charAt(0).toUpperCase() + text.slice(1
  * Every spell of the rules, without a character: search and filters (cantrip or leveled, level, spell list, school,
  * damage type, ritual, concentration); a spell opens in the detail view
  */
-export function SpellsPage() {
+export const SpellsPage = () => {
   const [search, setSearch] = useState('')
   const [kind, setKind] = useState<SpellKind>('all')
   const [level, setLevel] = useState('')
@@ -327,7 +327,7 @@ export function SpellsPage() {
  * Pages of the list: range ("26–50 of 391"), previous / page numbers / next (only previous, "2 / 16", next on small
  * screens) and, when given a handler, the page size
  */
-function SpellPagination({
+const SpellPagination = ({
   total,
   page,
   pageSize,
@@ -339,7 +339,7 @@ function SpellPagination({
   pageSize: number
   onPageChange: (page: number) => void
   onPageSizeChange?: (pageSize: number) => void
-}) {
+}) => {
   const first = total === 0 ? 0 : (page - 1) * pageSize + 1
   const last = Math.min(page * pageSize, total)
 
@@ -423,7 +423,7 @@ function SpellPagination({
   )
 }
 
-function Select({
+const Select = ({
   label,
   width,
   value,
@@ -437,7 +437,7 @@ function Select({
   disabled?: boolean
   onChange: (value: string) => void
   children: ReactNode
-}) {
+}) => {
   return (
     <NativeSelect.Root
       w={width}
@@ -455,7 +455,7 @@ function Select({
   )
 }
 
-function Toggle({
+const Toggle = ({
   checked,
   onChange,
   children,
@@ -463,7 +463,7 @@ function Toggle({
   checked: boolean,
   onChange: (checked: boolean) => void,
   children: ReactNode
-}) {
+}) => {
   return (
     <Checkbox.Root
       checked={checked}

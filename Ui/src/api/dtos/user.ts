@@ -1,4 +1,4 @@
-// Source: Api/TableTopSheets.Api/Contracts/UserDtos.cs
+// Source: Api/Library/Contracts/UserDtos.cs
 import type { Guid, IsoDateTime } from './common'
 
 /** New user of the database authentication */

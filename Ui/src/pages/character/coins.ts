@@ -43,13 +43,13 @@ export const CoinKinds: {
 export const coinValue = (coins: CoinsDto) => CoinKinds.reduce((sum, kind) => sum + coins[kind.key] * kind.value, 0)
 
 /** The coins as text, e.g. `2 pp · 15 gp · 4 sp` ("no coins" when empty) */
-export function formatCoins(coins: CoinsDto) {
+export const formatCoins = (coins: CoinsDto) => {
   const parts = CoinKinds.filter((kind) => coins[kind.key]).map((kind) => `${coins[kind.key]} ${kind.short}`)
   return parts.length ? parts.join(' · ') : 'no coins'
 }
 
 /** A price in copper pieces as text, e.g. `15 gp`, `5 sp`, `2 cp` */
-export function formatPrice(cp: number) {
+export const formatPrice = (cp: number) => {
   const parts = [
     cp >= 100 && `${Math.floor(cp / 100)} gp`,
     cp % 100 >= 10 && `${Math.floor((cp % 100) / 10)} sp`,

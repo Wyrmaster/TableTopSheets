@@ -23,7 +23,7 @@ type Mode = 'signin' | 'register'
 /**
  * Sign in or register with the database authentication of the API
  */
-export function LoginPage() {
+export const LoginPage = () => {
   const { accessToken, setAccessToken } = useApi()
   const { execute } = useApi()
   const navigate = useNavigate()

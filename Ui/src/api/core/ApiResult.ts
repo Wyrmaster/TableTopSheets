@@ -33,7 +33,7 @@ export type ApiResult<T> = ApiSuccess<T> | ApiFailure
 /**
  * All messages of a problem: the `errors` entries, or the detail / title when there are none
  */
-export function problemMessages(problem: ProblemDetails): string[] {
+export const problemMessages = (problem: ProblemDetails): string[] => {
   const errors = Object.values(problem.errors ?? {}).flat()
   if (errors.length > 0) {
     return errors

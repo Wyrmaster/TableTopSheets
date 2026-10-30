@@ -1,4 +1,4 @@
-// Routes: Api/TableTopSheets.Api/Endpoints/ImageEndpoints.cs. Images don't need a token (an <img> can't send one);
+// Routes: Api/Library/Endpoints/ImageEndpoints.cs. Images don't need a token (an <img> can't send one);
 // the image routes themselves are used as `src`, only the scene list is an intent
 import { Intent } from '../core/Intent'
 import type { CoinsDto } from '../dtos/inventory'

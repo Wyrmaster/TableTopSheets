@@ -10,7 +10,7 @@ import { moonIcon, sunIcon } from '@/components/icons'
 
 export interface ColorModeProviderProps extends ThemeProviderProps {}
 
-export function ColorModeProvider(props: ColorModeProviderProps) {
+export const ColorModeProvider = (props: ColorModeProviderProps) => {
   return (
     <ThemeProvider attribute='class' disableTransitionOnChange {...props} />
   )
@@ -24,7 +24,7 @@ export interface UseColorModeReturn {
   toggleColorMode: () => void
 }
 
-export function useColorMode(): UseColorModeReturn {
+export const useColorMode = (): UseColorModeReturn => {
   const {
     resolvedTheme,
     setTheme,
@@ -41,12 +41,12 @@ export function useColorMode(): UseColorModeReturn {
   }
 }
 
-export function useColorModeValue<T>(light: T, dark: T) {
+export const useColorModeValue = <T,>(light: T, dark: T) => {
   const { colorMode } = useColorMode()
   return colorMode === 'dark' ? dark : light
 }
 
-export function ColorModeIcon() {
+export const ColorModeIcon = () => {
   const { colorMode } = useColorMode()
   // the button shows the mode it switches to
   return <Icon path={colorMode === 'dark' ? sunIcon : moonIcon} />
@@ -57,7 +57,7 @@ interface ColorModeButtonProps extends Omit<IconButtonProps, 'aria-label'> {}
 export const ColorModeButton = React.forwardRef<
   HTMLButtonElement,
   ColorModeButtonProps
->(function ColorModeButton(props, ref) {
+>((props, ref) => {
   const { toggleColorMode } = useColorMode()
   return (
     <ClientOnly fallback={<Skeleton boxSize='9' />}>
@@ -82,7 +82,7 @@ export const ColorModeButton = React.forwardRef<
 })
 
 export const LightMode = React.forwardRef<HTMLSpanElement, SpanProps>(
-  function LightMode(props, ref) {
+  (props, ref) => {
     return (
       <Span
         color='fg'
@@ -98,7 +98,7 @@ export const LightMode = React.forwardRef<HTMLSpanElement, SpanProps>(
 )
 
 export const DarkMode = React.forwardRef<HTMLSpanElement, SpanProps>(
-  function DarkMode(props, ref) {
+  (props, ref) => {
     return (
       <Span
         color='fg'
