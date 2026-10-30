@@ -31,7 +31,7 @@ Start the API with `dotnet run --project Api/TableTopSheets.Api` from the reposi
 |---|---|
 | `/login` | sign in / register (`pages/LoginPage.tsx`) |
 | `/characters` | the user's characters (`pages/CharactersPage.tsx`) |
-| `/characters/new`, `/characters/new/:id` | creator; steps 1–3 local, then a saved draft (`pages/creator`) |
+| `/characters/new`, `/characters/new/:id` | creator: class, species, background and ability scores local; Save creates the draft and takes level 1 of the class, then choices and details on the saved draft (`pages/creator`) |
 | `/characters/:id/sheet/:tab` | character sheet: `overview`, `inventory`, `spells` (`pages/character`) |
 | `/characters/:id/level-up` | open choices, gain a level, undo |
 | `/characters/:id/shop` | item catalog, add to the inventory |
@@ -69,8 +69,8 @@ one piece or the whole stack; ammunition and bundles get − / + (use one, recov
 (ammunition, focuses, mounts, vehicles …). The coins card adds or removes coins of one kind (pp, gp, ep, sp, cp) or pays
 an amount with change.
 
-**Starting equipment:** the creator shows the alternatives of the chosen background (step 2) and class (step 5); they're
-sent with `POST /api/characters` and the first `POST …/levels`. "Decide later" leaves them open: the creator, the level
+**Starting equipment:** the creator shows the alternatives of the chosen class (step 1) and background (step 3); they're
+sent with `POST /api/characters` and the first `POST …/levels`, both on Save. "Decide later" leaves them open: the creator, the level
 up page and the inventory then show `StartingEquipmentCard` (`GET/POST …/starting-equipment`). Picks of "same as above"
 entries also answer the tool proficiency choice.
 

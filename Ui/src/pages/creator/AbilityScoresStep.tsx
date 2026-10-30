@@ -17,20 +17,19 @@ import { diceIcon, minusIcon, plusIcon } from '@/components/icons'
 import {
   type AbilityMethod,
   AbilityNames,
-  modifier,
+  type DraftScores,
   PointBuyBudget,
   PointCost,
   pointsSpent,
   rollScores,
-  type Scores,
   scoreProblem,
+  signedModifier,
   StandardArray,
 } from './abilityScores'
 
-const signed = (value: number) => (value >= 0 ? `+${value}` : `${value}`)
-
 /**
- * Base ability scores before the background increases: standard array, point buy, rolled or manual
+ * Base ability scores before the background increases: standard array, point buy, rolled or manual. Each method starts
+ * without scores (point buy at 8 everywhere); a value of the array or the roll can be given to one ability only
  */
 export function AbilityScoresStep({
   method,
@@ -41,19 +40,24 @@ export function AbilityScoresStep({
   onRolled,
 }: {
   method: AbilityMethod
-  scores: Scores
+  scores: DraftScores
   rolled: number[]
   onMethod: (method: AbilityMethod) => void
-  onScores: (scores: Scores) => void
+  onScores: (scores: DraftScores) => void
   onRolled: (values: number[]) => void
 }) {
   const pool = method === 'Rolled' ? rolled : StandardArray
   const problem = scoreProblem(method, scores, pool)
   const spent = pointsSpent(scores)
-  const set = (key: keyof Scores, value: number) => onScores({
+  const set = (key: keyof DraftScores, value: number | null) => onScores({
     ...scores,
     [key]: value,
   })
+
+  // a value is taken when the other abilities use all of its copies (a roll can have the same value twice)
+  const taken = (key: keyof DraftScores, value: number) => AbilityKeys
+    .filter((other) => other !== key && scores[other] === value)
+    .length >= pool.filter((entry) => entry === value).length
 
   return (
     <Stack gap='4'>
@@ -103,6 +107,14 @@ export function AbilityScoresStep({
             Values
           </Text>
           {pool.map((value, index) => <Badge key={`${value}-${index}`}>{value}</Badge>)}
+          {pool.length === 0 && (
+            <Text
+              fontSize='sm'
+              color='fg.muted'
+            >
+              – roll first
+            </Text>
+          )}
         </HStack>
       )}
       {method === 'PointBuy' && (
@@ -125,17 +137,20 @@ export function AbilityScoresStep({
           >
             <HStack justify='space-between'>
               <Text fontWeight='medium'>{AbilityNames[key]}</Text>
-              <Badge>{signed(modifier(scores[key]))}</Badge>
+              <Badge>{signedModifier(scores[key])}</Badge>
             </HStack>
             {(method === 'StandardArray' || method === 'Rolled') && (
               <NativeSelect.Root size='sm'>
                 <NativeSelect.Field
-                  value={String(scores[key])}
-                  onChange={(event) => set(key, Number(event.target.value))}
+                  aria-label={AbilityNames[key]}
+                  value={scores[key] === null ? '' : String(scores[key])}
+                  onChange={(event) => set(key, event.target.value ? Number(event.target.value) : null)}
                 >
+                  <option value=''>–</option>
                   {[...new Set(pool)].map((value) => <option
                     key={value}
                     value={value}
+                    disabled={taken(key, value)}
                   >
                     {value}
                   </option>)}
@@ -144,45 +159,29 @@ export function AbilityScoresStep({
               </NativeSelect.Root>
             )}
             {method === 'PointBuy' && (
-              <HStack>
-                <IconButton
-                  size='xs'
-                  variant='outline'
-                  aria-label={`Lower ${AbilityNames[key]}`}
-                  disabled={scores[key] <= 8}
-                  onClick={() => set(key, scores[key] - 1)}
-                >
-                  <Icon path={minusIcon} />
-                </IconButton>
-                <Text
-                  minW='6'
-                  textAlign='center'
-                  fontWeight='bold'
-                >
-                  {scores[key]}
-                </Text>
-                <IconButton
-                  size='xs'
-                  variant='outline'
-                  aria-label={`Raise ${AbilityNames[key]}`}
-                  disabled={scores[key] >= 15
-                    || spent - PointCost[scores[key]] + PointCost[scores[key] + 1] > PointBuyBudget}
-                  onClick={() => set(key, scores[key] + 1)}
-                >
-                  <Icon path={plusIcon} />
-                </IconButton>
-              </HStack>
+              <PointBuyControl
+                name={AbilityNames[key]}
+                score={scores[key] ?? 8}
+                spent={spent}
+                onChange={(value) => set(key, value)}
+              />
             )}
             {method === 'Manual' && (
               <NumberInput.Root
                 size='sm'
                 min={3}
                 max={18}
-                value={String(scores[key])}
-                onValueChange={(details) => set(key, details.valueAsNumber || 3)}
+                value={scores[key] === null ? '' : String(scores[key])}
+                onValueChange={(details) => set(
+                  key,
+                  Number.isNaN(details.valueAsNumber) ? null : details.valueAsNumber,
+                )}
               >
                 <NumberInput.Control />
-                <NumberInput.Input />
+                <NumberInput.Input
+                  aria-label={AbilityNames[key]}
+                  placeholder='3 – 18'
+                />
               </NumberInput.Root>
             )}
           </Stack>
@@ -196,5 +195,50 @@ export function AbilityScoresStep({
         </Alert.Root>
       )}
     </Stack>
+  )
+}
+
+/**
+ * Lower / raise one score of the point buy (8 – 15, within the budget)
+ */
+function PointBuyControl({
+  name,
+  score,
+  spent,
+  onChange,
+}: {
+  name: string
+  score: number
+  spent: number
+  onChange: (score: number) => void
+}) {
+  return (
+    <HStack>
+      <IconButton
+        size='xs'
+        variant='outline'
+        aria-label={`Lower ${name}`}
+        disabled={score <= 8}
+        onClick={() => onChange(score - 1)}
+      >
+        <Icon path={minusIcon} />
+      </IconButton>
+      <Text
+        minW='6'
+        textAlign='center'
+        fontWeight='bold'
+      >
+        {score}
+      </Text>
+      <IconButton
+        size='xs'
+        variant='outline'
+        aria-label={`Raise ${name}`}
+        disabled={score >= 15 || spent - PointCost[score] + PointCost[score + 1] > PointBuyBudget}
+        onClick={() => onChange(score + 1)}
+      >
+        <Icon path={plusIcon} />
+      </IconButton>
+    </HStack>
   )
 }

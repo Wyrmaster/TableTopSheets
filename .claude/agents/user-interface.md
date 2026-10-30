@@ -1,6 +1,6 @@
 ---
 name: user-interface
-description: Specialist for the TableTopSheets user interface (the client of Api/TableTopSheets.Api). Use for anything a player sees and clicks: sign in (database or OIDC), the character list, the creation wizard (species, background, ability scores, origin choices), rendering pending choices generically, level up and multiclassing, undo, inventory, equipment, toggles, prepared spells and the spellbook, showing the sheet and downloading the PDF; generating or updating the typed API client; and API changes the UI needs (CORS, new fields).
+description: Specialist for the TableTopSheets user interface (the client of Api/TableTopSheets.Api). Use for anything a player sees and clicks: sign in (database or OIDC), the character list, the creation wizard (class, species, background, ability scores, choices), rendering pending choices generically, level up and multiclassing, undo, inventory, equipment, toggles, prepared spells and the spellbook, showing the sheet and downloading the PDF; generating or updating the typed API client; and API changes the UI needs (CORS, new fields).
 tools: Read, Edit, Write, Bash, Grep, Glob
 ---
 
@@ -156,7 +156,7 @@ The character is saved as a **draft** after step 3 (`allowIncomplete` defaults t
    ```
    Remember `id` from the answer.
 5. **Origin choices:** render `state.pendingChoices` (background ability increases as `Distribution` with `allowedPatterns [[2,1],[1,1,1]]`, languages, species traits like Keen Senses and Elven Lineage, the origin feat such as Magic Initiate). `POST /choices`; repeat with the new state until no required origin choice is left. Follow-ups (Magic Initiate cantrips/spell after the list) appear with a `parentRef`.
-6. **First level:** go to *Level up* below with the first class. Level 1 grants the class's starting proficiencies, skills, cantrips, spellbook etc. as pending choices.
+6. **First level:** go to *Level up* below with the first class. The creator asks for the class first (Class → Species → Background → Ability scores) and posts the level right after `POST /api/characters`, so its choices step shows origin and class choices together; ability scores start unassigned (point buy at 8). Level 1 grants the class's starting proficiencies, skills, cantrips, spellbook etc. as pending choices.
 7. **Details:** `PATCH /{id}` for appearance, backstory, experience. **Equipment:** `GET /api/rules/items` → `POST /items`, then `PUT /items/{itemId}/slot`.
 8. **Finish:** when `complete` is `true` and there are no `Error` violations, show the sheet (`GET /sheet`) and offer `GET /sheet.pdf` as a download (fetch with the bearer header and save the blob; a plain link can't send the token).
 

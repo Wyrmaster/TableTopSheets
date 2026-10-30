@@ -41,11 +41,23 @@ import { StartingEquipmentPicker } from '@/components/startingEquipment/Starting
 import { useRuleStartingEquipment } from '@/components/startingEquipment/useRuleStartingEquipment'
 import { useApiAction } from '@/hooks/useApiAction'
 import { useIntentQuery } from '@/hooks/useIntentQuery'
-import { type AbilityMethod, modifier, type Scores, scoreProblem, StandardArray } from './abilityScores'
+import {
+  type AbilityMethod,
+  completeScores,
+  type DraftScores,
+  initialScores,
+  scoreProblem,
+  signedModifier,
+  StandardArray,
+} from './abilityScores'
 import { AbilityScoresStep } from './AbilityScoresStep'
 import { RuleCards } from './RuleCards'
 
-const steps = ['Species', 'Background', 'Ability scores', 'Origin choices', 'Class', 'Details']
+const steps = ['Class', 'Species', 'Background', 'Ability scores', 'Choices', 'Details']
+
+/** The ability scores step saves the draft; from the choices step on the creator works on the saved draft */
+const SaveStep = 3
+const ChoicesStep = 4
 
 const alignmentName = (alignment: string) => alignment.replace(/([a-z])([A-Z])/g, '$1 $2')
 
@@ -62,38 +74,32 @@ interface Details {
 }
 
 /**
- * Character creator. Steps 1–3 are local; "Save" stores the character (POST /api/characters) and the remaining
- * steps work on the saved draft (/characters/new/{id}), so the creator can be left and resumed. The name is set in the
- * details step; "Finish" saves the details.
+ * Character creator. Class, species, background and ability scores are chosen locally; "Save" stores the character
+ * (POST /api/characters) and takes level 1 of the class (POST …/levels). The remaining steps work on the saved draft
+ * (/characters/new/{id}), so the creator can be left and resumed. The name is set in the details step; "Finish" saves
+ * the details.
  */
 export function CreatorPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { run, busy } = useApiAction()
-  const [step, setStep] = useState(id ? 3 : 0)
+  const [step, setStep] = useState(id ? ChoicesStep : 0)
 
-  // origin (before the draft exists)
+  // class and origin (before the draft exists)
+  const [classKey, setClassKey] = useState('')
+  const [classEquipment, setClassEquipment] = useState<TakeStartingEquipmentDto | null>(null)
+  const classOptions = useRuleStartingEquipment('class', classKey)
   const [species, setSpecies] = useState('')
   const [background, setBackground] = useState('')
   const [backgroundEquipment, setBackgroundEquipment] = useState<TakeStartingEquipmentDto | null>(null)
   const backgroundOptions = useRuleStartingEquipment('background', background)
   const [method, setMethod] = useState<AbilityMethod>('StandardArray')
-  const [rolled, setRolled] = useState<number[]>(StandardArray)
-  const [scores, setScores] = useState<Scores>({
-    str: 8,
-    dex: 14,
-    con: 13,
-    int: 15,
-    wis: 12,
-    cha: 10,
-  })
+  const [rolled, setRolled] = useState<number[]>([])
+  const [scores, setScores] = useState<DraftScores>(initialScores('StandardArray'))
 
   // the saved draft
   const draft = useIntentQuery(() => (id ? new GetCharacterIntent(id) : null), id ?? '')
   const state = draft.data
-  const [classKey, setClassKey] = useState('')
-  const [classEquipment, setClassEquipment] = useState<TakeStartingEquipmentDto | null>(null)
-  const classOptions = useRuleStartingEquipment('class', classKey)
   const [editedDetails, setDetails] = useState<Details | null>(null)
   const details: Details | null = editedDetails ?? (state
     ? {
@@ -106,41 +112,50 @@ export function CreatorPage() {
 
   const scoresInvalid = Boolean(scoreProblem(method, scores, method === 'Rolled' ? rolled : StandardArray))
   const canNext = [
+    Boolean(classKey) && equipmentComplete(classOptions ?? [], classEquipment),
     Boolean(species),
     Boolean(background) && equipmentComplete(backgroundOptions ?? [], backgroundEquipment),
     !scoresInvalid,
-    true,
     Boolean(state && state.level > 0),
     Boolean(details?.name.trim()),
   ][step]
 
+  // 1. the character with its origin, 2. level 1 of the class; when 2 fails, the choices step offers the class again
   const create = async () => {
+    const abilities = completeScores(scores)
+    if (!abilities) {
+      return
+    }
+
     const result = await run(new CreateCharacterIntent({
       name: PlaceholderName,
       speciesKey: species,
       backgroundKey: background,
       abilityMethod: method,
-      abilities: scores,
+      abilities,
       startingEquipment: backgroundEquipment,
-    }), { success: 'Character saved – origin choices are open' })
-    if (result.ok) {
-      navigate(`/characters/new/${result.data.id}`, { replace: true })
-      draft.setData(result.data)
-      setStep(3)
+    }))
+    if (!result.ok) {
+      return
     }
+
+    navigate(`/characters/new/${result.data.id}`, { replace: true })
+    draft.setData(result.data)
+    setStep(ChoicesStep)
+    await takeClass(result.data.id)
   }
 
-  const takeClass = async () => {
-    if (!id) {
+  const takeClass = async (characterId = id) => {
+    if (!characterId) {
       return
     }
 
     const result = await run(
-      new LevelUpIntent(id, {
+      new LevelUpIntent(characterId, {
         classKey,
         startingEquipment: classEquipment,
       }),
-      { success: 'Level 1 added – answer its choices below' },
+      { success: 'Character saved – answer the open choices' },
     )
     if (result.ok) {
       draft.setData(result.data)
@@ -164,7 +179,7 @@ export function CreatorPage() {
   }
 
   const next = () => {
-    if (step === 2) {
+    if (step === SaveStep) {
       create()
     }
     else if (step === steps.length - 1) {
@@ -235,6 +250,24 @@ export function CreatorPage() {
           {step === 0 && (
             <>
               <StepTitle
+                title='Class'
+                text='Hit points, saving throws and armor training. Level 1 is taken when the character is saved.'
+              />
+              <ClassChoice
+                classKey={classKey}
+                options={classOptions}
+                equipment={classEquipment}
+                onClass={(key) => {
+                  setClassKey(key)
+                  setClassEquipment(null)
+                }}
+                onEquipment={setClassEquipment}
+              />
+            </>
+          )}
+          {step === 1 && (
+            <>
+              <StepTitle
                 title='Species'
                 text='Size, speed and traits. Click a card to choose it, the info button shows every trait.'
               />
@@ -245,7 +278,7 @@ export function CreatorPage() {
               />
             </>
           )}
-          {step === 1 && (
+          {step === 2 && (
             <>
               <StepTitle
                 title='Background'
@@ -267,7 +300,7 @@ export function CreatorPage() {
               />
             </>
           )}
-          {step === 2 && (
+          {step === SaveStep && (
             <>
               <StepTitle
                 title='Ability scores'
@@ -277,88 +310,68 @@ export function CreatorPage() {
                 method={method}
                 scores={scores}
                 rolled={rolled}
-                onMethod={setMethod}
+                onMethod={(value) => {
+                  setMethod(value)
+                  setScores(initialScores(value))
+                }}
                 onScores={setScores}
                 onRolled={(values) => {
                   setRolled(values)
-                  setScores(Object.fromEntries(AbilityKeys.map((key, index) => [key, values[index]])) as Scores)
+                  setScores(initialScores('Rolled'))
                 }}
               />
-              <ApiHint>the API stores the scores as sent; the method rules are checked here</ApiHint>
+              <ApiHint>
+                the API stores the scores as sent; the method rules are checked here. Save sends{' '}
+                <code>POST /api/characters</code>, then <code>POST …/levels</code> with the class
+              </ApiHint>
             </>
           )}
-          {step === 3 && (
+          {step === ChoicesStep && (
             <>
               <StepTitle
-                title='Origin choices'
-                text='Every box comes from a pending choice of the API; follow-up choices appear after saving.'
+                title='Choices'
+                text='Open choices of the origin and the class; follow-up choices appear after answering.'
               />
               {!state && <Spinner />}
-              {state && (
-                <ChoiceList
-                  characterId={state.id}
-                  choices={state.pendingChoices}
-                  onState={applyState}
-                  empty='All origin choices are made.'
-                />
-              )}
-              {state && (
-                <StartingEquipmentCard
-                  state={state}
-                  onState={applyState}
-                  sources={['Background']}
-                />
-              )}
-            </>
-          )}
-          {step === 4 && state && (
-            <>
-              <StepTitle
-                title='Class (level 1)'
-                text='The first class decides the saving throws and full armor training.'
-              />
-              {state.level === 0 && (
+              {state && state.level === 0 && (
                 <>
-                  <RuleCards
-                    kind='class'
-                    selected={classKey}
-                    onSelect={(key) => {
+                  {/* the level-up after the save failed, or a draft from before: take the class here */}
+                  <ClassChoice
+                    classKey={classKey}
+                    options={classOptions}
+                    equipment={classEquipment}
+                    onClass={(key) => {
                       setClassKey(key)
                       setClassEquipment(null)
                     }}
-                  />
-                  <EquipmentChoice
-                    options={classKey ? classOptions : undefined}
-                    value={classEquipment}
-                    onChange={setClassEquipment}
-                    hint='saved with the level (POST …/levels with startingEquipment)'
+                    onEquipment={setClassEquipment}
                   />
                   <Flex justify='flex-end'>
                     <Button
                       colorPalette='brand'
                       disabled={!classKey || !equipmentComplete(classOptions ?? [], classEquipment)}
                       loading={busy}
-                      onClick={takeClass}
+                      onClick={() => takeClass()}
                     >
                       Take level 1
                     </Button>
                   </Flex>
                 </>
               )}
-              {state.level > 0 && (
-                <>
-                  <ChoiceList
-                    characterId={state.id}
-                    choices={state.pendingChoices}
-                    onState={applyState}
-                    empty='All class choices are made.'
-                  />
-                  <StartingEquipmentCard
-                    state={state}
-                    onState={applyState}
-                    sources={['Class']}
-                  />
-                </>
+              {state && (
+                <ChoiceList
+                  characterId={state.id}
+                  choices={state.pendingChoices}
+                  onState={applyState}
+                  empty='All choices are made.'
+                />
+              )}
+              {state && (
+                <StartingEquipmentCard
+                  state={state}
+                  onState={applyState}
+                  sources={['Background', 'Class']}
+                />
               )}
             </>
           )}
@@ -383,7 +396,7 @@ export function CreatorPage() {
           >
             <Button
               variant='outline'
-              disabled={step === 0 || step === 3}
+              disabled={step === 0 || step === ChoicesStep}
               onClick={() => setStep(step - 1)}
             >
               Back
@@ -391,20 +404,21 @@ export function CreatorPage() {
             <Button
               colorPalette='brand'
               disabled={!canNext}
-              loading={busy && (step === 2 || step === steps.length - 1)}
+              loading={busy && (step === SaveStep || step === steps.length - 1)}
               onClick={next}
             >
-              {step === 2 ? 'Save' : step === steps.length - 1 ? 'Finish' : 'Next'}
+              {step === SaveStep ? 'Save' : step === steps.length - 1 ? 'Finish' : 'Next'}
             </Button>
           </Flex>
         </Stack>
 
         <Summary
           name={details?.name ?? ''}
+          className={classKey}
           species={state?.species ?? species}
           background={state?.background ?? background}
           scores={state
-            ? Object.fromEntries(state.abilities.map((ability) => [ability.key, ability.score])) as Scores
+            ? Object.fromEntries(state.abilities.map((ability) => [ability.key, ability.score])) as DraftScores
             : scores}
           state={state}
         />
@@ -454,6 +468,39 @@ function EquipmentChoice({
   )
 }
 
+/**
+ * Class cards with the starting equipment of the chosen class
+ */
+function ClassChoice({
+  classKey,
+  options,
+  equipment,
+  onClass,
+  onEquipment,
+}: {
+  classKey: string
+  options: StartingEquipmentOptionDto[] | undefined
+  equipment: TakeStartingEquipmentDto | null
+  onClass: (key: string) => void
+  onEquipment: (value: TakeStartingEquipmentDto | null) => void
+}) {
+  return (
+    <>
+      <RuleCards
+        kind='class'
+        selected={classKey}
+        onSelect={onClass}
+      />
+      <EquipmentChoice
+        options={classKey ? options : undefined}
+        value={equipment}
+        onChange={onEquipment}
+        hint='saved with the level (POST …/levels with startingEquipment)'
+      />
+    </>
+  )
+}
+
 function StepTitle({ title, text }: { title: string, text: string }) {
   return (
     <Box>
@@ -465,15 +512,18 @@ function StepTitle({ title, text }: { title: string, text: string }) {
 
 function Summary({
   name,
+  className,
   species,
   background,
   scores,
   state,
 }: {
   name: string
+  /** chosen class before the save (the saved draft knows its classes) */
+  className: string
   species: string
   background: string
-  scores: Scores
+  scores: DraftScores
   state?: CharacterStateDto
 }) {
   const open = state?.pendingChoices.filter((choice) => !choice.optional).length
@@ -503,7 +553,7 @@ function Summary({
               {[
                 species,
                 background,
-                state?.classes.map((entry) => `${entry.name} ${entry.level}`).join(' / ') || 'draft',
+                state?.classes.map((entry) => `${entry.name} ${entry.level}`).join(' / ') || className || 'draft',
               ]
                 .filter(Boolean)
                 .join(' · ')}
@@ -535,8 +585,8 @@ function Summary({
                 >
                   {key}
                 </Text>
-                <Text fontWeight='bold'>{scores[key]}</Text>
-                <Text fontSize='xs'>{modifier(scores[key]) >= 0 ? '+' : ''}{modifier(scores[key])}</Text>
+                <Text fontWeight='bold'>{scores[key] ?? '–'}</Text>
+                <Text fontSize='xs'>{signedModifier(scores[key])}</Text>
               </Box>
             ))}
           </Grid>

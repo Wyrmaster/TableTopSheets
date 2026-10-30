@@ -1,8 +1,11 @@
-import type { AbilityKey } from '@/api'
+import { type AbilityKey, AbilityKeys } from '@/api'
 
 export type AbilityMethod = 'StandardArray' | 'PointBuy' | 'Rolled' | 'Manual'
 
 export type Scores = Record<AbilityKey, number>
+
+/** Scores while they are chosen: null is an ability without a score yet */
+export type DraftScores = Record<AbilityKey, number | null>
 
 export const StandardArray = [15, 14, 13, 12, 10, 8]
 
@@ -31,8 +34,31 @@ export const AbilityNames: Record<AbilityKey, string> = {
 
 export const modifier = (score: number) => Math.floor((score - 10) / 2)
 
-export const pointsSpent = (scores: Scores) => Object.values(scores)
-  .reduce((sum, score) => sum + (PointCost[score] ?? 99), 0)
+/** Modifier as text (`+2`, `-1`); `–` without a score */
+export function signedModifier(score: number | null) {
+  if (score === null) {
+    return '–'
+  }
+
+  const value = modifier(score)
+  return value >= 0 ? `+${value}` : `${value}`
+}
+
+/**
+ * Scores at the start of a method: point buy starts every ability at 8, the other methods leave them unassigned
+ */
+export function initialScores(method: AbilityMethod): DraftScores {
+  const score = method === 'PointBuy' ? 8 : null
+  return Object.fromEntries(AbilityKeys.map((key) => [key, score])) as DraftScores
+}
+
+/** The scores when every ability has one, otherwise null */
+export function completeScores(scores: DraftScores): Scores | null {
+  return Object.values(scores).every((score) => score !== null) ? scores as Scores : null
+}
+
+export const pointsSpent = (scores: DraftScores) => Object.values(scores)
+  .reduce((sum: number, score) => sum + (score === null ? 0 : PointCost[score] ?? 99), 0)
 
 /**
  * 4d6, drop the lowest die, six times (highest first)
@@ -47,7 +73,12 @@ export function rollScores(): number[] {
 /**
  * Problem of the scores for the method, or null when they are valid (the API doesn't check the method)
  */
-export function scoreProblem(method: AbilityMethod, scores: Scores, pool: number[]): string | null {
+export function scoreProblem(method: AbilityMethod, draft: DraftScores, pool: number[]): string | null {
+  const scores = completeScores(draft)
+  if (!scores) {
+    return 'Assign a score to every ability.'
+  }
+
   const values = Object.values(scores)
   if (method === 'StandardArray' || method === 'Rolled') {
     const sorted = [...values].sort((a, b) => b - a).join(',')
