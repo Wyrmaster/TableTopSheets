@@ -1,6 +1,8 @@
 # TableTopSheets ruleset migrator: applies the schema migrations and writes the rules into the database, then exits.
 # docker compose runs it before the API (see compose.api.yaml)
 # build from the repository root: docker build -f Seed/Dockerfile -t tabletopsheets-migrator .
+# The image contains no rule data: mount the seed folder (dnddata/ of the repository or dnddata.zip from the GitHub
+# releases) at /seed, e.g. docker run -v ./dnddata:/seed:ro tabletopsheets-migrator
 
 ARG DOTNET_VERSION=10.0
 
@@ -17,8 +19,12 @@ RUN apt-get update \
 RUN mkdir -p /app/data && chown $APP_UID /app/data
 VOLUME /app/data
 
+# seed folder with Extracted/, Rules/ and Images/, mounted read-only
+VOLUME /seed
+
 ENV Database__Provider=Sqlite \
-    ConnectionStrings__TableTopSheets="Data Source=/app/data/tabletopsheets.db"
+    ConnectionStrings__TableTopSheets="Data Source=/app/data/tabletopsheets.db" \
+    Migrator__DataDirectory=/seed
 
 USER $APP_UID
 

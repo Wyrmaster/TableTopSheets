@@ -42,5 +42,5 @@ static string DefaultOutput()
 
   return directory == null
     ? Path.Combine(Environment.CurrentDirectory, "Extracted")
-    : Path.Combine(directory, "Seed", "Data", "Extracted");
+    : Path.Combine(directory, "dnddata", "Extracted");
 }

@@ -14,7 +14,8 @@ public sealed class RulesetMigratorOptions
   #region Properties
 
   /// <summary>
-  ///   Folder with <c>Extracted</c> and <c>Rules</c>; defaults to the <c>Data</c> folder next to the migrator
+  ///   Folder with <c>Extracted</c>, <c>Rules</c> and <c>Images</c> (<c>Migrator__DataDirectory</c>; the container mounts
+  ///   it at <c>/seed</c>); defaults to the repository's <c>dnddata</c> folder (<see cref="SeedLoader.DefaultDirectory"/>)
   /// </summary>
   public string? DataDirectory { get; set; }
 

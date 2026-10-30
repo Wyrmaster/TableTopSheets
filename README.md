@@ -74,10 +74,37 @@ cp .env.example .env                             # set JWT_SIGNING_KEY (at least
 docker compose -f compose.postgresql.yaml up --build    # UI at http://localhost:5180, Swagger UI at /swagger
 ```
 
+The images contain no rule data. The `migrator` service mounts the seed folder (`SEED_DIR`, default `./dnddata` of the
+repository) read-only at `/seed` (`Migrator__DataDirectory`).
+
 On every `up` the `migrator` service runs first: it applies pending schema migrations, writes the rules if they changed
 and exits. The API starts only after it succeeded (`depends_on: condition: service_completed_successfully`). Existing
 data stays: users, characters and rules that are already in the database are never deleted (see
 [Ruleset migrator](#ruleset-migrator)). Ports, credentials and authentication settings are read from `.env`.
+
+#### Published images (no source, no build)
+
+`.github/workflows/containers.yml` builds both images on every push to `master` and every `v*` tag and pushes them to the
+GitHub container registry:
+
+| Image | Tags |
+|---|---|
+| `ghcr.io/wyrmaster/tabletopsheets-api` | `latest` (master), `1.2.3` and `1.2` (tag `v1.2.3`), `sha-<commit>` |
+| `ghcr.io/wyrmaster/tabletopsheets-migrator` | same |
+
+`.github/workflows/seed-release.yml` zips `dnddata/` and attaches `dnddata.zip` to the GitHub release of a `v*` tag (or
+of a tag given when started by hand). The compose files in `deploy/` pull the images instead of building; each one is
+self-contained, so a server needs only the file, a `.env` and the unpacked seed data:
+
+```bash
+curl -L -o dnddata.zip https://github.com/Wyrmaster/TableTopSheets/releases/latest/download/dnddata.zip
+unzip dnddata.zip -d dnddata
+cp .env.example .env                                     # deploy/.env.example; set JWT_SIGNING_KEY
+docker compose -f compose.sqlite.yaml up -d              # or compose.postgresql.yaml / compose.postgresql-external.yaml
+```
+
+`TABLETOPSHEETS_VERSION` picks the image tag (default `latest`), `SEED_DIR` the seed folder (default `./dnddata`). The
+packages are private after the first push; make them public (or grant access) in the package settings on GitHub.
 
 Create a database and fill it with the rules:
 
@@ -148,8 +175,11 @@ foreach (PendingChoice pending in ChoiceService.Pending(evaluation))
 | `Persistence/Library` | EF Core entities, configuration, `TableTopSheetsContext` |
 | `Persistence/…Postgresql` / `…Sqlite` | Database providers, design-time factories, migrations |
 | `Engine/Library` | Expression language, rule evaluation, choices, sheet builder, `CharacterService` |
-| `Seed` | Ruleset migrator (console app, Docker image): rule data as JSON (`Data/Extracted`, `Data/Rules`), loader, validator hookup, database writer, schema migrations |
-| `Tools/Extractor` | Reads the Player's Handbook markdown and generates `Data/Extracted` |
+| `Seed` | Ruleset migrator (console app, Docker image): rule data as JSON (`dnddata/Extracted`, `dnddata/Rules`), loader, validator hookup, database writer, schema migrations |
+| `Tools/Extractor` | Reads the Player's Handbook markdown and generates `dnddata/Extracted` |
+| `dnddata` | The rule data (`Extracted/`, `Rules/`, `Images/`); not part of any build or image, the migrator reads it from a folder (see [Ruleset migrator](#ruleset-migrator)) and releases attach it as `dnddata.zip` |
+| `deploy` | Compose files that pull the published images from ghcr.io (no source, no build) |
+| `.github/workflows` | `containers.yml` (build and push the images), `seed-release.yml` (`dnddata.zip` on releases) |
 | `Pdf/Library` | PDF rendering (PDFsharp); `CharacterSheetDocument` prints a `CharacterSheet` |
 | `Api/Library` | ASP.NET Core minimal API: rules catalog, characters, the choice loop, level up, sheet and PDF |
 | `Engine/Tests` | Tests for everything above, including migrations and PDF output |
@@ -160,8 +190,8 @@ foreach (PendingChoice pending in ChoiceService.Pending(evaluation))
 
 ```mermaid
 flowchart LR
-  PHB[Player's Handbook .md] -->|Extractor| EX[Data/Extracted]
-  AUTH[Data/Rules<br/>hand authored mechanics] --> SEED
+  PHB[Player's Handbook .md] -->|Extractor| EX[dnddata/Extracted]
+  AUTH[dnddata/Rules<br/>hand authored mechanics] --> SEED
   EX --> SEED[Seed loader + validator]
   SEED -->|SeedWriter| DB[(Database<br/>rules + characters)]
   DB --> CAT[RulesCatalog]
@@ -286,7 +316,7 @@ The engine enforces:
 - non-repeatable feats
 - spells you already know for the same class and purpose
 
-The examples below are the real data from `Seed/Data`.
+The examples below are the real data from `dnddata`.
 
 ### Example 1: pick one of three (Elf, Keen Senses)
 
@@ -335,12 +365,12 @@ At Wizard level 4 the class feature lets the player pick a **feat**. Picking the
 **second choice** (which abilities).
 
 ```json
-// class feature (Data/Rules/classes/wizard.json)
+// class feature (dnddata/Rules/classes/wizard.json)
 { "key": "wizard.ability-score-improvement-4", "name": "Ability Score Improvement", "level": 4,
   "choices": [{ "key": "wizard.ability-score-improvement-4", "name": "Feat", "count": "1",
                 "source": "Feat", "filter": "option.category == 'general'" }] }
 
-// the feat (Data/Rules/feats.json)
+// the feat (dnddata/Rules/feats.json)
 { "key": "ability-score-improvement",
   "features": [{ "key": "feat.ability-score-improvement",
     "choices": [{ "key": "ability-score-improvement.abilities", "name": "Ability Score Increases",
@@ -602,8 +632,14 @@ dotnet run --project Seed -- migrate            # default: schema migrations, th
 dotnet run --project Seed -- migrate --force    # write the rules even when unchanged
 dotnet run --project Seed -- validate           # build and validate the rules, no database
 dotnet run --project Seed -- status             # pending migrations, last ruleset written
-dotnet run --project Seed -- migrate --data ../my-rules   # another seed folder (Extracted/, Rules/)
+dotnet run --project Seed -- migrate --data ../my-rules   # another seed folder (Extracted/, Rules/, Images/)
 ```
+
+**Seed folder:** the rule data is not part of the build or the images. The migrator reads `--data <folder>`, otherwise
+`Migrator:DataDirectory` (environment `Migrator__DataDirectory`; the container sets it to `/seed`, where compose mounts
+the folder), otherwise the `dnddata` folder of the repository (searched upwards from the migrator and the current
+directory, so `dotnet run` and the tests find it). A folder without `Extracted/` and `Rules/` stops the migrator before it
+touches the database; a folder without `Images/` leaves the images in the database alone.
 
 Exit codes: `0` done, `1` failed (invalid rules, database error), `2` bad command line.
 
@@ -615,7 +651,7 @@ Exit codes: `0` done, `1` failed (invalid rules, database error), `2` bad comman
   deleted. Child rows of a seeded rule that the seed no longer contains (an effect, a choice option, a scale value …) are
   removed, but only for rules the seed owns: rows of other rules (homebrew) stay, and so does an option that a character
   has selected.
-- **Images:** after the rules, every run brings the `Images` table in line with `Data/Images` (see
+- **Images:** after the rules, every run brings the `Images` table in line with `dnddata/Images` (see
   [Images](#images)), independently from the rules hash: new images are inserted, changed ones (other content hash)
   written again, images whose file is gone removed, unchanged ones skipped. `validate` reports images whose spell,
   class, species, background or item doesn't exist (and coins other than copper, silver, electrum, gold, platinum).
@@ -772,7 +808,7 @@ The OpenAPI document (`/openapi/v1.json`) has:
 ### Where data lives
 
 ```
-Seed/Data/
+dnddata/
   Extracted/           generated from the Player's Handbook – don't edit by hand, regenerate
     spells.json  feats.json  species.json  backgrounds.json  class-features.json  items.json  languages.json
   Rules/               hand authored mechanics – the source of truth
@@ -804,7 +840,7 @@ writes the new rules into an existing database.
 
 Spells, classes, species, backgrounds, items and coins can have a picture, and *scenes* are mood pictures without an
 owner. The originals stay outside the repository; `Tools/images/convert-images.sh` shrinks them into the seed (it only
-reads the source folder and replaces the converted category folders of `Data/Images`, the others stay):
+reads the source folder and replaces the converted category folders of `dnddata/Images`, the others stay):
 
 ```bash
 Tools/images/convert-images.sh ~/Documents/TableTop     # every category found: spells/ classes/ species/ backgrounds/ scenes/
@@ -835,7 +871,7 @@ the name (`fireball`, `dragon-battle`), classes, species and backgrounds use the
 
 ### Adding a class
 
-Create `Data/Rules/classes/<class>.json`. Feature descriptions are picked up automatically from the extracted class
+Create `dnddata/Rules/classes/<class>.json`. Feature descriptions are picked up automatically from the extracted class
 feature text when `name` and `level` match the book. Every book feature you don't author still appears on the sheet as
 text.
 
@@ -996,4 +1032,4 @@ beyond the available rows are continued there too.
   - all backgrounds
   - the common feats and fighting styles
 - **Still to author:** the other classes (Bard, Cleric, Druid, Paladin, Ranger, Rogue) and their subclasses.
-  The book's markdown has no class tables or subclasses, so those come from `Data/Rules/classes/*.json`.
+  The book's markdown has no class tables or subclasses, so those come from `dnddata/Rules/classes/*.json`.

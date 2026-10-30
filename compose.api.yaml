@@ -14,6 +14,9 @@ services:
     command: ["migrate"]
     environment:
       DOTNET_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+    # the image contains no rule data: the seed folder (Extracted/, Rules/, Images/) is mounted
+    volumes:
+      - ${SEED_DIR:-./dnddata}:/seed:ro
     restart: "no"
 
   api:

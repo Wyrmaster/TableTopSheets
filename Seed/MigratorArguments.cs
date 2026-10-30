@@ -5,7 +5,7 @@ namespace TableTopSheets.Seed;
 /// </summary>
 /// <param name="Command">command to run (default <c>migrate</c>)</param>
 /// <param name="Force">write the rules even when they are unchanged</param>
-/// <param name="DataDirectory">seed folder instead of the <c>Data</c> folder next to the migrator</param>
+/// <param name="DataDirectory">seed folder instead of <c>Migrator:DataDirectory</c> or the repository's <c>dnddata</c></param>
 /// <param name="Error">why the command line couldn't be read; null when it could</param>
 public sealed record MigratorArguments(string Command, bool Force, string? DataDirectory, string? Error)
 {
@@ -24,7 +24,11 @@ public sealed record MigratorArguments(string Command, bool Force, string? DataD
 
     Options:
       --force           write the rules even when they are unchanged
-      --data <folder>   seed folder (with Extracted/ and Rules/) instead of the bundled Data folder
+      --data <folder>   seed folder with Extracted/, Rules/ and Images/ (default: Migrator__DataDirectory,
+                        otherwise the dnddata folder of the repository)
+
+    Seed folder (the container mounts it, e.g. -v ./dnddata:/seed:ro):
+      Migrator__DataDirectory             folder with Extracted/, Rules/ and Images/
 
     Database (same settings as the API, e.g. as environment variables):
       Database__Provider                  Sqlite (default) or Postgresql

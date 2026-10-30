@@ -4,7 +4,7 @@ namespace TableTopSheets.Persistence.Entity.Rules;
 
 /// <summary>
 ///   Artwork of a rule entity (spell, class, species, background) or a scene, written by the ruleset migrator from
-///   <c>Data/Images</c>
+///   <c>dnddata/Images</c>
 /// </summary>
 public class RuleImage: BaseEntity
 {

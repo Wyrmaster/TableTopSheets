@@ -15,3 +15,5 @@ Tools/
 Pdf/Test/
 **/node_modules/
 Ui/dist/
+# rule data never goes into an image; the migrator gets it as a mounted folder
+dnddata/

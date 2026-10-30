@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <!--
-    Ruleset migrator: applies the EF migrations and writes the rules seed (Data/**/*.json) into the database.
+    Ruleset migrator: applies the EF migrations and writes the rules seed (a mounted folder, dnddata/ in the repository) into the database.
     Runs as its own process (docker: the "migrator" service, before the API); the tests use it as a library
   -->
   <PropertyGroup>
@@ -20,11 +20,6 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.10" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="Data\**\*.json" CopyToOutputDirectory="PreserveNewest" LinkBase="Data" />
-    <None Include="Data\Images\**\*.webp" CopyToOutputDirectory="PreserveNewest" LinkBase="Data\Images" />
   </ItemGroup>
 
 </Project>

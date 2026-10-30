@@ -1,0 +1,49 @@
+# TableTopSheets from the published images (no source, no build) against an existing PostgreSQL server.
+# Needs only this file, a .env (see .env.example) and the seed data next to it:
+#   curl -L -o dnddata.zip https://github.com/Wyrmaster/TableTopSheets/releases/latest/download/dnddata.zip
+#   unzip dnddata.zip -d dnddata
+#   POSTGRES_CONNECTION="Host=db.example.com;Database=tabletopsheets;Username=...;Password=..." \
+#     docker compose -f compose.postgresql-external.yaml up -d
+# a server on the docker host is reachable as host.docker.internal
+
+name: tabletopsheets-postgresql-external
+
+x-database: &database
+  Database__Provider: Postgresql
+  ConnectionStrings__TableTopSheets: ${POSTGRES_CONNECTION:?set POSTGRES_CONNECTION to the connection string of the PostgreSQL server}
+
+services:
+  # applies the schema migrations, writes the rules and images from the seed folder, then exits
+  migrator:
+    image: ghcr.io/wyrmaster/tabletopsheets-migrator:${TABLETOPSHEETS_VERSION:-latest}
+    pull_policy: always
+    command: ["migrate"]
+    environment:
+      <<: *database
+      DOTNET_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+    volumes:
+      - ${SEED_DIR:-./dnddata}:/seed:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: "no"
+
+  api:
+    image: ghcr.io/wyrmaster/tabletopsheets-api:${TABLETOPSHEETS_VERSION:-latest}
+    pull_policy: always
+    depends_on:
+      migrator:
+        condition: service_completed_successfully
+    ports:
+      - "${API_PORT:-5180}:8080"
+    environment:
+      <<: *database
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      Authentication__Provider: ${AUTH_PROVIDER:-Database}
+      # at least 32 characters; the database authentication signs its tokens with it
+      Authentication__Jwt__SigningKey: ${JWT_SIGNING_KEY:?set JWT_SIGNING_KEY (at least 32 characters), e.g. in .env}
+      Authentication__Database__AllowRegistration: ${ALLOW_REGISTRATION:-true}
+      Authentication__Oidc__Authority: ${OIDC_AUTHORITY:-}
+      Authentication__Oidc__Audience: ${OIDC_AUDIENCE:-}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped

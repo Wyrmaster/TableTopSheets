@@ -8,7 +8,7 @@ using TableTopSheets.Persistence.Entity.Rules;
 namespace TableTopSheets.Seed.Images;
 
 /// <summary>
-///   Reads the artwork of the seed: <c>Data/Images/&lt;category&gt;/&lt;key&gt;.webp</c> with its thumbnail
+///   Reads the artwork of the seed: <c>Images/&lt;category&gt;/&lt;key&gt;.webp</c> with its thumbnail
 ///   <c>&lt;key&gt;.thumb.webp</c> (written by <c>Tools/images/convert-images.sh</c>)
 /// </summary>
 public static class ImageLoader

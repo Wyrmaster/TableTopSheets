@@ -44,7 +44,9 @@ public sealed class RulesetMigrator(TableTopSheetsContext context, IOptions<Rule
       string directory = options.Value.DataDirectory ?? SeedLoader.DefaultDirectory;
       if (!Directory.Exists(Path.Combine(directory, "Extracted")) && !Directory.Exists(Path.Combine(directory, "Rules")))
       {
-        throw new DirectoryNotFoundException($"'{Path.GetFullPath(directory)}' contains no seed data (Extracted/ or Rules/)");
+        throw new DirectoryNotFoundException(
+          $"Seed folder '{Path.GetFullPath(directory)}' contains no seed data (Extracted/ or Rules/): mount the seed data "
+          + "(dnddata.zip from the GitHub releases) and point Migrator__DataDirectory or --data to it");
       }
 
       return directory;
@@ -52,7 +54,7 @@ public sealed class RulesetMigrator(TableTopSheetsContext context, IOptions<Rule
   }
 
   /// <summary>
-  ///   Artwork below the seed folder (<c>Data/Images</c>); may be missing, then there are no images
+  ///   Artwork below the seed folder (<c>Images</c>); may be missing, then the images in the database stay as they are
   /// </summary>
   private string ImagesDirectory => Path.Combine(this.DataDirectory, "Images");
 
@@ -160,10 +162,17 @@ public sealed class RulesetMigrator(TableTopSheetsContext context, IOptions<Rule
   }
 
   /// <summary>
-  ///   Bring the images in line with <c>Data/Images</c>; independent from the rules hash, unchanged images are skipped
+  ///   Bring the images in line with <c>Images</c> of the seed folder; independent from the rules hash, unchanged
+  ///   images are skipped. A seed folder without <c>Images</c> leaves the images alone (no artwork mounted)
   /// </summary>
   private async Task WriteImagesAsync(CancellationToken cancellationToken)
   {
+    if (!Directory.Exists(this.ImagesDirectory))
+    {
+      logger.LogWarning("No Images folder in the seed folder, the images are left as they are");
+      return;
+    }
+
     List<RuleImage> images = ImageLoader.Load(this.ImagesDirectory);
     ImageWriteReport report = await ImageWriter.WriteAsync(context, images, cancellationToken);
     logger.LogInformation(

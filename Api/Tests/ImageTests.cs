@@ -5,7 +5,7 @@ using TableTopSheets.Api.Contracts;
 namespace TableTopSheets.Api.Tests;
 
 /// <summary>
-///   Artwork written by the migrator from <c>Data/Images</c>, served anonymously
+///   Artwork written by the migrator from <c>dnddata/Images</c>, served anonymously
 /// </summary>
 public sealed class ImageTests(ApiFactory factory): IClassFixture<ApiFactory>
 {

@@ -1,0 +1,33 @@
+# Zips the seed data (dnddata/: Extracted/, Rules/, Images/) and attaches it to the GitHub release of a tag:
+#   https://github.com/<owner>/TableTopSheets/releases/latest/download/dnddata.zip
+# The deploy/ compose files mount the unpacked folder into the migrator.
+name: Seed data release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to attach dnddata.zip to (created if missing)
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Zip the seed data
+        working-directory: dnddata
+        run: zip -r -q ../dnddata.zip Extracted Rules Images
+
+      - name: Attach to the release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.tag || github.ref_name }}
+          files: dnddata.zip
+          fail_on_unmatched_files: true

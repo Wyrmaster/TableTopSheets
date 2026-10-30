@@ -30,6 +30,12 @@
     <File Path="compose.postgresql.yaml" />
     <File Path="compose.postgresql-external.yaml" />
     <File Path="compose.sqlite.yaml" />
+    <File Path="deploy/compose.sqlite.yaml" />
+    <File Path="deploy/compose.postgresql.yaml" />
+    <File Path="deploy/compose.postgresql-external.yaml" />
+    <File Path="deploy/.env.example" />
+    <File Path=".github/workflows/containers.yml" />
+    <File Path=".github/workflows/seed-release.yml" />
     <File Path="README.md" />
     <File Path="Api/Library/Dockerfile" />
     <File Path="Seed/Dockerfile" />

@@ -6,7 +6,7 @@
 #   source: folders spells/, classes/, species/, backgrounds/, scenes/ and equipment/ (with subfolders such as
 #           armor/, gear/, weapons/ and coins/) with PNG or JPEG files
 #   category: spells, classes, species, backgrounds, scenes, items, coins; default every category found in the source
-#   output: default Seed/Data/Images; only the converted categories are cleared and written again
+#   output: default dnddata/Images; only the converted categories are cleared and written again
 #
 # Each image becomes <category>/<key>.webp and <category>/<key>.thumb.webp:
 #   spells, items, coins         512 x 512        thumbnail 128 x 128
@@ -20,7 +20,7 @@
 set -euo pipefail
 
 repository=$(realpath "$(dirname "$0")/../..")
-output_dir=$repository/Seed/Data/Images
+output_dir=$repository/dnddata/Images
 aliases_file=$(dirname "$0")/item-keys.txt
 quality=80
 all_categories=(spells classes species backgrounds scenes items coins)
