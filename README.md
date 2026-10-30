@@ -14,17 +14,71 @@ the engine computes a complete character sheet from them, and the PDF library pr
 
 ## Contents
 
-1. [Quick start](#quick-start)
-2. [Solution layout](#solution-layout)
-3. [How the character builder works](#how-the-character-builder-works)
-4. [Choices](#choices) (with worked examples)
-5. [Level up, multiclassing and undo](#level-up-multiclassing-and-undo)
-6. [Equipment, toggles and Armor Class](#equipment-toggles-and-armor-class)
-7. [Spellcasting](#spellcasting)
-8. [REST API](#rest-api)
-9. [Adding rule data](#adding-rule-data)
-10. [Extending the engine](#extending-the-engine)
-11. [Reference](#reference)
+1. [Run it with Docker](#run-it-with-docker)
+2. [Quick start](#quick-start) (development)
+3. [Solution layout](#solution-layout)
+4. [How the character builder works](#how-the-character-builder-works)
+5. [Choices](#choices) (with worked examples)
+6. [Level up, multiclassing and undo](#level-up-multiclassing-and-undo)
+7. [Equipment, toggles and Armor Class](#equipment-toggles-and-armor-class)
+8. [Spellcasting](#spellcasting)
+9. [REST API](#rest-api)
+10. [Adding rule data](#adding-rule-data)
+11. [Extending the engine](#extending-the-engine)
+12. [Reference](#reference)
+
+---
+
+## Run it with Docker
+
+No source code and no build: the published images come from the GitHub container registry, the rule data comes as
+`dnddata.zip` from the GitHub releases. One folder holds everything:
+
+```
+tabletopsheets/
+  compose.yaml       one of deploy/compose.*.yaml (SQLite, PostgreSQL container or an existing PostgreSQL server)
+  .env               settings (copy of deploy/.env.example, at least JWT_SIGNING_KEY)
+  dnddata/           the rule data, unpacked dnddata.zip – mounted read-only into the migrator
+    Extracted/  Rules/  Images/
+```
+
+Set it up (SQLite shown; for PostgreSQL take `compose.postgresql.yaml` or `compose.postgresql-external.yaml` instead):
+
+```bash
+mkdir tabletopsheets && cd tabletopsheets
+base=https://raw.githubusercontent.com/Wyrmaster/TableTopSheets/master/deploy
+curl -L -o compose.yaml "$base/compose.sqlite.yaml"
+curl -L -o .env "$base/.env.example"
+sed -i "s|^JWT_SIGNING_KEY=.*|JWT_SIGNING_KEY=$(openssl rand -base64 48)|" .env   # or edit .env by hand
+
+curl -L -o dnddata.zip https://github.com/Wyrmaster/TableTopSheets/releases/latest/download/dnddata.zip
+unzip dnddata.zip -d dnddata
+
+docker compose up -d       # UI at http://localhost:5180, Swagger UI at /swagger
+```
+
+On every `up` the `migrator` container runs first: it creates or updates the database schema, writes the rules and
+pictures from `dnddata/` and exits; then the API starts. Users and characters are kept.
+
+| Setting in `.env` | Meaning |
+|---|---|
+| `JWT_SIGNING_KEY` | required, at least 32 characters; signs the login tokens |
+| `API_PORT` | host port of the website and API (default `5180`) |
+| `TABLETOPSHEETS_VERSION` | image tag: `latest` (default), a release such as `1.2.0`, or `sha-<commit>` |
+| `SEED_DIR` | the rule data folder (default `./dnddata`) |
+| `ALLOW_REGISTRATION`, `AUTH_PROVIDER`, `OIDC_*` | sign-up and single sign-on, see [Users and authentication](#users-and-authentication) |
+| `POSTGRES_*` | database name, user, password, port (`compose.postgresql.yaml`) or connection string (`compose.postgresql-external.yaml`) |
+
+Update to a newer version:
+
+```bash
+curl -L -o dnddata.zip https://github.com/Wyrmaster/TableTopSheets/releases/latest/download/dnddata.zip
+rm -rf dnddata && unzip dnddata.zip -d dnddata    # only when the rule data changed
+docker compose pull && docker compose up -d
+```
+
+While the packages on ghcr.io are private, log in first: `docker login ghcr.io` with a personal access token that has
+`read:packages`.
 
 ---
 
