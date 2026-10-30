@@ -5,7 +5,7 @@ namespace TableTopSheets.Api.Configuration;
 
 /// <summary>
 ///   <c>Database</c> section of the configuration. The API neither migrates nor seeds: the ruleset migrator
-///   (<c>Seed/TableTopSheets.Seed</c>) does both in its own process, with the same settings
+///   (<c>Seed</c>) does both in its own process, with the same settings
 /// </summary>
 public sealed class DatabaseOptions
 {

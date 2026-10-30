@@ -16,10 +16,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Engine\TableTopSheets.Engine\TableTopSheets.Engine.csproj" />
+    <ProjectReference Include="..\..\Engine\Library\TableTopSheets.Engine.csproj" />
     <ProjectReference Include="..\..\Pdf\Library\TableTopSheets.Pdf.csproj" />
-    <ProjectReference Include="..\..\Persistence\TableTopSheets.Persistence.Sqlite\TableTopSheets.Persistence.Sqlite.csproj" />
-    <ProjectReference Include="..\..\Persistence\TableTopSheets.Persistence.Postgresql\TableTopSheets.Persistence.Postgresql.csproj" />
+    <ProjectReference Include="..\..\Persistence\Sqlite\TableTopSheets.Persistence.Sqlite.csproj" />
+    <ProjectReference Include="..\..\Persistence\Postgresql\TableTopSheets.Persistence.Postgresql.csproj" />
   </ItemGroup>
 
 </Project>

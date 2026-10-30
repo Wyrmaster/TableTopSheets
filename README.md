@@ -32,18 +32,18 @@ the engine computes a complete character sheet from them, and the PDF library pr
 
 ```bash
 dotnet build TableTopSheets.slnx
-dotnet test Tests/TableTopSheets.Engine.Tests    # engine, rules, undo, multiclass, equipment, PDF
-dotnet test Tests/TableTopSheets.Api.Tests       # REST API end to end
+dotnet test Engine/Tests    # engine, rules, undo, multiclass, equipment, PDF
+dotnet test Api/Tests       # REST API end to end
 ```
 
 The quickest way to try it is the REST API. The API doesn't create or change the database schema and doesn't write the
-rules: the **ruleset migrator** (`Seed/TableTopSheets.Seed`, a console application) does both. Run it first, from the
+rules: the **ruleset migrator** (`Seed`, a console application) does both. Run it first, from the
 same folder as the API so both use the same local SQLite file (`tabletopsheets.db`), and again whenever the rules or
 the schema change:
 
 ```bash
-dotnet run --project Seed/TableTopSheets.Seed    # migrate: schema migrations + rules (skipped when unchanged)
-dotnet run --project Api/TableTopSheets.Api      # Swagger UI at http://localhost:5180/swagger
+dotnet run --project Seed    # migrate: schema migrations + rules (skipped when unchanged)
+dotnet run --project Api/Library      # Swagger UI at http://localhost:5180/swagger
 ```
 
 See [Ruleset migrator](#ruleset-migrator) for its commands.
@@ -54,12 +54,12 @@ The user interface is a React app in `Ui/` (pnpm); its dev server proxies `/api`
 cd Ui && pnpm install && pnpm dev                # http://localhost:5173
 ```
 
-`Api/TableTopSheets.Api/TableTopSheets.Api.http` walks through a whole character. See [REST API](#rest-api).
+`Api/Library/TableTopSheets.Api.http` walks through a whole character. See [REST API](#rest-api).
 
 ### Docker
 
-`Api/TableTopSheets.Api/Dockerfile` builds the API and the user interface (from the repository root); the API serves
-the built UI from its web root, so the website and `/api` share one origin. `Seed/TableTopSheets.Seed/Dockerfile` builds
+`Api/Library/Dockerfile` builds the API and the user interface (from the repository root); the API serves
+the built UI from its web root, so the website and `/api` share one origin. `Seed/Dockerfile` builds
 the ruleset migrator. The compose files at the root run both with one database configuration each; all of them extend
 the `migrator` and `api` services in `compose.api.yaml`:
 
@@ -84,7 +84,7 @@ Create a database and fill it with the rules:
 ```bash
 # PostgreSQL – connection string in TABLETOPSHEETS_POSTGRESQL
 export TABLETOPSHEETS_POSTGRESQL="Host=localhost;Database=tabletopsheets;Username=postgres;Password=..."
-dotnet ef database update --project Persistence/TableTopSheets.Persistence.Postgresql
+dotnet ef database update --project Persistence/Postgresql
 # (SQLite for local development: TABLETOPSHEETS_SQLITE, project TableTopSheets.Persistence.Sqlite)
 ```
 
@@ -144,16 +144,16 @@ foreach (PendingChoice pending in ChoiceService.Pending(evaluation))
 
 | Project | Purpose |
 |---|---|
-| `Common/TableTopSheets.Common` | Enums, ability/skill keys, the `CharacterSheet` DTO shared with the PDF library |
-| `Persistence/TableTopSheets.Persistence` | EF Core entities, configuration, `TableTopSheetsContext` |
+| `Common` | Enums, ability/skill keys, the `CharacterSheet` DTO shared with the PDF library |
+| `Persistence/Library` | EF Core entities, configuration, `TableTopSheetsContext` |
 | `Persistence/…Postgresql` / `…Sqlite` | Database providers, design-time factories, migrations |
-| `Engine/TableTopSheets.Engine` | Expression language, rule evaluation, choices, sheet builder, `CharacterService` |
-| `Seed/TableTopSheets.Seed` | Ruleset migrator (console app, Docker image): rule data as JSON (`Data/Extracted`, `Data/Rules`), loader, validator hookup, database writer, schema migrations |
-| `Tools/TableTopSheets.Extractor` | Reads the Player's Handbook markdown and generates `Data/Extracted` |
+| `Engine/Library` | Expression language, rule evaluation, choices, sheet builder, `CharacterService` |
+| `Seed` | Ruleset migrator (console app, Docker image): rule data as JSON (`Data/Extracted`, `Data/Rules`), loader, validator hookup, database writer, schema migrations |
+| `Tools/Extractor` | Reads the Player's Handbook markdown and generates `Data/Extracted` |
 | `Pdf/Library` | PDF rendering (PDFsharp); `CharacterSheetDocument` prints a `CharacterSheet` |
-| `Api/TableTopSheets.Api` | ASP.NET Core minimal API: rules catalog, characters, the choice loop, level up, sheet and PDF |
-| `Tests/TableTopSheets.Engine.Tests` | Tests for everything above, including migrations and PDF output |
-| `Tests/TableTopSheets.Api.Tests` | End to end tests of the REST API (`WebApplicationFactory`, in-memory SQLite) |
+| `Api/Library` | ASP.NET Core minimal API: rules catalog, characters, the choice loop, level up, sheet and PDF |
+| `Engine/Tests` | Tests for everything above, including migrations and PDF output |
+| `Api/Tests` | End to end tests of the REST API (`WebApplicationFactory`, in-memory SQLite) |
 | `Ui` | User interface: React, TypeScript, Vite, Chakra UI v3 and SCSS, pnpm; light and dark mode (see `Ui/README.md`) |
 | `.claude/agents/pdf-library.md` | Claude Code sub agent specialised on the PDF library |
 | `.claude/agents/user-interface.md` | Claude Code sub agent for the user interface: API reference, authentication, creation and level up workflows |
@@ -286,7 +286,7 @@ The engine enforces:
 - non-repeatable feats
 - spells you already know for the same class and purpose
 
-The examples below are the real data from `Seed/TableTopSheets.Seed/Data`.
+The examples below are the real data from `Seed/Data`.
 
 ### Example 1: pick one of three (Elf, Keen Senses)
 
@@ -574,13 +574,13 @@ and the spell list. That list holds cantrips, prepared and always-prepared spell
 
 ## REST API
 
-`Api/TableTopSheets.Api` exposes everything above over HTTP. A client never needs to know the rules. It shows what the
+`Api/Library` exposes everything above over HTTP. A client never needs to know the rules. It shows what the
 API says is open, sends the user's answers and shows the next state.
 
 ### Running and configuration
 
 ```bash
-dotnet run --project Api/TableTopSheets.Api
+dotnet run --project Api/Library
 ```
 
 | Setting | Default | Meaning |
@@ -593,16 +593,16 @@ migrator hasn't run yet.
 
 ### Ruleset migrator
 
-`Seed/TableTopSheets.Seed` brings a database up to date. It uses the same `Database:Provider` and
+`Seed` brings a database up to date. It uses the same `Database:Provider` and
 `ConnectionStrings:TableTopSheets` settings as the API (environment variables `Database__Provider`,
 `ConnectionStrings__TableTopSheets`).
 
 ```bash
-dotnet run --project Seed/TableTopSheets.Seed -- migrate            # default: schema migrations, then the rules
-dotnet run --project Seed/TableTopSheets.Seed -- migrate --force    # write the rules even when unchanged
-dotnet run --project Seed/TableTopSheets.Seed -- validate           # build and validate the rules, no database
-dotnet run --project Seed/TableTopSheets.Seed -- status             # pending migrations, last ruleset written
-dotnet run --project Seed/TableTopSheets.Seed -- migrate --data ../my-rules   # another seed folder (Extracted/, Rules/)
+dotnet run --project Seed -- migrate            # default: schema migrations, then the rules
+dotnet run --project Seed -- migrate --force    # write the rules even when unchanged
+dotnet run --project Seed -- validate           # build and validate the rules, no database
+dotnet run --project Seed -- status             # pending migrations, last ruleset written
+dotnet run --project Seed -- migrate --data ../my-rules   # another seed folder (Extracted/, Rules/)
 ```
 
 Exit codes: `0` done, `1` failed (invalid rules, database error), `2` bad command line.
@@ -629,7 +629,7 @@ Every character belongs to a user (`Users` table, `Characters.OwnerId`). All `/a
 `Authorization: Bearer <token>` header and only see the characters of that user. Another user's character answers
 **404**, and a missing or invalid token answers **401**. `/api/rules` stays anonymous.
 
-`Authentication:Provider` chooses the implementation of `IAuthenticationProvider` (`Api/TableTopSheets.Api/Authentication`):
+`Authentication:Provider` chooses the implementation of `IAuthenticationProvider` (`Api/Library/Authentication`):
 
 | Provider | Sign in | Users |
 |---|---|---|
@@ -761,7 +761,7 @@ The OpenAPI document (`/openapi/v1.json`) has:
 - the 400/401/404/422 problem responses
 - the bearer security scheme
 
-`openapi-generator`, NSwag or Kiota produce a typed client from it. `Tests/TableTopSheets.Api.Tests/ApiClient.cs`
+`openapi-generator`, NSwag or Kiota produce a typed client from it. `Api/Tests/ApiClient.cs`
 (`AnswerAllAsync`) is an example of a generic client: it completes any character using only `input`, `constraints`,
 `options` and `optionsUrl`.
 
@@ -772,7 +772,7 @@ The OpenAPI document (`/openapi/v1.json`) has:
 ### Where data lives
 
 ```
-Seed/TableTopSheets.Seed/Data/
+Seed/Data/
   Extracted/           generated from the Player's Handbook – don't edit by hand, regenerate
     spells.json  feats.json  species.json  backgrounds.json  class-features.json  items.json  languages.json
   Rules/               hand authored mechanics – the source of truth
@@ -793,11 +793,11 @@ text comes from the book and the mechanics from the authored files.
 Regenerate the extracted data after changing the extractor:
 
 ```bash
-dotnet run --project Tools/TableTopSheets.Extractor -- "/path/to/Player's Handbook (2024).md"
+dotnet run --project Tools/Extractor -- "/path/to/Player's Handbook (2024).md"
 ```
 
 Then run the tests. `CatalogTests.SeedDataIsValid` loads and validates all data, and seeding the database validates again.
-`dotnet run --project Seed/TableTopSheets.Seed -- validate` does the same check from the command line, and `migrate`
+`dotnet run --project Seed -- validate` does the same check from the command line, and `migrate`
 writes the new rules into an existing database.
 
 ### Images
@@ -809,7 +809,7 @@ reads the source folder and replaces the converted category folders of `Data/Ima
 ```bash
 Tools/images/convert-images.sh ~/Documents/TableTop     # every category found: spells/ classes/ species/ backgrounds/ scenes/
 Tools/images/convert-images.sh ~/Pictures/tabletopv3/jim-lee-comic items coins   # only these: equipment/*/ and equipment/coins/
-dotnet run --project Seed/TableTopSheets.Seed           # writes new and changed images into the database
+dotnet run --project Seed           # writes new and changed images into the database
 ```
 
 | Folder | Image | Thumbnail |
@@ -915,13 +915,13 @@ Most new rules are **data only**. Extend the engine when the data can't express 
 | a new rule check | `Engine/Sheet/ViolationChecker.cs` |
 | a new character action | `Engine/Services/CharacterService.cs`: validate against a fresh evaluation, change the journal, save |
 | a new database column | entity + configuration in `Persistence`, then `dotnet ef migrations add <Name>` for both providers |
-| new extracted content | `Tools/TableTopSheets.Extractor/HandbookParser.cs`, then re-run the extractor |
+| new extracted content | `Tools/Extractor/HandbookParser.cs`, then re-run the extractor |
 | something printed on the PDF | `Pdf/Library` (the `pdf-library` sub agent knows the layout); only map data from `CharacterSheet` and compute nothing there |
 
 Guidelines:
 - Prefer a new **stat key** or **function** over special cases in C#.
 - Keep the journal the only thing a character stores, so undo stays free.
-- Add a test in `Tests/TableTopSheets.Engine.Tests`. `TestWorld` creates a seeded in-memory database, and
+- Add a test in `Engine/Tests`. `TestWorld` creates a seeded in-memory database, and
   `LevelUpAsync` / `LevelUpManyAsync` auto-answer every choice you don't specify.
 
 ### PDF output

@@ -9,7 +9,8 @@
 .git/
 .claude/
 .env
-Tests/
+Api/Tests/
+Engine/Tests/
 Tools/
 Pdf/Test/
 **/node_modules/

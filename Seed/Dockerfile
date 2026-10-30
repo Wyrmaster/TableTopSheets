@@ -1,6 +1,6 @@
 # TableTopSheets ruleset migrator: applies the schema migrations and writes the rules into the database, then exits.
 # docker compose runs it before the API (see compose.api.yaml)
-# build from the repository root: docker build -f Seed/TableTopSheets.Seed/Dockerfile -t tabletopsheets-migrator .
+# build from the repository root: docker build -f Seed/Dockerfile -t tabletopsheets-migrator .
 
 ARG DOTNET_VERSION=10.0
 
@@ -27,19 +27,19 @@ ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
 # project files first, so the restore layer is reused until a dependency changes
-COPY Common/TableTopSheets.Common/TableTopSheets.Common.csproj Common/TableTopSheets.Common/
-COPY Engine/TableTopSheets.Engine/TableTopSheets.Engine.csproj Engine/TableTopSheets.Engine/
-COPY Persistence/TableTopSheets.Persistence/TableTopSheets.Persistence.csproj Persistence/TableTopSheets.Persistence/
-COPY Persistence/TableTopSheets.Persistence.Postgresql/TableTopSheets.Persistence.Postgresql.csproj Persistence/TableTopSheets.Persistence.Postgresql/
-COPY Persistence/TableTopSheets.Persistence.Sqlite/TableTopSheets.Persistence.Sqlite.csproj Persistence/TableTopSheets.Persistence.Sqlite/
-COPY Seed/TableTopSheets.Seed/TableTopSheets.Seed.csproj Seed/TableTopSheets.Seed/
-RUN dotnet restore Seed/TableTopSheets.Seed/TableTopSheets.Seed.csproj
+COPY Common/TableTopSheets.Common.csproj Common/
+COPY Engine/Library/TableTopSheets.Engine.csproj Engine/Library/
+COPY Persistence/Library/TableTopSheets.Persistence.csproj Persistence/Library/
+COPY Persistence/Postgresql/TableTopSheets.Persistence.Postgresql.csproj Persistence/Postgresql/
+COPY Persistence/Sqlite/TableTopSheets.Persistence.Sqlite.csproj Persistence/Sqlite/
+COPY Seed/TableTopSheets.Seed.csproj Seed/
+RUN dotnet restore Seed/TableTopSheets.Seed.csproj
 
 COPY Common/ Common/
-COPY Engine/ Engine/
+COPY Engine/Library/ Engine/Library/
 COPY Persistence/ Persistence/
 COPY Seed/ Seed/
-RUN dotnet publish Seed/TableTopSheets.Seed/TableTopSheets.Seed.csproj \
+RUN dotnet publish Seed/TableTopSheets.Seed.csproj \
       --configuration $BUILD_CONFIGURATION \
       --no-restore \
       --output /app/publish \

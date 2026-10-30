@@ -1,13 +1,13 @@
 using System.Text.Json;
-using TableTopSheets.Extractor;
+using TableTopSheets.Tools.Extractor;
 using TableTopSheets.Seed;
 using TableTopSheets.Seed.Model;
 
 // Extracts rule content from the Player's Handbook (2024) markdown into draft seed files.
-// Usage: TableTopSheets.Extractor <handbook.md> [output directory]
+// Usage: TableTopSheets.Tools.Extractor <handbook.md> [output directory]
 if (args.Length < 1 || !File.Exists(args[0]))
 {
-  Console.Error.WriteLine("Usage: TableTopSheets.Extractor <Player's Handbook (2024).md> [output directory]");
+  Console.Error.WriteLine("Usage: TableTopSheets.Tools.Extractor <Player's Handbook (2024).md> [output directory]");
   return 1;
 }
 
@@ -42,5 +42,5 @@ static string DefaultOutput()
 
   return directory == null
     ? Path.Combine(Environment.CurrentDirectory, "Extracted")
-    : Path.Combine(directory, "Seed", "TableTopSheets.Seed", "Data", "Extracted");
+    : Path.Combine(directory, "Seed", "Data", "Extracted");
 }

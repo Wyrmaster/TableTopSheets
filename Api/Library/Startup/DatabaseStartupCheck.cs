@@ -7,7 +7,7 @@ namespace TableTopSheets.Api.Startup;
 
 /// <summary>
 ///   Reports on startup whether the ruleset migrator has prepared the database. It only reads: migrating and seeding is
-///   the job of the migrator (<c>Seed/TableTopSheets.Seed</c>, the <c>migrator</c> service in docker compose)
+///   the job of the migrator (<c>Seed</c>, the <c>migrator</c> service in docker compose)
 /// </summary>
 public static class DatabaseStartupCheck
 {
@@ -29,7 +29,7 @@ public static class DatabaseStartupCheck
       {
         logger.LogWarning
         (
-          "The database ({Provider}) misses {Count} schema migration(s): {Migrations}. Run the ruleset migrator (Seed/TableTopSheets.Seed) first",
+          "The database ({Provider}) misses {Count} schema migration(s): {Migrations}. Run the ruleset migrator (Seed) first",
           options.Provider,
           pending.Count,
           string.Join(", ", pending)

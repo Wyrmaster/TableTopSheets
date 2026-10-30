@@ -8,7 +8,7 @@ You work on the PDF library of the TableTopSheets solution (`/media/Data1/Git/Ta
 
 ## Where things are
 
-- `Pdf/Library/TableTopSheets.Pdf.csproj`: references only `Common/TableTopSheets.Common`. Never add a reference to the Engine, Persistence or Seed projects. The PDF gets all of its data through the `CharacterSheet` DTO in `Common/TableTopSheets.Common/Sheet/CharacterSheet.cs`.
+- `Pdf/Library/TableTopSheets.Pdf.csproj`: references only `Common`. Never add a reference to the Engine, Persistence or Seed projects. The PDF gets all of its data through the `CharacterSheet` DTO in `Common/Sheet/CharacterSheet.cs`.
 - `Document.cs`: abstract base. It sets the global `RobotoFontResolver` and exposes `GenerateCharacterSheetStream()` and `GenerateCharacterSheetFile(path)`. Subclasses implement `Generate()`.
 - `CharacterSheetDocument.cs`: the two-page sheet built from a `CharacterSheet`. All data mapping lives here, e.g. features → text columns, attacks → `Pdf.Common.Attack` (flat damage is drawn as `D1` dice), spells → `Pdf.Common.Spell`. Keep the components dumb and do conversions here.
 - `Page/Page.cs` adds an A4 page; `WithRender(XGraphics)` draws it. `Page/ComponentPage.cs` draws a fixed list of `IComponent`s. `Page/CardPage.cs` lays out item cards in two columns. `Page/Page1.cs` is an unused stub.
@@ -33,9 +33,9 @@ Component constructors take already formatted strings or simple values. The test
 ## Verifying your work
 
 1. Build: `dotnet build /media/Data1/Git/TableTopSheets/TableTopSheets.slnx`.
-2. Generate a real sheet: `dotnet test /media/Data1/Git/TableTopSheets/Tests/TableTopSheets.Engine.Tests --filter PdfExportTests`. It writes `Tests/TableTopSheets.Engine.Tests/bin/Debug/net10.0/multiclass-sheet.pdf` from a computed Wizard 3 / Fighter 2.
+2. Generate a real sheet: `dotnet test /media/Data1/Git/TableTopSheets/Engine/Tests --filter PdfExportTests`. It writes `Engine/Tests/bin/Debug/net10.0/multiclass-sheet.pdf` from a computed Wizard 3 / Fighter 2.
 3. Look at it. Render it with `pdftoppm -r 80 -png <pdf> <scratch dir>/page`, crop a region with `magick <png> -crop WxH+X+Y <out>.png`, and open the PNG with Read. Always inspect the pages after a visual change: check overflowing or clipped text, overlaps, alignment and empty boxes. Don't trust the build alone.
-4. Run the whole engine test suite before finishing (`dotnet test` on `Tests/TableTopSheets.Engine.Tests`).
+4. Run the whole engine test suite before finishing (`dotnet test` on `Engine/Tests`).
 
 Known quirks:
 - The two tests in `Pdf/Test` start Chrome from a Windows path and fail on Linux. That's expected, so don't "fix" them unless asked.
@@ -43,5 +43,5 @@ Known quirks:
 
 ## Boundaries
 
-- Rule calculations (what a value *is*) belong to the Engine (`Engine/TableTopSheets.Engine/Sheet/CharacterSheetBuilder.cs`), not the PDF. If the sheet needs a value the DTO doesn't have, report back that `CharacterSheet` needs a new field (or add it to the DTO and to the builder, if the task says so). Don't compute rules in the PDF project.
+- Rule calculations (what a value *is*) belong to the Engine (`Engine/Library/Sheet/CharacterSheetBuilder.cs`), not the PDF. If the sheet needs a value the DTO doesn't have, report back that `CharacterSheet` needs a new field (or add it to the DTO and to the builder, if the task says so). Don't compute rules in the PDF project.
 - Report what you changed, which files you touched, and what you saw when you inspected the rendered pages.

@@ -1,6 +1,6 @@
 # TableTopSheets REST API, hosting the user interface. It neither migrates nor seeds the database: the ruleset
-# migrator (Seed/TableTopSheets.Seed/Dockerfile) does that before the API starts
-# build from the repository root: docker build -f Api/TableTopSheets.Api/Dockerfile -t tabletopsheets-api .
+# migrator (Seed/Dockerfile) does that before the API starts
+# build from the repository root: docker build -f Api/Library/Dockerfile -t tabletopsheets-api .
 
 ARG DOTNET_VERSION=10.0
 ARG NODE_VERSION=24
@@ -40,21 +40,21 @@ ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
 # project files first, so the restore layer is reused until a dependency changes
-COPY Api/TableTopSheets.Api/TableTopSheets.Api.csproj Api/TableTopSheets.Api/
-COPY Common/TableTopSheets.Common/TableTopSheets.Common.csproj Common/TableTopSheets.Common/
-COPY Engine/TableTopSheets.Engine/TableTopSheets.Engine.csproj Engine/TableTopSheets.Engine/
+COPY Api/Library/TableTopSheets.Api.csproj Api/Library/
+COPY Common/TableTopSheets.Common.csproj Common/
+COPY Engine/Library/TableTopSheets.Engine.csproj Engine/Library/
 COPY Pdf/Library/TableTopSheets.Pdf.csproj Pdf/Library/
-COPY Persistence/TableTopSheets.Persistence/TableTopSheets.Persistence.csproj Persistence/TableTopSheets.Persistence/
-COPY Persistence/TableTopSheets.Persistence.Postgresql/TableTopSheets.Persistence.Postgresql.csproj Persistence/TableTopSheets.Persistence.Postgresql/
-COPY Persistence/TableTopSheets.Persistence.Sqlite/TableTopSheets.Persistence.Sqlite.csproj Persistence/TableTopSheets.Persistence.Sqlite/
-RUN dotnet restore Api/TableTopSheets.Api/TableTopSheets.Api.csproj
+COPY Persistence/Library/TableTopSheets.Persistence.csproj Persistence/Library/
+COPY Persistence/Postgresql/TableTopSheets.Persistence.Postgresql.csproj Persistence/Postgresql/
+COPY Persistence/Sqlite/TableTopSheets.Persistence.Sqlite.csproj Persistence/Sqlite/
+RUN dotnet restore Api/Library/TableTopSheets.Api.csproj
 
-COPY Api/ Api/
+COPY Api/Library/ Api/Library/
 COPY Common/ Common/
-COPY Engine/ Engine/
+COPY Engine/Library/ Engine/Library/
 COPY Pdf/Library/ Pdf/Library/
 COPY Persistence/ Persistence/
-RUN dotnet publish Api/TableTopSheets.Api/TableTopSheets.Api.csproj \
+RUN dotnet publish Api/Library/TableTopSheets.Api.csproj \
       --configuration $BUILD_CONFIGURATION \
       --no-restore \
       --output /app/publish \

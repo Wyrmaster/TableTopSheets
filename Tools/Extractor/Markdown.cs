@@ -2,7 +2,7 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace TableTopSheets.Extractor;
+namespace TableTopSheets.Tools.Extractor;
 
 /// <summary>
 ///   Minimal markdown → html conversion for rule descriptions (paragraphs, emphasis, lists, tables)

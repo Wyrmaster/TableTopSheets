@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Seed\TableTopSheets.Seed\TableTopSheets.Seed.csproj" />
+    <ProjectReference Include="..\..\Seed\TableTopSheets.Seed.csproj" />
   </ItemGroup>
 
 </Project>

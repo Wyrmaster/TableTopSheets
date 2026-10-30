@@ -1,24 +1,26 @@
 <Solution>
   <Folder Name="/Api/">
-    <Project Path="Api/TableTopSheets.Api/TableTopSheets.Api.csproj" />
+    <Project Path="Api/Library/TableTopSheets.Api.csproj" />
+    <Project Path="Api/Tests/TableTopSheets.Api.Tests.csproj" />
   </Folder>
   <Folder Name="/Common/">
-    <Project Path="Common/TableTopSheets.Common/TableTopSheets.Common.csproj" />
+    <Project Path="Common/TableTopSheets.Common.csproj" />
   </Folder>
   <Folder Name="/Engine/">
-    <Project Path="Engine/TableTopSheets.Engine/TableTopSheets.Engine.csproj" />
+    <Project Path="Engine/Library/TableTopSheets.Engine.csproj" />
+    <Project Path="Engine/Tests/TableTopSheets.Engine.Tests.csproj" />
   </Folder>
   <Folder Name="/Pdf/">
     <Project Path="Pdf/Library/TableTopSheets.Pdf.csproj" />
     <Project Path="Pdf/Test/TableTopSheets.Pdf.Test.csproj" />
   </Folder>
   <Folder Name="/Persistence/">
-    <Project Path="Persistence/TableTopSheets.Persistence/TableTopSheets.Persistence.csproj" />
-    <Project Path="Persistence/TableTopSheets.Persistence.Postgresql/TableTopSheets.Persistence.Postgresql.csproj" />
-    <Project Path="Persistence/TableTopSheets.Persistence.Sqlite/TableTopSheets.Persistence.Sqlite.csproj" />
+    <Project Path="Persistence/Library/TableTopSheets.Persistence.csproj" />
+    <Project Path="Persistence/Postgresql/TableTopSheets.Persistence.Postgresql.csproj" />
+    <Project Path="Persistence/Sqlite/TableTopSheets.Persistence.Sqlite.csproj" />
   </Folder>
   <Folder Name="/Seed/">
-    <Project Path="Seed/TableTopSheets.Seed/TableTopSheets.Seed.csproj" />
+    <Project Path="Seed/TableTopSheets.Seed.csproj" />
   </Folder>
   <Folder Name="/SolutionFiles/">
     <File Path=".dockerignore" />
@@ -29,13 +31,10 @@
     <File Path="compose.postgresql-external.yaml" />
     <File Path="compose.sqlite.yaml" />
     <File Path="README.md" />
-    <File Path="Seed/TableTopSheets.Seed/Dockerfile" />
-  </Folder>
-  <Folder Name="/Tests/">
-    <Project Path="Tests/TableTopSheets.Api.Tests/TableTopSheets.Api.Tests.csproj" />
-    <Project Path="Tests/TableTopSheets.Engine.Tests/TableTopSheets.Engine.Tests.csproj" />
+    <File Path="Api/Library/Dockerfile" />
+    <File Path="Seed/Dockerfile" />
   </Folder>
   <Folder Name="/Tools/">
-    <Project Path="Tools/TableTopSheets.Extractor/TableTopSheets.Extractor.csproj" />
+    <Project Path="Tools/Extractor/TableTopSheets.Tools.Extractor.csproj" />
   </Folder>
 </Solution>

@@ -12,7 +12,7 @@ pnpm test       # unit tests (vitest)
 API_URL=http://localhost:5180 pnpm test api.integration   # end to end against a running API
 ```
 
-Start the API with `dotnet run --project Api/TableTopSheets.Api` from the repository root.
+Start the API with `dotnet run --project Api/Library` from the repository root.
 
 ## Layout
 

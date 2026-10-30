@@ -1,5 +1,5 @@
 # Walkthrough: create an elf sage wizard step by step.
-# Run the API with `dotnet run --project Api/TableTopSheets.Api` and execute the requests in order
+# Run the API with `dotnet run --project Api/Library` and execute the requests in order
 # (VS Code REST Client / JetBrains HTTP client). Replace the ids with the ones from the answers.
 
 @host = http://localhost:5180

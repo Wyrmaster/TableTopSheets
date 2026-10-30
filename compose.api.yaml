@@ -10,7 +10,7 @@ services:
     image: tabletopsheets-migrator
     build:
       context: .
-      dockerfile: Seed/TableTopSheets.Seed/Dockerfile
+      dockerfile: Seed/Dockerfile
     command: ["migrate"]
     environment:
       DOTNET_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
@@ -20,7 +20,7 @@ services:
     image: tabletopsheets-api
     build:
       context: .
-      dockerfile: Api/TableTopSheets.Api/Dockerfile
+      dockerfile: Api/Library/Dockerfile
     ports:
       - "${API_PORT:-5180}:8080"
     environment:

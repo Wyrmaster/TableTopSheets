@@ -7,7 +7,7 @@ using TableTopSheets.Common.Enum.Rules;
 using TableTopSheets.Seed;
 using TableTopSheets.Seed.Model;
 
-namespace TableTopSheets.Extractor;
+namespace TableTopSheets.Tools.Extractor;
 
 /// <summary>
 ///   Reads the sections of the Player's Handbook markdown
