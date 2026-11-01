@@ -21,12 +21,18 @@ import {
 import { ApiHint } from '@/components/ApiHint'
 import { CardCheckbox } from '@/components/CardCheckbox'
 import { CardSelectionBar } from '@/components/CardSelectionBar'
-import { FilterBar, FilterSelect, FilterToggle } from '@/components/FilterBar'
+import {
+  FilterBar,
+  FilterSelect,
+  FilterToggle,
+  SortSelect,
+} from '@/components/FilterBar'
 import { Icon } from '@/components/Icon'
 import { shopIcon } from '@/components/icons'
 import { InfoButton } from '@/components/InfoButton'
 import { RarityBadge } from '@/components/RarityBadge'
 import { rarityLabel } from '@/components/rarity'
+import { sortParam } from '@/components/sort'
 import { useInspector } from '@/components/inspector/useInspector'
 import { Thumbnail } from '@/components/Thumbnail'
 import { useApiAction } from '@/hooks/useApiAction'
@@ -112,6 +118,7 @@ export const ShopPage = () => {
   const [magic, setMagic] = useState(false)
   const [rarity, setRarity] = useState('')
   const [sort, setSort] = useState('name')
+  const [descending, setDescending] = useState(false)
   const [page, setPage] = useState(1)
   const cards = useCardSelection()
 
@@ -138,11 +145,11 @@ export const ShopPage = () => {
       category: category || undefined,
       magic: magic || undefined,
       rarity: (rarity || undefined) as RarityEnum | undefined,
-      sort,
+      sort: sortParam(sort, descending),
       page,
       pageSize: PageSize,
     }),
-    [search, kind, category, magic, rarity, sort, page].join('|'),
+    [search, kind, category, magic, rarity, sort, descending, page].join('|'),
   )
 
   // a purchase pays the cost (the API returns change); without it the item is free (starting equipment, loot);
@@ -231,20 +238,20 @@ export const ShopPage = () => {
             </option>
           ))}
         </FilterSelect>
-        <FilterSelect
+        <SortSelect
           label='Sort'
-          width='160px'
+          width='150px'
           value={sort}
-          onChange={setSort}
+          descending={descending}
+          onChange={filter(setSort)}
+          onDirectionChange={filter(setDescending)}
         >
           <option value='name'>Sort: name</option>
-          <option value='cost'>Sort: cost</option>
-          <option value='-cost'>Sort: cost ↓</option>
-          <option value='weight'>Sort: weight</option>
           <option value='kind,group,name'>Sort: type</option>
+          <option value='cost'>Sort: cost</option>
+          <option value='weight'>Sort: weight</option>
           <option value='rarity,name'>Sort: rarity</option>
-          <option value='-rarity,name'>Sort: rarity ↓</option>
-        </FilterSelect>
+        </SortSelect>
         <FilterToggle
           checked={magic}
           onChange={filter(setMagic)}

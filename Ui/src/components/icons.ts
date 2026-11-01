@@ -36,6 +36,8 @@ export {
   mdiPlus as plusIcon,
   mdiRing as ringIcon,
   mdiShieldOutline as shieldIcon,
+  mdiSortAscending as sortAscendingIcon,
+  mdiSortDescending as sortDescendingIcon,
   mdiStarFourPoints as featuresIcon,
   mdiSword as meleeIcon,
   mdiTshirtCrew as armorIcon,

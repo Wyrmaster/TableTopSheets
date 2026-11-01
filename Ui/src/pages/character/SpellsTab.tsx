@@ -25,7 +25,7 @@ import {
 } from '@/api'
 import { ApiHint } from '@/components/ApiHint'
 import { CardCheckbox } from '@/components/CardCheckbox'
-import { FilterSelect } from '@/components/FilterBar'
+import { SortSelect } from '@/components/FilterBar'
 import { Pips } from '@/components/Pips'
 import { SpellRow } from '@/components/SpellRow'
 import { useApiAction } from '@/hooks/useApiAction'
@@ -34,21 +34,29 @@ import { useIntentQuery } from '@/hooks/useIntentQuery'
 import { slotGroups } from './playState'
 import { useCharacter } from './useCharacter'
 
-type SpellSort = 'level' | 'name' | 'school' | 'castingTime'
+type SpellSortField = 'level' | 'name' | 'school' | 'castingTime'
+
+/** Display order of the known spells: a field and its direction */
+interface SpellSort {
+  field: SpellSortField
+  descending: boolean
+}
 
 const byName = (a: KnownSpellDto, b: KnownSpellDto) => a.name.localeCompare(b.name)
 
 const byLevel = (a: KnownSpellDto, b: KnownSpellDto) => a.level - b.level || byName(a, b)
 
-const spellComparers: Record<SpellSort, (a: KnownSpellDto, b: KnownSpellDto) => number> = {
-  level: byLevel,
+/** Comparison of the chosen field; the direction only turns this one, level and name stay ascending as tie breakers */
+const spellComparers: Record<SpellSortField, (a: KnownSpellDto, b: KnownSpellDto) => number> = {
+  level: (a, b) => a.level - b.level,
   name: byName,
-  school: (a, b) => a.school.localeCompare(b.school) || byLevel(a, b),
-  castingTime: (a, b) => a.castingTime.localeCompare(b.castingTime) || byLevel(a, b),
+  school: (a, b) => a.school.localeCompare(b.school),
+  castingTime: (a, b) => a.castingTime.localeCompare(b.castingTime),
 }
 
 /** Display order of the known spells (client side; the loadout editor and copy picker keep the API order) */
-const sortSpells = (spells: KnownSpellDto[], sort: SpellSort) => [...spells].sort(spellComparers[sort])
+const sortSpells = (spells: KnownSpellDto[], sort: SpellSort) => [...spells].sort((a, b) => (sort.descending ? -1 : 1)
+  * spellComparers[sort.field](a, b) || byLevel(a, b))
 
 /**
  * Spellcasting per class, clickable spell slots, the spells of each class (cantrips, prepared, spellbook) with the
@@ -65,7 +73,10 @@ export const SpellsTab = ({ cards }: { cards: CardSelection }) => {
   } = useCharacter()
   const spells = useIntentQuery(() => new GetSpellsIntent(id), `${id}|${state.level}`)
   const groups = slotGroups(sheet)
-  const [sort, setSort] = useState<SpellSort>('level')
+  const [sort, setSort] = useState<SpellSort>({
+    field: 'level',
+    descending: false,
+  })
 
   if (spells.problem) {
     return <Text color='fg.error'>{problemMessages(spells.problem).join(' ')}</Text>
@@ -82,17 +93,25 @@ export const SpellsTab = ({ cards }: { cards: CardSelection }) => {
   return (
     <Stack gap='4'>
       <Flex justify='flex-end'>
-        <FilterSelect
+        <SortSelect
           label='Sort spells'
           width='190px'
-          value={sort}
-          onChange={(value) => setSort(value as SpellSort)}
+          value={sort.field}
+          descending={sort.descending}
+          onChange={(value) => setSort({
+            ...sort,
+            field: value as SpellSortField,
+          })}
+          onDirectionChange={(descending) => setSort({
+            ...sort,
+            descending,
+          })}
         >
           <option value='level'>Sort: level</option>
           <option value='name'>Sort: name</option>
           <option value='school'>Sort: school</option>
           <option value='castingTime'>Sort: casting time</option>
-        </FilterSelect>
+        </SortSelect>
       </Flex>
       <SimpleGrid
         minChildWidth='280px'

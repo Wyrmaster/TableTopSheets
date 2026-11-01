@@ -9,7 +9,11 @@ import {
 } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 import { Icon } from '@/components/Icon'
-import { clearFilterIcon } from '@/components/icons'
+import {
+  clearFilterIcon,
+  sortAscendingIcon,
+  sortDescendingIcon,
+} from '@/components/icons'
 
 /**
  * Filter bar of a list: the search box and a "clear filters" icon button on the first line, every other filter
@@ -116,5 +120,50 @@ export const FilterToggle = ({
       <Checkbox.Control />
       <Checkbox.Label>{children}</Checkbox.Label>
     </Checkbox.Root>
+  )
+}
+
+/**
+ * Sort select of a filter bar with a button next to it that switches between ascending and descending; `value` is the
+ * field list of the select (`level,name`), the direction is kept apart (see `sortParam`)
+ */
+export const SortSelect = ({
+  label,
+  width,
+  value,
+  descending,
+  onChange,
+  onDirectionChange,
+  children,
+}: {
+  label: string
+  width: string
+  value: string
+  descending: boolean
+  onChange: (value: string) => void
+  onDirectionChange: (descending: boolean) => void
+  children: ReactNode
+}) => {
+  const direction = descending ? 'Descending' : 'Ascending'
+  return (
+    <HStack gap='1'>
+      <FilterSelect
+        label={label}
+        width={width}
+        value={value}
+        onChange={onChange}
+      >
+        {children}
+      </FilterSelect>
+      <IconButton
+        variant='outline'
+        aria-label={direction}
+        title={direction}
+        aria-pressed={descending}
+        onClick={() => onDirectionChange(!descending)}
+      >
+        <Icon path={descending ? sortDescendingIcon : sortAscendingIcon} />
+      </IconButton>
+    </HStack>
   )
 }

@@ -14,10 +14,16 @@ import { type DamageTypeEnum, DamageTypes, ListSpellsIntent, problemMessages } f
 import { ApiHint } from '@/components/ApiHint'
 import { CardCheckbox } from '@/components/CardCheckbox'
 import { CardSelectionBar } from '@/components/CardSelectionBar'
-import { FilterBar, FilterSelect, FilterToggle } from '@/components/FilterBar'
+import {
+  FilterBar,
+  FilterSelect,
+  FilterToggle,
+  SortSelect,
+} from '@/components/FilterBar'
 import { Icon } from '@/components/Icon'
 import { nextIcon, previousIcon } from '@/components/icons'
 import { SceneBanner } from '@/components/SceneBanner'
+import { sortParam } from '@/components/sort'
 import { SpellRow } from '@/components/SpellRow'
 import { useCardSelection } from '@/hooks/useCardSelection'
 import { useIntentQuery } from '@/hooks/useIntentQuery'
@@ -72,6 +78,7 @@ export const SpellsPage = () => {
   const [ritual, setRitual] = useState(false)
   const [concentration, setConcentration] = useState(false)
   const [sort, setSort] = useState('level,name')
+  const [descending, setDescending] = useState(false)
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(PageSizes[0])
   const listTop = useRef<HTMLDivElement>(null)
@@ -115,11 +122,11 @@ export const SpellsPage = () => {
       damageType: (damageType && damageType !== AnyDamage ? damageType : undefined) as DamageTypeEnum | undefined,
       ritual: ritual || undefined,
       concentration: concentration || undefined,
-      sort,
+      sort: sortParam(sort, descending),
       page,
       pageSize,
     }),
-    [search, kind, level, list, school, damageType, ritual, concentration, sort, page, pageSize].join('|'),
+    [search, kind, level, list, school, damageType, ritual, concentration, sort, descending, page, pageSize].join('|'),
   )
 
   const total = spells.data?.totalCount
@@ -229,20 +236,22 @@ export const SpellsPage = () => {
             </option>
           ))}
         </FilterSelect>
-        <FilterSelect
+        <SortSelect
           label='Sort'
-          width='230px'
+          width='190px'
           value={sort}
-          onChange={setSort}
+          descending={descending}
+          onChange={filter(setSort)}
+          onDirectionChange={filter(setDescending)}
         >
           <option value='level,name'>Sort: level</option>
           <option value='name'>Sort: name</option>
           <option value='school,level,name'>Sort: school</option>
           <option value='castingTime,level,name'>Sort: casting time</option>
-          <option value='-concentration,level,name'>Sort: concentration first</option>
-          <option value='-ritual,level,name'>Sort: ritual first</option>
+          <option value='concentration,level,name'>Sort: concentration</option>
+          <option value='ritual,level,name'>Sort: ritual</option>
           <option value='damageType,level,name'>Sort: damage type</option>
-        </FilterSelect>
+        </SortSelect>
         <FilterToggle
           checked={ritual}
           onChange={filter(setRitual)}
