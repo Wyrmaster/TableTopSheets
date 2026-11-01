@@ -9,6 +9,7 @@ import type {
   ReplacePolicyEnum,
 } from './enums'
 import type { StartingEquipmentOptionDto } from './startingEquipment'
+import type { TextBlock } from './text'
 
 /** Species in a list */
 export interface SpeciesSummaryDto {
@@ -127,6 +128,8 @@ export interface FeatureDto {
   name: string
   level: number | null
   description: string
+  /** structure of the description (paragraphs, headings, lists, tables) */
+  descriptionBlocks: TextBlock[]
   choices: ChoiceDefinitionDto[]
 }
 
@@ -135,6 +138,8 @@ export interface RuleDetailDto {
   key: string
   name: string
   description: string
+  /** structure of the description (paragraphs, headings, lists, tables) */
+  descriptionBlocks: TextBlock[]
   features: FeatureDto[]
   /** starting equipment of a background (empty for the others) */
   startingEquipment: StartingEquipmentOptionDto[]
@@ -147,6 +152,8 @@ export interface RuleDetailDto {
 export interface ClassDetailDto {
   class: ClassSummaryDto
   description: string
+  /** structure of the description (paragraphs, headings, lists, tables) */
+  descriptionBlocks: TextBlock[]
   features: FeatureDto[]
   subclasses: RuleDetailDto[]
   /** starting equipment of a character that starts with the class */
@@ -162,12 +169,16 @@ export interface SpellDetailDto {
   attackRoll: boolean
   saveAbility: string | null
   description: string
+  /** structure of the description (paragraphs, headings, lists, tables) */
+  descriptionBlocks: TextBlock[]
 }
 
 /** Item with its full text and properties */
 export interface ItemDetailDto {
   item: ItemSummaryDto
   description: string
+  /** structure of the description (paragraphs, headings, lists, tables) */
+  descriptionBlocks: TextBlock[]
   properties: Record<string, string>
   features: FeatureDto[]
 }

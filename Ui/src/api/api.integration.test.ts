@@ -39,7 +39,14 @@ import type {
   ChoiceDefinitionDto,
 } from './dtos/rules'
 import type { CoinsDto } from './dtos/inventory'
-import type { AbilitySheet, CharacterSheet, Coins, SkillSheet } from './dtos/sheet'
+import type {
+  AbilitySheet,
+  CharacterSheet,
+  Coins,
+  FeatureSheet,
+  SkillSheet,
+} from './dtos/sheet'
+import type { TextBlock, TextSpan } from './dtos/text'
 import type { CharacterSpellsDto, KnownSpellDto, SpellcastingClassDto } from './dtos/spells'
 import type { CurrentUserDto, TokenDto, UserDto } from './dtos/user'
 import { GetCurrentUserIntent, RegisterIntent } from './intents/auth'
@@ -143,6 +150,7 @@ const Shapes = {
   classDetail: keys<ClassDetailDto>({
     class: true,
     description: true,
+    descriptionBlocks: true,
     features: true,
     subclasses: true,
     startingEquipment: true,
@@ -151,6 +159,7 @@ const Shapes = {
     key: true,
     name: true,
     description: true,
+    descriptionBlocks: true,
     features: true,
     startingEquipment: true,
     imageUrl: true,
@@ -194,6 +203,7 @@ const Shapes = {
     name: true,
     level: true,
     description: true,
+    descriptionBlocks: true,
     choices: true,
   }),
   choiceDefinition: keys<ChoiceDefinitionDto>({
@@ -236,6 +246,7 @@ const Shapes = {
     attackRoll: true,
     saveAbility: true,
     description: true,
+    descriptionBlocks: true,
   }),
   item: keys<ItemSummaryDto>({
     key: true,
@@ -255,6 +266,7 @@ const Shapes = {
   itemDetail: keys<ItemDetailDto>({
     item: true,
     description: true,
+    descriptionBlocks: true,
     properties: true,
     features: true,
   }),
@@ -317,6 +329,7 @@ const Shapes = {
     name: true,
     source: true,
     description: true,
+    descriptionBlocks: true,
     parentRef: true,
     input: true,
     optionSource: true,
@@ -343,6 +356,7 @@ const Shapes = {
     name: true,
     summary: true,
     description: true,
+    descriptionBlocks: true,
     disabled: true,
     disabledReason: true,
     grants: true,
@@ -379,6 +393,26 @@ const Shapes = {
     parentId: true,
     replacePolicy: true,
     removable: true,
+  }),
+  featureSheet: keys<FeatureSheet>({
+    key: true,
+    name: true,
+    source: true,
+    description: true,
+    descriptionBlocks: true,
+    spellcasting: true,
+  }),
+  textBlock: keys<TextBlock>({
+    kind: true,
+    spans: true,
+    items: true,
+    rows: true,
+    headerRows: true,
+  }),
+  textSpan: keys<TextSpan>({
+    text: true,
+    bold: true,
+    italic: true,
   }),
   sheet: keys<CharacterSheet>({
     name: true,
@@ -569,6 +603,8 @@ describe.skipIf(!apiUrl)('API integration', () => {
     const wizard = await ok(new GetClassIntent('wizard'))
     expectShape(wizard, Shapes.classDetail)
     expectShape(wizard.features[0], Shapes.feature)
+    expectShape(wizard.features[0].descriptionBlocks[0], Shapes.textBlock)
+    expectShape(wizard.features[0].descriptionBlocks[0].spans[0], Shapes.textSpan)
     const acolyte = await ok(new GetBackgroundIntent('acolyte'))
     expectShape(acolyte, Shapes.ruleDetail)
     expectShape(acolyte.startingEquipment[0], Shapes.startingEquipmentOption)
@@ -678,6 +714,7 @@ describe.skipIf(!apiUrl)('API integration', () => {
     expectShape(sheet.abilities[0], Shapes.abilitySheet)
     expectShape(sheet.abilities[0].skills[0] ?? sheet.abilities[1].skills[0], Shapes.skillSheet)
     expectShape(sheet.coins, Shapes.coins)
+    expectShape(sheet.classFeatures[0], Shapes.featureSheet)
     const pdf = await ok(new GetCharacterSheetPdfIntent(state.id))
     expect(pdf.size).toBeGreaterThan(1000)
 

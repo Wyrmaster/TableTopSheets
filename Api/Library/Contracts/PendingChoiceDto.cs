@@ -1,4 +1,5 @@
 using TableTopSheets.Common.Enum.Rules;
+using TableTopSheets.Common.Sheet;
 
 namespace TableTopSheets.Api.Contracts;
 
@@ -18,6 +19,9 @@ public sealed record PendingChoiceDto
   public required string Source { get; init; }
 
   public required string Description { get; init; }
+
+  /// <summary>Structure of the description (paragraphs, headings, lists, tables) for rich display</summary>
+  public IReadOnlyList<TextBlock> DescriptionBlocks { get; init; } = [];
 
   /// <summary>Send back as <c>parentRef</c> of the selections (null for top level choices)</summary>
   public string? ParentRef { get; init; }

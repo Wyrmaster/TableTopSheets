@@ -1,6 +1,7 @@
 // Source: Api/Library/Contracts/ChoiceDtos.cs
 import type { Guid } from './common'
 import type { ChoiceInputKind, OptionSourceEnum } from './enums'
+import type { TextBlock } from './text'
 
 /**
  * Limits of a choice instance, enough to validate before sending
@@ -51,6 +52,8 @@ export interface OptionDto {
   summary: string | null
   /** full description (only with `includeDescriptions`) */
   description: string | null
+  /** structure of the description (only with `includeDescriptions`, otherwise empty) */
+  descriptionBlocks: TextBlock[]
   /** true when the option exists but can't be selected right now (only with `includeDisabled`) */
   disabled: boolean
   disabledReason: string | null
@@ -70,6 +73,8 @@ export interface PendingChoiceDto {
   /** feature that offers the choice, e.g. "Ability Score Improvement (Wizard 4)" */
   source: string
   description: string
+  /** structure of the description (paragraphs, headings, lists, tables) */
+  descriptionBlocks: TextBlock[]
   /** send back as `parentRef` of the selections (null for top level choices) */
   parentRef: string | null
   input: ChoiceInputKind

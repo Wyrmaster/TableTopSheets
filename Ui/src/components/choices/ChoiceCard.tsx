@@ -8,6 +8,7 @@ import {
   RemoveSelectionIntent,
   SelectOptionsIntent,
 } from '@/api'
+import { Prose } from '@/components/Facts'
 import { Icon } from '@/components/Icon'
 import { checkIcon, closeIcon, minusIcon, plusIcon } from '@/components/icons'
 import { InfoButton } from '@/components/InfoButton'
@@ -52,6 +53,7 @@ const inspectTarget = (choice: PendingChoiceDto, option: OptionDto): InspectTarg
           name: option.name,
           source: choice.name,
           description: option.description ?? option.summary ?? '',
+          descriptionBlocks: option.description ? option.descriptionBlocks : null,
         }
         : null
   }
@@ -170,12 +172,15 @@ export const ChoiceCard = ({
           </HStack>
         </Flex>
         {choice.description && (
-          <Text
+          <Box
             fontSize='sm'
             color='fg.muted'
           >
-            {choice.description}
-          </Text>
+            <Prose
+              text={choice.description}
+              blocks={choice.descriptionBlocks}
+            />
+          </Box>
         )}
         {distribution && choice.constraints.allowedPatterns && (
           <Text fontSize='sm'>

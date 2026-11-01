@@ -1,5 +1,7 @@
 import { Box, SimpleGrid, Text } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
+import type { TextBlock } from '@/api'
+import { RichText } from '@/components/RichText'
 
 /**
  * Label / value grid (spell stats, class facts …)
@@ -37,9 +39,14 @@ export const Facts = ({ items }: { items: [string, ReactNode][] }) => {
 }
 
 /**
- * Description text of the rules; line breaks become paragraphs
+ * Description text of the rules: the structured blocks when the API sent them, otherwise the plain text with line
+ * breaks as paragraphs
  */
-export const Prose = ({ text }: { text: string }) => {
+export const Prose = ({ text, blocks }: { text: string, blocks?: TextBlock[] | null }) => {
+  if (blocks && blocks.length > 0) {
+    return <RichText blocks={blocks} />
+  }
+
   return (
     <Box
       display='grid'

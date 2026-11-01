@@ -1,4 +1,5 @@
 import { createContext } from 'react'
+import type { TextBlock } from '@/api'
 
 /** What the detail view shows: a rule entity loaded from the API, or a feature text that is already at hand */
 export type InspectTarget =
@@ -7,7 +8,9 @@ export type InspectTarget =
     kind: 'feature',
     name: string,
     source: string,
-    description: string
+    description: string,
+    /** structure of the description (paragraphs, headings, lists, tables), when known */
+    descriptionBlocks?: TextBlock[] | null
   }
 
 export interface InspectorContextValue {

@@ -36,7 +36,10 @@ export const InspectorContent = ({ target, onInspect }: {
           label={target.source}
           title={target.name}
         />
-        <Prose text={target.description} />
+        <Prose
+          text={target.description}
+          blocks={target.descriptionBlocks}
+        />
       </Stack>
     )
   }
@@ -149,7 +152,10 @@ const SpellView = ({ spell }: { spell: SpellDetailDto }) => {
         {summary.ritual && <Badge>Ritual</Badge>}
       </HStack>
       <Facts items={facts} />
-      <Prose text={spell.description} />
+      <Prose
+        text={spell.description}
+        blocks={spell.descriptionBlocks}
+      />
     </>
   )
 }
@@ -181,7 +187,10 @@ const ClassView = ({ detail }: { detail: ClassDetailDto }) => {
           ['Subclasses', detail.subclasses.map((subclass) => subclass.name).join(', ')],
         ]}
       />
-      <Prose text={detail.description} />
+      <Prose
+        text={detail.description}
+        blocks={detail.descriptionBlocks}
+      />
       <StartingEquipmentList options={detail.startingEquipment} />
       <Heading size='sm'>Features by level</Heading>
       <Stack gap='2'>
@@ -241,7 +250,12 @@ const ItemView = ({ detail }: { detail: ItemDetailDto }) => {
           ...properties,
         ]}
       />
-      {detail.description && <Prose text={detail.description} />}
+      {detail.description && (
+        <Prose
+          text={detail.description}
+          blocks={detail.descriptionBlocks}
+        />
+      )}
     </>
   )
 }
@@ -269,7 +283,12 @@ const RuleView = (
           alt={detail.name}
         />
       )}
-      {detail.description && <Prose text={detail.description} />}
+      {detail.description && (
+        <Prose
+          text={detail.description}
+          blocks={detail.descriptionBlocks}
+        />
+      )}
       <StartingEquipmentList options={detail.startingEquipment ?? []} />
       {detail.features.map((feature) => (
         <Box key={feature.key}>
@@ -279,7 +298,10 @@ const RuleView = (
           >
             {feature.name}
           </Heading>
-          <Prose text={feature.description} />
+          <Prose
+            text={feature.description}
+            blocks={feature.descriptionBlocks}
+          />
           {feature.choices.length > 0 && (
             <Text
               mt='1'

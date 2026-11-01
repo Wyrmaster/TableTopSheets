@@ -497,7 +497,10 @@ public static class CharacterSheetBuilder
       string name = entry.Feature.Name
                     + (choices.Count > 0 ? $" ({string.Join(", ", choices)})" : string.Empty)
                     + (entry.Feature.Toggleable ? entry.Active ? " [active]" : " [inactive]" : string.Empty);
-      return new FeatureSheet(entry.Feature.Key, name, entry.Source, description, entry.Feature.Spellcasting != null);
+      return new FeatureSheet(entry.Feature.Key, name, entry.Source, description, entry.Feature.Spellcasting != null)
+      {
+        DescriptionBlocks = HtmlText.ToBlocks(entry.Feature.DescriptionHtml),
+      };
     })
     .ToList();
 

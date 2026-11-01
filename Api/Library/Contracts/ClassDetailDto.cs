@@ -1,5 +1,6 @@
-using TableTopSheets.Common.Enum;
 using TableTopSheets.Common.Enum.Rules;
+using TableTopSheets.Common.Enum;
+using TableTopSheets.Common.Sheet;
 
 namespace TableTopSheets.Api.Contracts;
 
@@ -11,4 +12,8 @@ public sealed record ClassDetailDto
   IReadOnlyList<FeatureDto> Features,
   IReadOnlyList<RuleDetailDto> Subclasses,
   IReadOnlyList<StartingEquipmentOptionDto> StartingEquipment
-);
+)
+{
+  /// <summary>Structure of the description (paragraphs, headings, lists, tables) for rich display</summary>
+  public IReadOnlyList<TextBlock> DescriptionBlocks { get; init; } = [];
+}

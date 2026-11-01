@@ -393,6 +393,7 @@ const FeatureButton = ({ feature }: { feature: FeatureSheet }) => {
         name: feature.name,
         source: feature.source,
         description: feature.description,
+        descriptionBlocks: feature.descriptionBlocks,
       })}
     >
       <Box minW='0'>

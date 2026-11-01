@@ -98,7 +98,10 @@ public static class RuleMapper
     feature.Choices
       .Select(Choice)
       .ToList()
-  );
+  )
+  {
+    DescriptionBlocks = HtmlText.ToBlocks(feature.DescriptionHtml),
+  };
 
   public static ChoiceDefinitionDto Choice(Choice choice) => new
   (
@@ -116,7 +119,10 @@ public static class RuleMapper
   /// <param name="features">its features</param>
   /// <param name="startingEquipment">starting equipment of a background</param>
   public static RuleDetailDto Detail(RuleEntity entity, IEnumerable<Feature> features, IReadOnlyList<StartingEquipmentOptionDto>? startingEquipment = null)
-    => new(entity.Key, entity.Name, HtmlText.ToPlain(entity.DescriptionHtml), Features(features), startingEquipment ?? []);
+    => new(entity.Key, entity.Name, HtmlText.ToPlain(entity.DescriptionHtml), Features(features), startingEquipment ?? [])
+    {
+      DescriptionBlocks = HtmlText.ToBlocks(entity.DescriptionHtml),
+    };
 
   /// <param name="class">class with its subclasses</param>
   /// <param name="features">features of the class and of its subclasses</param>
@@ -131,7 +137,10 @@ public static class RuleMapper
       .Select(entry => Detail(entry, features.Where(feature => feature.SubclassId == entry.Id)))
       .ToList(),
     startingEquipment
-  );
+  )
+  {
+    DescriptionBlocks = HtmlText.ToBlocks(@class.DescriptionHtml),
+  };
 
   /// <summary>
   ///   Items named by starting equipment (fixed items and picks), to load their names
@@ -189,7 +198,10 @@ public static class RuleMapper
     spell.AttackRoll,
     spell.SaveAbility,
     HtmlText.ToPlain(spell.DescriptionHtml)
-  );
+  )
+  {
+    DescriptionBlocks = HtmlText.ToBlocks(spell.DescriptionHtml),
+  };
 
   /// <param name="item">item (with the mastery of a weapon)</param>
   /// <param name="features">features of the item</param>
@@ -199,7 +211,10 @@ public static class RuleMapper
     HtmlText.ToPlain(item.DescriptionHtml),
     Properties(item),
     Features(features)
-  );
+  )
+  {
+    DescriptionBlocks = HtmlText.ToBlocks(item.DescriptionHtml),
+  };
 
   /// <summary>
   ///   Features ordered by level and authored order

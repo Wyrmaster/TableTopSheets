@@ -1,4 +1,5 @@
 using TableTopSheets.Common.Enum.Rules;
+using TableTopSheets.Common.Sheet;
 
 namespace TableTopSheets.Api.Contracts;
 
@@ -16,6 +17,9 @@ public sealed record OptionDto
 
   /// <summary>Full description (only when requested)</summary>
   public string? Description { get; init; }
+
+  /// <summary>Structure of the description (paragraphs, headings, lists, tables) for rich display</summary>
+  public IReadOnlyList<TextBlock> DescriptionBlocks { get; init; } = [];
 
   /// <summary>True when the option exists but can't be selected right now</summary>
   public bool Disabled { get; init; }

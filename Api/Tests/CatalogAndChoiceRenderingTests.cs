@@ -1,6 +1,8 @@
 using System.Net;
 using System.Text.Json;
 using TableTopSheets.Api.Contracts;
+using TableTopSheets.Common.Enum;
+using TableTopSheets.Common.Sheet;
 
 namespace TableTopSheets.Api.Tests;
 
@@ -146,6 +148,19 @@ public sealed class CatalogAndChoiceRenderingTests(ApiFactory factory): IClassFi
       .GetProperty("components")
       .GetProperty("schemas")
       .TryGetProperty("ChoiceInputKind", out _));
+  }
+
+  [Fact]
+  public async Task Descriptions_CarryTheirTablesAsBlocks()
+  {
+    ItemDetailDto deck = await this._api.GetAsync<ItemDetailDto>("/api/rules/items/deck-of-many-things");
+    RuleDetailDto background = await this._api.GetAsync<RuleDetailDto>("/api/rules/backgrounds/acolyte");
+
+    TextBlock table = Assert.Single(deck.DescriptionBlocks, block => block.Kind == TextBlockKindEnum.Table);
+    Assert.Equal(1, table.HeaderRows);
+    Assert.Equal(23, table.Rows.Count);
+    Assert.All(table.Rows, row => Assert.Equal(3, row.Count));
+    Assert.NotEmpty(background.DescriptionBlocks);
   }
 
   #endregion

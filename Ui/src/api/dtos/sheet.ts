@@ -1,6 +1,7 @@
 // Sources: Common/Sheet/CharacterSheet.cs,
 // Common/Container/Magic/SpellSlot.cs
 import type { Guid } from './common'
+import type { TextBlock } from './text'
 import type { ArmorFlags, DamageTypeEnum, DiceEnum, PeriodEnum, SizeEnum, ViolationSeverityEnum } from './enums'
 
 /** Proficiency levels of skills and saving throws (SkillModifierEnum) */
@@ -99,6 +100,8 @@ export interface FeatureSheet {
   name: string
   source: string
   description: string
+  /** structure of the description (paragraphs, headings, lists, tables) */
+  descriptionBlocks: TextBlock[]
   spellcasting: boolean
 }
 
