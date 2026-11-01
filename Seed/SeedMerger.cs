@@ -99,7 +99,7 @@ public static class SeedMerger
     });
   }
 
-  private static void MergeItem(SeedItem into, SeedItem from)
+  public static void MergeItem(SeedItem into, SeedItem from)
   {
     MergeNamed(into, from);
     into.Kind = from.Kind ?? into.Kind;
@@ -107,6 +107,8 @@ public static class SeedMerger
     into.Weight = from.Weight ?? into.Weight;
     into.Magic = from.Magic ?? into.Magic;
     into.Attunement = from.Attunement ?? into.Attunement;
+    into.Rarity = from.Rarity ?? into.Rarity;
+    into.Base = from.Base ?? into.Base;
     into.Category = from.Category ?? into.Category;
     into.Bundle = from.Bundle ?? into.Bundle;
     into.WeaponCategory = from.WeaponCategory ?? into.WeaponCategory;
@@ -125,6 +127,7 @@ public static class SeedMerger
     into.StealthDisadvantage = from.StealthDisadvantage ?? into.StealthDisadvantage;
     into.ToolGroup = from.ToolGroup ?? into.ToolGroup;
     MergeFeatures(into.Features, from.Features);
+    MergeList(into.Variants, from.Variants, MergeItem);
   }
 
   /// <summary>

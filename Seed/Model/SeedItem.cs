@@ -23,6 +23,8 @@ public sealed class SeedItem: SeedNamed
 
   public bool? Attunement { get; set; }
 
+  public RarityEnum? Rarity { get; set; }
+
   /// <summary>
   ///   Gear category (<c>ammunition</c>, <c>arcane-focus</c>, <c>mount</c> ...); tools use <see cref="ToolGroup"/>
   /// </summary>
@@ -34,6 +36,22 @@ public sealed class SeedItem: SeedNamed
   public int? Bundle { get; set; }
 
   public List<SeedFeature> Features { get; set; } = [];
+
+  #region Variants
+
+  /// <summary>
+  ///   Key of the mundane item a variant is made from (<c>longsword</c> for a <c>+1 Longsword</c>); the variant takes over its
+  ///   kind and its weapon or armor values
+  /// </summary>
+  public string? Base { get; set; }
+
+  /// <summary>
+  ///   Concrete items of a template (<c>+1 Weapon</c> → <c>+1 Longsword</c>, <c>+1 Dagger</c> ...). A template with variants is
+  ///   no item itself: every variant takes the values and features of the template and adds its own
+  /// </summary>
+  public List<SeedItem> Variants { get; set; } = [];
+
+  #endregion
 
   #region Weapon
 

@@ -3,7 +3,10 @@ using TableTopSheets.Common.Enum.Rules;
 
 namespace TableTopSheets.Api.Contracts;
 
-/// <summary>Item in a list; cost and weight are per <c>bundle</c> (20 arrows for 1 GP), quantities count pieces</summary>
+/// <summary>
+///   Item in a list; cost and weight are per <c>bundle</c> (20 arrows for 1 GP), quantities count pieces. <c>rarity</c> is
+///   null for mundane items; <c>priceless</c> items (artifacts) can't be bought, their <c>costCp</c> is 0
+/// </summary>
 public sealed record ItemSummaryDto
 (
   string Key,
@@ -14,7 +17,9 @@ public sealed record ItemSummaryDto
   double Weight,
   bool Magic,
   bool RequiresAttunement,
-  int Bundle
+  int Bundle,
+  RarityEnum? Rarity,
+  bool Priceless
 )
 {
   /// <summary>Picture (<c>/api/images/item/{key}</c>); null when there is none</summary>

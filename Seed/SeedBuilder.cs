@@ -92,7 +92,7 @@ public sealed class SeedBuilder
       }, "spell", spell));
     }
 
-    foreach (SeedItem item in this._document.Items)
+    foreach (SeedItem item in SeedVariantExpander.Expand(this._document.Items, this._errors))
     {
       this._result.Items.Add(this.BuildItem(item));
     }
@@ -499,11 +499,13 @@ public sealed class SeedBuilder
 
     item.Kind = seed.Kind ?? ItemKindEnum.Gear;
     item.Group ??= seed.Category;
-    item.CostCp = seed.Cost ?? 0;
+    item.CostCp = seed.Cost ?? MagicItemPrice.Of(seed.Rarity, seed.Category) ?? 0;
     item.Weight = seed.Weight ?? 0;
     item.Bundle = seed.Bundle ?? 1;
     item.Magic = seed.Magic ?? false;
     item.RequiresAttunement = seed.Attunement ?? false;
+    item.Rarity = seed.Rarity;
+    item.BaseItemId = seed.Base == null ? null : SeedKeys.Id("item", seed.Base);
     this.Rule(item, "item", seed);
 
     foreach (SeedFeature feature in seed.Features)
@@ -538,7 +540,7 @@ public sealed class SeedBuilder
         }
 
         List<string> picks = this._result.Items
-          .Where(item => item.Group != null && choose.Contains(item.Group))
+          .Where(item => item.Group != null && !item.Magic && choose.Contains(item.Group))
           .OrderBy(item => item.Name, StringComparer.Ordinal)
           .Select(item => item.Key)
           .ToList();

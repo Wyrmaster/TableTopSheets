@@ -42,14 +42,17 @@ public static class ImageWriter
       .Where(id => !current.Contains(id))
       .ToList();
 
+    // stale images go first: a new image can take over the owner of one (magic item artwork replacing a picture of the
+    // Player's Handbook), and an owner has only one image
     await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
-    await context.SaveChangesAsync(cancellationToken);
     if (stale.Count > 0)
     {
       await context.Images
         .Where(entity => stale.Contains(entity.Id))
         .ExecuteDeleteAsync(cancellationToken);
     }
+
+    await context.SaveChangesAsync(cancellationToken);
 
     await transaction.CommitAsync(cancellationToken);
     context.ChangeTracker.Clear();

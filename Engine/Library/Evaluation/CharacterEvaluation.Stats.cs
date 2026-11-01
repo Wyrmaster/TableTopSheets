@@ -79,6 +79,13 @@ public sealed partial class CharacterEvaluation
 
   public int Score(string ability) => (int)this.Stat($"ability.{ability}.score");
 
+  /// <summary>
+  ///   Bonus to the spell <c>attack</c> rolls or save <c>dc</c> of a class: the bonus to all spells plus the one to the spells
+  ///   of the class (Rod of the Pact Keeper)
+  /// </summary>
+  public int SpellBonus(string kind, string? classKey)
+    => (int)this.Stat($"spellcasting.{kind}.bonus") + (classKey == null ? 0 : (int)this.Stat($"spellcasting.{classKey}.{kind}.bonus"));
+
   public int Modifier(string ability) => (int)Math.Floor((this.Score(ability) - 10) / 2.0);
 
   #endregion

@@ -16,6 +16,10 @@ export type AbilityMethodEnum = (typeof AbilityMethods)[number]
 export const ItemKinds = ['Gear', 'Weapon', 'Armor', 'Tool'] as const
 export type ItemKindEnum = (typeof ItemKinds)[number]
 
+/** Rarity of a magic item, from the most common to artifacts (which can't be bought) */
+export const Rarities = ['Common', 'Uncommon', 'Rare', 'VeryRare', 'Legendary', 'Artifact'] as const
+export type RarityEnum = (typeof Rarities)[number]
+
 /** `Ready`: an equipped weapon that isn't held; any number of weapons can be ready */
 export const EquipSlots = ['None', 'Armor', 'MainHand', 'OffHand', 'Worn', 'Ready'] as const
 export type EquipSlotEnum = (typeof EquipSlots)[number]

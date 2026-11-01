@@ -131,6 +131,11 @@ public static class CatalogValidator
       errors.Add($"{where}: unknown stat '{effect.Target}'");
     }
 
+    if (target.StartsWith("item.", StringComparison.Ordinal) && (effect.FeatureId is not { } featureId || catalog.Features[featureId].ItemId == null))
+    {
+      errors.Add($"{where}: stat '{effect.Target}' only applies to effects of item features");
+    }
+
     if (target.StartsWith("spell.", StringComparison.Ordinal) && !catalog.SpellsByKey.ContainsKey(target["spell.".Length..]) && !effect.Target.Contains('$'))
     {
       errors.Add($"{where}: spell '{target["spell.".Length..]}' doesn't exist");

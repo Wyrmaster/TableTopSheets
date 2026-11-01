@@ -28,6 +28,7 @@ public static class ImageLoader
     ["backgrounds"] = ImageCategoryEnum.Background,
     ["scenes"] = ImageCategoryEnum.Scene,
     ["items"] = ImageCategoryEnum.Item,
+    ["magic-items"] = ImageCategoryEnum.Item,
     ["coins"] = ImageCategoryEnum.Coin,
   };
 
@@ -58,7 +59,11 @@ public static class ImageLoader
       }
     }
 
-    return images;
+    // a later folder replaces the picture of the same owner (the magic items artwork the equipment picture of a Spell Scroll)
+    return images
+      .GroupBy(image => (image.Category, image.OwnerKey))
+      .Select(group => group.Last())
+      .ToList();
   }
 
   /// <summary>

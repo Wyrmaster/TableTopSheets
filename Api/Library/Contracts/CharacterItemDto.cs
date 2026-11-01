@@ -4,7 +4,7 @@ using TableTopSheets.Common.Sheet;
 
 namespace TableTopSheets.Api.Contracts;
 
-/// <summary>Owned item; <c>notes</c> tell what it is about (a book of <c>prayers</c>)</summary>
+/// <summary>Owned item; <c>notes</c> tell what it is about (a book of <c>prayers</c>); <c>rarity</c> is null for mundane items</summary>
 public sealed record CharacterItemDto
 (
   Guid Id,
@@ -15,5 +15,7 @@ public sealed record CharacterItemDto
   EquipSlotEnum Slot,
   bool Attuned,
   bool RequiresAttunement,
-  string? Notes
+  string? Notes,
+  bool Magic,
+  RarityEnum? Rarity
 );

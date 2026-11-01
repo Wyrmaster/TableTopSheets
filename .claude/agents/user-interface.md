@@ -89,18 +89,18 @@ Base `http://localhost:5180`. All character routes are below `/api/characters/{i
 | GET | `/{id}/level-up/preview` | `class`, `subclass?` | `LevelUpPreviewDto` |
 | POST | `/{id}/levels` / `/levels/validate` | `LevelUpDto` | `CharacterStateDto` / `ValidationResultDto` |
 | DELETE | `/{id}/levels/last` | | `CharacterStateDto` |
-| POST | `/{id}/items` | `{ itemKey, quantity = 1 }` | `CharacterStateDto` |
+| POST | `/{id}/items` | `{ itemKey, quantity = 1, purchase? }` (422: not enough coins, or a `priceless` artifact) | `CharacterStateDto` |
 | PUT | `/{id}/items/{itemId}/slot` | `{ slot: None \| Armor \| MainHand \| OffHand \| Worn }` | `CharacterStateDto` |
 | PUT | `/{id}/items/{itemId}/attunement` | `{ attuned }` (max 3) | `CharacterStateDto` |
 | PUT | `/{id}/toggles/{featureKey}` | `{ active }` (Rage, Mage Armor, Innate Sorcery …) | `CharacterStateDto` |
 | PUT | `/{id}/prepared-spells/{classKey}` | `{ spellKeys }` (long rest loadout) | `CharacterStateDto` |
 | POST | `/{id}/spellbook` | `{ spellKey, note? }` | `CharacterStateDto` |
 
-**Lists:** `page` (from 1), `pageSize` (1–200, default 50), `search` (name and key), `sort` (comma separated, `-` descending, e.g. `-level,name`) → `{ items, page, pageSize, totalCount, totalPages }`. Unknown sort fields are a 400 that lists the allowed ones. Catalog filters: spells `class`, `level`, `minLevel`, `maxLevel`, `school`, `ritual`, `concentration`, `damage`, `damageType`, `castingTime`; feats `category` (`origin`, `general`, `fighting-style`, `epic-boon`), `repeatable`, `hasPrerequisite`; items `kind` (`Gear`, `Weapon`, `Armor`, `Tool`), `category`, `magic`, `attunement`.
+**Lists:** `page` (from 1), `pageSize` (1–200, default 50), `search` (name and key), `sort` (comma separated, `-` descending, e.g. `-level,name`) → `{ items, page, pageSize, totalCount, totalPages }`. Unknown sort fields are a 400 that lists the allowed ones. Catalog filters: spells `class`, `level`, `minLevel`, `maxLevel`, `school`, `ritual`, `concentration`, `damage`, `damageType`, `castingTime`; feats `category` (`origin`, `general`, `fighting-style`, `epic-boon`), `repeatable`, `hasPrerequisite`; items `kind` (`Gear`, `Weapon`, `Armor`, `Tool`; magic weapons and armor too), `category` (also the magic item groups `wondrous-item`, `potion`, `ring`, `rod`, `scroll`, `staff`, `wand`), `magic`, `attunement`, `rarity` (`Common` … `Artifact`); items also sort by `rarity`.
 
 **Key DTOs** (`Contracts/CharacterDtos.cs`, `ChoiceDtos.cs`):
 
-- `CharacterStateDto`: `id`, `name`, `level`, `species`, `background`, `alignment`, `classes[] { key, name, level, subclass }`, `abilities[] { key, name, score, modifier }`, `proficiencyBonus`, `hitPointMaximum`, `armorClass`, `items[] { id, itemKey, name, kind, quantity, slot, attuned, requiresAttunement }`, `complete`, `pendingChoices[]`, `violations[] { code, message, severity: Info | Warning | Error }`.
+- `CharacterStateDto`: `id`, `name`, `level`, `species`, `background`, `alignment`, `classes[] { key, name, level, subclass }`, `abilities[] { key, name, score, modifier }`, `proficiencyBonus`, `hitPointMaximum`, `armorClass`, `items[] { id, itemKey, name, kind, quantity, slot, attuned, requiresAttunement, notes, magic, rarity }`, `complete`, `pendingChoices[]`, `violations[] { code, message, severity: Info | Warning | Error }`.
 - `SelectionDto`: `{ choiceKey, optionKey, ref?, parentRef? }`. A Distribution or MultiSelect sends **one entry per pick** (`int`, `int`, `con` = +2 INT / +1 CON).
 - `ValidationResultDto`: `{ valid, errors[], state? }`; `state` already shows the follow-up choices.
 - `LevelUpPreviewDto`: `classKey`, `classLevel`, `characterLevel`, `requiresSubclass`, `subclasses[]`, `pendingChoices[]`, `replaceable[]` (selections that may be swapped with this level).

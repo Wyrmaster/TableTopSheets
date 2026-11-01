@@ -23,6 +23,11 @@ public class ItemConfiguration: RuleEntityConfiguration<Item>
       .Property(entity => entity.Bundle)
       .HasDefaultValue(1);
     builder
+      .HasOne(entity => entity.BaseItem)
+      .WithMany()
+      .HasForeignKey(entity => entity.BaseItemId)
+      .OnDelete(DeleteBehavior.Restrict);
+    builder
       .HasMany(entity => entity.Features)
       .WithOne(entity => entity.Item)
       .HasForeignKey(entity => entity.ItemId)

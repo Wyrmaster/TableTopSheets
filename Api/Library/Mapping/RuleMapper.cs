@@ -1,5 +1,6 @@
 using System.Globalization;
 using TableTopSheets.Api.Contracts;
+using TableTopSheets.Common.Enum.Rules;
 using TableTopSheets.Engine.Choices;
 using TableTopSheets.Engine.Sheet;
 using TableTopSheets.Persistence.Entity.Rules;
@@ -54,8 +55,20 @@ public static class RuleMapper
     spell.Lists
   );
 
-  public static ItemSummaryDto Summary(Item item)
-    => new(item.Key, item.Name, item.Kind, ItemCategory(item), item.CostCp, item.Weight, item.Magic, item.RequiresAttunement, item.Bundle);
+  public static ItemSummaryDto Summary(Item item) => new
+  (
+    item.Key,
+    item.Name,
+    item.Kind,
+    ItemCategory(item),
+    item.CostCp,
+    item.Weight,
+    item.Magic,
+    item.RequiresAttunement,
+    item.Bundle,
+    item.Rarity,
+    item.Rarity == RarityEnum.Artifact
+  );
 
   public static string SchoolKey(Spell spell) => spell.School
     .ToString()

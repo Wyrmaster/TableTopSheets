@@ -125,7 +125,20 @@ public static class StateMapper
   private static CharacterItemDto Item(CharacterEvaluation evaluation, CharacterItem entry)
   {
     Item item = evaluation.Catalog.Items[entry.ItemId];
-    return new CharacterItemDto(entry.Id, item.Key, item.Name, item.Kind, entry.Quantity, entry.EquipSlot, entry.Attuned, item.RequiresAttunement, entry.Notes);
+    return new CharacterItemDto
+    (
+      entry.Id,
+      item.Key,
+      item.Name,
+      item.Kind,
+      entry.Quantity,
+      entry.EquipSlot,
+      entry.Attuned,
+      item.RequiresAttunement,
+      entry.Notes,
+      item.Magic,
+      item.Rarity
+    );
   }
 
   #endregion

@@ -45,7 +45,7 @@ public sealed partial class CharacterEvaluation
       "light" => armor?.Category == ArmorEnum.Light,
       "medium" => armor?.Category == ArmorEnum.Medium,
       "heavy" => armor?.Category == ArmorEnum.Heavy,
-      _ => this.EquippedItems.Any(entry => this.Catalog.Items[entry.ItemId].Key == what),
+      _ => this.EquippedItems.Any(entry => this.IsItem(this.Catalog.Items[entry.ItemId], what)),
     };
   }
 
@@ -67,7 +67,7 @@ public sealed partial class CharacterEvaluation
       "two-weapons" => held
         .OfType<Weapon>()
         .Count() >= 2,
-      _ => held.Any(entry => entry.Key == what),
+      _ => held.Any(entry => this.IsItem(entry, what)),
     };
   }
 
@@ -82,7 +82,17 @@ public sealed partial class CharacterEvaluation
     => this.Stat($"proficiency.weapon.{weapon.Category
       .ToString()
       .ToLowerInvariant()}") > 0
-       || this.Stat($"proficiency.weapon.{weapon.Key}") > 0;
+       || this.Stat($"proficiency.weapon.{this.BaseKey(weapon)}") > 0;
+
+  /// <summary>
+  ///   Key of the mundane item a magic variant is made from (<c>longsword</c> for a +1 Longsword), else the item's own key
+  /// </summary>
+  public string BaseKey(Item item) => item.BaseItemId is { } baseId ? this.Catalog.Items[baseId].Key : item.Key;
+
+  /// <summary>
+  ///   The item is the one of the key or a variant of it
+  /// </summary>
+  private bool IsItem(Item item, string key) => item.Key == key || this.BaseKey(item) == key;
 
   #endregion
 }

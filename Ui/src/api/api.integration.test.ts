@@ -247,6 +247,8 @@ const Shapes = {
     magic: true,
     requiresAttunement: true,
     bundle: true,
+    rarity: true,
+    priceless: true,
     imageUrl: true,
     thumbnailUrl: true,
   }),
@@ -306,6 +308,8 @@ const Shapes = {
     attuned: true,
     requiresAttunement: true,
     notes: true,
+    magic: true,
+    rarity: true,
   }),
   pending: keys<PendingChoiceDto>({
     id: true,

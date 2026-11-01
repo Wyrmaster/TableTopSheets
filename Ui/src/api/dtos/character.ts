@@ -7,6 +7,7 @@ import type {
   AlignmentEnum,
   EquipSlotEnum,
   ItemKindEnum,
+  RarityEnum,
   ReplacePolicyEnum,
   ViolationSeverityEnum,
 } from './enums'
@@ -59,6 +60,9 @@ export interface CharacterItemDto {
   requiresAttunement: boolean
   /** what the item is about (a book of `prayers`) */
   notes: string | null
+  magic: boolean
+  /** rarity of a magic item; null for mundane items */
+  rarity: RarityEnum | null
 }
 
 /**

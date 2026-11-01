@@ -827,7 +827,7 @@ that lists the allowed ones. Lists answer with `{ items, page, pageSize, totalCo
 |---|---|---|
 | spells | `class`, `level`, `minLevel`, `maxLevel`, `school`, `ritual`, `concentration`, `damage`, `damageType`, `castingTime` | name, key, level, school |
 | feats | `category`, `repeatable`, `hasPrerequisite` | name, key, category |
-| items | `kind`, `category` (weapon/armor category, tool group), `magic`, `attunement` | name, key, kind, cost, weight |
+| items | `kind`, `category` (weapon/armor category, tool group, gear category or magic item group: `wondrous-item`, `potion`, `ring`, `rod`, `scroll`, `staff`, `wand`), `magic`, `attunement`, `rarity` (`Common` … `Artifact`) | name, key, kind, cost, weight, rarity |
 | species, backgrounds, classes | – | name, key |
 | characters | `class`, `species`, `minLevel`, `maxLevel` | name, level, species |
 | choice options | `level`, `minLevel`, `maxLevel`, `school`, `ritual`, `damage`, `category` (see `optionFilters`) | name, key, level, school, category, available |

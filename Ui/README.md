@@ -50,6 +50,8 @@ Start the API with `dotnet run --project Api/Library` from the repository root.
 | `src/components/RuleImage.tsx`, `SceneBanner.tsx` | picture of a rule entity (inspector) / a random scene (`useRandomScene`) at the top of the characters and spells pages; the login page shows one too |
 | `src/components/choices` | `ChoiceCard` / `ChoiceList`: any pending choice rendered from its metadata |
 | `src/components/Icon.tsx`, `icons.ts` | Material Design Icons (`@mdi/js`); add new icons to `icons.ts` |
+| `src/components/FilterBar.tsx` | filter bar of the shop and spells page: search + "Clear filters" icon button on the first line, `FilterSelect` / `FilterToggle` wrapping on the next |
+| `src/components/RarityBadge.tsx`, `rarity.ts` | colored rarity badge of magic items (inspector, shop, inventory); labels and palettes per `RarityEnum` |
 | `src/components/ApiHint.tsx` | dashed developer hint with the API route, shown only when the setting is on |
 | `src/pages/character/CharacterLayout.tsx` | loads state + sheet into `useCharacter()`; `applyState(state)` after writes |
 | `src/pages/character/playState.ts` | current HP, charges, hit dice and slots per character in local storage (not stored by the API yet) |
@@ -65,8 +67,10 @@ prepare after a long rest get the loadout editor, spellbook classes "Copy into s
 **Coins and items:** the shop's "Buy" pays with the character's coins (`purchase: true`, change comes back), "Add free"
 doesn't. The inventory's coins card edits the coins and pays amounts; each item's menu sells (half the cost) or removes
 one piece or the whole stack; ammunition and bundles get − / + (use one, recover one for free:
-`POST …/items/{itemId}/stack`). Items sold in bundles (20 arrows) are bought as a bundle; the shop filters by category
-(ammunition, focuses, mounts, vehicles …). The coins card adds or removes coins of one kind (pp, gp, ep, sp, cp) or pays
+`POST …/items/{itemId}/stack`). Items sold in bundles (20 arrows) are bought as a bundle; the shop filters by kind, category
+(ammunition, focuses, mounts, vehicles …, and the magic item groups: wondrous items, potions, rings, rods, scrolls,
+staffs, wands; magic weapons and armor are under their weapon/armor kind and category), magic and rarity, and sorts by
+rarity. Artifacts are "Priceless": "Buy" is disabled (the API answers 422), "Add free" still adds them. The coins card adds or removes coins of one kind (pp, gp, ep, sp, cp) or pays
 an amount with change.
 
 **Starting equipment:** the creator shows the alternatives of the chosen class (step 1) and background (step 3); they're

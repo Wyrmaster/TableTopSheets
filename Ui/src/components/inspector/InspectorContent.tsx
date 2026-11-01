@@ -14,6 +14,7 @@ import {
 } from '@/api'
 import { ApiHint } from '@/components/ApiHint'
 import { Facts, Prose } from '@/components/Facts'
+import { RarityBadge } from '@/components/RarityBadge'
 import { RuleImage } from '@/components/RuleImage'
 import { StartingEquipmentList } from '@/components/startingEquipment/StartingEquipmentList'
 import { useIntentQuery } from '@/hooks/useIntentQuery'
@@ -214,6 +215,8 @@ const ClassView = ({ detail }: { detail: ClassDetailDto }) => {
 const ItemView = ({ detail }: { detail: ItemDetailDto }) => {
   const item = detail.item
   const properties = Object.entries(detail.properties).map(([key, value]): [string, string] => [key, value])
+  // artifacts have no price
+  const cost = item.priceless ? 'Priceless' : `${item.costCp / 100} gp${item.bundle > 1 ? ` per ${item.bundle}` : ''}`
   return (
     <>
       <Header
@@ -228,11 +231,12 @@ const ItemView = ({ detail }: { detail: ItemDetailDto }) => {
       )}
       <HStack>
         {item.magic && <Badge colorPalette='brand'>Magic</Badge>}
+        <RarityBadge rarity={item.rarity} />
         {item.requiresAttunement && <Badge>Requires attunement</Badge>}
       </HStack>
       <Facts
         items={[
-          ['Cost', `${item.costCp / 100} gp${item.bundle > 1 ? ` per ${item.bundle}` : ''}`],
+          ['Cost', cost],
           ['Weight', `${item.weight} lb`],
           ...properties,
         ]}

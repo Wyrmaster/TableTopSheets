@@ -3,6 +3,7 @@ import type {
   DamageTypeEnum,
   DiceEnum,
   ItemKindEnum,
+  RarityEnum,
   OptionSourceEnum,
   PrimaryAbilityModeEnum,
   ReplacePolicyEnum,
@@ -81,7 +82,10 @@ export interface SpellSummaryDto {
   thumbnailUrl: string | null
 }
 
-/** Item in a list; cost and weight are per `bundle` (20 arrows for 1 gp), quantities count pieces */
+/**
+ * Item in a list; cost and weight are per `bundle` (20 arrows for 1 gp), quantities count pieces. `rarity` is null for
+ * mundane items; `priceless` items (artifacts) can't be bought, their `costCp` is 0
+ */
 export interface ItemSummaryDto {
   key: string
   name: string
@@ -94,6 +98,10 @@ export interface ItemSummaryDto {
   requiresAttunement: boolean
   /** pieces sold together (1 for most items) */
   bundle: number
+  /** rarity of a magic item; null for mundane items */
+  rarity: RarityEnum | null
+  /** artifacts: no price, can't be bought (only added for free) */
+  priceless: boolean
   /** picture (`/api/images/item/{key}`); null when there is none */
   imageUrl: string | null
   /** small version of the picture for rows */
@@ -197,4 +205,6 @@ export interface ItemFilter {
   category?: string
   magic?: boolean
   attunement?: boolean
+  /** rarity of a magic item */
+  rarity?: RarityEnum
 }

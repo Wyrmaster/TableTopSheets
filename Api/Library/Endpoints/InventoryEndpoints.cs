@@ -38,7 +38,7 @@ public static class InventoryEndpoints
       .WithName("AddItem")
       .WithSummary("Add an item to the inventory")
       .WithDescription("With purchase true the item's cost is paid from the coins; change is returned. Items sold in bundles (20 arrows) cost per "
-                       + "started bundle, the quantity counts pieces. Not enough coins answer 422.");
+                       + "started bundle, the quantity counts pieces. Not enough coins or buying a priceless artifact answer 422.");
     group
       .MapDelete("/items/{itemId:guid}", RemoveItem)
       .WithName("RemoveItem")

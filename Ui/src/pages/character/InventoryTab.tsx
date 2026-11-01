@@ -40,6 +40,7 @@ import {
   ringIcon,
 } from '@/components/icons'
 import { InfoButton } from '@/components/InfoButton'
+import { RarityBadge } from '@/components/RarityBadge'
 import { useApiAction } from '@/hooks/useApiAction'
 import { StartingEquipmentCard } from '@/components/startingEquipment/StartingEquipmentCard'
 import { Thumbnail } from '@/components/Thumbnail'
@@ -436,6 +437,7 @@ const ItemRow = ({
           {item.quantity > 1 && <Badge>×{item.quantity}</Badge>}
           {slotLabel[item.slot] && <Badge colorPalette='brand'>{slotLabel[item.slot]}</Badge>}
           {item.attuned && <Badge colorPalette='brand'>attuned</Badge>}
+          <RarityBadge rarity={item.rarity} />
         </HStack>
         <Text
           fontSize='sm'

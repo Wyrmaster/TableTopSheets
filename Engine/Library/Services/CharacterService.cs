@@ -574,6 +574,12 @@ public sealed class CharacterService(TableTopSheetsContext context, IRulesCatalo
     // items sold in bundles (20 arrows) cost per started bundle; the quantity counts pieces
     if (purchase)
     {
+      // artifacts are unique and priceless: they're found, not bought (their cost of 0 would make them free)
+      if (item.Rarity == RarityEnum.Artifact)
+      {
+        throw new RuleViolationException($"{item.Name} is an artifact and can't be bought");
+      }
+
       Purse.Pay(character.PlayState, (long)item.CostCp * ((quantity + item.Bundle - 1) / item.Bundle));
     }
 

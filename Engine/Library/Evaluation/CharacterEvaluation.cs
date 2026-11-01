@@ -176,7 +176,7 @@ public sealed partial class CharacterEvaluation
     foreach (CharacterItem item in this.Character.Items.Where(entry => entry.Equipped))
     {
       Persistence.Entity.Rules.Items.Item rule = this.Catalog.Items[item.ItemId];
-      if (rule.RequiresAttunement && !item.Attuned)
+      if ((rule.RequiresAttunement && !item.Attuned) || !InUse(rule, item.EquipSlot))
       {
         continue;
       }
@@ -259,7 +259,7 @@ public sealed partial class CharacterEvaluation
     {
       foreach (Effect effect in instance.Feature.Effects.OrderBy(entry => entry.Order))
       {
-        Add(new(effect, effect.Target, effect.ValueExpr, effect.Label ?? instance.Feature.Name, instance));
+        Add(new(effect, this.ItemTarget(effect.Target, instance.Feature), effect.ValueExpr, effect.Label ?? instance.Feature.Name, instance));
       }
     }
 
@@ -281,6 +281,26 @@ public sealed partial class CharacterEvaluation
       }
     }
   }
+
+  /// <summary>
+  ///   Armor only works while it is worn and a shield while it is held; armor carried in another slot (a spare +1 Chain Mail)
+  ///   gives none of its magic
+  /// </summary>
+  private static bool InUse(Persistence.Entity.Rules.Items.Item item, EquipSlotEnum slot) => item switch
+  {
+    Persistence.Entity.Rules.Items.Armor { Category: Common.Enum.Item.ArmorEnum.Shield } => slot is EquipSlotEnum.MainHand or EquipSlotEnum.OffHand,
+    Persistence.Entity.Rules.Items.Armor => slot == EquipSlotEnum.Armor,
+    _ => true,
+  };
+
+  /// <summary>
+  ///   Targets of an item's own values (<c>item.attack.bonus</c> of a +1 Longsword) get the item key
+  ///   (<c>item.plus1-longsword.attack.bonus</c>), so they only apply to that item
+  /// </summary>
+  private string ItemTarget(string target, Feature feature)
+    => feature.ItemId is { } itemId && target.StartsWith("item.", StringComparison.Ordinal)
+      ? $"item.{this.Catalog.Items[itemId].Key}.{target["item.".Length..]}"
+      : target;
 
   /// <summary>
   ///   Display name of an option key

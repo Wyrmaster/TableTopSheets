@@ -1,5 +1,6 @@
 using System.Net;
 using TableTopSheets.Api.Contracts;
+using TableTopSheets.Common.Enum.Rules;
 
 namespace TableTopSheets.Api.Tests;
 
@@ -118,6 +119,48 @@ public sealed class CoinsAndItemsTests(ApiFactory factory): IClassFixture<ApiFac
     Guid id = state.Id;
     Assert.Equal(HttpStatusCode.UnprocessableEntity, await ApiClient.StatusOf(
       () => this._api.PostAsync<CharacterStateDto>($"/api/characters/{id}/items/{arrows.Id}/stack", new AddToStackDto(0))));
+  }
+
+  [Fact]
+  public async Task MagicItems_CarryTheirRarity_AndArtifactsCantBeBought()
+  {
+    // the rarity filter combines with the magic filter, search and paging
+    PagedResult<ItemSummaryDto> rare = await this._api.GetAsync<PagedResult<ItemSummaryDto>>("/api/rules/items?magic=true&rarity=VeryRare&pageSize=200");
+    Assert.NotEmpty(rare.Items);
+    Assert.All(rare.Items, entry => Assert.Equal(RarityEnum.VeryRare, entry.Rarity));
+    Assert.All(rare.Items, entry => Assert.True(entry.Magic));
+
+    PagedResult<ItemSummaryDto> swords = await this._api.GetAsync<PagedResult<ItemSummaryDto>>("/api/rules/items?search=longsword&sort=rarity,name");
+    ItemSummaryDto longsword = swords.Items.Single(entry => entry.Key == "longsword");
+    Assert.Null(longsword.Rarity);
+    Assert.False(longsword.Priceless);
+    // sorted by rank (mundane and "rarity varies" first), not by the stored name
+    List<int> ranks = swords.Items
+      .Select(entry => entry.Rarity == null ? -1 : (int)entry.Rarity)
+      .ToList();
+    Assert.Equal(ranks.Order(), ranks);
+    Assert.Contains(swords.Items, entry => entry.Rarity == RarityEnum.Uncommon && entry.Magic);
+
+    PagedResult<ItemSummaryDto> all = await this._api.GetAsync<PagedResult<ItemSummaryDto>>("/api/rules/items?pageSize=200&page=7");
+    Assert.True(all.TotalCount > 1000);
+    Assert.NotEmpty(all.Items);
+
+    PagedResult<ItemSummaryDto> artifacts = await this._api.GetAsync<PagedResult<ItemSummaryDto>>("/api/rules/items?rarity=Artifact&pageSize=200");
+    Assert.NotEmpty(artifacts.Items);
+    Assert.All(artifacts.Items, entry => Assert.True(entry.Priceless));
+    ItemSummaryDto artifact = artifacts.Items[0];
+
+    // an artifact can be found (added without paying), but not bought
+    CharacterStateDto state = await this._api.CreateDraftAsync();
+    state = await this._api.PutAsync<CharacterStateDto>($"/api/characters/{state.Id}/coins", new CoinsDto(Gold: 20));
+    Guid id = state.Id;
+    Assert.Equal(HttpStatusCode.UnprocessableEntity, await ApiClient.StatusOf(
+      () => this._api.PostAsync<CharacterStateDto>($"/api/characters/{id}/items", new AddItemDto(artifact.Key, Purchase: true))));
+    state = await this._api.PostAsync<CharacterStateDto>($"/api/characters/{id}/items", new AddItemDto(artifact.Key));
+    CharacterItemDto found = state.Items.Single(entry => entry.ItemKey == artifact.Key);
+    Assert.Equal(RarityEnum.Artifact, found.Rarity);
+    Assert.True(found.Magic);
+    Assert.Equal(new CoinsDto(Gold: 20), state.Coins);
   }
 
   #endregion

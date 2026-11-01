@@ -2,22 +2,29 @@ import {
   Badge,
   Box,
   Button,
-  Checkbox,
   Flex,
   Heading,
   HStack,
-  Input,
-  NativeSelect,
   Spinner,
   Stack,
   Text,
 } from '@chakra-ui/react'
 import { useState } from 'react'
-import { AddItemIntent, type ItemKindEnum, type ItemSummaryDto, ListItemsIntent } from '@/api'
+import {
+  AddItemIntent,
+  type ItemKindEnum,
+  type ItemSummaryDto,
+  ListItemsIntent,
+  Rarities,
+  type RarityEnum,
+} from '@/api'
 import { ApiHint } from '@/components/ApiHint'
+import { FilterBar, FilterSelect, FilterToggle } from '@/components/FilterBar'
 import { Icon } from '@/components/Icon'
 import { shopIcon } from '@/components/icons'
 import { InfoButton } from '@/components/InfoButton'
+import { RarityBadge } from '@/components/RarityBadge'
+import { rarityLabel } from '@/components/rarity'
 import { useInspector } from '@/components/inspector/useInspector'
 import { Thumbnail } from '@/components/Thumbnail'
 import { useApiAction } from '@/hooks/useApiAction'
@@ -27,9 +34,11 @@ import { useCharacter } from './useCharacter'
 
 const PageSize = 25
 
-/** Values of the `category` filter of the item list (weapon and armor categories, tool groups, gear categories) */
+/**
+ * Values of the `category` filter of the item list: weapon and armor categories, tool groups and gear categories (magic
+ * weapons and armor share them), then the groups of the other magic items
+ */
 const Categories: [string, string][] = [
-  ['', 'All categories'],
   ['simple', 'Simple weapons'],
   ['martial', 'Martial weapons'],
   ['ammunition', 'Ammunition'],
@@ -51,8 +60,36 @@ const Categories: [string, string][] = [
   ['ship', 'Ships'],
 ]
 
-/** Price of an item; items sold in bundles show the bundle size (`1 gp / 20`) */
-const priceLabel = (item: ItemSummaryDto) => `${formatPrice(item.costCp)}${item.bundle > 1 ? ` / ${item.bundle}` : ''}`
+const MagicCategories: [string, string][] = [
+  ['wondrous-item', 'Wondrous items'],
+  ['potion', 'Potions'],
+  ['ring', 'Rings'],
+  ['rod', 'Rods'],
+  ['scroll', 'Scrolls'],
+  ['staff', 'Staffs'],
+  ['wand', 'Wands'],
+]
+
+const categoryOptions = (categories: [string, string][]) => categories.map(([value, label]) => (
+  <option
+    key={value}
+    value={value}
+  >
+    {label}
+  </option>
+))
+
+/** Price of an item; items sold in bundles show the bundle size (`1 gp / 20`), artifacts have none */
+const priceLabel = (item: ItemSummaryDto) => item.priceless
+  ? 'Priceless'
+  : `${formatPrice(item.costCp)}${item.bundle > 1 ? ` / ${item.bundle}` : ''}`
+
+/** Why "Buy" is disabled, if it is */
+const buyBlocker = (item: ItemSummaryDto, wealth: number) => item.priceless
+  ? 'Artifacts can\'t be bought'
+  : item.costCp > wealth
+    ? 'Not enough coins'
+    : undefined
 
 /**
  * Item catalog with search, filters and paging; "Buy" pays with the character's coins, "Add free" doesn't
@@ -69,8 +106,25 @@ export const ShopPage = () => {
   const [kind, setKind] = useState('')
   const [category, setCategory] = useState('')
   const [magic, setMagic] = useState(false)
+  const [rarity, setRarity] = useState('')
   const [sort, setSort] = useState('name')
   const [page, setPage] = useState(1)
+
+  // every filter change starts at the first page again
+  const filter = <T,>(set: (value: T) => void) => (value: T) => {
+    set(value)
+    setPage(1)
+  }
+
+  const filtered = Boolean(search || kind || category || magic || rarity)
+  const clear = () => {
+    setSearch('')
+    setKind('')
+    setCategory('')
+    setMagic(false)
+    setRarity('')
+    setPage(1)
+  }
 
   const items = useIntentQuery(
     () => new ListItemsIntent({
@@ -78,11 +132,12 @@ export const ShopPage = () => {
       kind: (kind || undefined) as ItemKindEnum | undefined,
       category: category || undefined,
       magic: magic || undefined,
+      rarity: (rarity || undefined) as RarityEnum | undefined,
       sort,
       page,
       pageSize: PageSize,
     }),
-    `${search}|${kind}|${category}|${magic}|${sort}|${page}`,
+    [search, kind, category, magic, rarity, sort, page].join('|'),
   )
 
   // a purchase pays the cost (the API returns change); without it the item is free (starting equipment, loot);
@@ -126,84 +181,71 @@ export const ShopPage = () => {
         </Badge>
       </Flex>
 
-      <Flex
-        wrap='wrap'
-        gap='3'
-        align='center'
+      <FilterBar
+        search={search}
+        placeholder='Search items…'
+        filtered={filtered}
+        onSearchChange={filter(setSearch)}
+        onClear={clear}
       >
-        <Input
-          flex='1'
-          minW='200px'
-          placeholder='Search items…'
-          value={search}
-          onChange={(event) => {
-            setSearch(event.target.value)
-            setPage(1)
-          }}
-        />
-        <NativeSelect.Root
-          w='150px'
+        <FilterSelect
+          label='Kind'
+          width='150px'
+          value={kind}
+          onChange={filter(setKind)}
         >
-          <NativeSelect.Field
-            value={kind}
-            onChange={(event) => {
-              setKind(event.target.value)
-              setPage(1)
-            }}
-          >
-            <option value=''>All kinds</option>
-            <option value='Weapon'>Weapons</option>
-            <option value='Armor'>Armor</option>
-            <option value='Gear'>Gear</option>
-            <option value='Tool'>Tools</option>
-          </NativeSelect.Field>
-          <NativeSelect.Indicator />
-        </NativeSelect.Root>
-        <NativeSelect.Root w='190px'>
-          <NativeSelect.Field
-            aria-label='Category'
-            value={category}
-            onChange={(event) => {
-              setCategory(event.target.value)
-              setPage(1)
-            }}
-          >
-            {Categories.map(([value, label]) => (
-              <option
-                key={value}
-                value={value}
-              >
-                {label}
-              </option>
-            ))}
-          </NativeSelect.Field>
-          <NativeSelect.Indicator />
-        </NativeSelect.Root>
-        <NativeSelect.Root w='150px'>
-          <NativeSelect.Field
-            value={sort}
-            onChange={(event) => setSort(event.target.value)}
-          >
-            <option value='name'>Sort: name</option>
-            <option value='cost'>Sort: cost</option>
-            <option value='-cost'>Sort: cost ↓</option>
-            <option value='weight'>Sort: weight</option>
-          </NativeSelect.Field>
-          <NativeSelect.Indicator />
-        </NativeSelect.Root>
-        <Checkbox.Root
+          <option value=''>All kinds</option>
+          <option value='Weapon'>Weapons</option>
+          <option value='Armor'>Armor</option>
+          <option value='Gear'>Gear</option>
+          <option value='Tool'>Tools</option>
+        </FilterSelect>
+        <FilterSelect
+          label='Category'
+          width='200px'
+          value={category}
+          onChange={filter(setCategory)}
+        >
+          <option value=''>All categories</option>
+          <optgroup label='Equipment'>{categoryOptions(Categories)}</optgroup>
+          <optgroup label='Magic items'>{categoryOptions(MagicCategories)}</optgroup>
+        </FilterSelect>
+        <FilterSelect
+          label='Rarity'
+          width='150px'
+          value={rarity}
+          onChange={filter(setRarity)}
+        >
+          <option value=''>All rarities</option>
+          {Rarities.map((value) => (
+            <option
+              key={value}
+              value={value}
+            >
+              {rarityLabel(value)}
+            </option>
+          ))}
+        </FilterSelect>
+        <FilterSelect
+          label='Sort'
+          width='160px'
+          value={sort}
+          onChange={setSort}
+        >
+          <option value='name'>Sort: name</option>
+          <option value='cost'>Sort: cost</option>
+          <option value='-cost'>Sort: cost ↓</option>
+          <option value='weight'>Sort: weight</option>
+          <option value='rarity,name'>Sort: rarity</option>
+          <option value='-rarity,name'>Sort: rarity ↓</option>
+        </FilterSelect>
+        <FilterToggle
           checked={magic}
-          colorPalette='brand'
-          onCheckedChange={(details) => {
-            setMagic(details.checked === true)
-            setPage(1)
-          }}
+          onChange={filter(setMagic)}
         >
-          <Checkbox.HiddenInput />
-          <Checkbox.Control />
-          <Checkbox.Label>Magic</Checkbox.Label>
-        </Checkbox.Root>
-      </Flex>
+          Magic
+        </FilterToggle>
+      </FilterBar>
 
       <Box
         borderWidth='1px'
@@ -232,9 +274,10 @@ export const ShopPage = () => {
               flex='1'
               minW='0'
             >
-              <HStack>
+              <HStack wrap='wrap'>
                 <Text fontWeight='semibold'>{item.name}</Text>
                 {item.magic && <Badge colorPalette='brand'>magic</Badge>}
+                <RarityBadge rarity={item.rarity} />
                 {item.requiresAttunement && <Badge>attunement</Badge>}
               </HStack>
               <Text
@@ -265,8 +308,8 @@ export const ShopPage = () => {
             <Button
               size='sm'
               colorPalette='brand'
-              disabled={item.costCp > wealth}
-              title={item.costCp > wealth ? 'Not enough coins' : undefined}
+              disabled={buyBlocker(item, wealth) !== undefined}
+              title={buyBlocker(item, wealth)}
               onClick={(event) => {
                 event.stopPropagation()
                 add(item, true)
@@ -307,9 +350,9 @@ export const ShopPage = () => {
         </HStack>
       )}
       <ApiHint>
-        <code>GET /api/rules/items?search=&amp;kind=&amp;category=&amp;magic=&amp;sort=&amp;page=</code>,
+        <code>GET /api/rules/items?search=&amp;kind=&amp;category=&amp;magic=&amp;rarity=&amp;sort=&amp;page=</code>,
         <code> POST /api/characters/{'{id}'}/items</code> with <code>purchase: true</code> (pays with change, 422 when
-        the coins are not enough) or without it (free)
+        the coins are not enough or the item is a priceless artifact) or without it (free)
       </ApiHint>
     </Stack>
   )

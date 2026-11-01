@@ -14,4 +14,7 @@ public sealed record ItemFilter
   public bool? Magic { get; init; }
 
   public bool? Attunement { get; init; }
+
+  /// <summary>Rarity of a magic item (<c>Common</c> ... <c>Artifact</c>)</summary>
+  public RarityEnum? Rarity { get; init; }
 }

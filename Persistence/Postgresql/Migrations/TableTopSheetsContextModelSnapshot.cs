@@ -666,6 +666,9 @@ namespace TableTopSheets.Persistence.Postgresql.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("BaseItemId")
+                        .HasColumnType("uuid");
+
                     b.Property<int>("Bundle")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
@@ -700,6 +703,10 @@ namespace TableTopSheets.Persistence.Postgresql.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
 
+                    b.Property<string>("Rarity")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
                     b.Property<bool>("RequiresAttunement")
                         .HasColumnType("boolean");
 
@@ -710,6 +717,8 @@ namespace TableTopSheets.Persistence.Postgresql.Migrations
                         .HasColumnType("double precision");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("BaseItemId");
 
                     b.HasIndex("Key")
                         .IsUnique();
@@ -1675,10 +1684,17 @@ namespace TableTopSheets.Persistence.Postgresql.Migrations
 
             modelBuilder.Entity("TableTopSheets.Persistence.Entity.Rules.Items.Item", b =>
                 {
+                    b.HasOne("TableTopSheets.Persistence.Entity.Rules.Items.Item", "BaseItem")
+                        .WithMany()
+                        .HasForeignKey("BaseItemId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("TableTopSheets.Persistence.Entity.Rules.Source", "Source")
                         .WithMany()
                         .HasForeignKey("SourceId")
                         .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("BaseItem");
 
                     b.Navigation("Source");
                 });

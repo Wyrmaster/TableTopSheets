@@ -37,6 +37,18 @@ public class Item: RuleEntity
 
   public bool RequiresAttunement { get; set; }
 
+  /// <summary>
+  ///   Rarity of a magic item; null for mundane items
+  /// </summary>
+  public RarityEnum? Rarity { get; set; }
+
+  /// <summary>
+  ///   Mundane item a magic variant is made from (the Longsword of a +1 Longsword); proficiency and mastery follow it
+  /// </summary>
+  public Guid? BaseItemId { get; set; }
+
+  public Item? BaseItem { get; set; }
+
   public ICollection<Feature> Features { get; set; } = new List<Feature>();
 
   #endregion

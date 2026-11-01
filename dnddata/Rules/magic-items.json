@@ -1,0 +1,3601 @@
+{
+  // mechanics of the magic items of the Dungeon Master's Guide 2024; names, descriptions and values come from
+  // dnddata/Extracted/magic-items.json. Features of a template (+1 Weapon) are copied to every variant
+  // (+1 Longsword); conditions can't name "this item" there, so body armor uses wearing('armor').
+  // Choices are written per variant (breastplate-of-resistance.resistance).
+  // Belt of Dwarvenkind: a dwarf is recognized by the species feature dwarf.dwarven-resilience
+  "items": [
+    {
+      "key": "plus1-armor",
+      "features": [
+        {
+          "key": "plus1-armor.magic-armor",
+          "name": "+1 Armor",
+          "effects": [
+            {
+              "target": "ac.bonus",
+              "op": "Add",
+              "value": "1",
+              "condition": "wearing('armor')"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "plus1-shield",
+      "features": [
+        {
+          "key": "plus1-shield.magic-shield",
+          "name": "+1 Shield",
+          "effects": [
+            {
+              "target": "ac.bonus",
+              "op": "Add",
+              "value": "1",
+              "condition": "wielding('plus1-shield')"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "plus1-weapon",
+      "features": [
+        {
+          "key": "plus1-weapon.magic-weapon",
+          "name": "+1 Weapon",
+          "effects": [
+            {
+              "target": "item.attack.bonus",
+              "op": "Add",
+              "value": "1"
+            },
+            {
+              "target": "item.damage.bonus",
+              "op": "Add",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "plus2-armor",
+      "features": [
+        {
+          "key": "plus2-armor.magic-armor",
+          "name": "+2 Armor",
+          "effects": [
+            {
+              "target": "ac.bonus",
+              "op": "Add",
+              "value": "2",
+              "condition": "wearing('armor')"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "plus2-shield",
+      "features": [
+        {
+          "key": "plus2-shield.magic-shield",
+          "name": "+2 Shield",
+          "effects": [
+            {
+              "target": "ac.bonus",
+              "op": "Add",
+              "value": "2",
+              "condition": "wielding('plus2-shield')"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "plus2-weapon",
+      "features": [
+        {
+          "key": "plus2-weapon.magic-weapon",
+          "name": "+2 Weapon",
+          "effects": [
+            {
+              "target": "item.attack.bonus",
+              "op": "Add",
+              "value": "2"
+            },
+            {
+              "target": "item.damage.bonus",
+              "op": "Add",
+              "value": "2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "plus3-armor",
+      "features": [
+        {
+          "key": "plus3-armor.magic-armor",
+          "name": "+3 Armor",
+          "effects": [
+            {
+              "target": "ac.bonus",
+              "op": "Add",
+              "value": "3",
+              "condition": "wearing('armor')"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "plus3-shield",
+      "features": [
+        {
+          "key": "plus3-shield.magic-shield",
+          "name": "+3 Shield",
+          "effects": [
+            {
+              "target": "ac.bonus",
+              "op": "Add",
+              "value": "3",
+              "condition": "wielding('plus3-shield')"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "plus3-weapon",
+      "features": [
+        {
+          "key": "plus3-weapon.magic-weapon",
+          "name": "+3 Weapon",
+          "effects": [
+            {
+              "target": "item.attack.bonus",
+              "op": "Add",
+              "value": "3"
+            },
+            {
+              "target": "item.damage.bonus",
+              "op": "Add",
+              "value": "3"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "amulet-of-health",
+      "features": [
+        {
+          "key": "amulet-of-health.constitution",
+          "name": "Amulet of Health",
+          "effects": [
+            {
+              "target": "ability.con.score",
+              "op": "Max",
+              "value": "19"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "armor-of-invulnerability",
+      "features": [
+        {
+          "key": "armor-of-invulnerability.resistance",
+          "name": "Armor of Invulnerability",
+          "effects": [
+            {
+              "target": "damage.resist.bludgeoning",
+              "op": "Grant",
+              "value": "1",
+              "condition": "wearing('armor-of-invulnerability')"
+            },
+            {
+              "target": "damage.resist.piercing",
+              "op": "Grant",
+              "value": "1",
+              "condition": "wearing('armor-of-invulnerability')"
+            },
+            {
+              "target": "damage.resist.slashing",
+              "op": "Grant",
+              "value": "1",
+              "condition": "wearing('armor-of-invulnerability')"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "armor-of-resistance",
+      "variants": [
+        {
+          "key": "breastplate-of-resistance",
+          "features": [
+            {
+              "key": "breastplate-of-resistance.resistance",
+              "name": "Breastplate of Resistance",
+              "choices": [
+                {
+                  "key": "breastplate-of-resistance.resistance",
+                  "name": "Resistance",
+                  "count": "1",
+                  "source": "Static",
+                  "replace": "Never",
+                  "effects": [
+                    {
+                      "target": "damage.resist.$option",
+                      "op": "Grant",
+                      "value": "1"
+                    }
+                  ],
+                  "options": [
+                    {
+                      "key": "acid",
+                      "name": "Acid"
+                    },
+                    {
+                      "key": "cold",
+                      "name": "Cold"
+                    },
+                    {
+                      "key": "fire",
+                      "name": "Fire"
+                    },
+                    {
+                      "key": "force",
+                      "name": "Force"
+                    },
+                    {
+                      "key": "lightning",
+                      "name": "Lightning"
+                    },
+                    {
+                      "key": "necrotic",
+                      "name": "Necrotic"
+                    },
+                    {
+                      "key": "poison",
+                      "name": "Poison"
+                    },
+                    {
+                      "key": "psychic",
+                      "name": "Psychic"
+                    },
+                    {
+                      "key": "radiant",
+                      "name": "Radiant"
+                    },
+                    {
+                      "key": "thunder",
+                      "name": "Thunder"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "chain-mail-of-resistance",
+          "features": [
+            {
+              "key": "chain-mail-of-resistance.resistance",
+              "name": "Chain Mail of Resistance",
+              "choices": [
+                {
+                  "key": "chain-mail-of-resistance.resistance",
+                  "name": "Resistance",
+                  "count": "1",
+                  "source": "Static",
+                  "replace": "Never",
+                  "effects": [
+                    {
+                      "target": "damage.resist.$option",
+                      "op": "Grant",
+                      "value": "1"
+                    }
+                  ],
+                  "options": [
+                    {
+                      "key": "acid",
+                      "name": "Acid"
+                    },
+                    {
+                      "key": "cold",
+                      "name": "Cold"
+                    },
+                    {
+                      "key": "fire",
+                      "name": "Fire"
+                    },
+                    {
+                      "key": "force",
+                      "name": "Force"
+                    },
+                    {
+                      "key": "lightning",
+                      "name": "Lightning"
+                    },
+                    {
+                      "key": "necrotic",
+                      "name": "Necrotic"
+                    },
+                    {
+                      "key": "poison",
+                      "name": "Poison"
+                    },
+                    {
+                      "key": "psychic",
+                      "name": "Psychic"
+                    },
+                    {
+                      "key": "radiant",
+                      "name": "Radiant"
+                    },
+                    {
+                      "key": "thunder",
+                      "name": "Thunder"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "chain-shirt-of-resistance",
+          "features": [
+            {
+              "key": "chain-shirt-of-resistance.resistance",
+              "name": "Chain Shirt of Resistance",
+              "choices": [
+                {
+                  "key": "chain-shirt-of-resistance.resistance",
+                  "name": "Resistance",
+                  "count": "1",
+                  "source": "Static",
+                  "replace": "Never",
+                  "effects": [
+                    {
+                      "target": "damage.resist.$option",
+                      "op": "Grant",
+                      "value": "1"
+                    }
+                  ],
+                  "options": [
+                    {
+                      "key": "acid",
+                      "name": "Acid"
+                    },
+                    {
+                      "key": "cold",
+                      "name": "Cold"
+                    },
+                    {
+                      "key": "fire",
+                      "name": "Fire"
+                    },
+                    {
+                      "key": "force",
+                      "name": "Force"
+                    },
+                    {
+                      "key": "lightning",
+                      "name": "Lightning"
+                    },
+                    {
+                      "key": "necrotic",
+                      "name": "Necrotic"
+                    },
+                    {
+                      "key": "poison",
+                      "name": "Poison"
+                    },
+                    {
+                      "key": "psychic",
+                      "name": "Psychic"
+                    },
+                    {
+                      "key": "radiant",
+                      "name": "Radiant"
+                    },
+                    {
+                      "key": "thunder",
+                      "name": "Thunder"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "half-plate-armor-of-resistance",
+          "features": [
+            {
+              "key": "half-plate-armor-of-resistance.resistance",
+              "name": "Half Plate Armor of Resistance",
+              "choices": [
+                {
+                  "key": "half-plate-armor-of-resistance.resistance",
+                  "name": "Resistance",
+                  "count": "1",
+                  "source": "Static",
+                  "replace": "Never",
+                  "effects": [
+                    {
+                      "target": "damage.resist.$option",
+                      "op": "Grant",
+                      "value": "1"
+                    }
+                  ],
+                  "options": [
+                    {
+                      "key": "acid",
+                      "name": "Acid"
+                    },
+                    {
+                      "key": "cold",
+                      "name": "Cold"
+                    },
+                    {
+                      "key": "fire",
+                      "name": "Fire"
+                    },
+                    {
+                      "key": "force",
+                      "name": "Force"
+                    },
+                    {
+                      "key": "lightning",
+                      "name": "Lightning"
+                    },
+                    {
+                      "key": "necrotic",
+                      "name": "Necrotic"
+                    },
+                    {
+                      "key": "poison",
+                      "name": "Poison"
+                    },
+                    {
+                      "key": "psychic",
+                      "name": "Psychic"
+                    },
+                    {
+                      "key": "radiant",
+                      "name": "Radiant"
+                    },
+                    {
+                      "key": "thunder",
+                      "name": "Thunder"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "hide-armor-of-resistance",
+          "features": [
+            {
+              "key": "hide-armor-of-resistance.resistance",
+              "name": "Hide Armor of Resistance",
+              "choices": [
+                {
+                  "key": "hide-armor-of-resistance.resistance",
+                  "name": "Resistance",
+                  "count": "1",
+                  "source": "Static",
+                  "replace": "Never",
+                  "effects": [
+                    {
+                      "target": "damage.resist.$option",
+                      "op": "Grant",
+                      "value": "1"
+                    }
+                  ],
+                  "options": [
+                    {
+                      "key": "acid",
+                      "name": "Acid"
+                    },
+                    {
+                      "key": "cold",
+                      "name": "Cold"
+                    },
+                    {
+                      "key": "fire",
+                      "name": "Fire"
+                    },
+                    {
+                      "key": "force",
+                      "name": "Force"
+                    },
+                    {
+                      "key": "lightning",
+                      "name": "Lightning"
+                    },
+                    {
+                      "key": "necrotic",
+                      "name": "Necrotic"
+                    },
+                    {
+                      "key": "poison",
+                      "name": "Poison"
+                    },
+                    {
+                      "key": "psychic",
+                      "name": "Psychic"
+                    },
+                    {
+                      "key": "radiant",
+                      "name": "Radiant"
+                    },
+                    {
+                      "key": "thunder",
+                      "name": "Thunder"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "leather-armor-of-resistance",
+          "features": [
+            {
+              "key": "leather-armor-of-resistance.resistance",
+              "name": "Leather Armor of Resistance",
+              "choices": [
+                {
+                  "key": "leather-armor-of-resistance.resistance",
+                  "name": "Resistance",
+                  "count": "1",
+                  "source": "Static",
+                  "replace": "Never",
+                  "effects": [
+                    {
+                      "target": "damage.resist.$option",
+                      "op": "Grant",
+                      "value": "1"
+                    }
+                  ],
+                  "options": [
+                    {
+                      "key": "acid",
+                      "name": "Acid"
+                    },
+                    {
+                      "key": "cold",
+                      "name": "Cold"
+                    },
+                    {
+                      "key": "fire",
+                      "name": "Fire"
+                    },
+                    {
+                      "key": "force",
+                      "name": "Force"
+                    },
+                    {
+                      "key": "lightning",
+                      "name": "Lightning"
+                    },
+                    {
+                      "key": "necrotic",
+                      "name": "Necrotic"
+                    },
+                    {
+                      "key": "poison",
+                      "name": "Poison"
+                    },
+                    {
+                      "key": "psychic",
+                      "name": "Psychic"
+                    },
+                    {
+                      "key": "radiant",
+                      "name": "Radiant"
+                    },
+                    {
+                      "key": "thunder",
+                      "name": "Thunder"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "padded-armor-of-resistance",
+          "features": [
+            {
+              "key": "padded-armor-of-resistance.resistance",
+              "name": "Padded Armor of Resistance",
+              "choices": [
+                {
+                  "key": "padded-armor-of-resistance.resistance",
+                  "name": "Resistance",
+                  "count": "1",
+                  "source": "Static",
+                  "replace": "Never",
+                  "effects": [
+                    {
+                      "target": "damage.resist.$option",
+                      "op": "Grant",
+                      "value": "1"
+                    }
+                  ],
+                  "options": [
+                    {
+                      "key": "acid",
+                      "name": "Acid"
+                    },
+                    {
+                      "key": "cold",
+                      "name": "Cold"
+                    },
+                    {
+                      "key": "fire",
+                      "name": "Fire"
+                    },
+                    {
+                      "key": "force",
+                      "name": "Force"
+                    },
+                    {
+                      "key": "lightning",
+                      "name": "Lightning"
+                    },
+                    {
+                      "key": "necrotic",
+                      "name": "Necrotic"
+                    },
+                    {
+                      "key": "poison",
+                      "name": "Poison"
+                    },
+                    {
+                      "key": "psychic",
+                      "name": "Psychic"
+                    },
+                    {
+                      "key": "radiant",
+                      "name": "Radiant"
+                    },
+                    {
+                      "key": "thunder",
+                      "name": "Thunder"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "plate-armor-of-resistance",
+          "features": [
+            {
+              "key": "plate-armor-of-resistance.resistance",
+              "name": "Plate Armor of Resistance",
+              "choices": [
+                {
+                  "key": "plate-armor-of-resistance.resistance",
+                  "name": "Resistance",
+                  "count": "1",
+                  "source": "Static",
+                  "replace": "Never",
+                  "effects": [
+                    {
+                      "target": "damage.resist.$option",
+                      "op": "Grant",
+                      "value": "1"
+                    }
+                  ],
+                  "options": [
+                    {
+                      "key": "acid",
+                      "name": "Acid"
+                    },
+                    {
+                      "key": "cold",
+                      "name": "Cold"
+                    },
+                    {
+                      "key": "fire",
+                      "name": "Fire"
+                    },
+                    {
+                      "key": "force",
+                      "name": "Force"
+                    },
+                    {
+                      "key": "lightning",
+                      "name": "Lightning"
+                    },
+                    {
+                      "key": "necrotic",
+                      "name": "Necrotic"
+                    },
+                    {
+                      "key": "poison",
+                      "name": "Poison"
+                    },
+                    {
+                      "key": "psychic",
+                      "name": "Psychic"
+                    },
+                    {
+                      "key": "radiant",
+                      "name": "Radiant"
+                    },
+                    {
+                      "key": "thunder",
+                      "name": "Thunder"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "ring-mail-of-resistance",
+          "features": [
+            {
+              "key": "ring-mail-of-resistance.resistance",
+              "name": "Ring Mail of Resistance",
+              "choices": [
+                {
+                  "key": "ring-mail-of-resistance.resistance",
+                  "name": "Resistance",
+                  "count": "1",
+                  "source": "Static",
+                  "replace": "Never",
+                  "effects": [
+                    {
+                      "target": "damage.resist.$option",
+                      "op": "Grant",
+                      "value": "1"
+                    }
+                  ],
+                  "options": [
+                    {
+                      "key": "acid",
+                      "name": "Acid"
+                    },
+                    {
+                      "key": "cold",
+                      "name": "Cold"
+                    },
+                    {
+                      "key": "fire",
+                      "name": "Fire"
+                    },
+                    {
+                      "key": "force",
+                      "name": "Force"
+                    },
+                    {
+                      "key": "lightning",
+                      "name": "Lightning"
+                    },
+                    {
+                      "key": "necrotic",
+                      "name": "Necrotic"
+                    },
+                    {
+                      "key": "poison",
+                      "name": "Poison"
+                    },
+                    {
+                      "key": "psychic",
+                      "name": "Psychic"
+                    },
+                    {
+                      "key": "radiant",
+                      "name": "Radiant"
+                    },
+                    {
+                      "key": "thunder",
+                      "name": "Thunder"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "scale-mail-of-resistance",
+          "features": [
+            {
+              "key": "scale-mail-of-resistance.resistance",
+              "name": "Scale Mail of Resistance",
+              "choices": [
+                {
+                  "key": "scale-mail-of-resistance.resistance",
+                  "name": "Resistance",
+                  "count": "1",
+                  "source": "Static",
+                  "replace": "Never",
+                  "effects": [
+                    {
+                      "target": "damage.resist.$option",
+                      "op": "Grant",
+                      "value": "1"
+                    }
+                  ],
+                  "options": [
+                    {
+                      "key": "acid",
+                      "name": "Acid"
+                    },
+                    {
+                      "key": "cold",
+                      "name": "Cold"
+                    },
+                    {
+                      "key": "fire",
+                      "name": "Fire"
+                    },
+                    {
+                      "key": "force",
+                      "name": "Force"
+                    },
+                    {
+                      "key": "lightning",
+                      "name": "Lightning"
+                    },
+                    {
+                      "key": "necrotic",
+                      "name": "Necrotic"
+                    },
+                    {
+                      "key": "poison",
+                      "name": "Poison"
+                    },
+                    {
+                      "key": "psychic",
+                      "name": "Psychic"
+                    },
+                    {
+                      "key": "radiant",
+                      "name": "Radiant"
+                    },
+                    {
+                      "key": "thunder",
+                      "name": "Thunder"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "splint-armor-of-resistance",
+          "features": [
+            {
+              "key": "splint-armor-of-resistance.resistance",
+              "name": "Splint Armor of Resistance",
+              "choices": [
+                {
+                  "key": "splint-armor-of-resistance.resistance",
+                  "name": "Resistance",
+                  "count": "1",
+                  "source": "Static",
+                  "replace": "Never",
+                  "effects": [
+                    {
+                      "target": "damage.resist.$option",
+                      "op": "Grant",
+                      "value": "1"
+                    }
+                  ],
+                  "options": [
+                    {
+                      "key": "acid",
+                      "name": "Acid"
+                    },
+                    {
+                      "key": "cold",
+                      "name": "Cold"
+                    },
+                    {
+                      "key": "fire",
+                      "name": "Fire"
+                    },
+                    {
+                      "key": "force",
+                      "name": "Force"
+                    },
+                    {
+                      "key": "lightning",
+                      "name": "Lightning"
+                    },
+                    {
+                      "key": "necrotic",
+                      "name": "Necrotic"
+                    },
+                    {
+                      "key": "poison",
+                      "name": "Poison"
+                    },
+                    {
+                      "key": "psychic",
+                      "name": "Psychic"
+                    },
+                    {
+                      "key": "radiant",
+                      "name": "Radiant"
+                    },
+                    {
+                      "key": "thunder",
+                      "name": "Thunder"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "studded-leather-armor-of-resistance",
+          "features": [
+            {
+              "key": "studded-leather-armor-of-resistance.resistance",
+              "name": "Studded Leather Armor of Resistance",
+              "choices": [
+                {
+                  "key": "studded-leather-armor-of-resistance.resistance",
+                  "name": "Resistance",
+                  "count": "1",
+                  "source": "Static",
+                  "replace": "Never",
+                  "effects": [
+                    {
+                      "target": "damage.resist.$option",
+                      "op": "Grant",
+                      "value": "1"
+                    }
+                  ],
+                  "options": [
+                    {
+                      "key": "acid",
+                      "name": "Acid"
+                    },
+                    {
+                      "key": "cold",
+                      "name": "Cold"
+                    },
+                    {
+                      "key": "fire",
+                      "name": "Fire"
+                    },
+                    {
+                      "key": "force",
+                      "name": "Force"
+                    },
+                    {
+                      "key": "lightning",
+                      "name": "Lightning"
+                    },
+                    {
+                      "key": "necrotic",
+                      "name": "Necrotic"
+                    },
+                    {
+                      "key": "poison",
+                      "name": "Poison"
+                    },
+                    {
+                      "key": "psychic",
+                      "name": "Psychic"
+                    },
+                    {
+                      "key": "radiant",
+                      "name": "Radiant"
+                    },
+                    {
+                      "key": "thunder",
+                      "name": "Thunder"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "armor-of-vulnerability",
+      "variants": [
+        {
+          "key": "armor-of-vulnerability-bludgeoning",
+          "features": [
+            {
+              "key": "armor-of-vulnerability-bludgeoning.resistance",
+              "name": "Armor of Vulnerability (Bludgeoning)",
+              "effects": [
+                {
+                  "target": "damage.resist.bludgeoning",
+                  "op": "Grant",
+                  "value": "1"
+                },
+                {
+                  "target": "damage.vulnerable.piercing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Bludgeoning): Curse"
+                },
+                {
+                  "target": "damage.vulnerable.slashing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Bludgeoning): Curse"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "armor-of-vulnerability-piercing",
+          "features": [
+            {
+              "key": "armor-of-vulnerability-piercing.resistance",
+              "name": "Armor of Vulnerability (Piercing)",
+              "effects": [
+                {
+                  "target": "damage.resist.piercing",
+                  "op": "Grant",
+                  "value": "1"
+                },
+                {
+                  "target": "damage.vulnerable.bludgeoning",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Piercing): Curse"
+                },
+                {
+                  "target": "damage.vulnerable.slashing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Piercing): Curse"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "armor-of-vulnerability-slashing",
+          "features": [
+            {
+              "key": "armor-of-vulnerability-slashing.resistance",
+              "name": "Armor of Vulnerability (Slashing)",
+              "effects": [
+                {
+                  "target": "damage.resist.slashing",
+                  "op": "Grant",
+                  "value": "1"
+                },
+                {
+                  "target": "damage.vulnerable.bludgeoning",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Slashing): Curse"
+                },
+                {
+                  "target": "damage.vulnerable.piercing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Slashing): Curse"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "axe-of-the-dwarvish-lords",
+      "features": [
+        {
+          "key": "axe-of-the-dwarvish-lords.magic-weapon",
+          "name": "Axe of the Dwarvish Lords",
+          "effects": [
+            {
+              "target": "item.attack.bonus",
+              "op": "Add",
+              "value": "3"
+            },
+            {
+              "target": "item.damage.bonus",
+              "op": "Add",
+              "value": "3"
+            }
+          ]
+        },
+        {
+          "key": "axe-of-the-dwarvish-lords.blessings-of-moradin",
+          "name": "Blessings of Moradin",
+          "effects": [
+            {
+              "target": "sense.darkvision",
+              "op": "Add",
+              "value": "60"
+            },
+            {
+              "target": "ability.con.score",
+              "op": "Add",
+              "value": "2"
+            },
+            {
+              "target": "proficiency.tool.brewers-supplies",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "proficiency.tool.masons-tools",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "proficiency.tool.smiths-tools",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "damage.immune.poison",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "damage.resist.fire",
+              "op": "Grant",
+              "value": "1"
+            }
+          ]
+        }
+      ],
+      "properties": "Range, Thrown, Versatile, Melee",
+      "rangeNormal": 20,
+      "rangeLong": 60
+    },
+    {
+      "key": "belt-of-dwarvenkind",
+      "features": [
+        {
+          "key": "belt-of-dwarvenkind.dwarvenkind",
+          "name": "Belt of Dwarvenkind",
+          "effects": [
+            {
+              "target": "ability.con.score",
+              "op": "Add",
+              "value": "2"
+            },
+            {
+              "target": "language.dwarvish",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "sense.darkvision",
+              "op": "Max",
+              "value": "60",
+              "condition": "!has('dwarf.dwarven-resilience')"
+            },
+            {
+              "target": "damage.resist.poison",
+              "op": "Grant",
+              "value": "1",
+              "condition": "!has('dwarf.dwarven-resilience')"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "belt-of-giant-strength",
+      "variants": [
+        {
+          "key": "belt-of-hill-giant-strength",
+          "features": [
+            {
+              "key": "belt-of-hill-giant-strength.strength",
+              "name": "Belt of Hill Giant Strength",
+              "effects": [
+                {
+                  "target": "ability.str.score",
+                  "op": "Max",
+                  "value": "21"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "belt-of-frost-giant-strength",
+          "features": [
+            {
+              "key": "belt-of-frost-giant-strength.strength",
+              "name": "Belt of Frost Giant Strength",
+              "effects": [
+                {
+                  "target": "ability.str.score",
+                  "op": "Max",
+                  "value": "23"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "belt-of-stone-giant-strength",
+          "features": [
+            {
+              "key": "belt-of-stone-giant-strength.strength",
+              "name": "Belt of Stone Giant Strength",
+              "effects": [
+                {
+                  "target": "ability.str.score",
+                  "op": "Max",
+                  "value": "23"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "belt-of-fire-giant-strength",
+          "features": [
+            {
+              "key": "belt-of-fire-giant-strength.strength",
+              "name": "Belt of Fire Giant Strength",
+              "effects": [
+                {
+                  "target": "ability.str.score",
+                  "op": "Max",
+                  "value": "25"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "belt-of-cloud-giant-strength",
+          "features": [
+            {
+              "key": "belt-of-cloud-giant-strength.strength",
+              "name": "Belt of Cloud Giant Strength",
+              "effects": [
+                {
+                  "target": "ability.str.score",
+                  "op": "Max",
+                  "value": "27"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "belt-of-storm-giant-strength",
+          "features": [
+            {
+              "key": "belt-of-storm-giant-strength.strength",
+              "name": "Belt of Storm Giant Strength",
+              "effects": [
+                {
+                  "target": "ability.str.score",
+                  "op": "Max",
+                  "value": "29"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "berserker-axe",
+      "features": [
+        {
+          "key": "berserker-axe.magic-weapon",
+          "name": "Berserker Axe",
+          "effects": [
+            {
+              "target": "item.attack.bonus",
+              "op": "Add",
+              "value": "1"
+            },
+            {
+              "target": "item.damage.bonus",
+              "op": "Add",
+              "value": "1"
+            },
+            {
+              "target": "hp.perLevel",
+              "op": "Add",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "blackrazor",
+      "features": [
+        {
+          "key": "blackrazor.magic-weapon",
+          "name": "Blackrazor",
+          "effects": [
+            {
+              "target": "item.attack.bonus",
+              "op": "Add",
+              "value": "3"
+            },
+            {
+              "target": "item.damage.bonus",
+              "op": "Add",
+              "value": "3"
+            },
+            {
+              "target": "condition.immune.charmed",
+              "op": "Grant",
+              "value": "1",
+              "condition": "wielding('blackrazor')"
+            },
+            {
+              "target": "condition.immune.frightened",
+              "op": "Grant",
+              "value": "1",
+              "condition": "wielding('blackrazor')"
+            },
+            {
+              "target": "sense.blindsight",
+              "op": "Max",
+              "value": "30",
+              "condition": "wielding('blackrazor')"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "boots-of-elvenkind",
+      "features": [
+        {
+          "key": "boots-of-elvenkind.stealth",
+          "name": "Boots of Elvenkind",
+          "effects": [
+            {
+              "target": "skill.stealth.advantage",
+              "op": "Grant",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "boots-of-striding-and-springing",
+      "features": [
+        {
+          "key": "boots-of-striding-and-springing.striding",
+          "name": "Boots of Striding and Springing",
+          "effects": [
+            {
+              "target": "speed.walk",
+              "op": "Max",
+              "value": "30"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "boots-of-the-winterlands",
+      "features": [
+        {
+          "key": "boots-of-the-winterlands.resistance",
+          "name": "Boots of the Winterlands",
+          "effects": [
+            {
+              "target": "damage.resist.cold",
+              "op": "Grant",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "bracers-of-archery",
+      "features": [
+        {
+          "key": "bracers-of-archery.archery",
+          "name": "Bracers of Archery",
+          "effects": [
+            {
+              "target": "proficiency.weapon.longbow",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "proficiency.weapon.shortbow",
+              "op": "Grant",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "bracers-of-defense",
+      "features": [
+        {
+          "key": "bracers-of-defense.defense",
+          "name": "Bracers of Defense",
+          "effects": [
+            {
+              "target": "ac.bonus",
+              "op": "Add",
+              "value": "2",
+              "condition": "!wearing('armor') && !wielding('shield')"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "brooch-of-shielding",
+      "features": [
+        {
+          "key": "brooch-of-shielding.resistance",
+          "name": "Brooch of Shielding",
+          "effects": [
+            {
+              "target": "damage.resist.force",
+              "op": "Grant",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "cloak-of-arachnida",
+      "features": [
+        {
+          "key": "cloak-of-arachnida.arachnida",
+          "name": "Cloak of Arachnida",
+          "effects": [
+            {
+              "target": "speed.climb",
+              "op": "Max",
+              "value": "stat('speed.walk')"
+            },
+            {
+              "target": "damage.resist.poison",
+              "op": "Grant",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "cloak-of-elvenkind",
+      "features": [
+        {
+          "key": "cloak-of-elvenkind.stealth",
+          "name": "Cloak of Elvenkind",
+          "effects": [
+            {
+              "target": "skill.stealth.advantage",
+              "op": "Grant",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "cloak-of-protection",
+      "features": [
+        {
+          "key": "cloak-of-protection.protection",
+          "name": "Cloak of Protection",
+          "effects": [
+            {
+              "target": "ac.bonus",
+              "op": "Add",
+              "value": "1"
+            },
+            {
+              "target": "save.all.bonus",
+              "op": "Add",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "cloak-of-the-bat",
+      "features": [
+        {
+          "key": "cloak-of-the-bat.stealth",
+          "name": "Cloak of the Bat",
+          "effects": [
+            {
+              "target": "skill.stealth.advantage",
+              "op": "Grant",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "cloak-of-the-manta-ray",
+      "features": [
+        {
+          "key": "cloak-of-the-manta-ray.swimming",
+          "name": "Cloak of the Manta Ray",
+          "effects": [
+            {
+              "target": "speed.swim",
+              "op": "Max",
+              "value": "60"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "dagger-of-venom",
+      "features": [
+        {
+          "key": "dagger-of-venom.magic-weapon",
+          "name": "Dagger of Venom",
+          "effects": [
+            {
+              "target": "item.attack.bonus",
+              "op": "Add",
+              "value": "1"
+            },
+            {
+              "target": "item.damage.bonus",
+              "op": "Add",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "defender",
+      "features": [
+        {
+          "key": "defender.magic-weapon",
+          "name": "Defender",
+          "effects": [
+            {
+              "target": "item.attack.bonus",
+              "op": "Add",
+              "value": "3"
+            },
+            {
+              "target": "item.damage.bonus",
+              "op": "Add",
+              "value": "3"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "demon-armor",
+      "features": [
+        {
+          "key": "demon-armor.magic-armor",
+          "name": "Demon Armor",
+          "effects": [
+            {
+              "target": "ac.bonus",
+              "op": "Add",
+              "value": "1",
+              "condition": "wearing('armor')"
+            },
+            {
+              "target": "language.abyssal",
+              "op": "Grant",
+              "value": "1",
+              "condition": "wearing('armor')"
+            },
+            {
+              "target": "attack.unarmed.die",
+              "op": "Max",
+              "value": "8",
+              "condition": "wearing('armor')",
+              "label": "Demon Armor: Clawed Gauntlets"
+            },
+            {
+              "target": "attack.unarmed.bonus",
+              "op": "Add",
+              "value": "1",
+              "condition": "wearing('armor')"
+            },
+            {
+              "target": "damage.unarmed.bonus",
+              "op": "Add",
+              "value": "1",
+              "condition": "wearing('armor')"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "dragon-scale-mail",
+      "features": [
+        {
+          "key": "dragon-scale-mail.magic-armor",
+          "name": "Dragon Scale Mail",
+          "effects": [
+            {
+              "target": "ac.bonus",
+              "op": "Add",
+              "value": "1",
+              "condition": "wearing('armor')"
+            }
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "key": "black-dragon-scale-mail",
+          "features": [
+            {
+              "key": "black-dragon-scale-mail.resistance",
+              "name": "Black Dragon Scale Mail",
+              "effects": [
+                {
+                  "target": "damage.resist.acid",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "wearing('armor')"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "blue-dragon-scale-mail",
+          "features": [
+            {
+              "key": "blue-dragon-scale-mail.resistance",
+              "name": "Blue Dragon Scale Mail",
+              "effects": [
+                {
+                  "target": "damage.resist.lightning",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "wearing('armor')"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "brass-dragon-scale-mail",
+          "features": [
+            {
+              "key": "brass-dragon-scale-mail.resistance",
+              "name": "Brass Dragon Scale Mail",
+              "effects": [
+                {
+                  "target": "damage.resist.fire",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "wearing('armor')"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "bronze-dragon-scale-mail",
+          "features": [
+            {
+              "key": "bronze-dragon-scale-mail.resistance",
+              "name": "Bronze Dragon Scale Mail",
+              "effects": [
+                {
+                  "target": "damage.resist.lightning",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "wearing('armor')"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "copper-dragon-scale-mail",
+          "features": [
+            {
+              "key": "copper-dragon-scale-mail.resistance",
+              "name": "Copper Dragon Scale Mail",
+              "effects": [
+                {
+                  "target": "damage.resist.acid",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "wearing('armor')"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "gold-dragon-scale-mail",
+          "features": [
+            {
+              "key": "gold-dragon-scale-mail.resistance",
+              "name": "Gold Dragon Scale Mail",
+              "effects": [
+                {
+                  "target": "damage.resist.fire",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "wearing('armor')"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "green-dragon-scale-mail",
+          "features": [
+            {
+              "key": "green-dragon-scale-mail.resistance",
+              "name": "Green Dragon Scale Mail",
+              "effects": [
+                {
+                  "target": "damage.resist.poison",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "wearing('armor')"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "red-dragon-scale-mail",
+          "features": [
+            {
+              "key": "red-dragon-scale-mail.resistance",
+              "name": "Red Dragon Scale Mail",
+              "effects": [
+                {
+                  "target": "damage.resist.fire",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "wearing('armor')"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "silver-dragon-scale-mail",
+          "features": [
+            {
+              "key": "silver-dragon-scale-mail.resistance",
+              "name": "Silver Dragon Scale Mail",
+              "effects": [
+                {
+                  "target": "damage.resist.cold",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "wearing('armor')"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "white-dragon-scale-mail",
+          "features": [
+            {
+              "key": "white-dragon-scale-mail.resistance",
+              "name": "White Dragon Scale Mail",
+              "effects": [
+                {
+                  "target": "damage.resist.cold",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "wearing('armor')"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "dragon-slayer",
+      "features": [
+        {
+          "key": "dragon-slayer.magic-weapon",
+          "name": "Dragon Slayer",
+          "effects": [
+            {
+              "target": "item.attack.bonus",
+              "op": "Add",
+              "value": "1"
+            },
+            {
+              "target": "item.damage.bonus",
+              "op": "Add",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "dwarven-plate",
+      "features": [
+        {
+          "key": "dwarven-plate.magic-armor",
+          "name": "Dwarven Plate",
+          "effects": [
+            {
+              "target": "ac.bonus",
+              "op": "Add",
+              "value": "2",
+              "condition": "wearing('armor')"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "dwarven-thrower",
+      "features": [
+        {
+          "key": "dwarven-thrower.magic-weapon",
+          "name": "Dwarven Thrower",
+          "effects": [
+            {
+              "target": "item.attack.bonus",
+              "op": "Add",
+              "value": "3"
+            },
+            {
+              "target": "item.damage.bonus",
+              "op": "Add",
+              "value": "3"
+            }
+          ]
+        }
+      ],
+      "properties": "Range, Thrown, Versatile, Melee",
+      "rangeNormal": 20,
+      "rangeLong": 60
+    },
+    {
+      "key": "efreeti-chain",
+      "features": [
+        {
+          "key": "efreeti-chain.magic-armor",
+          "name": "Efreeti Chain",
+          "effects": [
+            {
+              "target": "ac.bonus",
+              "op": "Add",
+              "value": "3",
+              "condition": "wearing('armor')"
+            },
+            {
+              "target": "damage.immune.fire",
+              "op": "Grant",
+              "value": "1",
+              "condition": "wearing('armor')"
+            },
+            {
+              "target": "language.primordial",
+              "op": "Grant",
+              "value": "1",
+              "condition": "wearing('armor')"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "elven-chain",
+      "features": [
+        {
+          "key": "elven-chain.magic-armor",
+          "name": "Elven Chain",
+          "effects": [
+            {
+              "target": "ac.bonus",
+              "op": "Add",
+              "value": "1",
+              "condition": "wearing('armor')"
+            }
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "key": "elven-chain-mail",
+          "features": [
+            {
+              "key": "elven-chain-mail.training",
+              "name": "Elven Chain Mail",
+              "effects": [
+                {
+                  "target": "proficiency.armor.heavy",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "wearing('armor')"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "elven-chain-shirt",
+          "features": [
+            {
+              "key": "elven-chain-shirt.training",
+              "name": "Elven Chain Shirt",
+              "effects": [
+                {
+                  "target": "proficiency.armor.medium",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "wearing('armor')"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "energy-bow",
+      "features": [
+        {
+          "key": "energy-bow.magic-weapon",
+          "name": "Energy Bow",
+          "effects": [
+            {
+              "target": "item.attack.bonus",
+              "op": "Add",
+              "value": "1"
+            },
+            {
+              "target": "item.damage.bonus",
+              "op": "Add",
+              "value": "1"
+            }
+          ]
+        }
+      ],
+      "damageType": "Force"
+    },
+    {
+      "key": "executioners-axe",
+      "features": [
+        {
+          "key": "executioners-axe.magic-weapon",
+          "name": "Executioner's Axe",
+          "effects": [
+            {
+              "target": "item.attack.bonus",
+              "op": "Add",
+              "value": "1"
+            },
+            {
+              "target": "item.damage.bonus",
+              "op": "Add",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "eyes-of-the-eagle",
+      "features": [
+        {
+          "key": "eyes-of-the-eagle.sight",
+          "name": "Eyes of the Eagle",
+          "effects": [
+            {
+              "target": "skill.perception.advantage",
+              "op": "Grant",
+              "value": "1",
+              "label": "Eyes of the Eagle (sight)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "frost-brand",
+      "variants": [
+        {
+          "key": "frost-brand-glaive",
+          "features": [
+            {
+              "key": "frost-brand-glaive.fire-resistance",
+              "name": "Frost Brand Glaive",
+              "effects": [
+                {
+                  "target": "damage.resist.fire",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "wielding('frost-brand-glaive')"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "frost-brand-greatsword",
+          "features": [
+            {
+              "key": "frost-brand-greatsword.fire-resistance",
+              "name": "Frost Brand Greatsword",
+              "effects": [
+                {
+                  "target": "damage.resist.fire",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "wielding('frost-brand-greatsword')"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "frost-brand-longsword",
+          "features": [
+            {
+              "key": "frost-brand-longsword.fire-resistance",
+              "name": "Frost Brand Longsword",
+              "effects": [
+                {
+                  "target": "damage.resist.fire",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "wielding('frost-brand-longsword')"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "frost-brand-rapier",
+          "features": [
+            {
+              "key": "frost-brand-rapier.fire-resistance",
+              "name": "Frost Brand Rapier",
+              "effects": [
+                {
+                  "target": "damage.resist.fire",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "wielding('frost-brand-rapier')"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "frost-brand-scimitar",
+          "features": [
+            {
+              "key": "frost-brand-scimitar.fire-resistance",
+              "name": "Frost Brand Scimitar",
+              "effects": [
+                {
+                  "target": "damage.resist.fire",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "wielding('frost-brand-scimitar')"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "frost-brand-shortsword",
+          "features": [
+            {
+              "key": "frost-brand-shortsword.fire-resistance",
+              "name": "Frost Brand Shortsword",
+              "effects": [
+                {
+                  "target": "damage.resist.fire",
+                  "op": "Grant",
+                  "value": "1",
+                  "condition": "wielding('frost-brand-shortsword')"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "gauntlets-of-ogre-power",
+      "features": [
+        {
+          "key": "gauntlets-of-ogre-power.strength",
+          "name": "Gauntlets of Ogre Power",
+          "effects": [
+            {
+              "target": "ability.str.score",
+              "op": "Max",
+              "value": "19"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "giant-slayer",
+      "features": [
+        {
+          "key": "giant-slayer.magic-weapon",
+          "name": "Giant Slayer",
+          "effects": [
+            {
+              "target": "item.attack.bonus",
+              "op": "Add",
+              "value": "1"
+            },
+            {
+              "target": "item.damage.bonus",
+              "op": "Add",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "glamoured-studded-leather",
+      "features": [
+        {
+          "key": "glamoured-studded-leather.magic-armor",
+          "name": "Glamoured Studded Leather",
+          "effects": [
+            {
+              "target": "ac.bonus",
+              "op": "Add",
+              "value": "1",
+              "condition": "wearing('glamoured-studded-leather')"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "gloves-of-thievery",
+      "features": [
+        {
+          "key": "gloves-of-thievery.thievery",
+          "name": "Gloves of Thievery",
+          "effects": [
+            {
+              "target": "skill.sleight-of-hand.bonus",
+              "op": "Add",
+              "value": "5"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "goggles-of-night",
+      "features": [
+        {
+          "key": "goggles-of-night.darkvision",
+          "name": "Goggles of Night",
+          "effects": [
+            {
+              "target": "sense.darkvision",
+              "op": "Add",
+              "value": "60"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "hammer-of-thunderbolts",
+      "features": [
+        {
+          "key": "hammer-of-thunderbolts.magic-weapon",
+          "name": "Hammer of Thunderbolts",
+          "effects": [
+            {
+              "target": "item.attack.bonus",
+              "op": "Add",
+              "value": "1"
+            },
+            {
+              "target": "item.damage.bonus",
+              "op": "Add",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "headband-of-intellect",
+      "features": [
+        {
+          "key": "headband-of-intellect.intelligence",
+          "name": "Headband of Intellect",
+          "effects": [
+            {
+              "target": "ability.int.score",
+              "op": "Max",
+              "value": "19"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "holy-avenger",
+      "features": [
+        {
+          "key": "holy-avenger.magic-weapon",
+          "name": "Holy Avenger",
+          "effects": [
+            {
+              "target": "item.attack.bonus",
+              "op": "Add",
+              "value": "3"
+            },
+            {
+              "target": "item.damage.bonus",
+              "op": "Add",
+              "value": "3"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "ioun-stone",
+      "variants": [
+        {
+          "key": "ioun-stone-protection",
+          "features": [
+            {
+              "key": "ioun-stone-protection.protection",
+              "name": "Ioun Stone, Protection",
+              "effects": [
+                {
+                  "target": "ac.bonus",
+                  "op": "Add",
+                  "value": "1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "ioun-stone-agility",
+          "features": [
+            {
+              "key": "ioun-stone-agility.ability",
+              "name": "Ioun Stone, Agility",
+              "effects": [
+                {
+                  "target": "ability.dex.score",
+                  "op": "Add",
+                  "value": "2"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "ioun-stone-fortitude",
+          "features": [
+            {
+              "key": "ioun-stone-fortitude.ability",
+              "name": "Ioun Stone, Fortitude",
+              "effects": [
+                {
+                  "target": "ability.con.score",
+                  "op": "Add",
+                  "value": "2"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "ioun-stone-insight",
+          "features": [
+            {
+              "key": "ioun-stone-insight.ability",
+              "name": "Ioun Stone, Insight",
+              "effects": [
+                {
+                  "target": "ability.wis.score",
+                  "op": "Add",
+                  "value": "2"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "ioun-stone-intellect",
+          "features": [
+            {
+              "key": "ioun-stone-intellect.ability",
+              "name": "Ioun Stone, Intellect",
+              "effects": [
+                {
+                  "target": "ability.int.score",
+                  "op": "Add",
+                  "value": "2"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "ioun-stone-leadership",
+          "features": [
+            {
+              "key": "ioun-stone-leadership.ability",
+              "name": "Ioun Stone, Leadership",
+              "effects": [
+                {
+                  "target": "ability.cha.score",
+                  "op": "Add",
+                  "value": "2"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "ioun-stone-strength",
+          "features": [
+            {
+              "key": "ioun-stone-strength.ability",
+              "name": "Ioun Stone, Strength",
+              "effects": [
+                {
+                  "target": "ability.str.score",
+                  "op": "Add",
+                  "value": "2"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "ioun-stone-awareness",
+          "features": [
+            {
+              "key": "ioun-stone-awareness.awareness",
+              "name": "Ioun Stone, Awareness",
+              "effects": [
+                {
+                  "target": "initiative.advantage",
+                  "op": "Grant",
+                  "value": "1"
+                },
+                {
+                  "target": "skill.perception.advantage",
+                  "op": "Grant",
+                  "value": "1"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "luck-blade",
+      "features": [
+        {
+          "key": "luck-blade.magic-weapon",
+          "name": "Luck Blade",
+          "effects": [
+            {
+              "target": "item.attack.bonus",
+              "op": "Add",
+              "value": "1"
+            },
+            {
+              "target": "item.damage.bonus",
+              "op": "Add",
+              "value": "1"
+            },
+            {
+              "target": "save.all.bonus",
+              "op": "Add",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "mace-of-smiting",
+      "features": [
+        {
+          "key": "mace-of-smiting.magic-weapon",
+          "name": "Mace of Smiting",
+          "effects": [
+            {
+              "target": "item.attack.bonus",
+              "op": "Add",
+              "value": "1"
+            },
+            {
+              "target": "item.damage.bonus",
+              "op": "Add",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "mariners-armor",
+      "features": [
+        {
+          "key": "mariners-armor.swimming",
+          "name": "Mariner's Armor",
+          "effects": [
+            {
+              "target": "speed.swim",
+              "op": "Max",
+              "value": "stat('speed.walk')",
+              "condition": "wearing('armor')"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "mithral-armor",
+      "strengthRequirement": 0,
+      "stealthDisadvantage": false
+    },
+    {
+      "key": "moonblade",
+      "features": [
+        {
+          "key": "moonblade.magic-weapon",
+          "name": "Moonblade",
+          "effects": [
+            {
+              "target": "item.attack.bonus",
+              "op": "Add",
+              "value": "1"
+            },
+            {
+              "target": "item.damage.bonus",
+              "op": "Add",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "nine-lives-stealer",
+      "features": [
+        {
+          "key": "nine-lives-stealer.magic-weapon",
+          "name": "Nine Lives Stealer",
+          "effects": [
+            {
+              "target": "item.attack.bonus",
+              "op": "Add",
+              "value": "2"
+            },
+            {
+              "target": "item.damage.bonus",
+              "op": "Add",
+              "value": "2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "periapt-of-proof-against-poison",
+      "features": [
+        {
+          "key": "periapt-of-proof-against-poison.immunity",
+          "name": "Periapt of Proof against Poison",
+          "effects": [
+            {
+              "target": "damage.immune.poison",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "condition.immune.poisoned",
+              "op": "Grant",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "quarterstaff-of-the-acrobat",
+      "features": [
+        {
+          "key": "quarterstaff-of-the-acrobat.magic-weapon",
+          "name": "Quarterstaff of the Acrobat",
+          "effects": [
+            {
+              "target": "item.attack.bonus",
+              "op": "Add",
+              "value": "2"
+            },
+            {
+              "target": "item.damage.bonus",
+              "op": "Add",
+              "value": "2"
+            },
+            {
+              "target": "skill.acrobatics.advantage",
+              "op": "Grant",
+              "value": "1",
+              "condition": "wielding('quarterstaff-of-the-acrobat')"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "ring-of-elemental-command",
+      "variants": [
+        {
+          "key": "ring-of-elemental-command-air",
+          "features": [
+            {
+              "key": "ring-of-elemental-command-air.elemental-focus",
+              "name": "Ring of Elemental Command (Air)",
+              "effects": [
+                {
+                  "target": "damage.resist.lightning",
+                  "op": "Grant",
+                  "value": "1"
+                },
+                {
+                  "target": "speed.fly",
+                  "op": "Max",
+                  "value": "stat('speed.walk')"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "ring-of-elemental-command-earth",
+          "features": [
+            {
+              "key": "ring-of-elemental-command-earth.elemental-focus",
+              "name": "Ring of Elemental Command (Earth)",
+              "effects": [
+                {
+                  "target": "damage.resist.acid",
+                  "op": "Grant",
+                  "value": "1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "ring-of-elemental-command-fire",
+          "features": [
+            {
+              "key": "ring-of-elemental-command-fire.elemental-focus",
+              "name": "Ring of Elemental Command (Fire)",
+              "effects": [
+                {
+                  "target": "damage.immune.fire",
+                  "op": "Grant",
+                  "value": "1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "ring-of-elemental-command-water",
+          "features": [
+            {
+              "key": "ring-of-elemental-command-water.elemental-focus",
+              "name": "Ring of Elemental Command (Water)",
+              "effects": [
+                {
+                  "target": "speed.swim",
+                  "op": "Max",
+                  "value": "60"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "ring-of-protection",
+      "features": [
+        {
+          "key": "ring-of-protection.protection",
+          "name": "Ring of Protection",
+          "effects": [
+            {
+              "target": "ac.bonus",
+              "op": "Add",
+              "value": "1"
+            },
+            {
+              "target": "save.all.bonus",
+              "op": "Add",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "ring-of-resistance",
+      "features": [
+        {
+          "key": "ring-of-resistance.resistance",
+          "name": "Ring of Resistance",
+          "choices": [
+            {
+              "key": "ring-of-resistance.resistance",
+              "name": "Resistance",
+              "count": "1",
+              "source": "Static",
+              "replace": "Never",
+              "effects": [
+                {
+                  "target": "damage.resist.$option",
+                  "op": "Grant",
+                  "value": "1"
+                }
+              ],
+              "options": [
+                {
+                  "key": "acid",
+                  "name": "Acid"
+                },
+                {
+                  "key": "cold",
+                  "name": "Cold"
+                },
+                {
+                  "key": "fire",
+                  "name": "Fire"
+                },
+                {
+                  "key": "force",
+                  "name": "Force"
+                },
+                {
+                  "key": "lightning",
+                  "name": "Lightning"
+                },
+                {
+                  "key": "necrotic",
+                  "name": "Necrotic"
+                },
+                {
+                  "key": "poison",
+                  "name": "Poison"
+                },
+                {
+                  "key": "psychic",
+                  "name": "Psychic"
+                },
+                {
+                  "key": "radiant",
+                  "name": "Radiant"
+                },
+                {
+                  "key": "thunder",
+                  "name": "Thunder"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "ring-of-swimming",
+      "features": [
+        {
+          "key": "ring-of-swimming.swimming",
+          "name": "Ring of Swimming",
+          "effects": [
+            {
+              "target": "speed.swim",
+              "op": "Max",
+              "value": "40"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "robe-of-eyes",
+      "features": [
+        {
+          "key": "robe-of-eyes.sight",
+          "name": "Robe of Eyes",
+          "effects": [
+            {
+              "target": "sense.darkvision",
+              "op": "Max",
+              "value": "120"
+            },
+            {
+              "target": "sense.truesight",
+              "op": "Max",
+              "value": "120"
+            },
+            {
+              "target": "skill.perception.advantage",
+              "op": "Grant",
+              "value": "1",
+              "label": "Robe of Eyes (sight)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "robe-of-stars",
+      "features": [
+        {
+          "key": "robe-of-stars.protection",
+          "name": "Robe of Stars",
+          "effects": [
+            {
+              "target": "save.all.bonus",
+              "op": "Add",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "robe-of-the-archmagi",
+      "features": [
+        {
+          "key": "robe-of-the-archmagi.archmagi",
+          "name": "Robe of the Archmagi",
+          "effects": [
+            {
+              "target": "ac.base",
+              "op": "Candidate",
+              "value": "15 + mod('dex')",
+              "condition": "!wearing('armor')",
+              "label": "Robe of the Archmagi"
+            },
+            {
+              "target": "spellcasting.attack.bonus",
+              "op": "Add",
+              "value": "2"
+            },
+            {
+              "target": "spellcasting.dc.bonus",
+              "op": "Add",
+              "value": "2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "rod-of-the-pact-keeper",
+      "variants": [
+        {
+          "key": "plus1-rod-of-the-pact-keeper",
+          "features": [
+            {
+              "key": "plus1-rod-of-the-pact-keeper.pact-keeper",
+              "name": "+1 Rod of the Pact Keeper",
+              "effects": [
+                {
+                  "target": "spellcasting.warlock.attack.bonus",
+                  "op": "Add",
+                  "value": "1",
+                  "condition": "wielding('plus1-rod-of-the-pact-keeper')"
+                },
+                {
+                  "target": "spellcasting.warlock.dc.bonus",
+                  "op": "Add",
+                  "value": "1",
+                  "condition": "wielding('plus1-rod-of-the-pact-keeper')"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "plus2-rod-of-the-pact-keeper",
+          "features": [
+            {
+              "key": "plus2-rod-of-the-pact-keeper.pact-keeper",
+              "name": "+2 Rod of the Pact Keeper",
+              "effects": [
+                {
+                  "target": "spellcasting.warlock.attack.bonus",
+                  "op": "Add",
+                  "value": "2",
+                  "condition": "wielding('plus2-rod-of-the-pact-keeper')"
+                },
+                {
+                  "target": "spellcasting.warlock.dc.bonus",
+                  "op": "Add",
+                  "value": "2",
+                  "condition": "wielding('plus2-rod-of-the-pact-keeper')"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "plus3-rod-of-the-pact-keeper",
+          "features": [
+            {
+              "key": "plus3-rod-of-the-pact-keeper.pact-keeper",
+              "name": "+3 Rod of the Pact Keeper",
+              "effects": [
+                {
+                  "target": "spellcasting.warlock.attack.bonus",
+                  "op": "Add",
+                  "value": "3",
+                  "condition": "wielding('plus3-rod-of-the-pact-keeper')"
+                },
+                {
+                  "target": "spellcasting.warlock.dc.bonus",
+                  "op": "Add",
+                  "value": "3",
+                  "condition": "wielding('plus3-rod-of-the-pact-keeper')"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "scarab-of-protection",
+      "features": [
+        {
+          "key": "scarab-of-protection.protection",
+          "name": "Scarab of Protection",
+          "effects": [
+            {
+              "target": "ac.bonus",
+              "op": "Add",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "scimitar-of-speed",
+      "features": [
+        {
+          "key": "scimitar-of-speed.magic-weapon",
+          "name": "Scimitar of Speed",
+          "effects": [
+            {
+              "target": "item.attack.bonus",
+              "op": "Add",
+              "value": "2"
+            },
+            {
+              "target": "item.damage.bonus",
+              "op": "Add",
+              "value": "2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "sentinel-shield",
+      "features": [
+        {
+          "key": "sentinel-shield.vigilance",
+          "name": "Sentinel Shield",
+          "effects": [
+            {
+              "target": "initiative.advantage",
+              "op": "Grant",
+              "value": "1",
+              "condition": "wielding('sentinel-shield')"
+            },
+            {
+              "target": "skill.perception.advantage",
+              "op": "Grant",
+              "value": "1",
+              "condition": "wielding('sentinel-shield')"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "shield-of-the-cavalier",
+      "features": [
+        {
+          "key": "shield-of-the-cavalier.magic-shield",
+          "name": "Shield of the Cavalier",
+          "effects": [
+            {
+              "target": "ac.bonus",
+              "op": "Add",
+              "value": "2",
+              "condition": "wielding('shield-of-the-cavalier')"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "slippers-of-spider-climbing",
+      "features": [
+        {
+          "key": "slippers-of-spider-climbing.climbing",
+          "name": "Slippers of Spider Climbing",
+          "effects": [
+            {
+              "target": "speed.climb",
+              "op": "Max",
+              "value": "stat('speed.walk')"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "staff-of-fire",
+      "features": [
+        {
+          "key": "staff-of-fire.resistance",
+          "name": "Staff of Fire",
+          "effects": [
+            {
+              "target": "damage.resist.fire",
+              "op": "Grant",
+              "value": "1",
+              "condition": "wielding('staff-of-fire')"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "staff-of-frost",
+      "features": [
+        {
+          "key": "staff-of-frost.resistance",
+          "name": "Staff of Frost",
+          "effects": [
+            {
+              "target": "damage.resist.cold",
+              "op": "Grant",
+              "value": "1",
+              "condition": "wielding('staff-of-frost')"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "staff-of-power",
+      "features": [
+        {
+          "key": "staff-of-power.magic-weapon",
+          "name": "Staff of Power",
+          "effects": [
+            {
+              "target": "item.attack.bonus",
+              "op": "Add",
+              "value": "2"
+            },
+            {
+              "target": "item.damage.bonus",
+              "op": "Add",
+              "value": "2"
+            },
+            {
+              "target": "ac.bonus",
+              "op": "Add",
+              "value": "2",
+              "condition": "wielding('staff-of-power')"
+            },
+            {
+              "target": "save.all.bonus",
+              "op": "Add",
+              "value": "2",
+              "condition": "wielding('staff-of-power')"
+            },
+            {
+              "target": "spellcasting.attack.bonus",
+              "op": "Add",
+              "value": "2",
+              "condition": "wielding('staff-of-power')"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "staff-of-striking",
+      "features": [
+        {
+          "key": "staff-of-striking.magic-weapon",
+          "name": "Staff of Striking",
+          "effects": [
+            {
+              "target": "item.attack.bonus",
+              "op": "Add",
+              "value": "3"
+            },
+            {
+              "target": "item.damage.bonus",
+              "op": "Add",
+              "value": "3"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "staff-of-thunder-and-lightning",
+      "features": [
+        {
+          "key": "staff-of-thunder-and-lightning.magic-weapon",
+          "name": "Staff of Thunder and Lightning",
+          "effects": [
+            {
+              "target": "item.attack.bonus",
+              "op": "Add",
+              "value": "2"
+            },
+            {
+              "target": "item.damage.bonus",
+              "op": "Add",
+              "value": "2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "staff-of-the-magi",
+      "features": [
+        {
+          "key": "staff-of-the-magi.magic-weapon",
+          "name": "Staff of the Magi",
+          "effects": [
+            {
+              "target": "item.attack.bonus",
+              "op": "Add",
+              "value": "2"
+            },
+            {
+              "target": "item.damage.bonus",
+              "op": "Add",
+              "value": "2"
+            },
+            {
+              "target": "spellcasting.attack.bonus",
+              "op": "Add",
+              "value": "2",
+              "condition": "wielding('staff-of-the-magi')"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "staff-of-the-woodlands",
+      "features": [
+        {
+          "key": "staff-of-the-woodlands.magic-weapon",
+          "name": "Staff of the Woodlands",
+          "effects": [
+            {
+              "target": "item.attack.bonus",
+              "op": "Add",
+              "value": "2"
+            },
+            {
+              "target": "item.damage.bonus",
+              "op": "Add",
+              "value": "2"
+            },
+            {
+              "target": "spellcasting.attack.bonus",
+              "op": "Add",
+              "value": "2",
+              "condition": "wielding('staff-of-the-woodlands')"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "stone-of-good-luck",
+      "features": [
+        {
+          "key": "stone-of-good-luck.luck",
+          "name": "Stone of Good Luck",
+          "effects": [
+            {
+              "target": "check.all.bonus",
+              "op": "Add",
+              "value": "1"
+            },
+            {
+              "target": "save.all.bonus",
+              "op": "Add",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "sun-blade",
+      "features": [
+        {
+          "key": "sun-blade.magic-weapon",
+          "name": "Sun Blade",
+          "effects": [
+            {
+              "target": "item.attack.bonus",
+              "op": "Add",
+              "value": "2"
+            },
+            {
+              "target": "item.damage.bonus",
+              "op": "Add",
+              "value": "2"
+            }
+          ]
+        }
+      ],
+      "damageType": "Radiant",
+      "properties": "Finesse, Versatile, Melee"
+    },
+    {
+      "key": "sword-of-answering",
+      "features": [
+        {
+          "key": "sword-of-answering.magic-weapon",
+          "name": "Sword of Answering",
+          "effects": [
+            {
+              "target": "item.attack.bonus",
+              "op": "Add",
+              "value": "3"
+            },
+            {
+              "target": "item.damage.bonus",
+              "op": "Add",
+              "value": "3"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "sword-of-kas",
+      "features": [
+        {
+          "key": "sword-of-kas.magic-weapon",
+          "name": "Sword of Kas",
+          "effects": [
+            {
+              "target": "item.attack.bonus",
+              "op": "Add",
+              "value": "3"
+            },
+            {
+              "target": "item.damage.bonus",
+              "op": "Add",
+              "value": "3"
+            },
+            {
+              "target": "damage.resist.necrotic",
+              "op": "Grant",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "sword-of-vengeance",
+      "features": [
+        {
+          "key": "sword-of-vengeance.magic-weapon",
+          "name": "Sword of Vengeance",
+          "effects": [
+            {
+              "target": "item.attack.bonus",
+              "op": "Add",
+              "value": "1"
+            },
+            {
+              "target": "item.damage.bonus",
+              "op": "Add",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "talisman-of-pure-good",
+      "features": [
+        {
+          "key": "talisman-of-pure-good.holy-symbol",
+          "name": "Talisman of Pure Good",
+          "effects": [
+            {
+              "target": "spellcasting.attack.bonus",
+              "op": "Add",
+              "value": "2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "talisman-of-ultimate-evil",
+      "features": [
+        {
+          "key": "talisman-of-ultimate-evil.holy-symbol",
+          "name": "Talisman of Ultimate Evil",
+          "effects": [
+            {
+              "target": "spellcasting.attack.bonus",
+              "op": "Add",
+              "value": "2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "vorpal-sword",
+      "features": [
+        {
+          "key": "vorpal-sword.magic-weapon",
+          "name": "Vorpal Sword",
+          "effects": [
+            {
+              "target": "item.attack.bonus",
+              "op": "Add",
+              "value": "3"
+            },
+            {
+              "target": "item.damage.bonus",
+              "op": "Add",
+              "value": "3"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "wand-of-orcus",
+      "features": [
+        {
+          "key": "wand-of-orcus.magic-weapon",
+          "name": "Wand of Orcus",
+          "effects": [
+            {
+              "target": "item.attack.bonus",
+              "op": "Add",
+              "value": "3"
+            },
+            {
+              "target": "item.damage.bonus",
+              "op": "Add",
+              "value": "3"
+            },
+            {
+              "target": "ac.bonus",
+              "op": "Add",
+              "value": "3",
+              "condition": "wielding('wand-of-orcus')"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "wand-of-the-war-mage",
+      "variants": [
+        {
+          "key": "plus1-wand-of-the-war-mage",
+          "features": [
+            {
+              "key": "plus1-wand-of-the-war-mage.war-mage",
+              "name": "+1 Wand of the War Mage",
+              "effects": [
+                {
+                  "target": "spellcasting.attack.bonus",
+                  "op": "Add",
+                  "value": "1",
+                  "condition": "wielding('plus1-wand-of-the-war-mage')"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "plus2-wand-of-the-war-mage",
+          "features": [
+            {
+              "key": "plus2-wand-of-the-war-mage.war-mage",
+              "name": "+2 Wand of the War Mage",
+              "effects": [
+                {
+                  "target": "spellcasting.attack.bonus",
+                  "op": "Add",
+                  "value": "2",
+                  "condition": "wielding('plus2-wand-of-the-war-mage')"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "plus3-wand-of-the-war-mage",
+          "features": [
+            {
+              "key": "plus3-wand-of-the-war-mage.war-mage",
+              "name": "+3 Wand of the War Mage",
+              "effects": [
+                {
+                  "target": "spellcasting.attack.bonus",
+                  "op": "Add",
+                  "value": "3",
+                  "condition": "wielding('plus3-wand-of-the-war-mage')"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "wave",
+      "features": [
+        {
+          "key": "wave.magic-weapon",
+          "name": "Wave",
+          "effects": [
+            {
+              "target": "item.attack.bonus",
+              "op": "Add",
+              "value": "3"
+            },
+            {
+              "target": "item.damage.bonus",
+              "op": "Add",
+              "value": "3"
+            },
+            {
+              "target": "initiative.advantage",
+              "op": "Grant",
+              "value": "1",
+              "condition": "wielding('wave')",
+              "label": "Wave: Combat Ready"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "weapon-of-warning",
+      "features": [
+        {
+          "key": "weapon-of-warning.warning",
+          "name": "Weapon of Warning",
+          "effects": [
+            {
+              "target": "initiative.advantage",
+              "op": "Grant",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "whelm",
+      "features": [
+        {
+          "key": "whelm.magic-weapon",
+          "name": "Whelm",
+          "effects": [
+            {
+              "target": "item.attack.bonus",
+              "op": "Add",
+              "value": "3"
+            },
+            {
+              "target": "item.damage.bonus",
+              "op": "Add",
+              "value": "3"
+            }
+          ]
+        }
+      ],
+      "properties": "Range, Thrown, Versatile, Melee",
+      "rangeNormal": 60,
+      "rangeLong": 180
+    },
+    {
+      "key": "winged-boots",
+      "features": [
+        {
+          "key": "winged-boots.flight",
+          "name": "Winged Boots: Flight",
+          "toggleable": true,
+          "effects": [
+            {
+              "target": "speed.fly",
+              "op": "Max",
+              "value": "30"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "wings-of-flying",
+      "features": [
+        {
+          "key": "wings-of-flying.wings",
+          "name": "Wings of Flying: Wings",
+          "toggleable": true,
+          "effects": [
+            {
+              "target": "speed.fly",
+              "op": "Max",
+              "value": "60"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "wraps-of-unarmed-power",
+      "variants": [
+        {
+          "key": "plus1-wraps-of-unarmed-power",
+          "features": [
+            {
+              "key": "plus1-wraps-of-unarmed-power.unarmed-power",
+              "name": "+1 Wraps of Unarmed Power",
+              "effects": [
+                {
+                  "target": "attack.unarmed.bonus",
+                  "op": "Add",
+                  "value": "1"
+                },
+                {
+                  "target": "damage.unarmed.bonus",
+                  "op": "Add",
+                  "value": "1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "plus2-wraps-of-unarmed-power",
+          "features": [
+            {
+              "key": "plus2-wraps-of-unarmed-power.unarmed-power",
+              "name": "+2 Wraps of Unarmed Power",
+              "effects": [
+                {
+                  "target": "attack.unarmed.bonus",
+                  "op": "Add",
+                  "value": "2"
+                },
+                {
+                  "target": "damage.unarmed.bonus",
+                  "op": "Add",
+                  "value": "2"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "plus3-wraps-of-unarmed-power",
+          "features": [
+            {
+              "key": "plus3-wraps-of-unarmed-power.unarmed-power",
+              "name": "+3 Wraps of Unarmed Power",
+              "effects": [
+                {
+                  "target": "attack.unarmed.bonus",
+                  "op": "Add",
+                  "value": "3"
+                },
+                {
+                  "target": "damage.unarmed.bonus",
+                  "op": "Add",
+                  "value": "3"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

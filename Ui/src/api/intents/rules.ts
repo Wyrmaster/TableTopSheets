@@ -155,12 +155,12 @@ export class GetSpellIntent extends RuleDetailIntent<SpellDetailDto> {
   protected readonly collection = 'spells'
 }
 
-/** GET /api/rules/items (sort: name, key, kind, cost, weight) */
+/** GET /api/rules/items (sort: name, key, kind, cost, weight, rarity) */
 export class ListItemsIntent extends PagedIntent<ItemSummaryDto, ItemFilter> {
   override readonly anonymous = true
 
   /**
-   * @param query paging, search, sort and filters (`kind`, `category`, `magic`, `attunement`)
+   * @param query paging, search, sort and filters (`kind`, `category`, `magic`, `attunement`, `rarity`)
    */
   constructor(query: ListQuery & ItemFilter = {}) {
     super(query)

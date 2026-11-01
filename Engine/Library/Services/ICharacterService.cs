@@ -107,7 +107,7 @@ public interface ICharacterService
   Task<CharacterEvaluation> CopyToSpellbookAsync(Guid characterId, string spellKey, string? note = null, CancellationToken cancellationToken = default);
 
   /// <summary>
-  ///   Add an item to the inventory; a purchase pays its cost from the character's coins (with change)
+  ///   Add an item to the inventory; a purchase pays its cost from the character's coins (with change); artifacts can't be bought
   /// </summary>
   Task<CharacterItem> AddItemAsync(Guid characterId, string itemKey, int quantity = 1, CancellationToken cancellationToken = default, bool purchase = false);
 

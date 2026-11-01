@@ -660,6 +660,9 @@ namespace TableTopSheets.Persistence.Sqlite.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("BaseItemId")
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("Bundle")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER")
@@ -694,6 +697,10 @@ namespace TableTopSheets.Persistence.Sqlite.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Rarity")
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
                     b.Property<bool>("RequiresAttunement")
                         .HasColumnType("INTEGER");
 
@@ -704,6 +711,8 @@ namespace TableTopSheets.Persistence.Sqlite.Migrations
                         .HasColumnType("REAL");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("BaseItemId");
 
                     b.HasIndex("Key")
                         .IsUnique();
@@ -1669,10 +1678,17 @@ namespace TableTopSheets.Persistence.Sqlite.Migrations
 
             modelBuilder.Entity("TableTopSheets.Persistence.Entity.Rules.Items.Item", b =>
                 {
+                    b.HasOne("TableTopSheets.Persistence.Entity.Rules.Items.Item", "BaseItem")
+                        .WithMany()
+                        .HasForeignKey("BaseItemId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("TableTopSheets.Persistence.Entity.Rules.Source", "Source")
                         .WithMany()
                         .HasForeignKey("SourceId")
                         .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("BaseItem");
 
                     b.Navigation("Source");
                 });

@@ -53,7 +53,11 @@ public static class CharacterSheetBuilder
         .Select(group => new DicePool(group.Key, group.Sum(entry => entry.Level)))
         .OrderByDescending(entry => entry.Die)
         .ToList(),
-      Initiative = evaluation.Modifier("dex") + (int)evaluation.Stat("initiative.bonus"),
+      // Initiative is a Dexterity check: bonuses to every check (Stone of Good Luck) count too
+      Initiative = evaluation.Modifier("dex")
+                   + (int)evaluation.Stat("initiative.bonus")
+                   + (int)evaluation.Stat("check.all.bonus")
+                   + (int)evaluation.Stat("check.dex.bonus"),
       Speed = Speed(evaluation),
       OtherSpeeds = new[] { "fly", "swim", "climb", "burrow" }
         .Select(entry => new SourceValue(Naming.Title(entry), (int)evaluation.Stat($"speed.{entry}")))
@@ -278,11 +282,13 @@ public static class CharacterSheetBuilder
       int attackBonus = modifier
                         + (proficient ? evaluation.ProficiencyBonus : 0)
                         + (int)evaluation.Stat("attack.bonus")
-                        + (int)evaluation.Stat(weapon.Ranged ? "attack.ranged.bonus" : "attack.melee.bonus");
+                        + (int)evaluation.Stat(weapon.Ranged ? "attack.ranged.bonus" : "attack.melee.bonus")
+                        + (int)evaluation.Stat($"item.{weapon.Key}.attack.bonus");
       // the extra attack of the off hand adds a positive modifier only with Two-Weapon Fighting
       int damageBonus = (offHand && !offHandModifier ? Math.Min(0, modifier) : modifier)
                         + (int)evaluation.Stat("damage.bonus")
-                        + (int)evaluation.Stat(weapon.Ranged ? "damage.ranged.bonus" : "damage.melee.bonus");
+                        + (int)evaluation.Stat(weapon.Ranged ? "damage.ranged.bonus" : "damage.melee.bonus")
+                        + (int)evaluation.Stat($"item.{weapon.Key}.damage.bonus");
 
       List<string> notes = new();
       if (weapon.VersatileDamage != null)
@@ -296,7 +302,7 @@ public static class CharacterSheetBuilder
       }
 
       notes.AddRange(PropertyNames(weapon.Properties & ~(WeaponPropertyEnum.Versatile | WeaponPropertyEnum.Range)));
-      if (weapon.MasteryId is { } masteryId && evaluation.Stat($"mastery.{weapon.Key}") > 0)
+      if (weapon.MasteryId is { } masteryId && evaluation.Stat($"mastery.{evaluation.BaseKey(weapon)}") > 0)
       {
         notes.Add($"Mastery: {evaluation.Catalog.Masteries[masteryId].Name}");
       }
@@ -312,7 +318,10 @@ public static class CharacterSheetBuilder
     // unarmed strike: 1 + Strength, or the Martial Arts die
     int unarmedDie = (int)evaluation.Stat("attack.unarmed.die");
     int unarmedModifier = meleeDexterity ? Math.Max(strength, dexterity) : strength;
-    int unarmedDamage = unarmedModifier + (int)evaluation.Stat("damage.bonus") + (int)evaluation.Stat("damage.melee.bonus");
+    int unarmedDamage = unarmedModifier
+                        + (int)evaluation.Stat("damage.bonus")
+                        + (int)evaluation.Stat("damage.melee.bonus")
+                        + (int)evaluation.Stat("damage.unarmed.bonus");
     string unarmedDice = unarmedDie > 0 ? $"1d{unarmedDie}" : "1";
     attacks.Add(new
     (
@@ -348,9 +357,10 @@ public static class CharacterSheetBuilder
 
       int modifier = evaluation.Modifier(known.Ability);
       int bonus = (int)evaluation.Stat($"damage.spell.{known.Spell.Key}");
+      string? classKey = known.Profile == null ? null : evaluation.Catalog.Classes[known.Profile.ClassId].Key;
       int? saveDc = known.Spell.SaveAbility == null || known.Spell.AttackRoll
         ? null
-        : 8 + evaluation.ProficiencyBonus + modifier + (int)evaluation.Stat("spellcasting.dc.bonus");
+        : 8 + evaluation.ProficiencyBonus + modifier + evaluation.SpellBonus("dc", classKey);
 
       List<string> notes = [known.Spell.Range];
       if (known.Spell.DamageType == null)
@@ -368,7 +378,7 @@ public static class CharacterSheetBuilder
       yield return new AttackSheet
       (
         duplicate ? $"{known.Spell.Name} ({known.Source})" : known.Spell.Name,
-        evaluation.ProficiencyBonus + modifier + (int)evaluation.Stat("spellcasting.attack.bonus"),
+        evaluation.ProficiencyBonus + modifier + evaluation.SpellBonus("attack", classKey),
         damage.Contains('×') && bonus != 0 ? $"{damage
           .Split('×')[0]
           .Trim()} × ({Damage(damage
@@ -404,13 +414,14 @@ public static class CharacterSheetBuilder
     .Select(profile =>
     {
       int modifier = evaluation.Modifier(profile.Ability);
+      CharacterClass @class = evaluation.Catalog.Classes[profile.ClassId];
       return new SpellcastingSheet
       (
-        evaluation.Catalog.Classes[profile.ClassId].Name,
+        @class.Name,
         Naming.Title(profile.Ability),
         modifier,
-        8 + evaluation.ProficiencyBonus + modifier + (int)evaluation.Stat("spellcasting.dc.bonus"),
-        evaluation.ProficiencyBonus + modifier + (int)evaluation.Stat("spellcasting.attack.bonus"),
+        8 + evaluation.ProficiencyBonus + modifier + evaluation.SpellBonus("dc", @class.Key),
+        evaluation.ProficiencyBonus + modifier + evaluation.SpellBonus("attack", @class.Key),
         profile.PreparedCountKey == null ? 0 : (int)evaluation
           .Scale(profile.PreparedCountKey)
           .AsNumber(),

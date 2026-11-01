@@ -46,7 +46,21 @@ public static class RulesEndpoints
     .Add("key", entry => entry.Key)
     .AddKey("kind", entry => entry.Kind, kind => kind.ToString())
     .Add("cost", entry => entry.CostCp)
-    .Add("weight", entry => entry.Weight);
+    .Add("weight", entry => entry.Weight)
+    // the rarity is stored by name, so it sorts by rank (mundane items first)
+    .Add("rarity", entry => entry.Rarity == null
+      ? 0
+      : entry.Rarity == RarityEnum.Common
+        ? 1
+        : entry.Rarity == RarityEnum.Uncommon
+          ? 2
+          : entry.Rarity == RarityEnum.Rare
+            ? 3
+            : entry.Rarity == RarityEnum.VeryRare
+              ? 4
+              : entry.Rarity == RarityEnum.Legendary
+                ? 5
+                : 6);
 
   #endregion
 
@@ -102,7 +116,8 @@ public static class RulesEndpoints
     group
       .MapGet("/items", ListItems)
       .WithName("ListItems")
-      .WithSummary("List items (weapons, armor, tools, gear, magic items)");
+      .WithSummary("List items (weapons, armor, tools, gear, magic items)")
+      .WithDescription("Filters: kind, category, magic, attunement, rarity (Common ... Artifact). Sort fields: name, key, kind, cost, weight, rarity.");
     group
       .MapGet("/items/{key}", GetItem)
       .WithName("GetItem")
@@ -275,6 +290,7 @@ public static class RulesEndpoints
                                           || (entry.Group != null && entry.Group.ToLower() == category))
       .WhereIf(filter.Magic != null, entry => entry.Magic == filter.Magic)
       .WhereIf(filter.Attunement != null, entry => entry.RequiresAttunement == filter.Attunement)
+      .WhereIf(filter.Rarity != null, entry => entry.Rarity == filter.Rarity)
       .ToPagedAsync(query, ItemSorts, cancellationToken: cancellationToken)
       .Select(entry => RuleMapper
         .Summary(entry)

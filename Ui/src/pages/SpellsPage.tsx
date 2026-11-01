@@ -1,23 +1,20 @@
 import {
   Box,
-  Button,
   ButtonGroup,
-  Checkbox,
   Flex,
   Heading,
   IconButton,
-  Input,
-  NativeSelect,
   Pagination,
   Spinner,
   Stack,
   Text,
 } from '@chakra-ui/react'
-import { type ReactNode, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { type DamageTypeEnum, DamageTypes, ListSpellsIntent, problemMessages } from '@/api'
 import { ApiHint } from '@/components/ApiHint'
+import { FilterBar, FilterSelect, FilterToggle } from '@/components/FilterBar'
 import { Icon } from '@/components/Icon'
-import { clearFilterIcon, nextIcon, previousIcon } from '@/components/icons'
+import { nextIcon, previousIcon } from '@/components/icons'
 import { SceneBanner } from '@/components/SceneBanner'
 import { SpellRow } from '@/components/SpellRow'
 import { useIntentQuery } from '@/hooks/useIntentQuery'
@@ -142,19 +139,14 @@ export const SpellsPage = () => {
         </Text>
       </Box>
 
-      <Flex
-        wrap='wrap'
-        gap='3'
-        align='center'
+      <FilterBar
+        search={search}
+        placeholder='Search spells…'
+        filtered={filtered}
+        onSearchChange={filter(setSearch)}
+        onClear={clear}
       >
-        <Input
-          flex='1'
-          minW='200px'
-          placeholder='Search spells…'
-          value={search}
-          onChange={(event) => filter(setSearch)(event.target.value)}
-        />
-        <Select
+        <FilterSelect
           label='Type'
           width='150px'
           value={kind}
@@ -166,23 +158,8 @@ export const SpellsPage = () => {
           <option value='all'>All spells</option>
           <option value='cantrip'>Cantrip</option>
           <option value='leveled'>Spell</option>
-        </Select>
-        <Button
-          variant='outline'
-          disabled={!filtered}
-          onClick={clear}
-        >
-          <Icon path={clearFilterIcon} />
-          Clear filters
-        </Button>
-      </Flex>
-
-      <Flex
-        wrap='wrap'
-        gap='3'
-        align='center'
-      >
-        <Select
+        </FilterSelect>
+        <FilterSelect
           label='Level'
           width='130px'
           value={level}
@@ -198,8 +175,8 @@ export const SpellsPage = () => {
               Level {value}
             </option>
           ))}
-        </Select>
-        <Select
+        </FilterSelect>
+        <FilterSelect
           label='Spell list'
           width='160px'
           value={list}
@@ -213,8 +190,8 @@ export const SpellsPage = () => {
               {label}
             </option>
           ))}
-        </Select>
-        <Select
+        </FilterSelect>
+        <FilterSelect
           label='School'
           width='170px'
           value={school}
@@ -229,8 +206,8 @@ export const SpellsPage = () => {
               {capitalize(value)}
             </option>
           ))}
-        </Select>
-        <Select
+        </FilterSelect>
+        <FilterSelect
           label='Damage type'
           width='170px'
           value={damageType}
@@ -246,8 +223,8 @@ export const SpellsPage = () => {
               {value}
             </option>
           ))}
-        </Select>
-        <Select
+        </FilterSelect>
+        <FilterSelect
           label='Sort'
           width='150px'
           value={sort}
@@ -256,20 +233,20 @@ export const SpellsPage = () => {
           <option value='level,name'>Sort: level</option>
           <option value='name'>Sort: name</option>
           <option value='school,level,name'>Sort: school</option>
-        </Select>
-        <Toggle
+        </FilterSelect>
+        <FilterToggle
           checked={ritual}
           onChange={filter(setRitual)}
         >
           Ritual
-        </Toggle>
-        <Toggle
+        </FilterToggle>
+        <FilterToggle
           checked={concentration}
           onChange={filter(setConcentration)}
         >
           Concentration
-        </Toggle>
-      </Flex>
+        </FilterToggle>
+      </FilterBar>
 
       {spells.problem && <Text color='fg.error'>{problemMessages(spells.problem).join(' ')}</Text>}
       <Box ref={listTop} />
@@ -403,7 +380,7 @@ const SpellPagination = ({
         </ButtonGroup>
       </Pagination.Root>
       {onPageSizeChange && (
-        <Select
+        <FilterSelect
           label='Spells per page'
           width='130px'
           value={String(pageSize)}
@@ -417,62 +394,8 @@ const SpellPagination = ({
               {value} per page
             </option>
           ))}
-        </Select>
+        </FilterSelect>
       )}
     </Flex>
-  )
-}
-
-const Select = ({
-  label,
-  width,
-  value,
-  disabled,
-  onChange,
-  children,
-}: {
-  label: string
-  width: string
-  value: string
-  disabled?: boolean
-  onChange: (value: string) => void
-  children: ReactNode
-}) => {
-  return (
-    <NativeSelect.Root
-      w={width}
-      disabled={disabled}
-    >
-      <NativeSelect.Field
-        aria-label={label}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-      >
-        {children}
-      </NativeSelect.Field>
-      <NativeSelect.Indicator />
-    </NativeSelect.Root>
-  )
-}
-
-const Toggle = ({
-  checked,
-  onChange,
-  children,
-}: {
-  checked: boolean,
-  onChange: (checked: boolean) => void,
-  children: ReactNode
-}) => {
-  return (
-    <Checkbox.Root
-      checked={checked}
-      colorPalette='brand'
-      onCheckedChange={(details) => onChange(details.checked === true)}
-    >
-      <Checkbox.HiddenInput />
-      <Checkbox.Control />
-      <Checkbox.Label>{children}</Checkbox.Label>
-    </Checkbox.Root>
   )
 }

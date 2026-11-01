@@ -4,26 +4,29 @@
 #
 # Usage: Tools/images/convert-images.sh [-o output folder] <source folder> [category …]
 #   source: folders spells/, classes/, species/, backgrounds/, scenes/ and equipment/ (with subfolders such as
-#           armor/, gear/, weapons/ and coins/) with PNG or JPEG files
-#   category: spells, classes, species, backgrounds, scenes, items, coins; default every category found in the source
+#           armor/, gear/, weapons/ and coins/), magic-items/ and wondrous-items/ with PNG or JPEG files
+#   category: spells, classes, species, backgrounds, scenes, items, coins, magic-items; default every category found in
+#           the source
 #   output: default dnddata/Images; only the converted categories are cleared and written again
 #
 # Each image becomes <category>/<key>.webp and <category>/<key>.thumb.webp:
-#   spells, items, coins         512 x 512        thumbnail 128 x 128
+#   spells, items, magic-items, coins 512 x 512   thumbnail 128 x 128
 #   classes                      900 px tall      thumbnail 256 px wide
 #   species, backgrounds, scenes 1600 px wide, thumbnail 400 px wide
 #
 # File name -> key: a "-vN" suffix is a version (the highest one wins). Spells and scenes keep the rest of the name
 # (fireball, dragon-battle); classes, species and backgrounds use the first word (wizard-3-high-elf-male -> wizard,
 # acolyte-temple -> acolyte), half-orc is the orc species. Items are every subfolder of equipment/ but coins/; names
-# that differ from the item key are listed in item-keys.txt. Coins drop "-piece" (gold-piece -> gold).
+# that differ from the item key are listed in item-keys.txt. Coins drop "-piece" (gold-piece -> gold). Magic items are
+# every file below magic-items/ (any depth: armor/plus1-armor/plus1-chain-mail.png) and wondrous-items/, with the names
+# of item-keys.txt too; their picture replaces the equipment picture of the same item (Spell Scroll).
 set -euo pipefail
 
 repository=$(realpath "$(dirname "$0")/../..")
 output_dir=$repository/dnddata/Images
 aliases_file=$(dirname "$0")/item-keys.txt
 quality=80
-all_categories=(spells classes species backgrounds scenes items coins)
+all_categories=(spells classes species backgrounds scenes items coins magic-items)
 
 if [[ ${1:-} == -o ]]; then
   output_dir=$2
@@ -45,6 +48,11 @@ source_folders() {
   case $1 in
     items) find "$source_dir/equipment" -mindepth 1 -maxdepth 1 -type d ! -name coins 2>/dev/null | sort ;;
     coins) [[ -d $source_dir/equipment/coins ]] && echo "$source_dir/equipment/coins" ;;
+    magic-items)
+      for folder in magic-items wondrous-items; do
+        [[ -d $source_dir/$folder ]] && echo "$source_dir/$folder"
+      done
+      ;;
     *) [[ -d $source_dir/$1 ]] && echo "$source_dir/$1" ;;
   esac
   return 0
@@ -61,7 +69,7 @@ done <"$aliases_file"
 key_of() {
   local category=$1 name=$2
   case $category in
-    spells | scenes | items) echo "$name" ;;
+    spells | scenes | items | magic-items) echo "$name" ;;
     coins) echo "${name%-piece}" ;;
     species) [[ $name == half-orc* ]] && echo orc || echo "${name%%-*}" ;;
     *) echo "${name%%-*}" ;;
@@ -87,7 +95,7 @@ for category in "${categories[@]}"; do
   mapfile -t folders < <(source_folders "$category")
   [[ ${#folders[@]} -gt 0 ]] || { echo "skipped $category: no folder" >&2; continue; }
   case $category in
-    spells | items | coins) full='512x512>' thumb='128x128>' ;;
+    spells | items | magic-items | coins) full='512x512>' thumb='128x128>' ;;
     classes) full='x900>' thumb='256x>' ;;
     *) full='1600x>' thumb='400x>' ;;
   esac
@@ -106,14 +114,14 @@ for category in "${categories[@]}"; do
       chosen[$key]=$file
       versions[$key]=$version
     fi
-  done < <(find "${folders[@]}" -maxdepth 1 -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' \) -print0)
+  done < <(find "${folders[@]}" -maxdepth "$([[ $category == magic-items ]] && echo 3 || echo 1)" -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' \) -print0)
 
   rm -rf "${output_dir:?}/$category"
   mkdir -p "$output_dir/$category"
   count=0
   for key in "${!chosen[@]}"; do
     targets=$key
-    if [[ $category == items && -n ${item_aliases[$key]:-} ]]; then
+    if [[ $category == items || $category == magic-items ]] && [[ -n ${item_aliases[$key]:-} ]]; then
       targets=${item_aliases[$key]}
       [[ $targets == - ]] && { echo "skipped item image $key: no item" >&2; continue; }
     fi

@@ -316,6 +316,7 @@ public sealed class RulesCatalog
     {
       [nameof(OptionSourceEnum.Tool)] = this.Items.Values
         .OfType<Tool>()
+        .Where(entry => !entry.Magic)
         .Select(OptionProjections.ToolOption)
         .ToList(),
       [nameof(OptionSourceEnum.Language)] = this.Languages.Values
@@ -328,10 +329,12 @@ public sealed class RulesCatalog
         .Select(OptionProjections.FeatOption)
         .ToList(),
       [nameof(OptionSourceEnum.Item)] = this.Items.Values
+        .Where(entry => !entry.Magic)
         .Select(OptionProjections.ItemOption)
         .ToList(),
       [nameof(OptionSourceEnum.Weapon)] = this.Items.Values
         .OfType<Weapon>()
+        .Where(entry => !entry.Magic)
         .Select(OptionProjections.WeaponOption)
         .ToList(),
     };

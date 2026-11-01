@@ -26,7 +26,7 @@ public static class StatKeys
     new(@"^sense\.(darkvision|blindsight|tremorsense|truesight)$"),
     new($@"^damage\.(resist|immune|vulnerable)\.{Name}$"),
     new($@"^condition\.immune\.{Name}$"),
-    new(@"^damage\.(bonus|melee\.bonus|ranged\.bonus)$"),
+    new(@"^damage\.(bonus|melee\.bonus|ranged\.bonus|unarmed\.bonus)$"),
     new($@"^damage\.spell\.{Name}$"),
     new(@"^attack\.(extraAttacks|bonus|melee\.bonus|ranged\.bonus|melee\.dex|offhand\.modifier|unarmed\.die|unarmed\.bonus)$"),
     new(@"^proficiency\.armor\.(light|medium|heavy|shield)$"),
@@ -34,7 +34,10 @@ public static class StatKeys
     new($@"^language\.{Name}$"),
     new($@"^mastery\.{Name}$"),
     new($@"^spell\.{Name}$"),
-    new(@"^spellcasting\.(attack|dc)\.bonus$"),
+    new($@"^spellcasting\.({Name}\.)?(attack|dc)\.bonus$"),
+
+    // values of the item the effect belongs to (the attack and damage bonus of a +1 Longsword)
+    new(@"^item\.(attack|damage)\.bonus$"),
     new(@"^passive\.perception\.bonus$"),
     new(@"^size$"),
     new($@"^custom\.{Name}(\.{Name})*$"),
