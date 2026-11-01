@@ -12,11 +12,14 @@ import {
 import { useRef, useState } from 'react'
 import { type DamageTypeEnum, DamageTypes, ListSpellsIntent, problemMessages } from '@/api'
 import { ApiHint } from '@/components/ApiHint'
+import { CardCheckbox } from '@/components/CardCheckbox'
+import { CardSelectionBar } from '@/components/CardSelectionBar'
 import { FilterBar, FilterSelect, FilterToggle } from '@/components/FilterBar'
 import { Icon } from '@/components/Icon'
 import { nextIcon, previousIcon } from '@/components/icons'
 import { SceneBanner } from '@/components/SceneBanner'
 import { SpellRow } from '@/components/SpellRow'
+import { useCardSelection } from '@/hooks/useCardSelection'
 import { useIntentQuery } from '@/hooks/useIntentQuery'
 
 const PageSizes = [25, 50, 100]
@@ -56,7 +59,8 @@ const capitalize = (text: string) => text.charAt(0).toUpperCase() + text.slice(1
 
 /**
  * Every spell of the rules, without a character: search and filters (cantrip or leveled, level, spell list, school,
- * damage type, ritual, concentration); a spell opens in the detail view
+ * damage type, ritual, concentration); a spell opens in the detail view. In card selection mode a click selects the
+ * spell for the card PDF instead (kept across pages and filters).
  */
 export const SpellsPage = () => {
   const [search, setSearch] = useState('')
@@ -71,6 +75,7 @@ export const SpellsPage = () => {
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(PageSizes[0])
   const listTop = useRef<HTMLDivElement>(null)
+  const cards = useCardSelection()
 
   // every filter change starts at the first page again
   const filter = <T, >(set: (value: T) => void) => (value: T) => {
@@ -246,6 +251,7 @@ export const SpellsPage = () => {
         >
           Concentration
         </FilterToggle>
+        <CardSelectionBar selection={cards} />
       </FilterBar>
 
       {spells.problem && <Text color='fg.error'>{problemMessages(spells.problem).join(' ')}</Text>}
@@ -270,6 +276,16 @@ export const SpellsPage = () => {
           <SpellRow
             key={spell.key}
             spell={spell}
+            selected={cards.active && cards.isSelected('spell', spell.key)}
+            onClick={cards.active ? () => cards.toggle('spell', spell.key) : undefined}
+            control={(
+              <CardCheckbox
+                selection={cards}
+                kind='spell'
+                entryKey={spell.key}
+                name={spell.name}
+              />
+            )}
           />
         ))}
         {spells.data?.items.length === 0 && (
@@ -294,7 +310,8 @@ export const SpellsPage = () => {
         <code>
           GET /api/rules/spells?search=&amp;level=&amp;minLevel=&amp;class=&amp;school=&amp;damage=&amp;damageType=
           &amp;ritual=&amp;concentration=&amp;sort=&amp;page=&amp;pageSize=
-        </code>, pictures from <code>GET /api/images/spell/{'{key}'}?thumb=true</code>
+        </code>, pictures from <code>GET /api/images/spell/{'{key}'}?thumb=true</code>, cards =
+        <code> POST /api/cards.pdf</code> with <code>{'{ spells, items }'}</code> (keys)
       </ApiHint>
     </Stack>
   )

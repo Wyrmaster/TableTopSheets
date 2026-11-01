@@ -19,6 +19,8 @@ import {
   type RarityEnum,
 } from '@/api'
 import { ApiHint } from '@/components/ApiHint'
+import { CardCheckbox } from '@/components/CardCheckbox'
+import { CardSelectionBar } from '@/components/CardSelectionBar'
 import { FilterBar, FilterSelect, FilterToggle } from '@/components/FilterBar'
 import { Icon } from '@/components/Icon'
 import { shopIcon } from '@/components/icons'
@@ -28,6 +30,7 @@ import { rarityLabel } from '@/components/rarity'
 import { useInspector } from '@/components/inspector/useInspector'
 import { Thumbnail } from '@/components/Thumbnail'
 import { useApiAction } from '@/hooks/useApiAction'
+import { useCardSelection } from '@/hooks/useCardSelection'
 import { useIntentQuery } from '@/hooks/useIntentQuery'
 import { coinValue, formatCoins, formatPrice } from './coins'
 import { useCharacter } from './useCharacter'
@@ -92,7 +95,8 @@ const buyBlocker = (item: ItemSummaryDto, wealth: number) => item.priceless
     : undefined
 
 /**
- * Item catalog with search, filters and paging; "Buy" pays with the character's coins, "Add free" doesn't
+ * Item catalog with search, filters and paging; "Buy" pays with the character's coins, "Add free" doesn't. In card
+ * selection mode a row click selects the item for the card PDF instead of opening its details.
  */
 export const ShopPage = () => {
   const {
@@ -109,6 +113,7 @@ export const ShopPage = () => {
   const [rarity, setRarity] = useState('')
   const [sort, setSort] = useState('name')
   const [page, setPage] = useState(1)
+  const cards = useCardSelection()
 
   // every filter change starts at the first page again
   const filter = <T,>(set: (value: T) => void) => (value: T) => {
@@ -245,6 +250,10 @@ export const ShopPage = () => {
         >
           Magic
         </FilterToggle>
+        <CardSelectionBar
+          selection={cards}
+          fileName={`${state.name} cards.pdf`}
+        />
       </FilterBar>
 
       <Box
@@ -253,73 +262,87 @@ export const ShopPage = () => {
         overflow='hidden'
       >
         {items.loading && !items.data && <Box p='3'><Spinner /></Box>}
-        {items.data?.items.map((item) => (
-          <Flex
-            key={item.key}
-            align='center'
-            gap='3'
-            px='3'
-            py='2.5'
-            borderTopWidth='1px'
-            _first={{ borderTopWidth: '0' }}
-            cursor='pointer'
-            _hover={{ bg: 'bg.subtle' }}
-            onClick={() => inspect({
-              kind: 'item',
-              key: item.key,
-            })}
-          >
-            <Thumbnail src={item.thumbnailUrl} />
-            <Box
-              flex='1'
-              minW='0'
+        {items.data?.items.map((item) => {
+          const selected = cards.active && cards.isSelected('item', item.key)
+          return (
+            <Flex
+              key={item.key}
+              align='center'
+              gap='3'
+              px='3'
+              py='2.5'
+              borderTopWidth='1px'
+              _first={{ borderTopWidth: '0' }}
+              cursor='pointer'
+              bg={selected ? 'brand.subtle' : undefined}
+              _hover={selected ? undefined : { bg: 'bg.subtle' }}
+              onClick={() => cards.active
+                ? cards.toggle('item', item.key)
+                : inspect({
+                  kind: 'item',
+                  key: item.key,
+                })}
             >
-              <HStack wrap='wrap'>
-                <Text fontWeight='semibold'>{item.name}</Text>
-                {item.magic && <Badge colorPalette='brand'>magic</Badge>}
-                <RarityBadge rarity={item.rarity} />
-                {item.requiresAttunement && <Badge>attunement</Badge>}
-              </HStack>
-              <Text
-                fontSize='sm'
-                color='fg.muted'
+              <CardCheckbox
+                selection={cards}
+                kind='item'
+                entryKey={item.key}
+                name={item.name}
+              />
+              <Thumbnail src={item.thumbnailUrl} />
+              <Box
+                flex='1'
+                minW='0'
               >
-                {[item.kind, item.category, item.weight && `${item.weight} lb`].filter(Boolean).join(' · ')}
-              </Text>
-            </Box>
-            <Text fontWeight='semibold'>{priceLabel(item)}</Text>
-            <InfoButton target={{
-              kind: 'item',
-              key: item.key,
-            }}
-            />
-            <Button
-              size='xs'
-              variant='ghost'
-              hideBelow='md'
-              title='Add without paying (starting equipment, loot)'
-              onClick={(event) => {
-                event.stopPropagation()
-                add(item, false)
+                <HStack wrap='wrap'>
+                  <Text fontWeight='semibold'>{item.name}</Text>
+                  {item.magic && <Badge colorPalette='brand'>magic</Badge>}
+                  <RarityBadge rarity={item.rarity} />
+                  {item.requiresAttunement && <Badge>attunement</Badge>}
+                </HStack>
+                <Text
+                  fontSize='sm'
+                  color='fg.muted'
+                >
+                  {[item.kind, item.category, item.weight && `${item.weight} lb`].filter(Boolean).join(' · ')}
+                </Text>
+              </Box>
+              <Text fontWeight='semibold'>{priceLabel(item)}</Text>
+              <InfoButton target={{
+                kind: 'item',
+                key: item.key,
               }}
-            >
-              Add free
-            </Button>
-            <Button
-              size='sm'
-              colorPalette='brand'
-              disabled={buyBlocker(item, wealth) !== undefined}
-              title={buyBlocker(item, wealth)}
-              onClick={(event) => {
-                event.stopPropagation()
-                add(item, true)
-              }}
-            >
-              <Icon path={shopIcon} />
-              Buy
-            </Button>
-          </Flex>
-        ))}
+              />
+              <Button
+                size='xs'
+                variant='ghost'
+                hideBelow='md'
+                title='Add without paying (starting equipment, loot)'
+                onClick={(event) => {
+                  event.stopPropagation()
+                  add(item, false)
+                }}
+              >
+                Add free
+              </Button>
+              <Button
+                size='sm'
+                colorPalette='brand'
+                // selecting for cards on a phone needs the room of the row
+                hideBelow={cards.active ? 'md' : undefined}
+                disabled={buyBlocker(item, wealth) !== undefined}
+                title={buyBlocker(item, wealth)}
+                onClick={(event) => {
+                  event.stopPropagation()
+                  add(item, true)
+                }}
+              >
+                <Icon path={shopIcon} />
+                Buy
+              </Button>
+            </Flex>
+          )
+        })}
         {items.data?.items.length === 0 && <Text
           p='3'
           color='fg.muted'
@@ -352,7 +375,8 @@ export const ShopPage = () => {
       <ApiHint>
         <code>GET /api/rules/items?search=&amp;kind=&amp;category=&amp;magic=&amp;rarity=&amp;sort=&amp;page=</code>,
         <code> POST /api/characters/{'{id}'}/items</code> with <code>purchase: true</code> (pays with change, 422 when
-        the coins are not enough or the item is a priceless artifact) or without it (free)
+        the coins are not enough or the item is a priceless artifact) or without it (free); cards =
+        <code> POST /api/cards.pdf</code> with <code>{'{ spells, items }'}</code> (keys)
       </ApiHint>
     </Stack>
   )

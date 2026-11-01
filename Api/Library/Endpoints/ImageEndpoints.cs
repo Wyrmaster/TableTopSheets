@@ -41,7 +41,7 @@ public static class ImageEndpoints
       .WithSummary("Image of a spell, class, species, background, item, coin or scene")
       .WithDescription("category: spell, class, species, background, item, coin or scene. thumb=true answers the small version. "
                        + "Answers 304 when If-None-Match carries the current ETag.")
-      .Produces(StatusCodes.Status200OK, contentType: "image/webp")
+      .Produces(StatusCodes.Status200OK, contentType: "image/jpeg")
       .Produces(StatusCodes.Status304NotModified)
       .ProducesProblem(StatusCodes.Status404NotFound);
     return group;

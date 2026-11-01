@@ -795,7 +795,7 @@ sequenceDiagram
 | GET | `/api/users/me` | the signed in user and the number of their characters |
 | GET | `/api/rules/{species,backgrounds,classes,feats,spells,items}` | catalog lists (paged, filterable) |
 | GET | `/api/rules/{…}/{key}` | details: full text, features with their choice definitions; classes with features per level and subclasses |
-| GET | `/api/images/{spell,class,species,background,item,coin,scene}/{key}?thumb=` | artwork as WebP (anonymous; `ETag`, `Cache-Control`, 304); rule contracts link it as `imageUrl` / `thumbnailUrl` |
+| GET | `/api/images/{spell,class,species,background,item,coin,scene}/{key}?thumb=` | artwork as JPEG (anonymous; `ETag`, `Cache-Control`, 304); rule contracts link it as `imageUrl` / `thumbnailUrl` |
 | GET | `/api/images/scenes` | the scenes (mood pictures the UI shows at random) |
 | GET / POST | `/api/characters` | list of the user's characters (filter `class`, `species`, `minLevel`, `maxLevel`) / create a draft |
 | GET / PATCH / DELETE | `/api/characters/{id}` | state / name, alignment, appearance, backstory, experience / delete |
@@ -872,8 +872,8 @@ dnddata/
     feats.json         feat mechanics
     options.json       invocation mechanics (prerequisites, effects, choices)
     spell-effects.json toggleable spell effects (Mage Armor …)
-  Images/              artwork (WebP), written by Tools/images/convert-images.sh – see "Images"
-    spells/  classes/  species/  backgrounds/  items/  coins/  scenes/      <key>.webp + <key>.thumb.webp
+  Images/              artwork (JPEG), written by Tools/images/convert-images.sh – see "Images"
+    spells/  classes/  species/  backgrounds/  items/  coins/  scenes/  magic-items/   <key>.jpg + <key>.thumb.jpg
 ```
 
 **Merging:** both folders are read (Extracted first) and records are merged **by key**. A feature in `Rules` with the same
@@ -904,11 +904,12 @@ dotnet run --project Seed           # writes new and changed images into the dat
 
 | Folder | Image | Thumbnail |
 |---|---|---|
-| `spells`, `items`, `coins` | 512 × 512 | 128 × 128 |
+| `spells`, `items`, `magic-items`, `coins` | 512 × 512 | 128 × 128 |
 | `classes` | 900 px tall | 256 px wide |
 | `species`, `backgrounds`, `scenes` | 1600 px wide | 400 px wide |
 
-WebP, quality 80. File name → key: a `-vN` suffix is a version (the highest wins); spells and scenes keep the rest of
+JPEG, quality 82 (the card PDF embeds it as it is; the artwork has no transparency, anything transparent goes onto
+white). Sources may be PNG, JPEG or WebP. File name → key: a `-vN` suffix is a version (the highest wins); spells and scenes keep the rest of
 the name (`fireball`, `dragon-battle`), classes, species and backgrounds use the first word (`wizard-3-high-elf-male` →
 `wizard`, `acolyte-temple` → `acolyte`; `half-orc` → `orc`). Items come from every subfolder of `equipment/` but
 `coins/` (armor, gear, weapons …); an image name that differs from the item key is listed in

@@ -15,7 +15,7 @@ import {
   Switch,
   Text,
 } from '@chakra-ui/react'
-import type { ReactNode } from 'react'
+import type { MouseEvent, ReactNode } from 'react'
 import {
   AddToStackIntent,
   AttuneItemIntent,
@@ -27,6 +27,8 @@ import {
   RemoveItemIntent,
 } from '@/api'
 import { ApiHint } from '@/components/ApiHint'
+import { CardCheckbox } from '@/components/CardCheckbox'
+import { CardSelectionBar } from '@/components/CardSelectionBar'
 import { Icon } from '@/components/Icon'
 import {
   alertIcon,
@@ -42,6 +44,7 @@ import {
 import { InfoButton } from '@/components/InfoButton'
 import { RarityBadge } from '@/components/RarityBadge'
 import { useApiAction } from '@/hooks/useApiAction'
+import { useCardSelection } from '@/hooks/useCardSelection'
 import { StartingEquipmentCard } from '@/components/startingEquipment/StartingEquipmentCard'
 import { Thumbnail } from '@/components/Thumbnail'
 import { useItemDetails } from '@/hooks/useItemDetails'
@@ -86,7 +89,8 @@ const sectionOf = (item: CharacterItemDto, detail?: ItemDetailDto): Section => {
 }
 
 /**
- * Armor & shield, melee and ranged weapons, worn items and the backpack, with equip switches and violations
+ * Armor & shield, melee and ranged weapons, worn items and the backpack, with equip switches and violations; the
+ * items can be selected for the card PDF
  */
 export const InventoryTab = () => {
   const {
@@ -98,6 +102,7 @@ export const InventoryTab = () => {
   const { run } = useApiAction()
   const details = useItemDetails(state.items.map((item) => item.itemKey))
   const violations = state.violations.filter((violation) => violation.code !== 'choice.pending')
+  const cards = useCardSelection()
 
   const equip = async (item: CharacterItemDto, slot: EquipSlotEnum) => {
     const result = await run(new EquipItemIntent(id, item.id, { slot }))
@@ -203,6 +208,16 @@ export const InventoryTab = () => {
       attack={attack(item)}
       violations={itemViolations(item).map((violation) => violation.message)}
       onToggle={isEquippable(item) ? () => toggle(item) : undefined}
+      selected={cards.active && cards.isSelected('item', item.itemKey)}
+      onClick={cards.active ? () => cards.toggle('item', item.itemKey) : undefined}
+      control={(
+        <CardCheckbox
+          selection={cards}
+          kind='item'
+          entryKey={item.itemKey}
+          name={item.name}
+        />
+      )}
       extra={(
         <>
           {extra?.(item)}
@@ -229,6 +244,12 @@ export const InventoryTab = () => {
 
   return (
     <Stack gap='4'>
+      {state.items.length > 0 && (
+        <CardSelectionBar
+          selection={cards}
+          fileName={`${state.name} cards.pdf`}
+        />
+      )}
       {unmatched.map((violation) => (
         <Alert.Root
           key={violation.message}
@@ -367,6 +388,9 @@ const Section = ({
   )
 }
 
+// controls in a clickable row keep their clicks (menus in a portal too: React events bubble along the component tree)
+const stopPropagation = (event: MouseEvent) => event.stopPropagation()
+
 const ItemRow = ({
   item,
   detail,
@@ -374,6 +398,9 @@ const ItemRow = ({
   violations,
   onToggle,
   extra,
+  control,
+  onClick,
+  selected,
 }: {
   item: CharacterItemDto
   detail?: ItemDetailDto
@@ -381,6 +408,12 @@ const ItemRow = ({
   violations: string[]
   onToggle?: () => void
   extra?: ReactNode
+  /** in front of the row, e.g. the card selection checkbox */
+  control?: ReactNode
+  /** click on the row; the switch, the buttons and the menu keep their own clicks */
+  onClick?: () => void
+  /** highlights the row, e.g. when it is selected */
+  selected?: boolean
 }) => {
   const properties = detail?.properties ?? {}
   const description = attack
@@ -414,22 +447,31 @@ const ItemRow = ({
       _first={{ borderTopWidth: '0' }}
       borderLeftWidth='3px'
       borderLeftColor={violations.length ? 'orange.solid' : 'transparent'}
-      bg={violations.length ? 'orange.subtle' : undefined}
+      bg={selected ? 'brand.subtle' : violations.length ? 'orange.subtle' : undefined}
+      cursor={onClick ? 'pointer' : undefined}
+      _hover={onClick && !selected ? { bg: 'bg.subtle' } : undefined}
+      onClick={onClick}
     >
-      {onToggle && (
-        <Switch.Root
-          colorPalette='brand'
-          checked={item.slot !== 'None'}
-          onCheckedChange={onToggle}
-        >
-          <Switch.HiddenInput aria-label={`Equip ${item.name}`} />
-          <Switch.Control />
-        </Switch.Root>
-      )}
+      <Box
+        display='contents'
+        onClick={stopPropagation}
+      >
+        {control}
+        {onToggle && (
+          <Switch.Root
+            colorPalette='brand'
+            checked={item.slot !== 'None'}
+            onCheckedChange={onToggle}
+          >
+            <Switch.HiddenInput aria-label={`Equip ${item.name}`} />
+            <Switch.Control />
+          </Switch.Root>
+        )}
+      </Box>
       <Thumbnail src={detail?.item.thumbnailUrl} />
       <Box
         flex='1'
-        minW='160px'
+        minW='140px'
       >
         <HStack gap='2'>
           <Text fontWeight='semibold'>{item.name}</Text>
@@ -446,7 +488,12 @@ const ItemRow = ({
           {description}
         </Text>
       </Box>
-      {extra}
+      <Box
+        display='contents'
+        onClick={stopPropagation}
+      >
+        {extra}
+      </Box>
       <InfoButton target={{
         kind: 'item',
         key: item.itemKey,

@@ -30,6 +30,29 @@ public abstract class Document
   #region Public Methods
 
   /// <summary>
+  ///   Generate the document into a stream, positioned at its start
+  /// </summary>
+  public Stream GenerateStream()
+  {
+    this.Generate();
+
+    MemoryStream stream = new();
+    this.PdfDocument.Save(stream);
+    stream.Position = 0;
+
+    return stream;
+  }
+
+  /// <summary>
+  ///   Generate the document and save it to <paramref name="path"/>
+  /// </summary>
+  public void GenerateFile(string path)
+  {
+    this.Generate();
+    this.PdfDocument.Save(path);
+  }
+
+  /// <summary>
   ///   Generate the File into a Stream Object
   /// </summary>
   /// <returns></returns>

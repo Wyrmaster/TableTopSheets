@@ -4,12 +4,13 @@
 #
 # Usage: Tools/images/convert-images.sh [-o output folder] <source folder> [category …]
 #   source: folders spells/, classes/, species/, backgrounds/, scenes/ and equipment/ (with subfolders such as
-#           armor/, gear/, weapons/ and coins/), magic-items/ and wondrous-items/ with PNG or JPEG files
+#           armor/, gear/, weapons/ and coins/), magic-items/ and wondrous-items/ with PNG, JPEG or WebP files
 #   category: spells, classes, species, backgrounds, scenes, items, coins, magic-items; default every category found in
 #           the source
 #   output: default dnddata/Images; only the converted categories are cleared and written again
 #
-# Each image becomes <category>/<key>.webp and <category>/<key>.thumb.webp:
+# Each image becomes <category>/<key>.jpg and <category>/<key>.thumb.jpg (JPEG, which browsers show and the card PDF
+# embeds as it is; the artwork has no transparency, anything transparent goes onto white):
 #   spells, items, magic-items, coins 512 x 512   thumbnail 128 x 128
 #   classes                      900 px tall      thumbnail 256 px wide
 #   species, backgrounds, scenes 1600 px wide, thumbnail 400 px wide
@@ -25,7 +26,7 @@ set -euo pipefail
 repository=$(realpath "$(dirname "$0")/../..")
 output_dir=$repository/dnddata/Images
 aliases_file=$(dirname "$0")/item-keys.txt
-quality=80
+quality=82
 all_categories=(spells classes species backgrounds scenes items coins magic-items)
 
 if [[ ${1:-} == -o ]]; then
@@ -78,8 +79,8 @@ key_of() {
 
 convert_one() {
   local file=$1 target=$2 full=$3 thumb=$4
-  magick "$file" -strip -resize "$full" -quality $quality "$target.webp"
-  magick "$file" -strip -resize "$thumb" -quality $quality "$target.thumb.webp"
+  magick "$file" -strip -background white -flatten -resize "$full" -quality $quality "$target.jpg"
+  magick "$file" -strip -background white -flatten -resize "$thumb" -quality $quality "$target.thumb.jpg"
 }
 
 if [[ ${#categories[@]} -eq 0 ]]; then
@@ -114,7 +115,7 @@ for category in "${categories[@]}"; do
       chosen[$key]=$file
       versions[$key]=$version
     fi
-  done < <(find "${folders[@]}" -maxdepth "$([[ $category == magic-items ]] && echo 3 || echo 1)" -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' \) -print0)
+  done < <(find "${folders[@]}" -maxdepth "$([[ $category == magic-items ]] && echo 3 || echo 1)" -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' \) -print0)
 
   rm -rf "${output_dir:?}/$category"
   mkdir -p "$output_dir/$category"
@@ -139,8 +140,8 @@ for category in "${categories[@]}"; do
   wait
   for copy in "${copies[@]:-}"; do
     [[ -z $copy ]] && continue
-    cp "$output_dir/${copy%%:*}.webp" "$output_dir/${copy#*:}.webp"
-    cp "$output_dir/${copy%%:*}.thumb.webp" "$output_dir/${copy#*:}.thumb.webp"
+    cp "$output_dir/${copy%%:*}.jpg" "$output_dir/${copy#*:}.jpg"
+    cp "$output_dir/${copy%%:*}.thumb.jpg" "$output_dir/${copy#*:}.thumb.jpg"
   done
   echo "$category: $count images"
   total=$((total + count))

@@ -22,7 +22,7 @@ public class RuleImage: BaseEntity
   /// </summary>
   public string Title { get; set; } = string.Empty;
 
-  public string ContentType { get; set; } = "image/webp";
+  public string ContentType { get; set; } = "image/jpeg";
 
   public int Width { get; set; }
 

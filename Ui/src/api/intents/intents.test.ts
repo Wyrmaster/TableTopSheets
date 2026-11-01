@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { HttpClient } from '../core/HttpClient'
 import { RegisterIntent } from './auth'
+import { CreateCardsPdfIntent } from './cards'
 import { CreateCharacterIntent, ListCharactersIntent } from './characters'
 import { GetChoiceOptionsIntent, RemoveSelectionIntent, SelectOptionsIntent } from './choices'
 import {
@@ -18,6 +19,12 @@ const http = new HttpClient()
 describe('intents', () => {
   it.each([
     [new RegisterIntent({ userName: 'a', password: 'b' }), 'POST', '/api/auth/register', true],
+    [
+      new CreateCardsPdfIntent({ spells: ['fireball'], items: ['bag-of-holding'] }),
+      'POST',
+      '/api/cards.pdf',
+      false,
+    ],
     [new GetClassIntent('wizard'), 'GET', '/api/rules/classes/wizard', true],
     [new GetSpellIntent('fire-bolt'), 'GET', '/api/rules/spells/fire-bolt', true],
     [
@@ -93,6 +100,13 @@ describe('intents', () => {
     expect(http.url(intent)).toBe(
       '/api/characters/0c1/choices/magic-initiate.wizard.spell/options?parentRef=p1&preview=wizard%3Aevoker&level=1&includeDisabled=true',
     )
+  })
+
+  it('reads the card PDF as blob and sends the keys as body', () => {
+    const intent = new CreateCardsPdfIntent({ spells: ['fireball'], items: [] })
+
+    expect(intent.responseKind).toBe('blob')
+    expect(intent.body).toEqual({ spells: ['fireball'], items: [] })
   })
 
   it('rejects urls of other routes', () => {

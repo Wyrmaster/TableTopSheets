@@ -24,7 +24,7 @@ public sealed class ImageTests(ApiFactory factory): IClassFixture<ApiFactory>
     HttpResponseMessage thumbnail = await this._api.Http.GetAsync("/api/images/spell/fireball?thumb=true");
 
     Assert.Equal(HttpStatusCode.OK, image.StatusCode);
-    Assert.Equal("image/webp", image.Content.Headers.ContentType?.MediaType);
+    Assert.Equal("image/jpeg", image.Content.Headers.ContentType?.MediaType);
     Assert.NotNull(image.Headers.ETag);
     Assert.True(image.Headers.CacheControl?.Public);
     Assert.True((await thumbnail.Content.ReadAsByteArrayAsync()).Length < (await image.Content.ReadAsByteArrayAsync()).Length);

@@ -12,6 +12,7 @@ export {
   mdiBowArrow as rangedIcon,
   mdiCancel as cancelIcon,
   mdiCardAccountDetailsOutline as sheetIcon,
+  mdiCardsOutline as cardsIcon,
   mdiCart as shopIcon,
   mdiCheck as checkIcon,
   mdiCheckCircle as checkCircleIcon,

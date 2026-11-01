@@ -1,10 +1,13 @@
 using System.Diagnostics;
 using System.Reflection;
+using TableTopSheets.Common.Card;
 using TableTopSheets.Common.Container.Magic;
 using TableTopSheets.Common.Enum;
 using TableTopSheets.Common.Enum.Character;
 using TableTopSheets.Common.Enum.Item;
 using TableTopSheets.Common.Enum.Magic;
+using TextBlock = TableTopSheets.Common.Sheet.TextBlock;
+using TextSpan = TableTopSheets.Common.Sheet.TextSpan;
 using TableTopSheets.Pdf.Common;
 using TableTopSheets.Pdf.Component;
 using TableTopSheets.Pdf.Test.Pdf;
@@ -337,7 +340,8 @@ public class DndSections
   [Fact]
   public void GenerateItemCards()
   {
-    Cards cards = new Cards([
+    (string Name, string Body)[] items =
+    [
       ("Chime of opening", "This hollow metal tube measures about 1 foot long and weights 1 pound. As a Magic action, you can strike the chime to cast Knock. The spell's customary knocking sound is replaced by the clear, ringing tone of the chime, which is audible out to 300 feet.\nThe chime can be used 10 times. After the tenth time, it cracks and becomes useless."),
       ("Boots of Speed", "While you wear these boots, you can take a Bonus Action to click the boots' heels together. If you do, the boots double your Speed, and any creature that makes an Opportunity Attack against you has Disadvantage on the attack roll. If you click your heels together again, you end the effect.\nWhen you've used the boots' property for a total of 10 minutes, the magic ceases to function for you until you finish a Long Rest."),
       ("Dwarven Thrower", "You gain a +3 bonus to attack rolls and damage rolls made with this magic weapon. It has the Thrown property with a normal range of 20 feet and a long range of 60 feet. When you hit with a ranged attack using this weapon, it deals an extra 1d8 Force damage, or an extra 2d8 Force Damage if the target is a Giant. Immediately after hitting or missing, the weapon flies back to your hand. "),
@@ -348,10 +352,26 @@ public class DndSections
       ("Robe of Stars", "This black or dark-blue robe is embroidered with small white or silver stars. You gain a +1 bonus to saving throws while you wear it.\nSix stars, located on the robe's upper-front portion are particularly large. While wearing this robe, you can take a Magic action to remove on of the stars and expend it to cast the level 5 version of Magic Missiles. Daily at dusk, 1d6 removed stars reappear on the robe."),
       ("Wraps of Unarmed Power", "While wearing these wraps, you have a bonus to attack rolls and damage rolls made with your Unarmed Strikes (+2). Those strikes deal either Force or their normal damage Type."),
       ("Silver Dagger", "An alchemical process has bonded silver to this magic weapon. When you score a Critical Hit with it against a creature that is a shape-shifted, the weapon deals an additional die of damage."),
-    ]);
+    ];
     
+    CardData[] cards = items
+      .Select(item => new CardData
+      {
+        Kind = CardKindEnum.Item,
+        Name = item.Name,
+        Subtitle = "Wondrous Item",
+        Facts = [new CardFact("Type", "Wondrous Item"), new CardFact("Rarity", "Rare")],
+        Description = item.Body
+          .Split('\n')
+          .Select(paragraph => new TextBlock(TextBlockKindEnum.Paragraph) { Spans = [new TextSpan(paragraph)] })
+          .ToList(),
+        Footer = "Item",
+      })
+      .ToArray();
+    CardDocument document = new(cards);
+
     string path = Path.Combine(this._basePath, "Items.pdf");
-    cards.GenerateCharacterSheetFile(path);
+    document.GenerateFile(path);
     
     Process.Start(new ProcessStartInfo()
     {

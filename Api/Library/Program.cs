@@ -90,6 +90,7 @@ app.MapChoiceEndpoints();
 app.MapLevelEndpoints();
 app.MapInventoryEndpoints();
 app.MapSpellEndpoints();
+app.MapCardEndpoints();
 
 if (hostsUi)
 {

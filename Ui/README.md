@@ -46,6 +46,7 @@ Start the API with `dotnet run --project Api/Library` from the repository root.
 | `src/hooks/useApiAction.ts` | writes: runs an intent, shows API errors (and optional success) as toasts |
 | `src/components/inspector` | detail view of spells, species, backgrounds, classes, feats, items, features (`useInspector().inspect(…)`) |
 | `src/components/SpellRow.tsx` | one spell in a list (spells page, character spells), with its thumbnail when the DTO has one |
+| `src/hooks/useCardSelection.ts`, `src/components/CardSelectionBar.tsx`, `CardCheckbox.tsx` | spells and items picked for printable cards (kept across pages and filters); the bar toggles selection mode, shows "N selected", "Clear" and downloads the "Card PDF" (`CreateCardsPdfIntent`, `POST /api/cards.pdf`) |
 | `src/components/Thumbnail.tsx` | small square picture at the start of a row: spells, shop items, inventory items (from the item details); coin pictures in `CoinsCard` (`coinImageUrl`) |
 | `src/components/RuleImage.tsx`, `SceneBanner.tsx` | picture of a rule entity (inspector) / a random scene (`useRandomScene`) at the top of the characters and spells pages; the login page shows one too |
 | `src/components/choices` | `ChoiceCard` / `ChoiceList`: any pending choice rendered from its metadata |
@@ -72,6 +73,10 @@ one piece or the whole stack; ammunition and bundles get − / + (use one, recov
 staffs, wands; magic weapons and armor are under their weapon/armor kind and category), magic and rarity, and sorts by
 rarity. Artifacts are "Priceless": "Buy" is disabled (the API answers 422), "Add free" still adds them. The coins card adds or removes coins of one kind (pp, gp, ep, sp, cp) or pays
 an amount with change.
+
+**Cards:** the spells page, the shop and the character's spells and inventory tabs have a "Select for cards" toggle
+(`CardSelectionBar`). In selection mode the rows show checkboxes and a row click selects instead of opening the details
+(the info button still opens them); "Card PDF" downloads printable cards of the selected spells and items.
 
 **Starting equipment:** the creator shows the alternatives of the chosen class (step 1) and background (step 3); they're
 sent with `POST /api/characters` and the first `POST …/levels`, both on Save. "Decide later" leaves them open: the creator, the level

@@ -24,16 +24,20 @@ import {
   type SpellcastingClassDto,
 } from '@/api'
 import { ApiHint } from '@/components/ApiHint'
+import { CardCheckbox } from '@/components/CardCheckbox'
+import { CardSelectionBar } from '@/components/CardSelectionBar'
 import { Pips } from '@/components/Pips'
 import { SpellRow } from '@/components/SpellRow'
 import { useApiAction } from '@/hooks/useApiAction'
+import { type CardSelection, useCardSelection } from '@/hooks/useCardSelection'
 import { useIntentQuery } from '@/hooks/useIntentQuery'
 import { slotGroups } from './playState'
 import { useCharacter } from './useCharacter'
 
 /**
  * Spellcasting per class, clickable spell slots, the spells of each class (cantrips, prepared, spellbook) with the
- * long rest loadout editor and copying into the spellbook, and spells from species and feats
+ * long rest loadout editor and copying into the spellbook, and spells from species and feats; the known spells can be
+ * selected for the card PDF
  */
 export const SpellsTab = () => {
   const {
@@ -45,6 +49,7 @@ export const SpellsTab = () => {
   } = useCharacter()
   const spells = useIntentQuery(() => new GetSpellsIntent(id), `${id}|${state.level}`)
   const groups = slotGroups(sheet)
+  const cards = useCardSelection()
 
   if (spells.problem) {
     return <Text color='fg.error'>{problemMessages(spells.problem).join(' ')}</Text>
@@ -60,6 +65,10 @@ export const SpellsTab = () => {
 
   return (
     <Stack gap='4'>
+      <CardSelectionBar
+        selection={cards}
+        fileName={`${state.name} cards.pdf`}
+      />
       <SimpleGrid
         minChildWidth='280px'
         gap='4'
@@ -131,6 +140,7 @@ export const SpellsTab = () => {
         <ClassSpells
           key={entry.classKey}
           entry={entry}
+          cards={cards}
           onChanged={spells.reload}
         />
       ))}
@@ -139,7 +149,10 @@ export const SpellsTab = () => {
         <Card.Root>
           <Card.Body gap='3'>
             <Heading size='md'>From species and feats</Heading>
-            <SpellList spells={spells.data.other} />
+            <SpellList
+              spells={spells.data.other}
+              cards={cards}
+            />
           </Card.Body>
         </Card.Root>
       )}
@@ -147,13 +160,22 @@ export const SpellsTab = () => {
       <ApiHint>
         <code>GET /api/characters/{'{id}'}/spells</code>; loadout = <code>PUT …/prepared-spells/{'{class}'}</code>,
         copy =
-        <code> POST …/spellbook</code>, candidates = <code>GET /api/rules/spells?class=&amp;maxLevel=</code>
+        <code> POST …/spellbook</code>, candidates = <code>GET /api/rules/spells?class=&amp;maxLevel=</code>, cards =
+        <code> POST /api/cards.pdf</code>
       </ApiHint>
     </Stack>
   )
 }
 
-const ClassSpells = ({ entry, onChanged }: { entry: SpellcastingClassDto, onChanged: () => void }) => {
+const ClassSpells = ({
+  entry,
+  cards,
+  onChanged,
+}: {
+  entry: SpellcastingClassDto
+  cards: CardSelection
+  onChanged: () => void
+}) => {
   const [mode, setMode] = useState<'view' | 'prepare' | 'copy'>('view')
   const cantrips = entry.spells.filter((spell) => spell.level === 0)
   const prepared = entry.spells.filter((spell) => spell.level > 0 && (spell.prepared || spell.alwaysPrepared))
@@ -226,14 +248,23 @@ const ClassSpells = ({ entry, onChanged }: { entry: SpellcastingClassDto, onChan
         )}
 
         <Group title='Cantrips'>
-          <SpellList spells={cantrips} />
+          <SpellList
+            spells={cantrips}
+            cards={cards}
+          />
         </Group>
         <Group title='Prepared'>
-          <SpellList spells={prepared} />
+          <SpellList
+            spells={prepared}
+            cards={cards}
+          />
         </Group>
         {hasSpellbook && (
           <Group title='In the spellbook, not prepared'>
-            <SpellList spells={spellbook} />
+            <SpellList
+              spells={spellbook}
+              cards={cards}
+            />
           </Group>
         )}
       </Card.Body>
@@ -258,7 +289,7 @@ const Group = ({ title, children }: { title: string, children: ReactNode }) => {
   )
 }
 
-const SpellList = ({ spells }: { spells: KnownSpellDto[] }) => {
+const SpellList = ({ spells, cards }: { spells: KnownSpellDto[], cards: CardSelection }) => {
   if (spells.length === 0) {
     return <Text color='fg.muted'>None</Text>
   }
@@ -273,6 +304,16 @@ const SpellList = ({ spells }: { spells: KnownSpellDto[] }) => {
         <SpellRow
           key={`${spell.key}-${spell.source}`}
           spell={spell}
+          selected={cards.active && cards.isSelected('spell', spell.key)}
+          onClick={cards.active ? () => cards.toggle('spell', spell.key) : undefined}
+          control={(
+            <CardCheckbox
+              selection={cards}
+              kind='spell'
+              entryKey={spell.key}
+              name={spell.name}
+            />
+          )}
         />
       ))}
     </Box>
