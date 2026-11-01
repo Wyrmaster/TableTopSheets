@@ -47,6 +47,28 @@ public sealed class CatalogAndChoiceRenderingTests(ApiFactory factory): IClassFi
     Assert.Contains(search.Items, entry => entry.Key == "fire-bolt");
   }
 
+  [Fact]
+  public async Task SpellsAndItems_SortByTheNewFields()
+  {
+    PagedResult<SpellSummaryDto> concentration = await this._api.GetAsync<PagedResult<SpellSummaryDto>>("/api/rules/spells?sort=-concentration,level,name&pageSize=200");
+    PagedResult<SpellSummaryDto> ritual = await this._api.GetAsync<PagedResult<SpellSummaryDto>>("/api/rules/spells?sort=-ritual,level,name&pageSize=20");
+    PagedResult<SpellSummaryDto> castingTime = await this._api.GetAsync<PagedResult<SpellSummaryDto>>("/api/rules/spells?sort=castingTime,level,name&pageSize=200");
+    PagedResult<ItemSummaryDto> byType = await this._api.GetAsync<PagedResult<ItemSummaryDto>>("/api/rules/items?sort=kind,group,name&magic=true&pageSize=200");
+
+    // concentration spells first, then the rest
+    Assert.Equal(concentration.Items
+      .Select(entry => entry.Concentration)
+      .OrderByDescending(entry => entry), concentration.Items.Select(entry => entry.Concentration));
+    Assert.All(ritual.Items, entry => Assert.True(entry.Ritual));
+    Assert.Equal(castingTime.Items
+      .Select(entry => entry.CastingTime)
+      .Order(StringComparer.Ordinal), castingTime.Items.Select(entry => entry.CastingTime), StringComparer.Ordinal);
+    // kinds in order, and within the gear kind the categories in order
+    Assert.Equal(byType.Items
+      .Select(entry => entry.Kind)
+      .Order(), byType.Items.Select(entry => entry.Kind));
+  }
+
   [Theory]
   [InlineData("/api/rules/spells?sort=unknown")]
   [InlineData("/api/rules/spells?pageSize=0")]

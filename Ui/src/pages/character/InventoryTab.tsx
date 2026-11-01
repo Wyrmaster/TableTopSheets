@@ -28,7 +28,6 @@ import {
 } from '@/api'
 import { ApiHint } from '@/components/ApiHint'
 import { CardCheckbox } from '@/components/CardCheckbox'
-import { CardSelectionBar } from '@/components/CardSelectionBar'
 import { Icon } from '@/components/Icon'
 import {
   alertIcon,
@@ -44,7 +43,7 @@ import {
 import { InfoButton } from '@/components/InfoButton'
 import { RarityBadge } from '@/components/RarityBadge'
 import { useApiAction } from '@/hooks/useApiAction'
-import { useCardSelection } from '@/hooks/useCardSelection'
+import type { CardSelection } from '@/hooks/useCardSelection'
 import { StartingEquipmentCard } from '@/components/startingEquipment/StartingEquipmentCard'
 import { Thumbnail } from '@/components/Thumbnail'
 import { useItemDetails } from '@/hooks/useItemDetails'
@@ -92,7 +91,7 @@ const sectionOf = (item: CharacterItemDto, detail?: ItemDetailDto): Section => {
  * Armor & shield, melee and ranged weapons, worn items and the backpack, with equip switches and violations; the
  * items can be selected for the card PDF
  */
-export const InventoryTab = () => {
+export const InventoryTab = ({ cards }: { cards: CardSelection }) => {
   const {
     id,
     state,
@@ -102,7 +101,6 @@ export const InventoryTab = () => {
   const { run } = useApiAction()
   const details = useItemDetails(state.items.map((item) => item.itemKey))
   const violations = state.violations.filter((violation) => violation.code !== 'choice.pending')
-  const cards = useCardSelection()
 
   const equip = async (item: CharacterItemDto, slot: EquipSlotEnum) => {
     const result = await run(new EquipItemIntent(id, item.id, { slot }))
@@ -244,12 +242,6 @@ export const InventoryTab = () => {
 
   return (
     <Stack gap='4'>
-      {state.items.length > 0 && (
-        <CardSelectionBar
-          selection={cards}
-          fileName={`${state.name} cards.pdf`}
-        />
-      )}
       {unmatched.map((violation) => (
         <Alert.Root
           key={violation.message}

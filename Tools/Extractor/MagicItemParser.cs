@@ -65,6 +65,15 @@ internal sealed partial class MagicItemParser
   };
 
   /// <summary>
+  ///   Generic variants whose variations (by damage type) each apply to the base items of another one: every variation and
+  ///   base item is an item, named by the pattern (<c>{0}</c> the base item, <c>{1}</c> the variation in parentheses)
+  /// </summary>
+  private static readonly Dictionary<string, (string Other, string Name)> VariationsTimesBases = new()
+  {
+    ["Armor of Vulnerability"] = ("+1 Armor", "{0} of Vulnerability ({1})"),
+  };
+
+  /// <summary>
   ///   Items whose variations (by spell level) only differ by a row of their table, so they stay one item
   /// </summary>
   private static readonly HashSet<string> TableOnly = ["Enspelled Armor", "Enspelled Staff", "Enspelled Weapon"];
@@ -210,6 +219,12 @@ internal sealed partial class MagicItemParser
       return;
     }
 
+    if (VariationsTimesBases.TryGetValue(entry.Name, out (string Other, string Name) times) && this._entries.TryGetValue(times.Other, out Entry? other))
+    {
+      this.AddVariationsTimesBases(item, entry, other, times.Name);
+      return;
+    }
+
     List<Entry> variants = entry.Variations
       .Select(name =>
       {
@@ -235,6 +250,42 @@ internal sealed partial class MagicItemParser
       SeedItem seed = this.Item(variant);
       seed.Description = Html([TypeParagraph(variant.TypeLine)]) + shared + Html(variant.Body);
       item.Variants.Add(seed);
+    }
+
+    item.Description = null;
+  }
+
+  /// <summary>
+  ///   One item per variation and base item (<c>Plate Armor of Vulnerability (Bludgeoning)</c>)
+  /// </summary>
+  private void AddVariationsTimesBases(SeedItem item, Entry entry, Entry other, string pattern)
+  {
+    string shared = Html(entry.Body);
+    foreach (string name in entry.Variations)
+    {
+      if (!this._supplement.TryGetValue(name, out Entry? variation))
+      {
+        this.Warnings.Add($"{entry.Name}: variant '{name}' has no text in the supplement");
+        continue;
+      }
+
+      Match kind = VariationRegex().Match(name);
+      foreach ((string baseName, _) in other.Bases)
+      {
+        string baseKey = BaseKeys.GetValueOrDefault(baseName) ?? SeedKeys.Slug(baseName);
+        if (!this._baseKeys.Contains(baseKey))
+        {
+          continue;
+        }
+
+        string variantName = string.Format(CultureInfo.InvariantCulture, pattern, baseName, kind.Success ? kind.Groups[1].Value : name);
+        SeedItem seed = this.Item(variation);
+        seed.Key = Key(variantName);
+        seed.Name = variantName;
+        seed.Base = baseKey;
+        seed.Description = Html([TypeParagraph(variation.TypeLine)]) + shared + Html(variation.Body);
+        item.Variants.Add(seed);
+      }
     }
 
     item.Description = null;
@@ -430,6 +481,9 @@ internal sealed partial class MagicItemParser
 
   [GeneratedRegex(@"^\*\*\*([^.*]+)\.\*\*\*")]
   private static partial Regex RuleParagraphRegex();
+
+  [GeneratedRegex(@"\(([^)]+)\)\s*$")]
+  private static partial Regex VariationRegex();
 
   [GeneratedRegex(@"^\+(\d) ")]
   private static partial Regex BonusRegex();

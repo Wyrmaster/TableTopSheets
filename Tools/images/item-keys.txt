@@ -40,15 +40,17 @@ wine-fine wine-fine-bottle
 wooden-staff-focus druidic-focus-wooden-staff
 yew-wand-focus druidic-focus-yew-wand
 
-# magic items (Dungeon Master's Guide): one picture for every ammunition or every +N tier, generic names of variants
-# armor of vulnerability goes by damage type, so one of its armor pictures stands for all three
-1-ammunition plus1-arrow plus1-bolt plus1-needle plus1-sling-bullet plus1-firearm-bullet
+# magic items (Dungeon Master's Guide): names of variants that differ from the item key; generic pictures of
+# items that only exist as variants are left out
+1-ammunition -
+2-ammunition -
+3-ammunition -
+rod-of-the-pact-keeper -
+wand-of-the-war-mage -
+wraps-of-unarmed-power -
 1-shield plus1-shield
-2-ammunition plus2-arrow plus2-bolt plus2-needle plus2-sling-bullet plus2-firearm-bullet
 2-shield plus2-shield
-3-ammunition plus3-arrow plus3-bolt plus3-needle plus3-sling-bullet plus3-firearm-bullet
 3-shield plus3-shield
-ammunition-of-slaying arrow-of-slaying bolt-of-slaying needle-of-slaying sling-bullet-of-slaying firearm-bullet-of-slaying
 belt-of-giant-strength-cloud belt-of-cloud-giant-strength
 belt-of-giant-strength-fire belt-of-fire-giant-strength
 belt-of-giant-strength-frost belt-of-frost-giant-strength
@@ -100,28 +102,39 @@ resistance-ring-mail ring-mail-of-resistance
 resistance-scale-mail scale-mail-of-resistance
 resistance-splint-armor splint-armor-of-resistance
 resistance-studded-leather-armor studded-leather-armor-of-resistance
-rod-of-the-pact-keeper plus1-rod-of-the-pact-keeper plus2-rod-of-the-pact-keeper plus3-rod-of-the-pact-keeper
-vulnerability-breastplate -
-vulnerability-chain-mail -
-vulnerability-chain-shirt -
-vulnerability-half-plate-armor -
-vulnerability-hide-armor -
-vulnerability-leather-armor -
-vulnerability-padded-armor -
-vulnerability-plate-armor armor-of-vulnerability-bludgeoning armor-of-vulnerability-piercing armor-of-vulnerability-slashing
-vulnerability-ring-mail -
-vulnerability-scale-mail -
-vulnerability-splint-armor -
-vulnerability-studded-leather-armor -
-walloping-ammunition walloping-arrow walloping-bolt walloping-needle walloping-sling-bullet walloping-firearm-bullet
-wand-of-the-war-mage plus1-wand-of-the-war-mage plus2-wand-of-the-war-mage plus3-wand-of-the-war-mage
-wraps-of-unarmed-power plus1-wraps-of-unarmed-power plus2-wraps-of-unarmed-power plus3-wraps-of-unarmed-power
-# no own picture: the Crystal Ball variants and the Staff / Wooden Staff variants share one of a sibling
-crystal-ball crystal-ball crystal-ball-of-mind-reading crystal-ball-of-telepathy crystal-ball-of-true-seeing
-dragon-slayer-quarterstaff dragon-slayer-quarterstaff dragon-slayer-staff dragon-slayer-wooden-staff
-giant-slayer-quarterstaff giant-slayer-quarterstaff giant-slayer-staff giant-slayer-wooden-staff
-holy-avenger-quarterstaff holy-avenger-quarterstaff holy-avenger-staff holy-avenger-wooden-staff
-nine-lives-stealer-quarterstaff nine-lives-stealer-quarterstaff nine-lives-stealer-staff nine-lives-stealer-wooden-staff
-silvered-quarterstaff silvered-quarterstaff silvered-staff silvered-wooden-staff
-vicious-quarterstaff vicious-quarterstaff vicious-staff vicious-wooden-staff
-quarterstaff-of-warning quarterstaff-of-warning staff-of-warning wooden-staff-of-warning
+vulnerability-bludgeoning-breastplate breastplate-of-vulnerability-bludgeoning
+vulnerability-bludgeoning-chain-mail chain-mail-of-vulnerability-bludgeoning
+vulnerability-bludgeoning-chain-shirt chain-shirt-of-vulnerability-bludgeoning
+vulnerability-bludgeoning-half-plate-armor half-plate-armor-of-vulnerability-bludgeoning
+vulnerability-bludgeoning-hide-armor hide-armor-of-vulnerability-bludgeoning
+vulnerability-bludgeoning-leather-armor leather-armor-of-vulnerability-bludgeoning
+vulnerability-bludgeoning-padded-armor padded-armor-of-vulnerability-bludgeoning
+vulnerability-bludgeoning-plate-armor plate-armor-of-vulnerability-bludgeoning
+vulnerability-bludgeoning-ring-mail ring-mail-of-vulnerability-bludgeoning
+vulnerability-bludgeoning-scale-mail scale-mail-of-vulnerability-bludgeoning
+vulnerability-bludgeoning-splint-armor splint-armor-of-vulnerability-bludgeoning
+vulnerability-bludgeoning-studded-leather-armor studded-leather-armor-of-vulnerability-bludgeoning
+vulnerability-piercing-breastplate breastplate-of-vulnerability-piercing
+vulnerability-piercing-chain-mail chain-mail-of-vulnerability-piercing
+vulnerability-piercing-chain-shirt chain-shirt-of-vulnerability-piercing
+vulnerability-piercing-half-plate-armor half-plate-armor-of-vulnerability-piercing
+vulnerability-piercing-hide-armor hide-armor-of-vulnerability-piercing
+vulnerability-piercing-leather-armor leather-armor-of-vulnerability-piercing
+vulnerability-piercing-padded-armor padded-armor-of-vulnerability-piercing
+vulnerability-piercing-plate-armor plate-armor-of-vulnerability-piercing
+vulnerability-piercing-ring-mail ring-mail-of-vulnerability-piercing
+vulnerability-piercing-scale-mail scale-mail-of-vulnerability-piercing
+vulnerability-piercing-splint-armor splint-armor-of-vulnerability-piercing
+vulnerability-piercing-studded-leather-armor studded-leather-armor-of-vulnerability-piercing
+vulnerability-slashing-breastplate breastplate-of-vulnerability-slashing
+vulnerability-slashing-chain-mail chain-mail-of-vulnerability-slashing
+vulnerability-slashing-chain-shirt chain-shirt-of-vulnerability-slashing
+vulnerability-slashing-half-plate-armor half-plate-armor-of-vulnerability-slashing
+vulnerability-slashing-hide-armor hide-armor-of-vulnerability-slashing
+vulnerability-slashing-leather-armor leather-armor-of-vulnerability-slashing
+vulnerability-slashing-padded-armor padded-armor-of-vulnerability-slashing
+vulnerability-slashing-plate-armor plate-armor-of-vulnerability-slashing
+vulnerability-slashing-ring-mail ring-mail-of-vulnerability-slashing
+vulnerability-slashing-scale-mail scale-mail-of-vulnerability-slashing
+vulnerability-slashing-splint-armor splint-armor-of-vulnerability-slashing
+vulnerability-slashing-studded-leather-armor studded-leather-armor-of-vulnerability-slashing

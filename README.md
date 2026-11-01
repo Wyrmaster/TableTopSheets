@@ -133,7 +133,8 @@ repository) read-only at `/seed` (`Migrator__DataDirectory`).
 
 On every `up` the `migrator` service runs first: it applies pending schema migrations, writes the rules if they changed
 and exits. The API starts only after it succeeded (`depends_on: condition: service_completed_successfully`). Existing
-data stays: users, characters and rules that are already in the database are never deleted (see
+data stays: users, characters and rules are never deleted; the only exception are items of the seed that a newer seed
+no longer has (renamed or split magic item variants), and only when no character carries them (see
 [Ruleset migrator](#ruleset-migrator)). Ports, credentials and authentication settings are read from `.env`.
 
 #### Published images (no source, no build)
@@ -825,9 +826,9 @@ that lists the allowed ones. Lists answer with `{ items, page, pageSize, totalCo
 
 | List | Filters | Sort fields |
 |---|---|---|
-| spells | `class`, `level`, `minLevel`, `maxLevel`, `school`, `ritual`, `concentration`, `damage`, `damageType`, `castingTime` | name, key, level, school |
+| spells | `class`, `level`, `minLevel`, `maxLevel`, `school`, `ritual`, `concentration`, `damage`, `damageType`, `castingTime` | name, key, level, school, castingTime, concentration, ritual, damageType |
 | feats | `category`, `repeatable`, `hasPrerequisite` | name, key, category |
-| items | `kind`, `category` (weapon/armor category, tool group, gear category or magic item group: `wondrous-item`, `potion`, `ring`, `rod`, `scroll`, `staff`, `wand`), `magic`, `attunement`, `rarity` (`Common` … `Artifact`) | name, key, kind, cost, weight, rarity |
+| items | `kind`, `category` (weapon/armor category, tool group, gear category or magic item group: `wondrous-item`, `potion`, `ring`, `rod`, `scroll`, `staff`, `wand`), `magic`, `attunement`, `rarity` (`Common` … `Artifact`) | name, key, kind, group (`kind,group,name` sorts by type), cost, weight, rarity |
 | species, backgrounds, classes | – | name, key |
 | characters | `class`, `species`, `minLevel`, `maxLevel` | name, level, species |
 | choice options | `level`, `minLevel`, `maxLevel`, `school`, `ritual`, `damage`, `category` (see `optionFilters`) | name, key, level, school, category, available |

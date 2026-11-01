@@ -97,6 +97,23 @@ public static class SeedWriter
       .Where(entry => !seeded.Contains(entry.Id) && features.Contains(entry.FeatureId))
       .ExecuteDeleteAsync(cancellationToken);
 
+    // items of this source the seed no longer has (renamed or split variants) go, with their features; an item a character
+    // still carries stays, so no inventory loses an entry
+    List<Guid> staleItems = await context.Items
+      .Where(entry => entry.SourceId == result.Source.Id && !seeded.Contains(entry.Id))
+      .Where(entry => !context.CharacterItems.Any(owned => owned.ItemId == entry.Id))
+      .Select(entry => entry.Id)
+      .ToListAsync(cancellationToken);
+    if (staleItems.Count > 0)
+    {
+      await context.Items
+        .Where(entry => entry.BaseItemId != null && staleItems.Contains(entry.BaseItemId.Value))
+        .ExecuteUpdateAsync(setters => setters.SetProperty(entry => entry.BaseItemId, (Guid?)null), cancellationToken);
+      deleted += await context.Items
+        .Where(entry => staleItems.Contains(entry.Id))
+        .ExecuteDeleteAsync(cancellationToken);
+    }
+
     HashSet<Guid> existing = (await ExistingIds(context, cancellationToken)).ToHashSet();
     existing.UnionWith(await context.Sources
       .Select(entry => entry.Id)

@@ -241,6 +241,7 @@ export const ShopPage = () => {
           <option value='cost'>Sort: cost</option>
           <option value='-cost'>Sort: cost ↓</option>
           <option value='weight'>Sort: weight</option>
+          <option value='kind,group,name'>Sort: type</option>
           <option value='rarity,name'>Sort: rarity</option>
           <option value='-rarity,name'>Sort: rarity ↓</option>
         </FilterSelect>

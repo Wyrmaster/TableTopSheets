@@ -1028,10 +1028,10 @@
       "key": "armor-of-vulnerability",
       "variants": [
         {
-          "key": "armor-of-vulnerability-bludgeoning",
+          "key": "breastplate-of-vulnerability-bludgeoning",
           "features": [
             {
-              "key": "armor-of-vulnerability-bludgeoning.resistance",
+              "key": "breastplate-of-vulnerability-bludgeoning.vulnerability",
               "name": "Armor of Vulnerability (Bludgeoning)",
               "effects": [
                 {
@@ -1056,10 +1056,318 @@
           ]
         },
         {
-          "key": "armor-of-vulnerability-piercing",
+          "key": "chain-mail-of-vulnerability-bludgeoning",
           "features": [
             {
-              "key": "armor-of-vulnerability-piercing.resistance",
+              "key": "chain-mail-of-vulnerability-bludgeoning.vulnerability",
+              "name": "Armor of Vulnerability (Bludgeoning)",
+              "effects": [
+                {
+                  "target": "damage.resist.bludgeoning",
+                  "op": "Grant",
+                  "value": "1"
+                },
+                {
+                  "target": "damage.vulnerable.piercing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Bludgeoning): Curse"
+                },
+                {
+                  "target": "damage.vulnerable.slashing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Bludgeoning): Curse"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "chain-shirt-of-vulnerability-bludgeoning",
+          "features": [
+            {
+              "key": "chain-shirt-of-vulnerability-bludgeoning.vulnerability",
+              "name": "Armor of Vulnerability (Bludgeoning)",
+              "effects": [
+                {
+                  "target": "damage.resist.bludgeoning",
+                  "op": "Grant",
+                  "value": "1"
+                },
+                {
+                  "target": "damage.vulnerable.piercing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Bludgeoning): Curse"
+                },
+                {
+                  "target": "damage.vulnerable.slashing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Bludgeoning): Curse"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "half-plate-armor-of-vulnerability-bludgeoning",
+          "features": [
+            {
+              "key": "half-plate-armor-of-vulnerability-bludgeoning.vulnerability",
+              "name": "Armor of Vulnerability (Bludgeoning)",
+              "effects": [
+                {
+                  "target": "damage.resist.bludgeoning",
+                  "op": "Grant",
+                  "value": "1"
+                },
+                {
+                  "target": "damage.vulnerable.piercing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Bludgeoning): Curse"
+                },
+                {
+                  "target": "damage.vulnerable.slashing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Bludgeoning): Curse"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "hide-armor-of-vulnerability-bludgeoning",
+          "features": [
+            {
+              "key": "hide-armor-of-vulnerability-bludgeoning.vulnerability",
+              "name": "Armor of Vulnerability (Bludgeoning)",
+              "effects": [
+                {
+                  "target": "damage.resist.bludgeoning",
+                  "op": "Grant",
+                  "value": "1"
+                },
+                {
+                  "target": "damage.vulnerable.piercing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Bludgeoning): Curse"
+                },
+                {
+                  "target": "damage.vulnerable.slashing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Bludgeoning): Curse"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "leather-armor-of-vulnerability-bludgeoning",
+          "features": [
+            {
+              "key": "leather-armor-of-vulnerability-bludgeoning.vulnerability",
+              "name": "Armor of Vulnerability (Bludgeoning)",
+              "effects": [
+                {
+                  "target": "damage.resist.bludgeoning",
+                  "op": "Grant",
+                  "value": "1"
+                },
+                {
+                  "target": "damage.vulnerable.piercing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Bludgeoning): Curse"
+                },
+                {
+                  "target": "damage.vulnerable.slashing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Bludgeoning): Curse"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "padded-armor-of-vulnerability-bludgeoning",
+          "features": [
+            {
+              "key": "padded-armor-of-vulnerability-bludgeoning.vulnerability",
+              "name": "Armor of Vulnerability (Bludgeoning)",
+              "effects": [
+                {
+                  "target": "damage.resist.bludgeoning",
+                  "op": "Grant",
+                  "value": "1"
+                },
+                {
+                  "target": "damage.vulnerable.piercing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Bludgeoning): Curse"
+                },
+                {
+                  "target": "damage.vulnerable.slashing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Bludgeoning): Curse"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "plate-armor-of-vulnerability-bludgeoning",
+          "features": [
+            {
+              "key": "plate-armor-of-vulnerability-bludgeoning.vulnerability",
+              "name": "Armor of Vulnerability (Bludgeoning)",
+              "effects": [
+                {
+                  "target": "damage.resist.bludgeoning",
+                  "op": "Grant",
+                  "value": "1"
+                },
+                {
+                  "target": "damage.vulnerable.piercing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Bludgeoning): Curse"
+                },
+                {
+                  "target": "damage.vulnerable.slashing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Bludgeoning): Curse"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "ring-mail-of-vulnerability-bludgeoning",
+          "features": [
+            {
+              "key": "ring-mail-of-vulnerability-bludgeoning.vulnerability",
+              "name": "Armor of Vulnerability (Bludgeoning)",
+              "effects": [
+                {
+                  "target": "damage.resist.bludgeoning",
+                  "op": "Grant",
+                  "value": "1"
+                },
+                {
+                  "target": "damage.vulnerable.piercing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Bludgeoning): Curse"
+                },
+                {
+                  "target": "damage.vulnerable.slashing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Bludgeoning): Curse"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "scale-mail-of-vulnerability-bludgeoning",
+          "features": [
+            {
+              "key": "scale-mail-of-vulnerability-bludgeoning.vulnerability",
+              "name": "Armor of Vulnerability (Bludgeoning)",
+              "effects": [
+                {
+                  "target": "damage.resist.bludgeoning",
+                  "op": "Grant",
+                  "value": "1"
+                },
+                {
+                  "target": "damage.vulnerable.piercing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Bludgeoning): Curse"
+                },
+                {
+                  "target": "damage.vulnerable.slashing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Bludgeoning): Curse"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "splint-armor-of-vulnerability-bludgeoning",
+          "features": [
+            {
+              "key": "splint-armor-of-vulnerability-bludgeoning.vulnerability",
+              "name": "Armor of Vulnerability (Bludgeoning)",
+              "effects": [
+                {
+                  "target": "damage.resist.bludgeoning",
+                  "op": "Grant",
+                  "value": "1"
+                },
+                {
+                  "target": "damage.vulnerable.piercing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Bludgeoning): Curse"
+                },
+                {
+                  "target": "damage.vulnerable.slashing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Bludgeoning): Curse"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "studded-leather-armor-of-vulnerability-bludgeoning",
+          "features": [
+            {
+              "key": "studded-leather-armor-of-vulnerability-bludgeoning.vulnerability",
+              "name": "Armor of Vulnerability (Bludgeoning)",
+              "effects": [
+                {
+                  "target": "damage.resist.bludgeoning",
+                  "op": "Grant",
+                  "value": "1"
+                },
+                {
+                  "target": "damage.vulnerable.piercing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Bludgeoning): Curse"
+                },
+                {
+                  "target": "damage.vulnerable.slashing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Bludgeoning): Curse"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "breastplate-of-vulnerability-piercing",
+          "features": [
+            {
+              "key": "breastplate-of-vulnerability-piercing.vulnerability",
               "name": "Armor of Vulnerability (Piercing)",
               "effects": [
                 {
@@ -1084,10 +1392,626 @@
           ]
         },
         {
-          "key": "armor-of-vulnerability-slashing",
+          "key": "chain-mail-of-vulnerability-piercing",
           "features": [
             {
-              "key": "armor-of-vulnerability-slashing.resistance",
+              "key": "chain-mail-of-vulnerability-piercing.vulnerability",
+              "name": "Armor of Vulnerability (Piercing)",
+              "effects": [
+                {
+                  "target": "damage.resist.piercing",
+                  "op": "Grant",
+                  "value": "1"
+                },
+                {
+                  "target": "damage.vulnerable.bludgeoning",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Piercing): Curse"
+                },
+                {
+                  "target": "damage.vulnerable.slashing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Piercing): Curse"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "chain-shirt-of-vulnerability-piercing",
+          "features": [
+            {
+              "key": "chain-shirt-of-vulnerability-piercing.vulnerability",
+              "name": "Armor of Vulnerability (Piercing)",
+              "effects": [
+                {
+                  "target": "damage.resist.piercing",
+                  "op": "Grant",
+                  "value": "1"
+                },
+                {
+                  "target": "damage.vulnerable.bludgeoning",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Piercing): Curse"
+                },
+                {
+                  "target": "damage.vulnerable.slashing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Piercing): Curse"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "half-plate-armor-of-vulnerability-piercing",
+          "features": [
+            {
+              "key": "half-plate-armor-of-vulnerability-piercing.vulnerability",
+              "name": "Armor of Vulnerability (Piercing)",
+              "effects": [
+                {
+                  "target": "damage.resist.piercing",
+                  "op": "Grant",
+                  "value": "1"
+                },
+                {
+                  "target": "damage.vulnerable.bludgeoning",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Piercing): Curse"
+                },
+                {
+                  "target": "damage.vulnerable.slashing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Piercing): Curse"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "hide-armor-of-vulnerability-piercing",
+          "features": [
+            {
+              "key": "hide-armor-of-vulnerability-piercing.vulnerability",
+              "name": "Armor of Vulnerability (Piercing)",
+              "effects": [
+                {
+                  "target": "damage.resist.piercing",
+                  "op": "Grant",
+                  "value": "1"
+                },
+                {
+                  "target": "damage.vulnerable.bludgeoning",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Piercing): Curse"
+                },
+                {
+                  "target": "damage.vulnerable.slashing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Piercing): Curse"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "leather-armor-of-vulnerability-piercing",
+          "features": [
+            {
+              "key": "leather-armor-of-vulnerability-piercing.vulnerability",
+              "name": "Armor of Vulnerability (Piercing)",
+              "effects": [
+                {
+                  "target": "damage.resist.piercing",
+                  "op": "Grant",
+                  "value": "1"
+                },
+                {
+                  "target": "damage.vulnerable.bludgeoning",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Piercing): Curse"
+                },
+                {
+                  "target": "damage.vulnerable.slashing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Piercing): Curse"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "padded-armor-of-vulnerability-piercing",
+          "features": [
+            {
+              "key": "padded-armor-of-vulnerability-piercing.vulnerability",
+              "name": "Armor of Vulnerability (Piercing)",
+              "effects": [
+                {
+                  "target": "damage.resist.piercing",
+                  "op": "Grant",
+                  "value": "1"
+                },
+                {
+                  "target": "damage.vulnerable.bludgeoning",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Piercing): Curse"
+                },
+                {
+                  "target": "damage.vulnerable.slashing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Piercing): Curse"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "plate-armor-of-vulnerability-piercing",
+          "features": [
+            {
+              "key": "plate-armor-of-vulnerability-piercing.vulnerability",
+              "name": "Armor of Vulnerability (Piercing)",
+              "effects": [
+                {
+                  "target": "damage.resist.piercing",
+                  "op": "Grant",
+                  "value": "1"
+                },
+                {
+                  "target": "damage.vulnerable.bludgeoning",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Piercing): Curse"
+                },
+                {
+                  "target": "damage.vulnerable.slashing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Piercing): Curse"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "ring-mail-of-vulnerability-piercing",
+          "features": [
+            {
+              "key": "ring-mail-of-vulnerability-piercing.vulnerability",
+              "name": "Armor of Vulnerability (Piercing)",
+              "effects": [
+                {
+                  "target": "damage.resist.piercing",
+                  "op": "Grant",
+                  "value": "1"
+                },
+                {
+                  "target": "damage.vulnerable.bludgeoning",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Piercing): Curse"
+                },
+                {
+                  "target": "damage.vulnerable.slashing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Piercing): Curse"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "scale-mail-of-vulnerability-piercing",
+          "features": [
+            {
+              "key": "scale-mail-of-vulnerability-piercing.vulnerability",
+              "name": "Armor of Vulnerability (Piercing)",
+              "effects": [
+                {
+                  "target": "damage.resist.piercing",
+                  "op": "Grant",
+                  "value": "1"
+                },
+                {
+                  "target": "damage.vulnerable.bludgeoning",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Piercing): Curse"
+                },
+                {
+                  "target": "damage.vulnerable.slashing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Piercing): Curse"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "splint-armor-of-vulnerability-piercing",
+          "features": [
+            {
+              "key": "splint-armor-of-vulnerability-piercing.vulnerability",
+              "name": "Armor of Vulnerability (Piercing)",
+              "effects": [
+                {
+                  "target": "damage.resist.piercing",
+                  "op": "Grant",
+                  "value": "1"
+                },
+                {
+                  "target": "damage.vulnerable.bludgeoning",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Piercing): Curse"
+                },
+                {
+                  "target": "damage.vulnerable.slashing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Piercing): Curse"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "studded-leather-armor-of-vulnerability-piercing",
+          "features": [
+            {
+              "key": "studded-leather-armor-of-vulnerability-piercing.vulnerability",
+              "name": "Armor of Vulnerability (Piercing)",
+              "effects": [
+                {
+                  "target": "damage.resist.piercing",
+                  "op": "Grant",
+                  "value": "1"
+                },
+                {
+                  "target": "damage.vulnerable.bludgeoning",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Piercing): Curse"
+                },
+                {
+                  "target": "damage.vulnerable.slashing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Piercing): Curse"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "breastplate-of-vulnerability-slashing",
+          "features": [
+            {
+              "key": "breastplate-of-vulnerability-slashing.vulnerability",
+              "name": "Armor of Vulnerability (Slashing)",
+              "effects": [
+                {
+                  "target": "damage.resist.slashing",
+                  "op": "Grant",
+                  "value": "1"
+                },
+                {
+                  "target": "damage.vulnerable.bludgeoning",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Slashing): Curse"
+                },
+                {
+                  "target": "damage.vulnerable.piercing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Slashing): Curse"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "chain-mail-of-vulnerability-slashing",
+          "features": [
+            {
+              "key": "chain-mail-of-vulnerability-slashing.vulnerability",
+              "name": "Armor of Vulnerability (Slashing)",
+              "effects": [
+                {
+                  "target": "damage.resist.slashing",
+                  "op": "Grant",
+                  "value": "1"
+                },
+                {
+                  "target": "damage.vulnerable.bludgeoning",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Slashing): Curse"
+                },
+                {
+                  "target": "damage.vulnerable.piercing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Slashing): Curse"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "chain-shirt-of-vulnerability-slashing",
+          "features": [
+            {
+              "key": "chain-shirt-of-vulnerability-slashing.vulnerability",
+              "name": "Armor of Vulnerability (Slashing)",
+              "effects": [
+                {
+                  "target": "damage.resist.slashing",
+                  "op": "Grant",
+                  "value": "1"
+                },
+                {
+                  "target": "damage.vulnerable.bludgeoning",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Slashing): Curse"
+                },
+                {
+                  "target": "damage.vulnerable.piercing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Slashing): Curse"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "half-plate-armor-of-vulnerability-slashing",
+          "features": [
+            {
+              "key": "half-plate-armor-of-vulnerability-slashing.vulnerability",
+              "name": "Armor of Vulnerability (Slashing)",
+              "effects": [
+                {
+                  "target": "damage.resist.slashing",
+                  "op": "Grant",
+                  "value": "1"
+                },
+                {
+                  "target": "damage.vulnerable.bludgeoning",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Slashing): Curse"
+                },
+                {
+                  "target": "damage.vulnerable.piercing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Slashing): Curse"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "hide-armor-of-vulnerability-slashing",
+          "features": [
+            {
+              "key": "hide-armor-of-vulnerability-slashing.vulnerability",
+              "name": "Armor of Vulnerability (Slashing)",
+              "effects": [
+                {
+                  "target": "damage.resist.slashing",
+                  "op": "Grant",
+                  "value": "1"
+                },
+                {
+                  "target": "damage.vulnerable.bludgeoning",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Slashing): Curse"
+                },
+                {
+                  "target": "damage.vulnerable.piercing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Slashing): Curse"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "leather-armor-of-vulnerability-slashing",
+          "features": [
+            {
+              "key": "leather-armor-of-vulnerability-slashing.vulnerability",
+              "name": "Armor of Vulnerability (Slashing)",
+              "effects": [
+                {
+                  "target": "damage.resist.slashing",
+                  "op": "Grant",
+                  "value": "1"
+                },
+                {
+                  "target": "damage.vulnerable.bludgeoning",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Slashing): Curse"
+                },
+                {
+                  "target": "damage.vulnerable.piercing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Slashing): Curse"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "padded-armor-of-vulnerability-slashing",
+          "features": [
+            {
+              "key": "padded-armor-of-vulnerability-slashing.vulnerability",
+              "name": "Armor of Vulnerability (Slashing)",
+              "effects": [
+                {
+                  "target": "damage.resist.slashing",
+                  "op": "Grant",
+                  "value": "1"
+                },
+                {
+                  "target": "damage.vulnerable.bludgeoning",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Slashing): Curse"
+                },
+                {
+                  "target": "damage.vulnerable.piercing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Slashing): Curse"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "plate-armor-of-vulnerability-slashing",
+          "features": [
+            {
+              "key": "plate-armor-of-vulnerability-slashing.vulnerability",
+              "name": "Armor of Vulnerability (Slashing)",
+              "effects": [
+                {
+                  "target": "damage.resist.slashing",
+                  "op": "Grant",
+                  "value": "1"
+                },
+                {
+                  "target": "damage.vulnerable.bludgeoning",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Slashing): Curse"
+                },
+                {
+                  "target": "damage.vulnerable.piercing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Slashing): Curse"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "ring-mail-of-vulnerability-slashing",
+          "features": [
+            {
+              "key": "ring-mail-of-vulnerability-slashing.vulnerability",
+              "name": "Armor of Vulnerability (Slashing)",
+              "effects": [
+                {
+                  "target": "damage.resist.slashing",
+                  "op": "Grant",
+                  "value": "1"
+                },
+                {
+                  "target": "damage.vulnerable.bludgeoning",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Slashing): Curse"
+                },
+                {
+                  "target": "damage.vulnerable.piercing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Slashing): Curse"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "scale-mail-of-vulnerability-slashing",
+          "features": [
+            {
+              "key": "scale-mail-of-vulnerability-slashing.vulnerability",
+              "name": "Armor of Vulnerability (Slashing)",
+              "effects": [
+                {
+                  "target": "damage.resist.slashing",
+                  "op": "Grant",
+                  "value": "1"
+                },
+                {
+                  "target": "damage.vulnerable.bludgeoning",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Slashing): Curse"
+                },
+                {
+                  "target": "damage.vulnerable.piercing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Slashing): Curse"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "splint-armor-of-vulnerability-slashing",
+          "features": [
+            {
+              "key": "splint-armor-of-vulnerability-slashing.vulnerability",
+              "name": "Armor of Vulnerability (Slashing)",
+              "effects": [
+                {
+                  "target": "damage.resist.slashing",
+                  "op": "Grant",
+                  "value": "1"
+                },
+                {
+                  "target": "damage.vulnerable.bludgeoning",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Slashing): Curse"
+                },
+                {
+                  "target": "damage.vulnerable.piercing",
+                  "op": "Grant",
+                  "value": "1",
+                  "label": "Armor of Vulnerability (Slashing): Curse"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "studded-leather-armor-of-vulnerability-slashing",
+          "features": [
+            {
+              "key": "studded-leather-armor-of-vulnerability-slashing.vulnerability",
               "name": "Armor of Vulnerability (Slashing)",
               "effects": [
                 {

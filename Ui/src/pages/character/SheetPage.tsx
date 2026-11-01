@@ -1,9 +1,11 @@
 import { Button, Dialog, Flex, HStack, NumberInput, Portal, SegmentGroup, Stack, Text } from '@chakra-ui/react'
 import { useState } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router'
+import { CardSelectionBar } from '@/components/CardSelectionBar'
 import { Icon } from '@/components/Icon'
 import { inventoryIcon, longRestIcon, shortRestIcon, spellsIcon, accountIcon } from '@/components/icons'
 import { toaster } from '@/components/ui/toaster'
+import { useCardSelection } from '@/hooks/useCardSelection'
 import { InventoryTab } from './InventoryTab'
 import { OverviewTab } from './OverviewTab'
 import { longRest, shortRest } from './playState'
@@ -34,6 +36,10 @@ const tabs = [
 export const SheetPage = () => {
   const { tab = 'overview' } = useParams()
   const navigate = useNavigate()
+  const { state } = useCharacter()
+  // one selection per tab, owned here so it survives switching tabs
+  const itemCards = useCardSelection()
+  const spellCards = useCardSelection()
   if (!tabs.some((entry) => entry.value === tab)) {
     return (
       <Navigate
@@ -68,11 +74,33 @@ export const SheetPage = () => {
             }))}
           />
         </SegmentGroup.Root>
-        <RestButtons />
+        <Flex
+          wrap='wrap'
+          gap='2'
+          align='center'
+          justify='flex-end'
+          ms='auto'
+        >
+          {tab === 'inventory' && state.items.length > 0 && (
+            <CardSelectionBar
+              size='sm'
+              selection={itemCards}
+              fileName={`${state.name} cards.pdf`}
+            />
+          )}
+          {tab === 'spells' && (
+            <CardSelectionBar
+              size='sm'
+              selection={spellCards}
+              fileName={`${state.name} cards.pdf`}
+            />
+          )}
+          <RestButtons />
+        </Flex>
       </Flex>
       {tab === 'overview' && <OverviewTab />}
-      {tab === 'inventory' && <InventoryTab />}
-      {tab === 'spells' && <SpellsTab />}
+      {tab === 'inventory' && <InventoryTab cards={itemCards} />}
+      {tab === 'spells' && <SpellsTab cards={spellCards} />}
     </Stack>
   )
 }

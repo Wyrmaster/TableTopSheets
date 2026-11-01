@@ -19,10 +19,13 @@ import type { CardSelection } from '@/hooks/useCardSelection'
 export const CardSelectionBar = ({
   selection,
   fileName = 'cards.pdf',
+  size = 'md',
 }: {
   selection: CardSelection
   /** name of the downloaded file, e.g. `Elara cards.pdf` */
   fileName?: string
+  /** button size: `md` next to a filter bar, `sm` in the sheet header next to the rest buttons */
+  size?: 'sm' | 'md'
 }) => {
   const { run, busy } = useApiAction()
   const label = selection.active ? 'Stop selecting for cards' : 'Select for cards'
@@ -59,6 +62,7 @@ export const CardSelectionBar = ({
             {selection.count} selected
           </Text>
           <Button
+            size={size}
             variant='ghost'
             disabled={selection.count === 0}
             onClick={selection.clear}
@@ -67,6 +71,7 @@ export const CardSelectionBar = ({
           </Button>
           {selection.count > 0 && (
             <Button
+              size={size}
               colorPalette='brand'
               loading={busy}
               onClick={downloadPdf}
@@ -80,6 +85,7 @@ export const CardSelectionBar = ({
       <Tooltip.Root openDelay={300}>
         <Tooltip.Trigger asChild>
           <IconButton
+            size={size}
             variant={selection.active ? 'solid' : 'outline'}
             colorPalette={selection.active ? 'brand' : undefined}
             aria-label={label}

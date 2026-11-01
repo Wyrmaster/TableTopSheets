@@ -39,12 +39,18 @@ public static class RulesEndpoints
     .Add("name", entry => entry.Name)
     .Add("key", entry => entry.Key)
     .Add("level", entry => entry.Level)
-    .AddKey("school", entry => entry.School, SchoolKey);
+    .AddKey("school", entry => entry.School, SchoolKey)
+    .Add("castingTime", entry => entry.CastingTime)
+    .Add("concentration", entry => entry.Concentration)
+    .Add("ritual", entry => entry.Ritual)
+    .Add("damageType", entry => entry.DamageType);
 
   private static readonly QuerySortMap<Item> ItemSorts = new QuerySortMap<Item>()
     .Add("name", entry => entry.Name)
     .Add("key", entry => entry.Key)
     .AddKey("kind", entry => entry.Kind, kind => kind.ToString())
+    // gear category (potion, ring, wondrous-item ...); together with kind it sorts by type
+    .Add("group", entry => entry.Group)
     .Add("cost", entry => entry.CostCp)
     .Add("weight", entry => entry.Weight)
     // the rarity is stored by name, so it sorts by rank (mundane items first)
@@ -117,7 +123,7 @@ public static class RulesEndpoints
       .MapGet("/items", ListItems)
       .WithName("ListItems")
       .WithSummary("List items (weapons, armor, tools, gear, magic items)")
-      .WithDescription("Filters: kind, category, magic, attunement, rarity (Common ... Artifact). Sort fields: name, key, kind, cost, weight, rarity.");
+      .WithDescription("Filters: kind, category, magic, attunement, rarity (Common ... Artifact). Sort fields: name, key, kind, group (gear category; kind,group,name sorts by type), cost, weight, rarity.");
     group
       .MapGet("/items/{key}", GetItem)
       .WithName("GetItem")

@@ -231,13 +231,17 @@ export const SpellsPage = () => {
         </FilterSelect>
         <FilterSelect
           label='Sort'
-          width='150px'
+          width='230px'
           value={sort}
           onChange={setSort}
         >
           <option value='level,name'>Sort: level</option>
           <option value='name'>Sort: name</option>
           <option value='school,level,name'>Sort: school</option>
+          <option value='castingTime,level,name'>Sort: casting time</option>
+          <option value='-concentration,level,name'>Sort: concentration first</option>
+          <option value='-ritual,level,name'>Sort: ritual first</option>
+          <option value='damageType,level,name'>Sort: damage type</option>
         </FilterSelect>
         <FilterToggle
           checked={ritual}

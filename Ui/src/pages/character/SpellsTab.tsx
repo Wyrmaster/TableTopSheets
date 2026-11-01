@@ -25,21 +25,37 @@ import {
 } from '@/api'
 import { ApiHint } from '@/components/ApiHint'
 import { CardCheckbox } from '@/components/CardCheckbox'
-import { CardSelectionBar } from '@/components/CardSelectionBar'
+import { FilterSelect } from '@/components/FilterBar'
 import { Pips } from '@/components/Pips'
 import { SpellRow } from '@/components/SpellRow'
 import { useApiAction } from '@/hooks/useApiAction'
-import { type CardSelection, useCardSelection } from '@/hooks/useCardSelection'
+import type { CardSelection } from '@/hooks/useCardSelection'
 import { useIntentQuery } from '@/hooks/useIntentQuery'
 import { slotGroups } from './playState'
 import { useCharacter } from './useCharacter'
+
+type SpellSort = 'level' | 'name' | 'school' | 'castingTime'
+
+const byName = (a: KnownSpellDto, b: KnownSpellDto) => a.name.localeCompare(b.name)
+
+const byLevel = (a: KnownSpellDto, b: KnownSpellDto) => a.level - b.level || byName(a, b)
+
+const spellComparers: Record<SpellSort, (a: KnownSpellDto, b: KnownSpellDto) => number> = {
+  level: byLevel,
+  name: byName,
+  school: (a, b) => a.school.localeCompare(b.school) || byLevel(a, b),
+  castingTime: (a, b) => a.castingTime.localeCompare(b.castingTime) || byLevel(a, b),
+}
+
+/** Display order of the known spells (client side; the loadout editor and copy picker keep the API order) */
+const sortSpells = (spells: KnownSpellDto[], sort: SpellSort) => [...spells].sort(spellComparers[sort])
 
 /**
  * Spellcasting per class, clickable spell slots, the spells of each class (cantrips, prepared, spellbook) with the
  * long rest loadout editor and copying into the spellbook, and spells from species and feats; the known spells can be
  * selected for the card PDF
  */
-export const SpellsTab = () => {
+export const SpellsTab = ({ cards }: { cards: CardSelection }) => {
   const {
     id,
     state,
@@ -49,7 +65,7 @@ export const SpellsTab = () => {
   } = useCharacter()
   const spells = useIntentQuery(() => new GetSpellsIntent(id), `${id}|${state.level}`)
   const groups = slotGroups(sheet)
-  const cards = useCardSelection()
+  const [sort, setSort] = useState<SpellSort>('level')
 
   if (spells.problem) {
     return <Text color='fg.error'>{problemMessages(spells.problem).join(' ')}</Text>
@@ -65,10 +81,19 @@ export const SpellsTab = () => {
 
   return (
     <Stack gap='4'>
-      <CardSelectionBar
-        selection={cards}
-        fileName={`${state.name} cards.pdf`}
-      />
+      <Flex justify='flex-end'>
+        <FilterSelect
+          label='Sort spells'
+          width='190px'
+          value={sort}
+          onChange={(value) => setSort(value as SpellSort)}
+        >
+          <option value='level'>Sort: level</option>
+          <option value='name'>Sort: name</option>
+          <option value='school'>Sort: school</option>
+          <option value='castingTime'>Sort: casting time</option>
+        </FilterSelect>
+      </Flex>
       <SimpleGrid
         minChildWidth='280px'
         gap='4'
@@ -141,6 +166,7 @@ export const SpellsTab = () => {
           key={entry.classKey}
           entry={entry}
           cards={cards}
+          sort={sort}
           onChanged={spells.reload}
         />
       ))}
@@ -150,7 +176,7 @@ export const SpellsTab = () => {
           <Card.Body gap='3'>
             <Heading size='md'>From species and feats</Heading>
             <SpellList
-              spells={spells.data.other}
+              spells={sortSpells(spells.data.other, sort)}
               cards={cards}
             />
           </Card.Body>
@@ -170,16 +196,19 @@ export const SpellsTab = () => {
 const ClassSpells = ({
   entry,
   cards,
+  sort,
   onChanged,
 }: {
   entry: SpellcastingClassDto
   cards: CardSelection
+  sort: SpellSort
   onChanged: () => void
 }) => {
   const [mode, setMode] = useState<'view' | 'prepare' | 'copy'>('view')
-  const cantrips = entry.spells.filter((spell) => spell.level === 0)
-  const prepared = entry.spells.filter((spell) => spell.level > 0 && (spell.prepared || spell.alwaysPrepared))
-  const spellbook = entry.spells
+  const sorted = sortSpells(entry.spells, sort)
+  const cantrips = sorted.filter((spell) => spell.level === 0)
+  const prepared = sorted.filter((spell) => spell.level > 0 && (spell.prepared || spell.alwaysPrepared))
+  const spellbook = sorted
     .filter((spell) => spell.level > 0 && spell.inSpellbook && !spell.prepared && !spell.alwaysPrepared)
   const longRest = entry.prepareChange === 'LongRest'
   const hasSpellbook = entry.pool === 'Spellbook'
