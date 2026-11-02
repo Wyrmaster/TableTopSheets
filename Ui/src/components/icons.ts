@@ -40,6 +40,7 @@ export {
   mdiSortDescending as sortDescendingIcon,
   mdiStarFourPoints as featuresIcon,
   mdiSword as meleeIcon,
+  mdiTreasureChest as itemsIcon,
   mdiTshirtCrew as armorIcon,
   mdiUndo as undoIcon,
   mdiWeatherNight as moonIcon,

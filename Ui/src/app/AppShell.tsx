@@ -7,6 +7,7 @@ import {
   diceIcon,
   eyeIcon,
   eyeOffIcon,
+  itemsIcon,
   logoutIcon,
   newCharacterIcon,
   spellsIcon,
@@ -104,6 +105,12 @@ const MainNavigation = () => {
       to: '/spells',
       label: 'Spells',
       icon: spellsIcon,
+      end: false,
+    },
+    {
+      to: '/items',
+      label: 'Items',
+      icon: itemsIcon,
       end: false,
     },
   ]

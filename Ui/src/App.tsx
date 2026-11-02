@@ -7,6 +7,7 @@ import { SheetPage } from '@/pages/character/SheetPage'
 import { ShopPage } from '@/pages/character/ShopPage'
 import { CharactersPage } from '@/pages/CharactersPage'
 import { CreatorPage } from '@/pages/creator/CreatorPage'
+import { ItemsPage } from '@/pages/ItemsPage'
 import { LoginPage } from '@/pages/LoginPage'
 import { SpellsPage } from '@/pages/SpellsPage'
 
@@ -41,6 +42,10 @@ const router = createBrowserRouter([
           {
             path: '/spells',
             element: <SpellsPage />,
+          },
+          {
+            path: '/items',
+            element: <ItemsPage />,
           },
           {
             path: '/characters/:id',

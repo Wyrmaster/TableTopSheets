@@ -29,12 +29,10 @@ import {
 } from '@/components/FilterBar'
 import { Icon } from '@/components/Icon'
 import { shopIcon } from '@/components/icons'
-import { InfoButton } from '@/components/InfoButton'
-import { RarityBadge } from '@/components/RarityBadge'
+import { ItemCategoryOptions } from '@/components/ItemCategoryOptions'
+import { ItemRow } from '@/components/ItemRow'
 import { rarityLabel } from '@/components/rarity'
 import { sortParam } from '@/components/sort'
-import { useInspector } from '@/components/inspector/useInspector'
-import { Thumbnail } from '@/components/Thumbnail'
 import { useApiAction } from '@/hooks/useApiAction'
 import { useCardSelection } from '@/hooks/useCardSelection'
 import { useIntentQuery } from '@/hooks/useIntentQuery'
@@ -42,56 +40,6 @@ import { coinValue, formatCoins, formatPrice } from './coins'
 import { useCharacter } from './useCharacter'
 
 const PageSize = 25
-
-/**
- * Values of the `category` filter of the item list: weapon and armor categories, tool groups and gear categories (magic
- * weapons and armor share them), then the groups of the other magic items
- */
-const Categories: [string, string][] = [
-  ['simple', 'Simple weapons'],
-  ['martial', 'Martial weapons'],
-  ['ammunition', 'Ammunition'],
-  ['light', 'Light armor'],
-  ['medium', 'Medium armor'],
-  ['heavy', 'Heavy armor'],
-  ['shield', 'Shields'],
-  ['artisan', 'Artisan\'s tools'],
-  ['gaming-set', 'Gaming sets'],
-  ['musical-instrument', 'Musical instruments'],
-  ['arcane-focus', 'Arcane focuses'],
-  ['druidic-focus', 'Druidic focuses'],
-  ['holy-symbol', 'Holy symbols'],
-  ['pack', 'Packs'],
-  ['food-and-drink', 'Food and drink'],
-  ['mount', 'Mounts and animals'],
-  ['tack', 'Tack and harness'],
-  ['vehicle', 'Drawn vehicles'],
-  ['ship', 'Ships'],
-]
-
-const MagicCategories: [string, string][] = [
-  ['wondrous-item', 'Wondrous items'],
-  ['potion', 'Potions'],
-  ['ring', 'Rings'],
-  ['rod', 'Rods'],
-  ['scroll', 'Scrolls'],
-  ['staff', 'Staffs'],
-  ['wand', 'Wands'],
-]
-
-const categoryOptions = (categories: [string, string][]) => categories.map(([value, label]) => (
-  <option
-    key={value}
-    value={value}
-  >
-    {label}
-  </option>
-))
-
-/** Price of an item; items sold in bundles show the bundle size (`1 gp / 20`), artifacts have none */
-const priceLabel = (item: ItemSummaryDto) => item.priceless
-  ? 'Priceless'
-  : `${formatPrice(item.costCp)}${item.bundle > 1 ? ` / ${item.bundle}` : ''}`
 
 /** Why "Buy" is disabled, if it is */
 const buyBlocker = (item: ItemSummaryDto, wealth: number) => item.priceless
@@ -110,7 +58,6 @@ export const ShopPage = () => {
     state,
     applyState,
   } = useCharacter()
-  const { inspect } = useInspector()
   const { run } = useApiAction()
   const [search, setSearch] = useState('')
   const [kind, setKind] = useState('')
@@ -218,9 +165,7 @@ export const ShopPage = () => {
           value={category}
           onChange={filter(setCategory)}
         >
-          <option value=''>All categories</option>
-          <optgroup label='Equipment'>{categoryOptions(Categories)}</optgroup>
-          <optgroup label='Magic items'>{categoryOptions(MagicCategories)}</optgroup>
+          <ItemCategoryOptions />
         </FilterSelect>
         <FilterSelect
           label='Rarity'
@@ -270,87 +215,47 @@ export const ShopPage = () => {
         overflow='hidden'
       >
         {items.loading && !items.data && <Box p='3'><Spinner /></Box>}
-        {items.data?.items.map((item) => {
-          const selected = cards.active && cards.isSelected('item', item.key)
-          return (
-            <Flex
-              key={item.key}
-              align='center'
-              gap='3'
-              px='3'
-              py='2.5'
-              borderTopWidth='1px'
-              _first={{ borderTopWidth: '0' }}
-              cursor='pointer'
-              bg={selected ? 'brand.subtle' : undefined}
-              _hover={selected ? undefined : { bg: 'bg.subtle' }}
-              onClick={() => cards.active
-                ? cards.toggle('item', item.key)
-                : inspect({
-                  kind: 'item',
-                  key: item.key,
-                })}
-            >
+        {items.data?.items.map((item) => (
+          <ItemRow
+            key={item.key}
+            item={item}
+            selected={cards.active && cards.isSelected('item', item.key)}
+            onClick={cards.active ? () => cards.toggle('item', item.key) : undefined}
+            control={(
               <CardCheckbox
                 selection={cards}
                 kind='item'
                 entryKey={item.key}
                 name={item.name}
               />
-              <Thumbnail src={item.thumbnailUrl} />
-              <Box
-                flex='1'
-                minW='0'
-              >
-                <HStack wrap='wrap'>
-                  <Text fontWeight='semibold'>{item.name}</Text>
-                  {item.magic && <Badge colorPalette='brand'>magic</Badge>}
-                  <RarityBadge rarity={item.rarity} />
-                  {item.requiresAttunement && <Badge>attunement</Badge>}
-                </HStack>
-                <Text
-                  fontSize='sm'
-                  color='fg.muted'
+            )}
+            actions={(
+              <>
+                <Button
+                  size='xs'
+                  variant='ghost'
+                  hideBelow='md'
+                  title='Add without paying (starting equipment, loot)'
+                  onClick={() => add(item, false)}
                 >
-                  {[item.kind, item.category, item.weight && `${item.weight} lb`].filter(Boolean).join(' · ')}
-                </Text>
-              </Box>
-              <Text fontWeight='semibold'>{priceLabel(item)}</Text>
-              <InfoButton target={{
-                kind: 'item',
-                key: item.key,
-              }}
-              />
-              <Button
-                size='xs'
-                variant='ghost'
-                hideBelow='md'
-                title='Add without paying (starting equipment, loot)'
-                onClick={(event) => {
-                  event.stopPropagation()
-                  add(item, false)
-                }}
-              >
-                Add free
-              </Button>
-              <Button
-                size='sm'
-                colorPalette='brand'
-                // selecting for cards on a phone needs the room of the row
-                hideBelow={cards.active ? 'md' : undefined}
-                disabled={buyBlocker(item, wealth) !== undefined}
-                title={buyBlocker(item, wealth)}
-                onClick={(event) => {
-                  event.stopPropagation()
-                  add(item, true)
-                }}
-              >
-                <Icon path={shopIcon} />
-                Buy
-              </Button>
-            </Flex>
-          )
-        })}
+                  Add free
+                </Button>
+                <Button
+                  size='sm'
+                  colorPalette='brand'
+                  // selecting for cards on a phone needs the room of the row
+                  hideBelow={cards.active ? 'md' : undefined}
+                  disabled={buyBlocker(item, wealth) !== undefined}
+                  title={buyBlocker(item, wealth)}
+                  onClick={() => add(item, true)}
+                >
+                  <Icon path={shopIcon} />
+                  Buy
+                </Button>
+              </>
+            )}
+          />
+        ))}
         {items.data?.items.length === 0 && <Text
           p='3'
           color='fg.muted'

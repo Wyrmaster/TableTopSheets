@@ -1,10 +1,6 @@
 import {
   Box,
-  ButtonGroup,
-  Flex,
   Heading,
-  IconButton,
-  Pagination,
   Spinner,
   Stack,
   Text,
@@ -20,15 +16,13 @@ import {
   FilterToggle,
   SortSelect,
 } from '@/components/FilterBar'
-import { Icon } from '@/components/Icon'
-import { nextIcon, previousIcon } from '@/components/icons'
+import { ListPagination } from '@/components/ListPagination'
+import { PageSizes } from '@/components/pageSizes'
 import { SceneBanner } from '@/components/SceneBanner'
 import { sortParam } from '@/components/sort'
 import { SpellRow } from '@/components/SpellRow'
 import { useCardSelection } from '@/hooks/useCardSelection'
 import { useIntentQuery } from '@/hooks/useIntentQuery'
-
-const PageSizes = [25, 50, 100]
 
 /** Cantrips need no spell slot, leveled spells (`Spell`) do */
 type SpellKind = 'all' | 'cantrip' | 'leveled'
@@ -270,10 +264,11 @@ export const SpellsPage = () => {
       {spells.problem && <Text color='fg.error'>{problemMessages(spells.problem).join(' ')}</Text>}
       <Box ref={listTop} />
       {spells.data && (
-        <SpellPagination
+        <ListPagination
           total={spells.data.totalCount}
           page={page}
           pageSize={pageSize}
+          pageSizeLabel='Spells per page'
           onPageChange={changePage}
           onPageSizeChange={(value) => filter(setPageSize)(value)}
         />
@@ -312,7 +307,7 @@ export const SpellsPage = () => {
       </Box>
 
       {spells.data && spells.data.totalPages > 1 && (
-        <SpellPagination
+        <ListPagination
           total={spells.data.totalCount}
           page={page}
           pageSize={pageSize}
@@ -330,102 +325,3 @@ export const SpellsPage = () => {
   )
 }
 
-/**
- * Pages of the list: range ("26–50 of 391"), previous / page numbers / next (only previous, "2 / 16", next on small
- * screens) and, when given a handler, the page size
- */
-const SpellPagination = ({
-  total,
-  page,
-  pageSize,
-  onPageChange,
-  onPageSizeChange,
-}: {
-  total: number
-  page: number
-  pageSize: number
-  onPageChange: (page: number) => void
-  onPageSizeChange?: (pageSize: number) => void
-}) => {
-  const first = total === 0 ? 0 : (page - 1) * pageSize + 1
-  const last = Math.min(page * pageSize, total)
-
-  return (
-    <Flex
-      wrap='wrap'
-      gap='3'
-      align='center'
-      justify='space-between'
-    >
-      <Text
-        fontSize='sm'
-        color='fg.muted'
-      >
-        {first}–{last} of {total}
-      </Text>
-      <Pagination.Root
-        count={total}
-        pageSize={pageSize}
-        page={page}
-        siblingCount={1}
-        onPageChange={(details) => onPageChange(details.page)}
-      >
-        <ButtonGroup
-          size='sm'
-          variant='ghost'
-        >
-          <Pagination.PrevTrigger asChild>
-            <IconButton aria-label='Previous page'>
-              <Icon path={previousIcon} />
-            </IconButton>
-          </Pagination.PrevTrigger>
-          {/* page numbers on wider screens, "2 / 16" on phones */}
-          <Box display={{
-            base: 'none',
-            md: 'contents',
-          }}
-          >
-            <Pagination.Items
-              render={(item) => (
-                <IconButton variant={{
-                  base: 'ghost',
-                  _selected: 'outline',
-                }}
-                >
-                  {item.value}
-                </IconButton>
-              )}
-            />
-          </Box>
-          <Pagination.PageText
-            format='short'
-            hideFrom='md'
-            px='2'
-          />
-          <Pagination.NextTrigger asChild>
-            <IconButton aria-label='Next page'>
-              <Icon path={nextIcon} />
-            </IconButton>
-          </Pagination.NextTrigger>
-        </ButtonGroup>
-      </Pagination.Root>
-      {onPageSizeChange && (
-        <FilterSelect
-          label='Spells per page'
-          width='130px'
-          value={String(pageSize)}
-          onChange={(value) => onPageSizeChange(Number(value))}
-        >
-          {PageSizes.map((value) => (
-            <option
-              key={value}
-              value={value}
-            >
-              {value} per page
-            </option>
-          ))}
-        </FilterSelect>
-      )}
-    </Flex>
-  )
-}
