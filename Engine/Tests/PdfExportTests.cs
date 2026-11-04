@@ -1,3 +1,4 @@
+using TableTopSheets.Common.Enum;
 using TableTopSheets.Common.Enum.Rules;
 using TableTopSheets.Common.Sheet;
 using TableTopSheets.Pdf;
@@ -64,6 +65,31 @@ public class PdfExportTests
 
     Assert.Equal("Wizard 20", sheet.Classes);
     Assert.True(PageCount(path) >= 3);
+  }
+
+  [Fact]
+  public async Task StoryAndCoinsArePrinted()
+  {
+    await using TestWorld world = await TestWorld.CreateAsync();
+    Guid id = await world.CreateCharacterAsync(TestWorld.StandardArray, "soldier", "str", "str", "con");
+    await world.LevelUpAsync(id, "fighter", selections: [new("fighter.fighting-style", "defense"), new("fighter.weapon-mastery", "longsword")]);
+    await world.Service.UpdateDetailsAsync(id, new()
+    {
+      Alignment = AlignmentEnum.NeutralGood,
+      Appearance = "Tall, broad shouldered, silver hair tied back, a scar across the left cheek.",
+      Backstory = string.Join(" ", Enumerable.Repeat("Raised by owls in the northern woods, she learned patience before she learned to speak.", 40)),
+    });
+    await world.Service.SetCoinsAsync(id, 7, 12, 0, 1234, 3);
+
+    CharacterSheet sheet = await world.SheetAsync(id);
+    string path = Path.Combine(AppContext.BaseDirectory, "story-sheet.pdf");
+    new CharacterSheetDocument(sheet).GenerateCharacterSheetFile(path);
+
+    Assert.Equal("Neutral Good", sheet.Alignment);
+    Assert.StartsWith("Tall", sheet.Appearance);
+    Assert.Equal(1234, sheet.Coins.Gold);
+    // the backstory doesn't fit its box, it continues on page 3
+    Assert.Equal(3, PageCount(path));
   }
 
   private static int PageCount(string path)

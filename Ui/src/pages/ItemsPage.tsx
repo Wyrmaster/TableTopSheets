@@ -20,8 +20,10 @@ import {
   FilterBar,
   FilterSelect,
   FilterToggle,
+  MagicSelect,
   SortSelect,
 } from '@/components/FilterBar'
+import { type MagicFilter, magicParam } from '@/components/magicFilter'
 import { ItemCategoryOptions } from '@/components/ItemCategoryOptions'
 import { ItemRow } from '@/components/ItemRow'
 import { ListPagination } from '@/components/ListPagination'
@@ -42,7 +44,7 @@ export const ItemsPage = () => {
   const [kind, setKind] = useState('')
   const [category, setCategory] = useState('')
   const [rarity, setRarity] = useState('')
-  const [magic, setMagic] = useState(false)
+  const [magic, setMagic] = useState<MagicFilter>('')
   const [attunement, setAttunement] = useState(false)
   const [sort, setSort] = useState('name')
   const [descending, setDescending] = useState(false)
@@ -63,7 +65,7 @@ export const ItemsPage = () => {
     setKind('')
     setCategory('')
     setRarity('')
-    setMagic(false)
+    setMagic('')
     setAttunement(false)
     setPage(1)
   }
@@ -82,7 +84,7 @@ export const ItemsPage = () => {
       kind: (kind || undefined) as ItemKindEnum | undefined,
       category: category || undefined,
       rarity: (rarity || undefined) as RarityEnum | undefined,
-      magic: magic || undefined,
+      magic: magicParam(magic),
       attunement: attunement || undefined,
       sort: sortParam(sort, descending),
       page,
@@ -140,6 +142,10 @@ export const ItemsPage = () => {
         >
           <ItemCategoryOptions />
         </FilterSelect>
+        <MagicSelect
+          value={magic}
+          onChange={filter(setMagic)}
+        />
         <FilterSelect
           label='Rarity'
           width='150px'
@@ -170,12 +176,6 @@ export const ItemsPage = () => {
           <option value='weight'>Sort: weight</option>
           <option value='rarity,name'>Sort: rarity</option>
         </SortSelect>
-        <FilterToggle
-          checked={magic}
-          onChange={filter(setMagic)}
-        >
-          Magic
-        </FilterToggle>
         <FilterToggle
           checked={attunement}
           onChange={filter(setAttunement)}

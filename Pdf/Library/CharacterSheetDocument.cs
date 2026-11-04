@@ -82,6 +82,8 @@ public class CharacterSheetDocument: Document
       .Select(ToSpell)
       .ToArray());
     Languages languages = new(string.Join(", ", sheet.Languages));
+    Appearance appearance = new(sheet.Appearance);
+    Backstory backstory = new(sheet.Backstory, sheet.Alignment);
     Equipment equipment = new(string.Join(Environment.NewLine, sheet.Equipment), attuned.ElementAtOrDefault(0), attuned.ElementAtOrDefault(1), attuned.ElementAtOrDefault(2));
     new ComponentPage
     (
@@ -104,14 +106,14 @@ public class CharacterSheetDocument: Document
       ),
       new SpellSlots(sheet.SpellSlots.ToArray()),
       spells,
-      new Appearance(),
-      new Backstory(),
+      appearance,
+      backstory,
       languages,
       equipment,
-      new Component.Coins()
+      new Component.Coins(sheet.Coins)
     ).Draw();
 
-    this.DrawContinuations(classFeature, speciesTraits, feats, equipmentBox, weaponDamage, spells, languages, equipment);
+    this.DrawContinuations(classFeature, speciesTraits, feats, equipmentBox, weaponDamage, spells, appearance, backstory, languages, equipment);
   }
 
   #endregion

@@ -1,8 +1,29 @@
-import { Box, Button, Card, Flex, Grid, Heading, HStack, IconButton, SimpleGrid, Stack, Text } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Card,
+  Flex,
+  Grid,
+  Heading,
+  HStack,
+  IconButton,
+  Link,
+  SimpleGrid,
+  Stack,
+  Text,
+} from '@chakra-ui/react'
+import { NavLink } from 'react-router'
 import type { AbilitySheet, FeatureSheet } from '@/api'
 import { ApiHint } from '@/components/ApiHint'
 import { Icon } from '@/components/Icon'
-import { featuresIcon, heartIcon, minusIcon, plusIcon, resourcesIcon } from '@/components/icons'
+import {
+  featuresIcon,
+  heartIcon,
+  minusIcon,
+  plusIcon,
+  resourcesIcon,
+  storyIcon,
+} from '@/components/icons'
 import { useInspector } from '@/components/inspector/useInspector'
 import { Pips } from '@/components/Pips'
 import { ProficiencyMarker } from '@/components/ProficiencyMarker'
@@ -37,6 +58,7 @@ export const OverviewTab = () => {
         <ResourcesCard />
       </SimpleGrid>
       <FeaturesCard />
+      <StoryCard />
       <ApiHint>
         sheet from <code>GET /api/characters/{'{id}'}/sheet</code>; current HP, charges and hit dice aren't stored by
         the
@@ -368,6 +390,60 @@ const FeaturesCard = () => {
                     />
                   ))}
                 </SimpleGrid>
+              </Stack>
+            ))}
+        </Stack>
+      </Card.Body>
+    </Card.Root>
+  )
+}
+
+/**
+ * Alignment, appearance and backstory; edited on the settings page
+ */
+const StoryCard = () => {
+  const { id, sheet } = useCharacter()
+  const parts: [string, string][] = [
+    ['Appearance', sheet.appearance],
+    ['Backstory & personality', sheet.backstory],
+  ]
+
+  return (
+    <Card.Root>
+      <Card.Body>
+        <CardTitle
+          icon={storyIcon}
+          title='Story'
+          hint={sheet.alignment}
+        />
+        {!sheet.appearance && !sheet.backstory && (
+          <Text color='fg.muted'>
+            No appearance or backstory yet – add them on the <Link
+              asChild
+              color='brand.fg'
+            >
+              <NavLink to={`/characters/${id}/settings`}>Settings</NavLink>
+            </Link> page.
+          </Text>
+        )}
+        <Stack gap='4'>
+          {parts
+            .filter(([, text]) => text)
+            .map(([title, text]) => (
+              <Stack
+                key={title}
+                gap='1'
+              >
+                <Text
+                  fontSize='2xs'
+                  fontWeight='bold'
+                  letterSpacing='wider'
+                  color='fg.muted'
+                  textTransform='uppercase'
+                >
+                  {title}
+                </Text>
+                <Text whiteSpace='pre-line'>{text}</Text>
               </Stack>
             ))}
         </Stack>

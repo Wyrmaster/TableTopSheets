@@ -24,13 +24,14 @@ import { CardSelectionBar } from '@/components/CardSelectionBar'
 import {
   FilterBar,
   FilterSelect,
-  FilterToggle,
+  MagicSelect,
   SortSelect,
 } from '@/components/FilterBar'
 import { Icon } from '@/components/Icon'
-import { shopIcon } from '@/components/icons'
+import { freeIcon, shopIcon } from '@/components/icons'
 import { ItemCategoryOptions } from '@/components/ItemCategoryOptions'
 import { ItemRow } from '@/components/ItemRow'
+import { type MagicFilter, magicParam } from '@/components/magicFilter'
 import { rarityLabel } from '@/components/rarity'
 import { sortParam } from '@/components/sort'
 import { useApiAction } from '@/hooks/useApiAction'
@@ -62,7 +63,7 @@ export const ShopPage = () => {
   const [search, setSearch] = useState('')
   const [kind, setKind] = useState('')
   const [category, setCategory] = useState('')
-  const [magic, setMagic] = useState(false)
+  const [magic, setMagic] = useState<MagicFilter>('')
   const [rarity, setRarity] = useState('')
   const [sort, setSort] = useState('name')
   const [descending, setDescending] = useState(false)
@@ -80,7 +81,7 @@ export const ShopPage = () => {
     setSearch('')
     setKind('')
     setCategory('')
-    setMagic(false)
+    setMagic('')
     setRarity('')
     setPage(1)
   }
@@ -90,7 +91,7 @@ export const ShopPage = () => {
       search: search || undefined,
       kind: (kind || undefined) as ItemKindEnum | undefined,
       category: category || undefined,
-      magic: magic || undefined,
+      magic: magicParam(magic),
       rarity: (rarity || undefined) as RarityEnum | undefined,
       sort: sortParam(sort, descending),
       page,
@@ -167,6 +168,10 @@ export const ShopPage = () => {
         >
           <ItemCategoryOptions />
         </FilterSelect>
+        <MagicSelect
+          value={magic}
+          onChange={filter(setMagic)}
+        />
         <FilterSelect
           label='Rarity'
           width='150px'
@@ -197,12 +202,6 @@ export const ShopPage = () => {
           <option value='weight'>Sort: weight</option>
           <option value='rarity,name'>Sort: rarity</option>
         </SortSelect>
-        <FilterToggle
-          checked={magic}
-          onChange={filter(setMagic)}
-        >
-          Magic
-        </FilterToggle>
         <CardSelectionBar
           selection={cards}
           fileName={`${state.name} cards.pdf`}
@@ -230,29 +229,52 @@ export const ShopPage = () => {
               />
             )}
             actions={(
-              <>
+              // phones show both buttons as icons, "Add free" below "Buy" to save width; selecting for cards there
+              // needs the room of the row
+              <Flex
+                direction={{
+                  base: 'column-reverse',
+                  md: 'row',
+                }}
+                align='center'
+                gap={{
+                  base: '1',
+                  md: '3',
+                }}
+                hideBelow={cards.active ? 'md' : undefined}
+              >
                 <Button
                   size='xs'
                   variant='ghost'
-                  hideBelow='md'
+                  aria-label='Add free'
                   title='Add without paying (starting equipment, loot)'
                   onClick={() => add(item, false)}
                 >
-                  Add free
+                  <Icon path={freeIcon} />
+                  <Text
+                    as='span'
+                    hideBelow='md'
+                  >
+                    Add free
+                  </Text>
                 </Button>
                 <Button
                   size='sm'
                   colorPalette='brand'
-                  // selecting for cards on a phone needs the room of the row
-                  hideBelow={cards.active ? 'md' : undefined}
+                  aria-label='Buy'
                   disabled={buyBlocker(item, wealth) !== undefined}
-                  title={buyBlocker(item, wealth)}
+                  title={buyBlocker(item, wealth) ?? 'Buy'}
                   onClick={() => add(item, true)}
                 >
                   <Icon path={shopIcon} />
-                  Buy
+                  <Text
+                    as='span'
+                    hideBelow='md'
+                  >
+                    Buy
+                  </Text>
                 </Button>
-              </>
+              </Flex>
             )}
           />
         ))}

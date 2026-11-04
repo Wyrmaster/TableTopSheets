@@ -14,6 +14,7 @@ import {
   sortAscendingIcon,
   sortDescendingIcon,
 } from '@/components/icons'
+import type { MagicFilter } from '@/components/magicFilter'
 
 /**
  * Filter bar of a list: the search box and a "clear filters" icon button on the first line, every other filter
@@ -97,6 +98,28 @@ export const FilterSelect = ({
       </NativeSelect.Field>
       <NativeSelect.Indicator />
     </NativeSelect.Root>
+  )
+}
+
+/** Select of the item lists: all items, mundane items or magic items */
+export const MagicSelect = ({
+  value,
+  onChange,
+}: {
+  value: MagicFilter
+  onChange: (value: MagicFilter) => void
+}) => {
+  return (
+    <FilterSelect
+      label='Magic'
+      width='150px'
+      value={value}
+      onChange={(next) => onChange(next as MagicFilter)}
+    >
+      <option value=''>All items</option>
+      <option value='false'>Mundane</option>
+      <option value='true'>Magic</option>
+    </FilterSelect>
   )
 }
 

@@ -38,6 +38,11 @@ public class RobotoFontResolver: IFontResolver
       {
         return new FontResolverInfo("Roboto#");
       }
+      // "Roboto#" bold is only Sarabun Regular; titles that need to stand out use the real bold face
+      case "sarabun" when isBold:
+      {
+        return new FontResolverInfo("Sarabun#b");
+      }
     }
 
     return PlatformFontResolver.ResolveTypeface(familyName, isBold, isItalic)!;
@@ -70,6 +75,12 @@ public class RobotoFontResolver: IFontResolver
         case "Roboto#bi":
         {
           const string keyString = "TableTopSheets.Pdf.Resources.Roboto.RobotoItalic.ttf";
+          this.LoadFontFromAssembly(faceName, keyString);
+          break;
+        }
+        case "Sarabun#b":
+        {
+          const string keyString = "TableTopSheets.Pdf.Resources.Sarabun.SarabunBold.ttf";
           this.LoadFontFromAssembly(faceName, keyString);
           break;
         }

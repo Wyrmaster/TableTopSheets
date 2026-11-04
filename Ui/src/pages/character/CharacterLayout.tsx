@@ -22,8 +22,16 @@ import {
   GetCharacterSheetPdfIntent,
   problemMessages,
 } from '@/api'
+import { CharacterAvatar } from '@/components/CharacterAvatar'
 import { Icon } from '@/components/Icon'
-import { alertIcon, levelUpIcon, pdfIcon, sheetIcon, shopIcon } from '@/components/icons'
+import {
+  alertIcon,
+  levelUpIcon,
+  pdfIcon,
+  settingsIcon,
+  sheetIcon,
+  shopIcon,
+} from '@/components/icons'
 import { useApiAction } from '@/hooks/useApiAction'
 import { useIntentQuery } from '@/hooks/useIntentQuery'
 import { CharacterContext, type CharacterContextValue } from './CharacterContext'
@@ -51,10 +59,18 @@ const pages = [
     short: 'Shop',
     icon: shopIcon,
   },
+  {
+    to: 'settings',
+    match: 'settings',
+    label: 'Settings',
+    short: 'Settings',
+    icon: settingsIcon,
+  },
 ]
 
 /**
- * Loads a character (state and sheet) and frames its pages: header with stats, Character sheet · Level up · Shop
+ * Loads a character (state and sheet) and frames its pages: header with stats, Character sheet · Level up · Shop ·
+ * Settings
  */
 export const CharacterLayout = () => {
   const { id = '' } = useParams()
@@ -181,18 +197,10 @@ const Header = ({
         gap='3'
         align='center'
       >
-        <Flex
-          boxSize='11'
-          rounded='lg'
-          align='center'
-          justify='center'
-          bg='brand.muted'
-          color='brand.fg'
-          fontSize='xl'
-          fontWeight='bold'
-        >
-          {state.name[0]}
-        </Flex>
+        <CharacterAvatar
+          name={state.name}
+          portraitUrl={state.portraitUrl}
+        />
         <Box
           flex='1'
           minW='180px'
@@ -311,7 +319,7 @@ const MobileNavigation = () => {
       left='0'
       right='0'
       zIndex='sticky'
-      templateColumns='repeat(3, 1fr)'
+      templateColumns={`repeat(${pages.length}, 1fr)`}
       borderTopWidth='1px'
       bg='bg'
     >

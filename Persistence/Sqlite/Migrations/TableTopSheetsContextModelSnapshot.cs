@@ -78,6 +78,10 @@ namespace TableTopSheets.Persistence.Sqlite.Migrations
                     b.Property<Guid>("OwnerId")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("PortraitHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid?>("SpeciesId")
                         .HasColumnType("TEXT");
 
@@ -208,6 +212,31 @@ namespace TableTopSheets.Persistence.Sqlite.Migrations
                         .IsUnique();
 
                     b.ToTable("CharacterLevels");
+                });
+
+            modelBuilder.Entity("TableTopSheets.Persistence.Entity.Characters.CharacterPortrait", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CharacterId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
+                    b.Property<byte[]>("Data")
+                        .IsRequired()
+                        .HasColumnType("BLOB");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CharacterId")
+                        .IsUnique();
+
+                    b.ToTable("CharacterPortraits");
                 });
 
             modelBuilder.Entity("TableTopSheets.Persistence.Entity.Characters.CharacterPreparedSpell", b =>
@@ -1484,6 +1513,17 @@ namespace TableTopSheets.Persistence.Sqlite.Migrations
                     b.Navigation("Subclass");
                 });
 
+            modelBuilder.Entity("TableTopSheets.Persistence.Entity.Characters.CharacterPortrait", b =>
+                {
+                    b.HasOne("TableTopSheets.Persistence.Entity.Characters.Character", "Character")
+                        .WithOne("Portrait")
+                        .HasForeignKey("TableTopSheets.Persistence.Entity.Characters.CharacterPortrait", "CharacterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Character");
+                });
+
             modelBuilder.Entity("TableTopSheets.Persistence.Entity.Characters.CharacterPreparedSpell", b =>
                 {
                     b.HasOne("TableTopSheets.Persistence.Entity.Characters.Character", "Character")
@@ -1808,6 +1848,8 @@ namespace TableTopSheets.Persistence.Sqlite.Migrations
                     b.Navigation("Items");
 
                     b.Navigation("Levels");
+
+                    b.Navigation("Portrait");
 
                     b.Navigation("PreparedSpells");
 

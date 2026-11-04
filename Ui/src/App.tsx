@@ -4,6 +4,7 @@ import { RequireAuth } from '@/app/RequireAuth'
 import { CharacterLayout } from '@/pages/character/CharacterLayout'
 import { LevelUpPage } from '@/pages/character/LevelUpPage'
 import { SheetPage } from '@/pages/character/SheetPage'
+import { SettingsPage } from '@/pages/character/SettingsPage'
 import { ShopPage } from '@/pages/character/ShopPage'
 import { CharactersPage } from '@/pages/CharactersPage'
 import { CreatorPage } from '@/pages/creator/CreatorPage'
@@ -71,6 +72,10 @@ const router = createBrowserRouter([
               {
                 path: 'shop',
                 element: <ShopPage />,
+              },
+              {
+                path: 'settings',
+                element: <SettingsPage />,
               },
             ],
           },

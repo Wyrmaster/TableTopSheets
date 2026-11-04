@@ -84,6 +84,10 @@ namespace TableTopSheets.Persistence.Postgresql.Migrations
                     b.Property<Guid>("OwnerId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("PortraitHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
                     b.Property<Guid?>("SpeciesId")
                         .HasColumnType("uuid");
 
@@ -214,6 +218,31 @@ namespace TableTopSheets.Persistence.Postgresql.Migrations
                         .IsUnique();
 
                     b.ToTable("CharacterLevels");
+                });
+
+            modelBuilder.Entity("TableTopSheets.Persistence.Entity.Characters.CharacterPortrait", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CharacterId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<byte[]>("Data")
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CharacterId")
+                        .IsUnique();
+
+                    b.ToTable("CharacterPortraits");
                 });
 
             modelBuilder.Entity("TableTopSheets.Persistence.Entity.Characters.CharacterPreparedSpell", b =>
@@ -1490,6 +1519,17 @@ namespace TableTopSheets.Persistence.Postgresql.Migrations
                     b.Navigation("Subclass");
                 });
 
+            modelBuilder.Entity("TableTopSheets.Persistence.Entity.Characters.CharacterPortrait", b =>
+                {
+                    b.HasOne("TableTopSheets.Persistence.Entity.Characters.Character", "Character")
+                        .WithOne("Portrait")
+                        .HasForeignKey("TableTopSheets.Persistence.Entity.Characters.CharacterPortrait", "CharacterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Character");
+                });
+
             modelBuilder.Entity("TableTopSheets.Persistence.Entity.Characters.CharacterPreparedSpell", b =>
                 {
                     b.HasOne("TableTopSheets.Persistence.Entity.Characters.Character", "Character")
@@ -1814,6 +1854,8 @@ namespace TableTopSheets.Persistence.Postgresql.Migrations
                     b.Navigation("Items");
 
                     b.Navigation("Levels");
+
+                    b.Navigation("Portrait");
 
                     b.Navigation("PreparedSpells");
 

@@ -4,25 +4,19 @@ import {
   Box,
   Button,
   Card,
-  Field,
   Flex,
   Grid,
   Heading,
   HStack,
-  Input,
-  NativeSelect,
   Spinner,
   Stack,
   Steps,
   Text,
-  Textarea,
 } from '@chakra-ui/react'
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import {
   AbilityKeys,
-  Alignments,
-  type AlignmentEnum,
   type CharacterStateDto,
   CreateCharacterIntent,
   GetCharacterIntent,
@@ -33,6 +27,8 @@ import {
   UpdateCharacterIntent,
 } from '@/api'
 import { ApiHint } from '@/components/ApiHint'
+import type { CharacterDetails } from '@/components/characterDetails'
+import { CharacterDetailsFields } from '@/components/CharacterDetailsFields'
 import { ChoiceList } from '@/components/choices/ChoiceList'
 import { SkillProficiencies } from '@/components/SkillProficiencies'
 import { equipmentComplete } from '@/components/startingEquipment/startingEquipment'
@@ -59,19 +55,10 @@ const steps = ['Class', 'Species', 'Background', 'Ability scores', 'Choices', 'D
 const SaveStep = 3
 const ChoicesStep = 4
 
-const alignmentName = (alignment: string) => alignment.replace(/([a-z])([A-Z])/g, '$1 $2')
-
 /**
  * Name of the character until it is set in the details step; the API needs a name to save the character
  */
 const PlaceholderName = 'New character'
-
-interface Details {
-  name: string
-  alignment: AlignmentEnum
-  appearance: string
-  backstory: string
-}
 
 /**
  * Character creator. Class, species, background and ability scores are chosen locally; "Save" stores the character
@@ -100,13 +87,13 @@ export const CreatorPage = () => {
   // the saved draft
   const draft = useIntentQuery(() => (id ? new GetCharacterIntent(id) : null), id ?? '')
   const state = draft.data
-  const [editedDetails, setDetails] = useState<Details | null>(null)
-  const details: Details | null = editedDetails ?? (state
+  const [editedDetails, setDetails] = useState<CharacterDetails | null>(null)
+  const details: CharacterDetails | null = editedDetails ?? (state
     ? {
       name: state.name === PlaceholderName ? '' : state.name,
       alignment: state.alignment,
-      appearance: '',
-      backstory: '',
+      appearance: state.appearance,
+      backstory: state.backstory,
     }
     : null)
 
@@ -608,11 +595,10 @@ const DetailsStep = ({
   onChange,
 }: {
   state: CharacterStateDto
-  details: Details
-  onChange: (details: Details) => void
+  details: CharacterDetails
+  onChange: (details: CharacterDetails) => void
 }) => {
   const open = state.pendingChoices.filter((choice) => !choice.optional).length
-  const set = (change: Partial<Details>) => onChange({ ...details, ...change })
 
   return (
     <Stack gap='4'>
@@ -620,53 +606,10 @@ const DetailsStep = ({
         title='Details'
         text='Name, alignment and the story of the character. “Finish” saves them.'
       />
-      <Grid
-        templateColumns={{
-          base: '1fr',
-          md: '1fr 1fr',
-        }}
-        gap='4'
-      >
-        <Field.Root>
-          <Field.Label>Name</Field.Label>
-          <Input
-            value={details.name}
-            placeholder='Character name'
-            onChange={(event) => set({ name: event.target.value })}
-          />
-        </Field.Root>
-        <Field.Root>
-          <Field.Label>Alignment</Field.Label>
-          <NativeSelect.Root>
-            <NativeSelect.Field
-              value={details.alignment}
-              onChange={(event) => set({ alignment: event.target.value as AlignmentEnum })}
-            >
-              {Alignments.map((value) => <option
-                key={value}
-                value={value}
-              >
-                {alignmentName(value)}
-              </option>)}
-            </NativeSelect.Field>
-            <NativeSelect.Indicator />
-          </NativeSelect.Root>
-        </Field.Root>
-      </Grid>
-      <Field.Root>
-        <Field.Label>Appearance</Field.Label>
-        <Textarea
-          value={details.appearance}
-          onChange={(event) => set({ appearance: event.target.value })}
-        />
-      </Field.Root>
-      <Field.Root>
-        <Field.Label>Backstory</Field.Label>
-        <Textarea
-          value={details.backstory}
-          onChange={(event) => set({ backstory: event.target.value })}
-        />
-      </Field.Root>
+      <CharacterDetailsFields
+        details={details}
+        onChange={onChange}
+      />
       <Alert.Root status={open ? 'warning' : 'success'}>
         <Alert.Indicator />
         <Alert.Title>

@@ -20,6 +20,7 @@ import { useNavigate } from 'react-router'
 import { type CharacterSummaryDto, DeleteCharacterIntent, ListCharactersIntent, problemMessages } from '@/api'
 import { ApiHint } from '@/components/ApiHint'
 import { SceneBanner } from '@/components/SceneBanner'
+import { CharacterAvatar } from '@/components/CharacterAvatar'
 import { Icon } from '@/components/Icon'
 import { deleteIcon } from '@/components/icons'
 import { useApiAction } from '@/hooks/useApiAction'
@@ -111,18 +112,10 @@ const CharacterCard = ({ character, onDeleted }: { character: CharacterSummaryDt
     >
       <Card.Body gap='3'>
         <HStack gap='3'>
-          <Flex
-            boxSize='11'
-            rounded='lg'
-            align='center'
-            justify='center'
-            bg='brand.muted'
-            color='brand.fg'
-            fontSize='xl'
-            fontWeight='bold'
-          >
-            {character.name[0]}
-          </Flex>
+          <CharacterAvatar
+            name={character.name}
+            portraitUrl={character.portraitUrl}
+          />
           <Box flex='1'>
             <Heading size='md'>{character.name}</Heading>
             <Text

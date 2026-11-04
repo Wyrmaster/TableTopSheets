@@ -1,4 +1,6 @@
 using System.Globalization;
+using System.Text.RegularExpressions;
+using TableTopSheets.Common.Enum;
 
 namespace TableTopSheets.Engine.Evaluation;
 
@@ -27,6 +29,12 @@ public static class Naming
     => Abilities.TryGetValue(key, out string? ability)
       ? ability
       : CultureInfo.InvariantCulture.TextInfo.ToTitleCase(key.Replace('-', ' '));
+
+  /// <summary>
+  ///   Turns an alignment into a display name (<c>NeutralGood</c> to <c>Neutral Good</c>)
+  /// </summary>
+  public static string Alignment(AlignmentEnum alignment)
+    => Regex.Replace(alignment.ToString(), "([a-z])([A-Z])", "$1 $2");
 
   #endregion
 }

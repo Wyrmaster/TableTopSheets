@@ -21,6 +21,12 @@ public static class ImageLinks
   public static string Url(ImageCategoryEnum category, string key, bool thumbnail = false)
     => $"/api/images/{Segment(category)}/{Uri.EscapeDataString(key)}" + (thumbnail ? "?thumb=true" : string.Empty);
 
+  /// <summary>
+  ///   Route of a character's portrait with its hash, so a new upload gets a new url; null without a portrait
+  /// </summary>
+  public static string? Portrait(Guid characterId, string? portraitHash)
+    => portraitHash == null ? null : $"/api/characters/{characterId}/portrait?v={portraitHash[..16]}";
+
   /// <param name="owners">keys that have an image in the category</param>
   public static SpellSummaryDto WithImage(this SpellSummaryDto dto, IReadOnlySet<string> owners)
     => owners.Contains(dto.Key)

@@ -21,6 +21,13 @@ public sealed record CharacterStateDto
 
   public required AlignmentEnum Alignment { get; init; }
 
+  public required string Appearance { get; init; }
+
+  public required string Backstory { get; init; }
+
+  /// <summary>Picture of the character (<c>/api/characters/{id}/portrait?v=…</c>); null when there is none</summary>
+  public required string? PortraitUrl { get; init; }
+
   public required IReadOnlyList<ClassLevelDto> Classes { get; init; }
 
   public required IReadOnlyList<AbilityDto> Abilities { get; init; }

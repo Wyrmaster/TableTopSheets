@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Net.Http.Headers;
 using TableTopSheets.Api.Authentication;
 using TableTopSheets.Api.Contracts;
 using TableTopSheets.Api.Mapping;
@@ -24,6 +25,15 @@ public static class CharacterEndpoints
     .Add("name", entry => entry.Name)
     .Add("level", entry => entry.Level)
     .Add("species", entry => entry.Species);
+
+  #endregion
+
+  #region Constants
+
+  /// <summary>
+  ///   The url of a portrait changes with its content, so browsers may keep it; private because it is a user's picture
+  /// </summary>
+  private const string PortraitCacheControl = "private, max-age=86400";
 
   #endregion
 
@@ -67,6 +77,27 @@ public static class CharacterEndpoints
       .WithName("GetCharacterSheetPdf")
       .WithSummary("Printable character sheet")
       .Produces(StatusCodes.Status200OK, contentType: "application/pdf");
+    group
+      .MapPut("/{id:guid}/portrait", SetPortrait)
+      .WithName("SetCharacterPortrait")
+      .WithSummary("Upload the picture of a character (base64 JPEG, PNG or WebP, at most 2 MB)")
+      .WithDescription("Replaces the previous picture. 422 when the data is no such image or too large.");
+    group
+      .MapDelete("/{id:guid}/portrait", RemovePortrait)
+      .WithName("RemoveCharacterPortrait")
+      .WithSummary("Remove the picture of a character");
+
+    // an img element can't send the bearer token: the picture is anonymous, the character id is the secret
+    routes
+      .MapGroup("/api/characters")
+      .WithTags("Characters")
+      .MapGet("/{id:guid}/portrait", GetPortrait)
+      .WithName("GetCharacterPortrait")
+      .WithSummary("Picture of a character")
+      .WithDescription("Anonymous like the rule images. Answers 304 when If-None-Match carries the current ETag.")
+      .Produces(StatusCodes.Status200OK, contentType: "image/jpeg")
+      .Produces(StatusCodes.Status304NotModified)
+      .ProducesProblem(StatusCodes.Status404NotFound);
     return group;
   }
 
@@ -133,6 +164,67 @@ public static class CharacterEndpoints
     }
 
     return TypedResults.File(stream.ToArray(), "application/pdf", $"{FileName(sheet.Name)}.pdf");
+  }
+
+  private static async Task<Ok<CharacterStateDto>> SetPortrait(ICharacterService service, Guid id, SetPortraitDto dto, CancellationToken cancellationToken)
+  {
+    byte[] data;
+    try
+    {
+      data = Convert.FromBase64String(dto.Data);
+    }
+    catch (FormatException)
+    {
+      throw new RuleViolationException("The portrait data isn't valid base64");
+    }
+
+    return TypedResults.Ok(StateMapper.State(await service.SetPortraitAsync(id, data, cancellationToken)));
+  }
+
+  private static async Task<Ok<CharacterStateDto>> RemovePortrait(ICharacterService service, Guid id, CancellationToken cancellationToken)
+    => TypedResults.Ok(StateMapper.State(await service.RemovePortraitAsync(id, cancellationToken)));
+
+  private static async Task<Results<FileContentHttpResult, StatusCodeHttpResult, NotFound>> GetPortrait
+  (
+    HttpContext httpContext,
+    TableTopSheetsContext context,
+    Guid id,
+    CancellationToken cancellationToken
+  )
+  {
+    string? hash = await context.Characters
+      .AsNoTracking()
+      .Where(entry => entry.Id == id)
+      .Select(entry => entry.PortraitHash)
+      .FirstOrDefaultAsync(cancellationToken);
+    if (hash == null)
+    {
+      return TypedResults.NotFound();
+    }
+
+    EntityTagHeaderValue tag = new($"\"{hash}\"");
+    httpContext.Response.Headers.CacheControl = PortraitCacheControl;
+    if (httpContext.Request
+      .GetTypedHeaders()
+      .IfNoneMatch
+      .Any(entry => entry.Compare(tag, false) || entry.Equals(EntityTagHeaderValue.Any)))
+    {
+      httpContext.Response.Headers.ETag = tag.ToString();
+      return TypedResults.StatusCode(StatusCodes.Status304NotModified);
+    }
+
+    var portrait = await context.CharacterPortraits
+      .AsNoTracking()
+      .Where(entry => entry.CharacterId == id)
+      .Select(entry => new
+      {
+        entry.ContentType,
+        entry.Data,
+      })
+      .FirstOrDefaultAsync(cancellationToken);
+    return portrait == null
+      ? TypedResults.NotFound()
+      : TypedResults.File(portrait.Data, portrait.ContentType, entityTag: tag);
   }
 
   private static string FileName(string name)

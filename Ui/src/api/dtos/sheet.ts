@@ -142,6 +142,10 @@ export interface CharacterSheet {
   level: number
   experience: number
   classLevels: ClassLevelSheet[]
+  /** readable alignment (`Neutral Good`) */
+  alignment: string
+  appearance: string
+  backstory: string
 
   proficiencyBonus: number
   abilities: AbilitySheet[]

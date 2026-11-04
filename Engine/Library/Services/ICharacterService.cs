@@ -37,6 +37,16 @@ public interface ICharacterService
   Task DeleteAsync(Guid characterId, CancellationToken cancellationToken = default);
 
   /// <summary>
+  ///   Store the picture of a character (JPEG, PNG or WebP, recognised by its content), replacing the previous one
+  /// </summary>
+  Task<CharacterEvaluation> SetPortraitAsync(Guid characterId, byte[] data, CancellationToken cancellationToken = default);
+
+  /// <summary>
+  ///   Remove the picture of a character; nothing happens without one
+  /// </summary>
+  Task<CharacterEvaluation> RemovePortraitAsync(Guid characterId, CancellationToken cancellationToken = default);
+
+  /// <summary>
   ///   Answer open choices. The selections belong to the latest level (origin when the character has no level yet),
   ///   so undoing that level removes them as well
   /// </summary>

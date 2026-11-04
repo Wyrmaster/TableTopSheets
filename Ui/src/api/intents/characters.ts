@@ -5,6 +5,7 @@ import type {
   CharacterStateDto,
   CharacterSummaryDto,
   CreateCharacterDto,
+  SetPortraitDto,
   UpdateCharacterDto,
 } from '../dtos/character'
 import type { Guid } from '../dtos/common'
@@ -112,6 +113,47 @@ export class DeleteCharacterIntent extends Intent<void> {
   /** Route of the intent */
   get path() {
     return characterPath(this.characterId)
+  }
+}
+
+/** PUT /api/characters/{id}/portrait: upload the picture (JPEG, PNG or WebP, at most 2 MB; 422 otherwise) */
+export class SetPortraitIntent extends BodyIntent<SetPortraitDto, CharacterStateDto> {
+  readonly method = 'PUT'
+
+  readonly characterId: Guid
+
+  /**
+   * @param characterId id of the character
+   * @param body the picture, base64 encoded
+   */
+  constructor(characterId: Guid, body: SetPortraitDto) {
+    super(body)
+    this.characterId = characterId
+  }
+
+  /** Route of the intent */
+  get path() {
+    return characterPath(this.characterId, '/portrait')
+  }
+}
+
+/** DELETE /api/characters/{id}/portrait: remove the picture */
+export class RemovePortraitIntent extends Intent<CharacterStateDto> {
+  readonly method = 'DELETE'
+
+  readonly characterId: Guid
+
+  /**
+   * @param characterId id of the character
+   */
+  constructor(characterId: Guid) {
+    super()
+    this.characterId = characterId
+  }
+
+  /** Route of the intent */
+  get path() {
+    return characterPath(this.characterId, '/portrait')
   }
 }
 

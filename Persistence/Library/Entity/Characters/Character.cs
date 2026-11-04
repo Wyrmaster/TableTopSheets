@@ -34,6 +34,12 @@ public class Character: BaseEntity
 
   public string Backstory { get; set; } = string.Empty;
 
+  /// <summary>
+  ///   SHA-256 (hex) of the <see cref="Portrait" />, null without one; the API sends it as ETag and appends it to the
+  ///   portrait url, so a new upload isn't hidden by the browser cache
+  /// </summary>
+  public string? PortraitHash { get; set; }
+
   #endregion
 
   #region Base Ability Scores
@@ -88,6 +94,8 @@ public class Character: BaseEntity
   public ICollection<CharacterSpellbookEntry> SpellbookEntries { get; set; } = new List<CharacterSpellbookEntry>();
 
   public ICollection<CharacterResourceUsage> ResourceUsages { get; set; } = new List<CharacterResourceUsage>();
+
+  public CharacterPortrait? Portrait { get; set; }
 
   #endregion
 }

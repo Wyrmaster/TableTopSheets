@@ -18,6 +18,9 @@ public class CharacterConfiguration: IEntityTypeConfiguration<Character>
     builder
       .Property(entity => entity.ClassEquipment)
       .HasMaxLength(16);
+    builder
+      .Property(entity => entity.PortraitHash)
+      .HasMaxLength(64);
     builder.HasIndex(entity => entity.OwnerId);
     builder
       .HasOne(entity => entity.Species)
@@ -58,6 +61,11 @@ public class CharacterConfiguration: IEntityTypeConfiguration<Character>
       .HasMany(entity => entity.ResourceUsages)
       .WithOne(entity => entity.Character)
       .HasForeignKey(entity => entity.CharacterId)
+      .OnDelete(DeleteBehavior.Cascade);
+    builder
+      .HasOne(entity => entity.Portrait)
+      .WithOne(entity => entity.Character)
+      .HasForeignKey<CharacterPortrait>(entity => entity.CharacterId)
       .OnDelete(DeleteBehavior.Cascade);
   }
 }

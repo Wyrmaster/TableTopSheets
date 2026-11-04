@@ -32,6 +32,19 @@ public sealed record CharacterSheet
 
   #endregion
 
+  #region Story
+
+  /// <summary>
+  ///   Readable alignment (<c>Neutral Good</c>)
+  /// </summary>
+  public string Alignment { get; init; } = string.Empty;
+
+  public string Appearance { get; init; } = string.Empty;
+
+  public string Backstory { get; init; } = string.Empty;
+
+  #endregion
+
   #region Abilities
 
   public int ProficiencyBonus { get; init; }

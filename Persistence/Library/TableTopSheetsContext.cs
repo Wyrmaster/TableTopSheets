@@ -91,6 +91,8 @@ public class TableTopSheetsContext: DbContext
 
   public DbSet<CharacterResourceUsage> CharacterResourceUsages => this.Set<CharacterResourceUsage>();
 
+  public DbSet<CharacterPortrait> CharacterPortraits => this.Set<CharacterPortrait>();
+
   #endregion
 
   #region Override

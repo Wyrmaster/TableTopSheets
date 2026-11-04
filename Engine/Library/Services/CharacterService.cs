@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
 using TableTopSheets.Common.Enum.Rules;
 using TableTopSheets.Common.Key;
@@ -23,6 +24,11 @@ public sealed class CharacterService(TableTopSheetsContext context, IRulesCatalo
 
   public const int MaxLevel = 20;
   public const int MulticlassMinimumScore = 13;
+
+  /// <summary>
+  ///   Largest portrait accepted; the UI scales pictures down to a few hundred kilobytes before the upload
+  /// </summary>
+  public const int MaxPortraitBytes = 2 * 1024 * 1024;
 
   #endregion
 
@@ -195,6 +201,69 @@ public sealed class CharacterService(TableTopSheetsContext context, IRulesCatalo
     RemoveSelection(character, selection);
     await context.SaveChangesAsync(cancellationToken);
     return await this.EvaluateAsync(character, cancellationToken);
+  }
+
+  #endregion
+
+  #region Portrait
+
+  /// <inheritdoc />
+  public async Task<CharacterEvaluation> SetPortraitAsync(Guid characterId, byte[] data, CancellationToken cancellationToken = default)
+  {
+    if (data.Length > MaxPortraitBytes)
+    {
+      throw new RuleViolationException($"A portrait can have at most {MaxPortraitBytes / 1024 / 1024} MB");
+    }
+
+    string contentType = PortraitContentType(data) ?? throw new RuleViolationException("A portrait has to be a JPEG, PNG or WebP image");
+    Character character = await this.LoadAsync(characterId, cancellationToken);
+    CharacterPortrait? portrait = await context.CharacterPortraits.SingleOrDefaultAsync(entry => entry.CharacterId == character.Id, cancellationToken);
+    if (portrait == null)
+    {
+      portrait = new CharacterPortrait
+      {
+        Id = Guid.NewGuid(),
+        CharacterId = character.Id,
+      };
+      context.CharacterPortraits.Add(portrait);
+    }
+
+    portrait.ContentType = contentType;
+    portrait.Data = data;
+    character.PortraitHash = Convert.ToHexStringLower(SHA256.HashData(data));
+    await context.SaveChangesAsync(cancellationToken);
+    return await this.EvaluateAsync(character, cancellationToken);
+  }
+
+  /// <inheritdoc />
+  public async Task<CharacterEvaluation> RemovePortraitAsync(Guid characterId, CancellationToken cancellationToken = default)
+  {
+    Character character = await this.LoadAsync(characterId, cancellationToken);
+    await context.CharacterPortraits
+      .Where(entry => entry.CharacterId == character.Id)
+      .ExecuteDeleteAsync(cancellationToken);
+    character.PortraitHash = null;
+    await context.SaveChangesAsync(cancellationToken);
+    return await this.EvaluateAsync(character, cancellationToken);
+  }
+
+  /// <summary>
+  ///   Image type by the first bytes of the file (the sent content type isn't trusted); null for anything else
+  /// </summary>
+  private static string? PortraitContentType(byte[] data)
+  {
+    ReadOnlySpan<byte> head = data;
+    if (head.StartsWith((ReadOnlySpan<byte>)[0xFF, 0xD8, 0xFF]))
+    {
+      return "image/jpeg";
+    }
+
+    if (head.StartsWith((ReadOnlySpan<byte>)[0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]))
+    {
+      return "image/png";
+    }
+
+    return head.Length >= 12 && head[..4].SequenceEqual("RIFF"u8) && head[8..12].SequenceEqual("WEBP"u8) ? "image/webp" : null;
   }
 
   #endregion

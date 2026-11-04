@@ -122,6 +122,19 @@ public sealed class CoinsAndItemsTests(ApiFactory factory): IClassFixture<ApiFac
   }
 
   [Fact]
+  public async Task MagicFilter_SplitsMagicAndMundaneItems()
+  {
+    PagedResult<ItemSummaryDto> all = await this._api.GetAsync<PagedResult<ItemSummaryDto>>("/api/rules/items?pageSize=1");
+    PagedResult<ItemSummaryDto> magic = await this._api.GetAsync<PagedResult<ItemSummaryDto>>("/api/rules/items?magic=true&pageSize=200");
+    PagedResult<ItemSummaryDto> mundane = await this._api.GetAsync<PagedResult<ItemSummaryDto>>("/api/rules/items?magic=false&pageSize=200");
+
+    Assert.All(magic.Items, entry => Assert.True(entry.Magic));
+    Assert.All(mundane.Items, entry => Assert.False(entry.Magic));
+    Assert.Contains(mundane.Items, entry => entry.Key == "longsword");
+    Assert.Equal(all.TotalCount, magic.TotalCount + mundane.TotalCount);
+  }
+
+  [Fact]
   public async Task MagicItems_CarryTheirRarity_AndArtifactsCantBeBought()
   {
     // the rarity filter combines with the magic filter, search and paging

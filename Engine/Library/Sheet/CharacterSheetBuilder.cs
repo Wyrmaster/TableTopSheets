@@ -39,6 +39,9 @@ public static class CharacterSheetBuilder
       ClassLevels = classLevels,
       Level = evaluation.TotalLevel,
       Experience = character.Experience,
+      Alignment = Naming.Alignment(character.Alignment),
+      Appearance = character.Appearance,
+      Backstory = character.Backstory,
       ProficiencyBonus = evaluation.ProficiencyBonus,
       Abilities = Abilities(evaluation),
 

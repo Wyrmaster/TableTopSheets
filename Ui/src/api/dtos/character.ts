@@ -31,6 +31,8 @@ export interface CharacterSummaryDto {
   species: string
   background: string
   classes: ClassLevelDto[]
+  /** picture of the character (`/api/characters/{id}/portrait?v=…`); null when there is none */
+  portraitUrl: string | null
 }
 
 /** Ability score with its modifier */
@@ -76,6 +78,10 @@ export interface CharacterStateDto {
   species: string
   background: string
   alignment: AlignmentEnum
+  appearance: string
+  backstory: string
+  /** picture of the character (`/api/characters/{id}/portrait?v=…`); null when there is none */
+  portraitUrl: string | null
   classes: ClassLevelDto[]
   abilities: AbilityDto[]
   proficiencyBonus: number
@@ -136,6 +142,12 @@ export interface UpdateCharacterDto {
   appearance?: string | null
   backstory?: string | null
   experience?: number | null
+}
+
+/** Picture of a character; the type (JPEG, PNG or WebP) is recognised from the data */
+export interface SetPortraitDto {
+  /** the image file, base64 encoded */
+  data: string
 }
 
 /** Swap an existing selection on a level up */

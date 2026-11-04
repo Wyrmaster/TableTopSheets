@@ -31,6 +31,9 @@ public static class StateMapper
       Species = sheet.Species,
       Background = sheet.Background,
       Alignment = character.Alignment,
+      Appearance = character.Appearance,
+      Backstory = character.Backstory,
+      PortraitUrl = ImageLinks.Portrait(character.Id, character.PortraitHash),
       Classes = Classes(evaluation),
       Abilities = RuleKeys.Abilities
         .Select(entry => new AbilityDto(entry, Naming.Title(entry), evaluation.Score(entry), evaluation.Modifier(entry)))
@@ -84,7 +87,8 @@ public static class StateMapper
           string? subclass = subclassId is { } id ? @class.Subclasses.Single(entry => entry.Id == id).Key : null;
           return new ClassLevelDto(@class.Key, @class.Name, group.Count(), subclass);
         })
-        .ToList()
+        .ToList(),
+      ImageLinks.Portrait(character.Id, character.PortraitHash)
     );
   }
 
