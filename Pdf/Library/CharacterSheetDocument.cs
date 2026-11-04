@@ -26,19 +26,30 @@ public class CharacterSheetDocument: Document
   private const double ContinuationBottom = 830;
   private const double ContinuationGap = 8;
 
+  // header row and logo band of the first page, from the top left corner of the title box to the right edge
+  private const double HeaderLeft = 13;
+  private const double HeaderTop = 8.6;
+  private const double HeaderRight = 582;
+  private const double PortraitGap = 5;
+
   #endregion
 
   #region Field
 
   private readonly CharacterSheet _sheet;
+  private readonly byte[]? _portrait;
 
   #endregion
 
   #region Constructor
 
-  public CharacterSheetDocument(CharacterSheet sheet)
+  /// <param name="sheet">computed character sheet</param>
+  /// <param name="portrait">picture for the top left corner of the first page; without one (or when PDFsharp can't read
+  /// it) the first page keeps its full width header</param>
+  public CharacterSheetDocument(CharacterSheet sheet, byte[]? portrait = null)
   {
     this._sheet = sheet;
+    this._portrait = portrait;
   }
 
   #endregion
@@ -58,22 +69,29 @@ public class CharacterSheetDocument: Document
       .Select(ToAttack)
       .ToArray());
 
-    new ComponentPage
-    (
-      this.PdfDocument,
+    IComponent[] header =
+    [
       new TitleBox(sheet.Name, sheet.Background, sheet.Classes, sheet.Species, sheet.Subclasses, sheet.Level.ToString(CultureInfo.InvariantCulture)),
       new AcShield(sheet.ArmorClass.ToString(CultureInfo.InvariantCulture), sheet.ShieldEquipped),
       new HitPoints(sheet.HitPointMaximum.ToString(CultureInfo.InvariantCulture), string.Join(" ", sheet.HitDice.Select(entry => $"{entry.Count}{entry.Die}"))),
       new Logo(),
-      new AbilitySection(sheet.ProficiencyBonus, Ability("str"), Ability("dex"), Ability("con"), Ability("int"), Ability("wis"), Ability("cha")),
-      equipmentBox,
-      new OtherContainer(Signed(sheet.Initiative), sheet.Speed.ToString(CultureInfo.InvariantCulture), sheet.Size
-        .ToString()
-        .ToUpperInvariant(), sheet.PassivePerception.ToString(CultureInfo.InvariantCulture)),
-      weaponDamage,
-      classFeature,
-      speciesTraits,
-      feats
+    ];
+
+    new ComponentPage
+    (
+      this.PdfDocument,
+      [
+        ..this.Header(header),
+        new AbilitySection(sheet.ProficiencyBonus, Ability("str"), Ability("dex"), Ability("con"), Ability("int"), Ability("wis"), Ability("cha")),
+        equipmentBox,
+        new OtherContainer(Signed(sheet.Initiative), sheet.Speed.ToString(CultureInfo.InvariantCulture), sheet.Size
+          .ToString()
+          .ToUpperInvariant(), sheet.PassivePerception.ToString(CultureInfo.InvariantCulture)),
+        weaponDamage,
+        classFeature,
+        speciesTraits,
+        feats
+      ]
     ).Draw();
 
     SpellcastingSheet? casting = sheet.Spellcasting.FirstOrDefault();
@@ -114,6 +132,26 @@ public class CharacterSheetDocument: Document
     ).Draw();
 
     this.DrawContinuations(classFeature, speciesTraits, feats, equipmentBox, weaponDamage, spells, appearance, backstory, languages, equipment);
+  }
+
+  #endregion
+
+  #region Header
+
+  /// <summary>
+  ///   Header row and logo band of the first page; with a portrait they shrink to the right of it
+  /// </summary>
+  private IEnumerable<IComponent> Header(IComponent[] header)
+  {
+    if (Images.Load(this._portrait) is not { } image)
+    {
+      return header;
+    }
+
+    double left = Portrait.X + Portrait.Width + PortraitGap;
+    double scale = (HeaderRight - left) / (HeaderRight - HeaderLeft);
+    XPoint origin = new(left - HeaderLeft * scale, HeaderTop - HeaderTop * scale);
+    return [new Portrait(image), new ScaledGroup(origin, scale, header)];
   }
 
   #endregion

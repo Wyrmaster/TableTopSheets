@@ -28,6 +28,7 @@ import {
   alertIcon,
   levelUpIcon,
   pdfIcon,
+  pdfPortraitIcon,
   settingsIcon,
   sheetIcon,
   shopIcon,
@@ -168,8 +169,8 @@ const Header = ({
     [sheet.level, 'Level'],
   ]
 
-  const downloadPdf = async () => {
-    const result = await run(new GetCharacterSheetPdfIntent(state.id))
+  const downloadPdf = async (withPortrait: boolean) => {
+    const result = await run(new GetCharacterSheetPdfIntent(state.id, withPortrait))
     if (result.ok) {
       const url = URL.createObjectURL(result.data)
       const link = document.createElement('a')
@@ -232,7 +233,7 @@ const Header = ({
           size='sm'
           variant='outline'
           loading={busy}
-          onClick={downloadPdf}
+          onClick={() => downloadPdf(false)}
         >
           <Icon path={pdfIcon} />
           <Text
@@ -242,6 +243,22 @@ const Header = ({
             Sheet PDF
           </Text>
         </Button>
+        {state.portraitUrl && (
+          <Button
+            size='sm'
+            variant='outline'
+            loading={busy}
+            onClick={() => downloadPdf(true)}
+          >
+            <Icon path={pdfPortraitIcon} />
+            <Text
+              as='span'
+              hideBelow='md'
+            >
+              Sheet PDF with portrait
+            </Text>
+          </Button>
+        )}
       </Flex>
 
       <HStack

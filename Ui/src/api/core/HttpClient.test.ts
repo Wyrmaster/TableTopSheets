@@ -118,6 +118,11 @@ describe('HttpClient', () => {
     expect(result.ok && (await result.data.text())).toBe('%PDF')
   })
 
+  it('asks for the portrait on the sheet only when wanted', () => {
+    expect(HttpClient.queryString(new GetCharacterSheetPdfIntent('c1').queryParams())).toBe('')
+    expect(HttpClient.queryString(new GetCharacterSheetPdfIntent('c1', true).queryParams())).toBe('portrait=true')
+  })
+
   it('returns problem details of rule violations', async () => {
     const { http } = client(json(422, {
       title: 'The request breaks the rules',

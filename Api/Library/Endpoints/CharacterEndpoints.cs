@@ -75,7 +75,7 @@ public static class CharacterEndpoints
     group
       .MapGet("/{id:guid}/sheet.pdf", Pdf)
       .WithName("GetCharacterSheetPdf")
-      .WithSummary("Printable character sheet")
+      .WithSummary("Printable character sheet; ?portrait=true puts the portrait on the first page")
       .Produces(StatusCodes.Status200OK, contentType: "application/pdf");
     group
       .MapPut("/{id:guid}/portrait", SetPortrait)
@@ -154,11 +154,12 @@ public static class CharacterEndpoints
   private static async Task<Ok<CharacterSheet>> Sheet(ICharacterService service, Guid id, CancellationToken cancellationToken)
     => TypedResults.Ok(await service.BuildSheetAsync(id, cancellationToken));
 
-  private static async Task<FileContentHttpResult> Pdf(ICharacterService service, Guid id, CancellationToken cancellationToken)
+  private static async Task<FileContentHttpResult> Pdf(ICharacterService service, Guid id, CancellationToken cancellationToken, bool portrait = false)
   {
     CharacterSheet sheet = await service.BuildSheetAsync(id, cancellationToken);
+    byte[]? picture = portrait ? await service.LoadPortraitAsync(id, cancellationToken) : null;
     using MemoryStream stream = new();
-    await using (Stream pdf = new CharacterSheetDocument(sheet).GenerateCharacterSheetStream())
+    await using (Stream pdf = new CharacterSheetDocument(sheet, picture).GenerateCharacterSheetStream())
     {
       await pdf.CopyToAsync(stream, cancellationToken);
     }

@@ -247,6 +247,19 @@ public sealed class CharacterService(TableTopSheetsContext context, IRulesCatalo
     return await this.EvaluateAsync(character, cancellationToken);
   }
 
+  /// <inheritdoc />
+  public async Task<byte[]?> LoadPortraitAsync(Guid characterId, CancellationToken cancellationToken = default)
+  {
+    Character character = await this.LoadAsync(characterId, cancellationToken);
+    return character.PortraitHash == null
+      ? null
+      : await context.CharacterPortraits
+        .AsNoTracking()
+        .Where(entry => entry.CharacterId == character.Id)
+        .Select(entry => entry.Data)
+        .FirstOrDefaultAsync(cancellationToken);
+  }
+
   /// <summary>
   ///   Image type by the first bytes of the file (the sent content type isn't trusted); null for anything else
   /// </summary>

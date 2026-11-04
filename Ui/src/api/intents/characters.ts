@@ -1,5 +1,11 @@
 // Routes: Api/Library/Endpoints/CharacterEndpoints.cs
-import { BodyIntent, Intent, PagedIntent, segment } from '../core/Intent'
+import {
+  BodyIntent,
+  Intent,
+  PagedIntent,
+  type QueryParams,
+  segment,
+} from '../core/Intent'
 import type {
   CharacterFilter,
   CharacterStateDto,
@@ -177,23 +183,34 @@ export class GetCharacterSheetIntent extends Intent<CharacterSheet> {
   }
 }
 
-/** GET /api/characters/{id}/sheet.pdf: printable character sheet as PDF blob */
+/**
+ * GET /api/characters/{id}/sheet.pdf: printable character sheet as PDF blob; with the portrait in the top left corner
+ * of the first page on request (ignored without a portrait)
+ */
 export class GetCharacterSheetPdfIntent extends Intent<Blob> {
   readonly method = 'GET'
   override readonly responseKind = 'blob'
 
   readonly characterId: Guid
+  readonly withPortrait: boolean
 
   /**
    * @param characterId id of the character
+   * @param withPortrait put the portrait on the first page
    */
-  constructor(characterId: Guid) {
+  constructor(characterId: Guid, withPortrait = false) {
     super()
     this.characterId = characterId
+    this.withPortrait = withPortrait
   }
 
   /** Route of the intent */
   get path() {
     return characterPath(this.characterId, '/sheet.pdf')
+  }
+
+  /** `portrait=true` only when asked for */
+  override queryParams(): QueryParams {
+    return { portrait: this.withPortrait || undefined }
   }
 }

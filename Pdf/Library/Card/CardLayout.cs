@@ -42,7 +42,8 @@ public static class CardLayout
   /// </summary>
   public static IReadOnlyList<CardPart> Plan(XGraphics gfx, CardData card)
   {
-    XImage? image = LoadImage(card.Image);
+    // an unreadable picture leaves the header row to the table
+    XImage? image = Images.Load(card.Image);
     bool hasImage = image != null;
     foreach (CardFormat format in CardFormat.All)
     {
@@ -127,25 +128,6 @@ public static class CardLayout
   private static List<double> Heights(CardGeometry geometry) => geometry.Columns
     .Select(column => column.Height)
     .ToList();
-
-  private static XImage? LoadImage(byte[]? bytes)
-  {
-    if (bytes is not { Length: > 0 })
-    {
-      return null;
-    }
-
-    try
-    {
-      // PDFsharp reads the buffer of the stream directly
-      return XImage.FromStream(new MemoryStream(bytes, 0, bytes.Length, writable: false, publiclyVisible: true));
-    }
-    catch (Exception)
-    {
-      // an unreadable picture leaves the header row to the table
-      return null;
-    }
-  }
 
   #endregion
 }

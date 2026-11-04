@@ -28,6 +28,7 @@ export {
   mdiEye as eyeIcon,
   mdiEyeOff as eyeOffIcon,
   mdiFilterRemoveOutline as clearFilterIcon,
+  mdiFileAccount as pdfPortraitIcon,
   mdiFilePdfBox as pdfIcon,
   mdiGift as freeIcon,
   mdiHeart as heartIcon,

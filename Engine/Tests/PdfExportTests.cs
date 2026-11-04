@@ -92,6 +92,48 @@ public class PdfExportTests
     Assert.Equal(3, PageCount(path));
   }
 
+  [Fact]
+  public async Task PortraitIsDrawnOnFirstPage()
+  {
+    await using TestWorld world = await TestWorld.CreateAsync();
+    Guid id = await world.CreateCharacterAsync(TestWorld.StandardArray, "soldier", "str", "str", "con");
+    await world.LevelUpAsync(id, "fighter", selections: [new("fighter.fighting-style", "defense"), new("fighter.weapon-mastery", "longsword")]);
+    // 2×2 RGB pixels (PDFsharp can't read every PNG, a gray one with alpha for example)
+    await world.Service.SetPortraitAsync(id, Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAF0lEQVR4nGM4YaNxYoEGwwmbfScW7AMAKpgGpU9wjQ8AAAAASUVORK5CYII="));
+
+    CharacterSheet sheet = await world.SheetAsync(id);
+    string plain = Path.Combine(AppContext.BaseDirectory, "plain-sheet.pdf");
+    new CharacterSheetDocument(sheet).GenerateCharacterSheetFile(plain);
+    string portrait = Path.Combine(AppContext.BaseDirectory, "portrait-sheet.pdf");
+    new CharacterSheetDocument(sheet, await world.Service.LoadPortraitAsync(id)).GenerateCharacterSheetFile(portrait);
+
+    Assert.Equal(2, PageCount(portrait));
+    Assert.Equal(FirstPageImages(plain) + 1, FirstPageImages(portrait));
+  }
+
+  [Fact]
+  public async Task UnreadablePortraitKeepsTheFullHeader()
+  {
+    await using TestWorld world = await TestWorld.CreateAsync();
+    Guid id = await world.CreateCharacterAsync(TestWorld.StandardArray, "soldier", "str", "str", "con");
+    await world.LevelUpAsync(id, "fighter", selections: [new("fighter.fighting-style", "defense"), new("fighter.weapon-mastery", "longsword")]);
+
+    CharacterSheet sheet = await world.SheetAsync(id);
+    string plain = Path.Combine(AppContext.BaseDirectory, "plain-webp-sheet.pdf");
+    new CharacterSheetDocument(sheet).GenerateCharacterSheetFile(plain);
+    string webp = Path.Combine(AppContext.BaseDirectory, "webp-sheet.pdf");
+    new CharacterSheetDocument(sheet, "RIFF\0\0\0\0WEBPVP8 "u8.ToArray()).GenerateCharacterSheetFile(webp);
+
+    Assert.Equal(2, PageCount(webp));
+    Assert.Equal(FirstPageImages(plain), FirstPageImages(webp));
+  }
+
+  private static int FirstPageImages(string path)
+  {
+    using PdfDocument document = PdfReader.Open(path, PdfDocumentOpenMode.Import);
+    return document.Pages[0].Resources.Elements.GetDictionary("/XObject")?.Elements.Count ?? 0;
+  }
+
   private static int PageCount(string path)
   {
     using PdfDocument document = PdfReader.Open(path, PdfDocumentOpenMode.Import);

@@ -6,6 +6,15 @@ namespace TableTopSheets.Api.Tests;
 
 public sealed class CharacterFlowTests(ApiFactory factory): IClassFixture<ApiFactory>, IAsyncLifetime
 {
+  #region Constants
+
+  /// <summary>
+  ///   2×2 RGB PNG that PDFsharp can read
+  /// </summary>
+  private const string Png = "iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAF0lEQVR4nGM4YaNxYoEGwwmbfScW7AMAKpgGpU9wjQ8AAAAASUVORK5CYII=";
+
+  #endregion
+
   #region Fields
 
   private readonly ApiClient _api = new(factory.CreateClient());
@@ -238,6 +247,21 @@ public sealed class CharacterFlowTests(ApiFactory factory): IClassFixture<ApiFac
     Assert.Equal("%PDF"u8.ToArray(), content
       .Take(4)
       .ToArray());
+  }
+
+  [Fact]
+  public async Task Pdf_WithPortrait_IsReturnedWithAndWithoutOne()
+  {
+    CharacterStateDto state = await this.WizardAsync(1);
+    HttpResponseMessage plain = await this._api.Http.GetAsync($"/api/characters/{state.Id}/sheet.pdf?portrait=true");
+    plain.EnsureSuccessStatusCode();
+
+    await this._api.PutAsync<CharacterStateDto>($"/api/characters/{state.Id}/portrait", new SetPortraitDto { Data = Png });
+    HttpResponseMessage withPortrait = await this._api.Http.GetAsync($"/api/characters/{state.Id}/sheet.pdf?portrait=true");
+    withPortrait.EnsureSuccessStatusCode();
+    Assert.Equal("application/pdf", withPortrait.Content.Headers.ContentType?.MediaType);
+    // the picture is embedded only on request
+    Assert.True((await withPortrait.Content.ReadAsByteArrayAsync()).Length > (await plain.Content.ReadAsByteArrayAsync()).Length);
   }
 
   #endregion
