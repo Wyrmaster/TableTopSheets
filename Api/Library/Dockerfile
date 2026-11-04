@@ -4,6 +4,10 @@
 
 ARG DOTNET_VERSION=10.0
 ARG NODE_VERSION=24
+# version parts, set by the pipeline: major.minor from the newest v* tag, the build from the workflow run
+ARG VERSION_MAJOR=0
+ARG VERSION_MINOR=0
+ARG VERSION_BUILD=0
 
 # runtime image; first stage, so IDE fast-mode debugging (which builds only the first stage) gets a dotnet runtime
 FROM mcr.microsoft.com/dotnet/aspnet:${DOTNET_VERSION} AS base
@@ -26,6 +30,9 @@ USER $APP_UID
 EXPOSE 8080
 
 FROM node:${NODE_VERSION}-slim AS ui
+ARG VERSION_MAJOR
+ARG VERSION_MINOR
+ARG VERSION_BUILD
 WORKDIR /ui
 
 # manifests first, so the install layer is reused until a dependency changes
@@ -33,13 +40,18 @@ COPY Ui/package.json Ui/package-lock.json ./
 RUN npm ci
 
 COPY Ui/ ./
-RUN npm run build
+# the web app shows major.minor.build in its footer
+RUN VITE_APP_VERSION=${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_BUILD} npm run build
 
 FROM mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION} AS build
 ARG BUILD_CONFIGURATION=Release
+ARG VERSION_MAJOR
+ARG VERSION_MINOR
+ARG VERSION_BUILD
 WORKDIR /src
 
 # project files first, so the restore layer is reused until a dependency changes
+COPY Directory.Build.props ./
 COPY Api/Library/TableTopSheets.Api.csproj Api/Library/
 COPY Common/TableTopSheets.Common.csproj Common/
 COPY Engine/Library/TableTopSheets.Engine.csproj Engine/Library/
@@ -58,7 +70,10 @@ RUN dotnet publish Api/Library/TableTopSheets.Api.csproj \
       --configuration $BUILD_CONFIGURATION \
       --no-restore \
       --output /app/publish \
-      /p:UseAppHost=false
+      /p:UseAppHost=false \
+      /p:VersionMajor=$VERSION_MAJOR \
+      /p:VersionMinor=$VERSION_MINOR \
+      /p:VersionBuild=$VERSION_BUILD
 
 FROM base AS final
 

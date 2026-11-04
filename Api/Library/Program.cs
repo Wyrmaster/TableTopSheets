@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using TableTopSheets.Api.Authentication;
@@ -43,7 +44,18 @@ builder.AddTableTopSheetsAuthentication();
 builder.Services.ConfigureHttpJsonOptions(options => options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<ApiExceptionHandler>();
-builder.Services.AddOpenApi(options => options.AddBearerScheme());
+builder.Services.AddOpenApi(options =>
+{
+  options.AddBearerScheme();
+  // major.minor.0.build from Directory.Build.props (set by the pipeline)
+  options.AddDocumentTransformer((document, _, _) =>
+  {
+    document.Info.Version = typeof(Program).Assembly
+      .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+      ?.InformationalVersion ?? document.Info.Version;
+    return Task.CompletedTask;
+  });
+});
 
 WebApplication app = builder.Build();
 

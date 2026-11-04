@@ -129,8 +129,9 @@ export const CharacterLayout = () => {
           base: '4',
           md: '6',
         }}
+        // on phones the footer below keeps the room for the fixed navigation (handle.mobileNavigation in App.tsx)
         pb={{
-          base: '24',
+          base: '4',
           md: '10',
         }}
       >

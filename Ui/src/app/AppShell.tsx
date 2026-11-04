@@ -1,5 +1,10 @@
 import { Avatar, Box, Button, Flex, HStack, IconButton, Separator, Text } from '@chakra-ui/react'
-import { NavLink, Outlet, useNavigate } from 'react-router'
+import {
+  NavLink,
+  Outlet,
+  useMatches,
+  useNavigate,
+} from 'react-router'
 import { GetCurrentUserIntent, useApi } from '@/api'
 import { Icon } from '@/components/Icon'
 import {
@@ -16,9 +21,16 @@ import { ColorModeButton } from '@/components/ui/color-mode'
 import { Toaster } from '@/components/ui/toaster'
 import { useIntentQuery } from '@/hooks/useIntentQuery'
 import { useSettings } from './settings/useSettings'
+import { AppVersion } from './version'
 
 /** Maximum width of the pages; wider screens center them (the title bar spans the screen, its content lines up) */
 const PageWidth = '1400px'
+
+/** `handle` of a route (App.tsx) */
+export interface RouteHandle {
+  /** the route shows a fixed navigation bar at the bottom on phones (character pages) */
+  mobileNavigation?: boolean
+}
 
 /**
  * Title bar and page area. Signed out: logo and theme toggle only; signed in: navigation and the user section.
@@ -82,7 +94,43 @@ export const AppShell = () => {
       >
         <Outlet />
       </Box>
+      <Footer />
       <Toaster />
+    </Flex>
+  )
+}
+
+/**
+ * Version of the app at the bottom right, at the end of the page (not fixed, so it covers neither toasts nor the
+ * content). Routes with a fixed bar at the bottom on phones (`handle.mobileNavigation`) get room for it below
+ */
+const Footer = () => {
+  const matches = useMatches()
+  const mobileNavigation = matches.some((match) => (match.handle as RouteHandle | undefined)?.mobileNavigation)
+
+  return (
+    <Flex
+      as='footer'
+      justify='end'
+      w='full'
+      maxW={PageWidth}
+      mx='auto'
+      px={{
+        base: '4',
+        md: '6',
+      }}
+      pt='2'
+      pb={{
+        base: mobileNavigation ? '20' : '3',
+        md: '3',
+      }}
+    >
+      <Text
+        fontSize='xs'
+        color='fg.subtle'
+      >
+        v{AppVersion}
+      </Text>
     </Flex>
   )
 }

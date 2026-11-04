@@ -1,0 +1,19 @@
+<Project>
+
+  <!--
+    Version of every assembly: major.minor.0.build. The pipeline (.github/workflows/containers.yml) takes major and
+    minor from the newest v* tag and the build from the workflow run and hands them to the Dockerfiles as build args;
+    local builds stay 0.0.0.0. dotnet build /p:VersionMajor=1 /p:VersionMinor=2 /p:VersionBuild=57 sets them by hand.
+  -->
+  <PropertyGroup>
+    <VersionMajor Condition="'$(VersionMajor)' == ''">0</VersionMajor>
+    <VersionMinor Condition="'$(VersionMinor)' == ''">0</VersionMinor>
+    <VersionBuild Condition="'$(VersionBuild)' == ''">0</VersionBuild>
+    <Version>$(VersionMajor).$(VersionMinor).0.$(VersionBuild)</Version>
+    <AssemblyVersion>$(Version)</AssemblyVersion>
+    <FileVersion>$(Version)</FileVersion>
+    <InformationalVersion>$(Version)</InformationalVersion>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+  </PropertyGroup>
+
+</Project>

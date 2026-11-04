@@ -1,5 +1,5 @@
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router'
-import { AppShell } from '@/app/AppShell'
+import { AppShell, type RouteHandle } from '@/app/AppShell'
 import { RequireAuth } from '@/app/RequireAuth'
 import { CharacterLayout } from '@/pages/character/CharacterLayout'
 import { LevelUpPage } from '@/pages/character/LevelUpPage'
@@ -51,6 +51,7 @@ const router = createBrowserRouter([
           {
             path: '/characters/:id',
             element: <CharacterLayout />,
+            handle: { mobileNavigation: true } satisfies RouteHandle,
             children: [
               {
                 index: true,

@@ -64,7 +64,7 @@ pictures from `dnddata/` and exits; then the API starts. Users and characters ar
 |---|---|
 | `JWT_SIGNING_KEY` | required, at least 32 characters; signs the login tokens |
 | `API_PORT` | host port of the website and API (default `5180`) |
-| `TABLETOPSHEETS_VERSION` | image tag: `latest` (default), a release such as `1.2.0`, or `sha-<commit>` |
+| `TABLETOPSHEETS_VERSION` | image tag: `latest` (default), a version such as `1.2.57`, the newest build of a release such as `1.2`, or `sha-<commit>` |
 | `SEED_DIR` | the rule data folder (default `./dnddata`) |
 | `ALLOW_REGISTRATION`, `AUTH_PROVIDER`, `OIDC_*` | sign-up and single sign-on, see [Users and authentication](#users-and-authentication) |
 | `POSTGRES_*` | database name, user, password, port (`compose.postgresql.yaml`) or connection string (`compose.postgresql-external.yaml`) |
@@ -139,12 +139,15 @@ no longer has (renamed or split magic item variants), and only when no character
 
 #### Published images (no source, no build)
 
-`.github/workflows/containers.yml` builds both images on every push to `master` and every `v*` tag and pushes them to the
-GitHub container registry:
+`.github/workflows/containers.yml` builds both images for every `v*` tag (and when started by hand) and pushes them to
+the GitHub container registry. The version is `<major>.<minor>.<build>`: major and minor come from the tag (on manual
+runs from the newest `v*` tag), the build is the run number of the workflow, so every build gets a higher number. The web
+app shows it at the bottom right; the assemblies carry `<major>.<minor>.0.<build>` (`Directory.Build.props`, also the
+version of the OpenAPI document).
 
 | Image | Tags |
 |---|---|
-| `ghcr.io/wyrmaster/tabletopsheets-api` | `latest` (master), `1.2.3` and `1.2` (tag `v1.2.3`), `sha-<commit>` |
+| `ghcr.io/wyrmaster/tabletopsheets-api` | `1.2.57` (version), `1.2` (newest build of 1.2), `latest` (tags and master), `sha-<commit>` |
 | `ghcr.io/wyrmaster/tabletopsheets-migrator` | same |
 
 `.github/workflows/seed-release.yml` zips `dnddata/` and attaches `dnddata.zip` to the GitHub release of a `v*` tag (or
