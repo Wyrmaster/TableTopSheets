@@ -37,8 +37,10 @@ public static class InventoryEndpoints
       .MapPost("/items", AddItem)
       .WithName("AddItem")
       .WithSummary("Add an item to the inventory")
-      .WithDescription("With purchase true the item's cost is paid from the coins; change is returned. Items sold in bundles (20 arrows) cost per "
-                       + "started bundle, the quantity counts pieces. Not enough coins or buying a priceless artifact answer 422.");
+      .WithDescription("The quantity counts pieces (1 to 1000). With purchase true their cost is paid from the coins; change is returned. Items "
+                       + "sold in bundles (20 arrows) cost their share of a bundle per piece, rounded up to a copper piece. Gear, tools and "
+                       + "thrown weapons join the stowed stack of the item; other weapons and armor get an entry per piece. Not enough "
+                       + "coins, a quantity out of range or buying a priceless artifact answer 422.");
     group
       .MapDelete("/items/{itemId:guid}", RemoveItem)
       .WithName("RemoveItem")

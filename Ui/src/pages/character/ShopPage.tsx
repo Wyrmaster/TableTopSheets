@@ -5,6 +5,7 @@ import {
   Flex,
   Heading,
   HStack,
+  NumberInput,
   Spinner,
   Stack,
   Text,
@@ -42,16 +43,26 @@ import { useCharacter } from './useCharacter'
 
 const PageSize = 25
 
+/** Most pieces bought or added at once (as the API allows) */
+const MaxQuantity = 1000
+
+/** Typed quantity as a number of pieces: 1 for an empty or invalid input */
+const pieces = (typed: string | undefined) => Math.min(MaxQuantity, Math.max(1, Math.floor(Number(typed)) || 1))
+
+/** Cost of the pieces in copper; items sold in bundles cost their share of the bundle, rounded up like the API */
+const totalCost = (item: ItemSummaryDto, quantity: number) => Math.ceil(item.costCp * quantity / item.bundle)
+
 /** Why "Buy" is disabled, if it is */
-const buyBlocker = (item: ItemSummaryDto, wealth: number) => item.priceless
+const buyBlocker = (item: ItemSummaryDto, quantity: number, wealth: number) => item.priceless
   ? 'Artifacts can\'t be bought'
-  : item.costCp > wealth
+  : totalCost(item, quantity) > wealth
     ? 'Not enough coins'
     : undefined
 
 /**
- * Item catalog with search, filters and paging; "Buy" pays with the character's coins, "Add free" doesn't. In card
- * selection mode a row click selects the item for the card PDF instead of opening its details.
+ * Item catalog with search, filters and paging; "Buy" pays with the character's coins, "Add free" doesn't, both for the
+ * number of pieces in the row's stepper. In card selection mode a row click selects the item for the card PDF instead
+ * of opening its details.
  */
 export const ShopPage = () => {
   const {
@@ -68,6 +79,8 @@ export const ShopPage = () => {
   const [sort, setSort] = useState('name')
   const [descending, setDescending] = useState(false)
   const [page, setPage] = useState(1)
+  // typed quantity per item key; rows without one buy a single piece
+  const [quantities, setQuantities] = useState<Record<string, string>>({})
   const cards = useCardSelection()
 
   // every filter change starts at the first page again
@@ -101,23 +114,28 @@ export const ShopPage = () => {
   )
 
   // a purchase pays the cost (the API returns change); without it the item is free (starting equipment, loot);
-  // items sold in bundles come as a whole bundle (20 arrows)
+  // the quantity counts pieces, also for items sold in bundles (arrows)
   const add = async (item: ItemSummaryDto, purchase: boolean) => {
-    const name = item.bundle > 1 ? `${item.bundle} × ${item.name}` : item.name
+    const quantity = pieces(quantities[item.key])
+    const name = quantity > 1 ? `${quantity} × ${item.name}` : item.name
     const result = await run(
       new AddItemIntent(id, {
         itemKey: item.key,
-        quantity: item.bundle,
+        quantity,
         purchase,
       }),
       {
         success: purchase
-          ? `Bought ${name} for ${formatPrice(item.costCp)}`
+          ? `Bought ${name} for ${formatPrice(totalCost(item, quantity))}`
           : `${name} added to the inventory`,
       },
     )
     if (result.ok) {
       applyState(result.data)
+      setQuantities((current) => ({
+        ...current,
+        [item.key]: '1',
+      }))
     }
   }
 
@@ -214,70 +232,88 @@ export const ShopPage = () => {
         overflow='hidden'
       >
         {items.loading && !items.data && <Box p='3'><Spinner /></Box>}
-        {items.data?.items.map((item) => (
-          <ItemRow
-            key={item.key}
-            item={item}
-            selected={cards.active && cards.isSelected('item', item.key)}
-            onClick={cards.active ? () => cards.toggle('item', item.key) : undefined}
-            control={(
-              <CardCheckbox
-                selection={cards}
-                kind='item'
-                entryKey={item.key}
-                name={item.name}
-              />
-            )}
-            actions={(
-              // phones show both buttons as icons, "Add free" below "Buy" to save width; selecting for cards there
-              // needs the room of the row
-              <Flex
-                direction={{
-                  base: 'column-reverse',
-                  md: 'row',
-                }}
-                align='center'
-                gap={{
-                  base: '1',
-                  md: '3',
-                }}
-                hideBelow={cards.active ? 'md' : undefined}
-              >
-                <Button
-                  size='xs'
-                  variant='ghost'
-                  aria-label='Add free'
-                  title='Add without paying (starting equipment, loot)'
-                  onClick={() => add(item, false)}
+        {items.data?.items.map((item) => {
+          const quantity = pieces(quantities[item.key])
+          const blocker = buyBlocker(item, quantity, wealth)
+          return (
+            <ItemRow
+              key={item.key}
+              item={item}
+              selected={cards.active && cards.isSelected('item', item.key)}
+              onClick={cards.active ? () => cards.toggle('item', item.key) : undefined}
+              control={(
+                <CardCheckbox
+                  selection={cards}
+                  kind='item'
+                  entryKey={item.key}
+                  name={item.name}
+                />
+              )}
+              actions={(
+                // phones show both buttons as icons, "Add free" below "Buy" and the quantity below both to save
+                // width; selecting for cards there needs the room of the row
+                <Flex
+                  direction={{
+                    base: 'column-reverse',
+                    md: 'row',
+                  }}
+                  align='center'
+                  gap={{
+                    base: '1',
+                    md: '3',
+                  }}
+                  hideBelow={cards.active ? 'md' : undefined}
                 >
-                  <Icon path={freeIcon} />
-                  <Text
-                    as='span'
-                    hideBelow='md'
+                  <NumberInput.Root
+                    size='xs'
+                    w='20'
+                    min={1}
+                    max={MaxQuantity}
+                    value={quantities[item.key] ?? '1'}
+                    onValueChange={(details) => setQuantities((current) => ({
+                      ...current,
+                      [item.key]: details.value,
+                    }))}
                   >
-                    Add free
-                  </Text>
-                </Button>
-                <Button
-                  size='sm'
-                  colorPalette='brand'
-                  aria-label='Buy'
-                  disabled={buyBlocker(item, wealth) !== undefined}
-                  title={buyBlocker(item, wealth) ?? 'Buy'}
-                  onClick={() => add(item, true)}
-                >
-                  <Icon path={shopIcon} />
-                  <Text
-                    as='span'
-                    hideBelow='md'
+                    <NumberInput.Control />
+                    <NumberInput.Input aria-label={`Quantity of ${item.name}`} />
+                  </NumberInput.Root>
+                  <Button
+                    size='xs'
+                    variant='ghost'
+                    aria-label='Add free'
+                    title='Add without paying (starting equipment, loot)'
+                    onClick={() => add(item, false)}
                   >
-                    Buy
-                  </Text>
-                </Button>
-              </Flex>
-            )}
-          />
-        ))}
+                    <Icon path={freeIcon} />
+                    <Text
+                      as='span'
+                      hideBelow='md'
+                    >
+                      Add free
+                    </Text>
+                  </Button>
+                  <Button
+                    size='sm'
+                    colorPalette='brand'
+                    aria-label='Buy'
+                    disabled={blocker !== undefined}
+                    title={blocker ?? `Buy for ${formatPrice(totalCost(item, quantity))}`}
+                    onClick={() => add(item, true)}
+                  >
+                    <Icon path={shopIcon} />
+                    <Text
+                      as='span'
+                      hideBelow='md'
+                    >
+                      Buy
+                    </Text>
+                  </Button>
+                </Flex>
+              )}
+            />
+          )
+        })}
         {items.data?.items.length === 0 && <Text
           p='3'
           color='fg.muted'
@@ -309,8 +345,9 @@ export const ShopPage = () => {
       )}
       <ApiHint>
         <code>GET /api/rules/items?search=&amp;kind=&amp;category=&amp;magic=&amp;rarity=&amp;sort=&amp;page=</code>,
-        <code> POST /api/characters/{'{id}'}/items</code> with <code>purchase: true</code> (pays with change, 422 when
-        the coins are not enough or the item is a priceless artifact) or without it (free); cards =
+        <code> POST /api/characters/{'{id}'}/items</code> with <code>quantity</code> (pieces, 1–1000) and
+        <code> purchase: true</code> (pays with change, 422 when the coins are not enough or the item is a priceless
+        artifact) or without it (free); gear, tools and thrown weapons stack; cards =
         <code> POST /api/cards.pdf</code> with <code>{'{ spells, items }'}</code> (keys)
       </ApiHint>
     </Stack>

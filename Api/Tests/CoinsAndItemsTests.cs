@@ -77,6 +77,23 @@ public sealed class CoinsAndItemsTests(ApiFactory factory): IClassFixture<ApiFac
   }
 
   [Fact]
+  public async Task Purchase_OfSeveralPieces_Stacks()
+  {
+    CharacterStateDto state = await this._api.CreateDraftAsync();
+    state = await this._api.PutAsync<CharacterStateDto>($"/api/characters/{state.Id}/coins", new CoinsDto(Gold: 5));
+
+    // 20 darts at 5 cp each, then 20 more: one stack
+    state = await this._api.PostAsync<CharacterStateDto>($"/api/characters/{state.Id}/items", new AddItemDto("dart", 20, true));
+    state = await this._api.PostAsync<CharacterStateDto>($"/api/characters/{state.Id}/items", new AddItemDto("dart", 20, true));
+    Assert.Equal(40, state.Items.Single(entry => entry.ItemKey == "dart").Quantity);
+    Assert.Equal(new CoinsDto(Gold: 3), state.Coins);
+
+    Guid id = state.Id;
+    Assert.Equal(HttpStatusCode.UnprocessableEntity, await ApiClient.StatusOf(
+      () => this._api.PostAsync<CharacterStateDto>($"/api/characters/{id}/items", new AddItemDto("dart", 0))));
+  }
+
+  [Fact]
   public async Task RemoveItem_TakesPartOfAStack_OrSellsForHalfTheCost()
   {
     CharacterStateDto state = await this._api.CreateDraftAsync();

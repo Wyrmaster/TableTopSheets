@@ -13,10 +13,15 @@ import { RarityBadge } from '@/components/RarityBadge'
 import { Thumbnail } from '@/components/Thumbnail'
 import { formatPrice } from '@/pages/character/coins'
 
-/** Price of an item; items sold in bundles show the bundle size (`1 gp / 20`), artifacts have none */
+/**
+ * Price of one piece; items sold in bundles show their share of the bundle (arrows: `5 cp`), or the bundle size when
+ * a piece is worth less than a copper piece (sling bullets: `4 cp / 20`); artifacts have none
+ */
 const priceLabel = (item: ItemSummaryDto) => item.priceless
   ? 'Priceless'
-  : `${formatPrice(item.costCp)}${item.bundle > 1 ? ` / ${item.bundle}` : ''}`
+  : item.costCp % item.bundle === 0
+    ? formatPrice(item.costCp / item.bundle)
+    : `${formatPrice(item.costCp)} / ${item.bundle}`
 
 /**
  * One item in a list: picture, name with magic / rarity / attunement badges, kind · category · weight, price and an

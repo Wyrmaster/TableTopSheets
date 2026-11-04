@@ -30,6 +30,11 @@ public sealed class CharacterService(TableTopSheetsContext context, IRulesCatalo
   /// </summary>
   public const int MaxPortraitBytes = 2 * 1024 * 1024;
 
+  /// <summary>
+  ///   Most pieces added to the inventory at once
+  /// </summary>
+  public const int MaxQuantity = 1000;
+
   #endregion
 
   #region Fields
@@ -42,16 +47,25 @@ public sealed class CharacterService(TableTopSheetsContext context, IRulesCatalo
 
   /// <inheritdoc />
   public async Task<Character> LoadAsync(Guid characterId, CancellationToken cancellationToken = default)
-    => await context.Characters
-         .AsSplitQuery()
-         .Include(entry => entry.Levels)
-         .Include(entry => entry.Choices)
-         .Include(entry => entry.Items)
-         .Include(entry => entry.PreparedSpells)
-         .Include(entry => entry.SpellbookEntries)
-         .Include(entry => entry.ResourceUsages)
-         .SingleOrDefaultAsync(entry => entry.Id == characterId && entry.OwnerId == user.UserId, cancellationToken)
-       ?? throw new CharacterNotFoundException(characterId);
+  {
+    Character character = await context.Characters
+                            .AsSplitQuery()
+                            .Include(entry => entry.Levels)
+                            .Include(entry => entry.Choices)
+                            .Include(entry => entry.Items)
+                            .Include(entry => entry.PreparedSpells)
+                            .Include(entry => entry.SpellbookEntries)
+                            .Include(entry => entry.ResourceUsages)
+                            .SingleOrDefaultAsync(entry => entry.Id == characterId && entry.OwnerId == user.UserId, cancellationToken)
+                          ?? throw new CharacterNotFoundException(characterId);
+    // inventories from before items stacked can hold several rows of one stack
+    if (await this.RestackAsync(character, cancellationToken))
+    {
+      await context.SaveChangesAsync(cancellationToken);
+    }
+
+    return character;
+  }
 
   /// <inheritdoc />
   public async Task<CharacterEvaluation> EvaluateAsync(Character character, CancellationToken cancellationToken = default)
@@ -643,9 +657,9 @@ public sealed class CharacterService(TableTopSheetsContext context, IRulesCatalo
   /// <inheritdoc />
   public async Task<CharacterItem> AddItemAsync(Guid characterId, string itemKey, int quantity = 1, CancellationToken cancellationToken = default, bool purchase = false)
   {
-    if (quantity < 1)
+    if (quantity is < 1 or > MaxQuantity)
     {
-      throw new RuleViolationException("The quantity has to be at least 1");
+      throw new RuleViolationException($"The quantity has to be between 1 and {MaxQuantity}");
     }
 
     Character character = await this.LoadAsync(characterId, cancellationToken);
@@ -653,7 +667,6 @@ public sealed class CharacterService(TableTopSheetsContext context, IRulesCatalo
       .AsNoTracking()
       .SingleOrDefaultAsync(entry => entry.Key == itemKey, cancellationToken)
                 ?? throw new RuleViolationException($"Unknown item '{itemKey}'");
-    // items sold in bundles (20 arrows) cost per started bundle; the quantity counts pieces
     if (purchase)
     {
       // artifacts are unique and priceless: they're found, not bought (their cost of 0 would make them free)
@@ -662,13 +675,36 @@ public sealed class CharacterService(TableTopSheetsContext context, IRulesCatalo
         throw new RuleViolationException($"{item.Name} is an artifact and can't be bought");
       }
 
-      Purse.Pay(character.PlayState, (long)item.CostCp * ((quantity + item.Bundle - 1) / item.Bundle));
+      // items sold in bundles (20 arrows) cost their share of a bundle per piece, rounded up to a copper piece
+      Purse.Pay(character.PlayState, ((long)item.CostCp * quantity + item.Bundle - 1) / item.Bundle);
     }
 
-    CharacterItem entry = new() { Id = Guid.NewGuid(), CharacterId = character.Id, ItemId = item.Id, Quantity = quantity };
-    character.Items.Add(entry);
+    // pieces that stack join the plain stowed stack; the others get an entry each
+    bool stacks = ItemStacking.Stacks(item);
+    if (stacks && ItemStacking.Stack(character, item, EquipSlotEnum.None) is { } stack)
+    {
+      stack.Quantity += quantity;
+      await context.SaveChangesAsync(cancellationToken);
+      return stack;
+    }
+
+    List<CharacterItem> created = Enumerable
+      .Range(0, stacks ? 1 : quantity)
+      .Select(_ => new CharacterItem
+      {
+        Id = Guid.NewGuid(),
+        CharacterId = character.Id,
+        ItemId = item.Id,
+        Quantity = stacks ? quantity : 1,
+      })
+      .ToList();
+    foreach (CharacterItem entry in created)
+    {
+      character.Items.Add(entry);
+    }
+
     await context.SaveChangesAsync(cancellationToken);
-    return entry;
+    return created[0];
   }
 
   /// <inheritdoc />
@@ -720,6 +756,50 @@ public sealed class CharacterService(TableTopSheetsContext context, IRulesCatalo
     entry.Quantity += quantity;
     await context.SaveChangesAsync(cancellationToken);
     return await this.EvaluateAsync(character, cancellationToken);
+  }
+
+  /// <summary>
+  ///   Merge the plain rows of an item that stacks and share a place into one (not saved); true when something merged
+  /// </summary>
+  private async Task<bool> RestackAsync(Character character, CancellationToken cancellationToken)
+  {
+    List<IGrouping<(Guid ItemId, EquipSlotEnum Slot), CharacterItem>> duplicates = ItemStacking.Duplicates(character);
+    if (duplicates.Count == 0)
+    {
+      return false;
+    }
+
+    List<Guid> itemIds = duplicates
+      .Select(group => group.Key.ItemId)
+      .Distinct()
+      .ToList();
+    HashSet<Guid> stacking = (await context.Items
+        .AsNoTracking()
+        .Where(rule => itemIds.Contains(rule.Id))
+        .ToListAsync(cancellationToken))
+      .Where(ItemStacking.Stacks)
+      .Select(rule => rule.Id)
+      .ToHashSet();
+
+    bool merged = false;
+    foreach (IGrouping<(Guid ItemId, EquipSlotEnum Slot), CharacterItem> group in duplicates.Where(group => stacking.Contains(group.Key.ItemId)))
+    {
+      // the rows have no age; the largest one stays (its id keeps the order stable)
+      List<CharacterItem> rows = group
+        .OrderByDescending(entry => entry.Quantity)
+        .ThenBy(entry => entry.Id)
+        .ToList();
+      rows[0].Quantity = rows.Sum(entry => entry.Quantity);
+      foreach (CharacterItem row in rows.Skip(1))
+      {
+        character.Items.Remove(row);
+        context.CharacterItems.Remove(row);
+      }
+
+      merged = true;
+    }
+
+    return merged;
   }
 
   #endregion
@@ -848,6 +928,8 @@ public sealed class CharacterService(TableTopSheetsContext context, IRulesCatalo
       });
     }
 
+    // the picked items join the stacks already in the inventory
+    await this.RestackAsync(character, cancellationToken);
     Purse.Add(character.PlayState, option.CoinsCp);
     if (source == StartingEquipmentSourceEnum.Background)
     {
@@ -965,15 +1047,50 @@ public sealed class CharacterService(TableTopSheetsContext context, IRulesCatalo
         .AsNoTracking()
         .Where(rule => others.Contains(rule.Id))
         .ToDictionaryAsync(rule => rule.Id, cancellationToken);
-      foreach (CharacterItem other in character.Items.Where(other => other.EquipSlot == slot && other.Id != entry.Id))
+      foreach (CharacterItem other in character.Items
+                 .Where(other => other.EquipSlot == slot && other.Id != entry.Id)
+                 .ToList())
       {
-        other.EquipSlot = slot != EquipSlotEnum.Armor && displaced[other.ItemId] is Weapon ? EquipSlotEnum.Ready : EquipSlotEnum.None;
+        Item held = displaced[other.ItemId];
+        this.Move(character, other, held, slot != EquipSlotEnum.Armor && held is Weapon ? EquipSlotEnum.Ready : EquipSlotEnum.None);
       }
     }
 
-    entry.EquipSlot = slot;
+    if (ItemStacking.Stacks(item) && entry.Quantity > 1 && entry.EquipSlot != slot && slot is EquipSlotEnum.MainHand or EquipSlotEnum.OffHand)
+    {
+      // a hand holds one piece of a stack (a dagger in each hand); the rest stays where it is
+      entry.Quantity--;
+      character.Items.Add(new CharacterItem
+      {
+        Id = Guid.NewGuid(),
+        CharacterId = character.Id,
+        ItemId = entry.ItemId,
+        EquipSlot = slot,
+      });
+    }
+    else
+    {
+      this.Move(character, entry, item, slot);
+    }
+
     await context.SaveChangesAsync(cancellationToken);
     return await this.EvaluateAsync(character, cancellationToken);
+  }
+
+  /// <summary>
+  ///   Put an entry into a slot; a plain piece of an item that stacks joins the stack already there
+  /// </summary>
+  private void Move(Character character, CharacterItem entry, Item item, EquipSlotEnum slot)
+  {
+    if (ItemStacking.Stacks(item) && !entry.Attuned && entry.Notes == null && ItemStacking.Stack(character, item, slot, entry) is { } stack)
+    {
+      stack.Quantity += entry.Quantity;
+      character.Items.Remove(entry);
+      context.CharacterItems.Remove(entry);
+      return;
+    }
+
+    entry.EquipSlot = slot;
   }
 
   /// <inheritdoc />

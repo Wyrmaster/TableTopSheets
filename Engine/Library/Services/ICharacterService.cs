@@ -122,7 +122,10 @@ public interface ICharacterService
   Task<CharacterEvaluation> CopyToSpellbookAsync(Guid characterId, string spellKey, string? note = null, CancellationToken cancellationToken = default);
 
   /// <summary>
-  ///   Add an item to the inventory; a purchase pays its cost from the character's coins (with change); artifacts can't be bought
+  ///   Add pieces of an item to the inventory (1 to <see cref="CharacterService.MaxQuantity"/>); a purchase pays their cost
+  ///   from the character's coins (with change), a share of the bundle per piece for items sold in bundles; artifacts
+  ///   can't be bought. Pieces that stack (<see cref="ItemStacking"/>) join the stowed stack of the item, other weapons
+  ///   and armor get an entry per piece. Returns the stack or the first new entry
   /// </summary>
   Task<CharacterItem> AddItemAsync(Guid characterId, string itemKey, int quantity = 1, CancellationToken cancellationToken = default, bool purchase = false);
 
@@ -170,7 +173,8 @@ public interface ICharacterService
 
   /// <summary>
   ///   Don, doff, wield, ready or stow an item. Any number of weapons can be ready; armor and each hand hold one item.
-  ///   Equipping into an occupied hand puts a weapon held there back to ready (other items are stowed)
+  ///   Equipping into an occupied hand puts a weapon held there back to ready (other items are stowed). A hand takes one
+  ///   piece of a stack; a piece put back joins the stack in its new place
   /// </summary>
   Task<CharacterEvaluation> EquipAsync(Guid characterId, Guid characterItemId, EquipSlotEnum slot, CancellationToken cancellationToken = default);
 

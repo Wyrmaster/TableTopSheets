@@ -182,7 +182,7 @@ public class StartingEquipmentTests
   #region Bundles
 
   [Fact]
-  public async Task Ammunition_IsBoughtAndSoldByTheBundle()
+  public async Task Ammunition_IsBoughtAndSoldByThePiece()
   {
     await using TestWorld world = await TestWorld.CreateAsync();
     Guid id = await world.CreateCharacterAsync();
@@ -191,13 +191,16 @@ public class StartingEquipmentTests
     CharacterItem arrows = await world.Service.AddItemAsync(id, "arrows", 20, purchase: true);
     Assert.Equal(9, (await world.EvaluateAsync(id)).Character.PlayState.GoldPieces);
 
-    // a started bundle costs a whole one
-    await world.Service.AddItemAsync(id, "arrows", 21, purchase: true);
-    Assert.Equal(7, (await world.EvaluateAsync(id)).Character.PlayState.GoldPieces);
+    // an arrow costs a twentieth of the bundle (5 CP); more arrows join the stack
+    CharacterItem more = await world.Service.AddItemAsync(id, "arrows", 21, purchase: true);
+    CharacterPlayState purse = (await world.EvaluateAsync(id)).Character.PlayState;
+    Assert.Equal((7, 9, 5), (purse.GoldPieces, purse.SilverPieces, purse.CopperPieces));
+    Assert.Equal(arrows.Id, more.Id);
+    Assert.Equal(41, more.Quantity);
 
     // selling 20 arrows returns half of a bundle (5 SP)
     CharacterEvaluation sold = await world.Service.RemoveItemAsync(id, arrows.Id, 20, sell: true);
-    Assert.Equal((7, 5), (sold.Character.PlayState.GoldPieces, sold.Character.PlayState.SilverPieces));
+    Assert.Equal((7, 14), (sold.Character.PlayState.GoldPieces, sold.Character.PlayState.SilverPieces));
   }
 
   #endregion

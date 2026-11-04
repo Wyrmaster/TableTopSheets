@@ -60,8 +60,12 @@ const equippedHint = (items: CharacterItemDto[]) => {
   return `${equipped} equipped${inHand ? ` · ${inHand} in hand` : ''}`
 }
 
-/** Ammunition and items sold in bundles: pieces are used up and recovered, so the stack gets − / + */
-const isStackable = (detail?: ItemDetailDto) => detail?.item.category?.toLowerCase() === 'ammunition'
+/**
+ * Ammunition, items sold in bundles and every stack of several pieces (darts, rations): pieces are used up and
+ * recovered, so the stack gets − / +
+ */
+const isStackable = (item: CharacterItemDto, detail?: ItemDetailDto) => item.quantity > 1
+  || detail?.item.category?.toLowerCase() === 'ammunition'
   || (detail?.item.bundle ?? 1) > 1
 
 /** Only weapons, armor and items to attune have a rule effect when equipped (tools and gear don't) */
@@ -219,7 +223,7 @@ export const InventoryTab = ({ cards }: { cards: CardSelection }) => {
       extra={(
         <>
           {extra?.(item)}
-          {isStackable(details.get(item.itemKey)) && (
+          {isStackable(item, details.get(item.itemKey)) && (
             <StackStepper
               item={item}
               onAdd={() => addToStack(item)}
