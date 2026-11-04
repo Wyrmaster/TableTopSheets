@@ -314,8 +314,8 @@ public class DndSections
           new Spell {Level = "2", Name = "Silence", CastingTime = "A", Range = "120ft. (20 ft.)", Notes = "Ranger"}
         ),
         
-        new Appearance(),
-        new Backstory(),
+        new Appearance(""),
+        new Backstory("", ""),
         new Languages("Common, Gnomish"),
         new Equipment
         (
@@ -323,18 +323,12 @@ public class DndSections
           "60 Arrows, 3 D4 Healing Potions, Three-Dragon Ante, Mistletoe (Druidic Focus), Explorer's Pack,", 
           "Sylvan Talon"
         ),
-        new Coins(),
+        new Coins(new TableTopSheets.Common.Sheet.Coins()),
         
       ]
     );
     string path = Path.Combine(this._basePath, "DndSections.pdf");
     component.GenerateCharacterSheetFile(path);
-    
-    Process.Start(new ProcessStartInfo()
-    {
-      FileName = @"xdg-open",
-      Arguments = path
-    });
   }
 
   [Fact]
@@ -372,12 +366,6 @@ public class DndSections
 
     string path = Path.Combine(this._basePath, "Items.pdf");
     document.GenerateFile(path);
-    
-    Process.Start(new ProcessStartInfo()
-    {
-      FileName = @"xdg-open",
-      Arguments = path
-    });
   }
   
   #endregion
