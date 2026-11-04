@@ -243,12 +243,15 @@ internal sealed partial class MagicItemParser
       return;
     }
 
-    // every variant carries its own type line and text, so the shared text is part of each variant's description
-    string shared = Html(entry.Body);
+    // every variant carries its own type line and text, so the shared text is part of each variant's description; what the
+    // shared text says about the other variants (their tables and lists) is left out
+    List<string> names = variants
+      .Select(variant => variant.Name)
+      .ToList();
     foreach (Entry variant in variants)
     {
       SeedItem seed = this.Item(variant);
-      seed.Description = Html([TypeParagraph(variant.TypeLine)]) + shared + Html(variant.Body);
+      seed.Description = Html([TypeParagraph(variant.TypeLine)]) + Html(SharedFor(entry.Body, variant, names)) + Html(variant.Body);
       item.Variants.Add(seed);
     }
 
@@ -260,7 +263,6 @@ internal sealed partial class MagicItemParser
   /// </summary>
   private void AddVariationsTimesBases(SeedItem item, Entry entry, Entry other, string pattern)
   {
-    string shared = Html(entry.Body);
     foreach (string name in entry.Variations)
     {
       if (!this._supplement.TryGetValue(name, out Entry? variation))
@@ -268,6 +270,8 @@ internal sealed partial class MagicItemParser
         this.Warnings.Add($"{entry.Name}: variant '{name}' has no text in the supplement");
         continue;
       }
+
+      string shared = Html(SharedFor(entry.Body, variation, entry.Variations));
 
       Match kind = VariationRegex().Match(name);
       foreach ((string baseName, _) in other.Bases)
@@ -453,6 +457,146 @@ internal sealed partial class MagicItemParser
     return new Entry(name, type, stats, TrimBlank(text), bases, variations);
   }
 
+  /// <summary>
+  ///   The shared text of an item for one of its variants: without the tables and lists that cover several variants
+  ///   (<c>Ioun Stone</c> types, <c>Ring of Elemental Command</c> planes), without the sections of the other variants
+  ///   (<c>Rust Bag of Tricks</c> heading and table) and of its own one when its text brings it again, and without the
+  ///   headings and lead-ins (<c>…:</c>) of what was left out
+  /// </summary>
+  /// <param name="body">shared text of the item</param>
+  /// <param name="variant">the variant the text is for</param>
+  /// <param name="names">names of all variants (<c>Horn of Valhalla, Silver</c>, <c>Ring of Elemental Command (Air)</c>)</param>
+  private static List<string> SharedFor(List<string> body, Entry variant, IReadOnlyList<string> names)
+  {
+    List<Block> blocks = Blocks(body);
+    Dictionary<string, Regex> marks = names
+      .Select(name => (name, mark: DistinctionRegex().Match(name)))
+      .Where(entry => entry.mark.Success)
+      .ToDictionary(
+        entry => entry.name,
+        entry =>
+        {
+          string value = (entry.mark.Groups[1].Success ? entry.mark.Groups[1] : entry.mark.Groups[2]).Value.Trim();
+          return new Regex($@"\b{Regex.Escape(value)}\b", RegexOptions.IgnoreCase);
+        });
+    if (marks.Count < 2)
+    {
+      return body;
+    }
+
+    HashSet<string> Named(Block block) => marks
+      .Where(mark => block.Lines.Any(line => mark.Value.IsMatch(Markdown.Plain(line))))
+      .Select(mark => mark.Key)
+      .ToHashSet();
+
+    // headings of the variant's own text, by their words (the level may differ)
+    static string Heading(string line) => Markdown.Plain(line.TrimStart('>', ' ', '#'));
+    HashSet<string> own = variant.Body
+      .Where(line => line.TrimStart('>', ' ').StartsWith('#'))
+      .Select(Heading)
+      .ToHashSet(StringComparer.OrdinalIgnoreCase);
+    bool[] dropped = new bool[blocks.Count];
+    bool overview = false;
+    for (int index = 0; index < blocks.Count; index++)
+    {
+      Block block = blocks[index];
+      HashSet<string> named = Named(block);
+      if (block.Kind is BlockKind.Table or BlockKind.List && named.Count >= 2)
+      {
+        dropped[index] = true;
+        overview |= block.Kind == BlockKind.Table;
+      }
+      else if (block.Kind == BlockKind.Heading
+               && named.Count > 0
+               && (!named.Contains(variant.Name) || own.Contains(Heading(block.Lines[0]))))
+      {
+        // the section of a variant: its heading and the table or list below it
+        dropped[index] = true;
+        if (index + 1 < blocks.Count && blocks[index + 1].Kind is BlockKind.Table or BlockKind.List)
+        {
+          dropped[++index] = true;
+        }
+      }
+    }
+
+    // a heading or a lead-in paragraph ("… as follows:") of a table or list that was left out goes with it
+    for (int index = 1; index < blocks.Count; index++)
+    {
+      Block before = blocks[index - 1];
+      if (dropped[index]
+          && blocks[index].Kind is BlockKind.Table or BlockKind.List
+          && (before.Kind == BlockKind.Heading || (before.Kind == BlockKind.Paragraph && before.Lines[^1].TrimEnd().EndsWith(':'))))
+      {
+        dropped[index - 1] = true;
+      }
+    }
+
+    // without the overview table, sentences pointing to it ("…as shown in the following table.") point to nothing
+    List<string> Text(Block block)
+    {
+      if (!overview || block.Kind != BlockKind.Paragraph)
+      {
+        return block.Lines;
+      }
+
+      string kept = string.Join(' ', SentenceRegex()
+        .Split(string.Join(' ', block.Lines.Select(line => line.Trim())))
+        .Where(sentence => !TableReferenceRegex().IsMatch(sentence)));
+      return kept.Length == 0 ? [] : [kept];
+    }
+
+    return blocks
+      .Where((_, index) => !dropped[index])
+      .Select(Text)
+      .Where(lines => lines.Count > 0)
+      .SelectMany(lines => lines.Append(string.Empty))
+      .ToList();
+  }
+
+  /// <summary>
+  ///   Markdown lines as blocks the way <see cref="Markdown.ToHtml" /> reads them: headings, tables, lists and paragraphs
+  /// </summary>
+  private static List<Block> Blocks(List<string> lines)
+  {
+    static BlockKind KindOf(string line)
+    {
+      string trimmed = line.TrimStart('>', ' ');
+      return trimmed.StartsWith('|')
+        ? BlockKind.Table
+        : trimmed.StartsWith("- ", StringComparison.Ordinal)
+          ? BlockKind.List
+          : trimmed.StartsWith('#')
+            ? BlockKind.Heading
+            : BlockKind.Paragraph;
+    }
+
+    List<Block> blocks = new();
+    bool closed = true;
+    foreach (string line in lines)
+    {
+      // a blank line ends the block
+      if (string.IsNullOrWhiteSpace(line))
+      {
+        closed = true;
+        continue;
+      }
+
+      BlockKind kind = KindOf(line);
+      if (!closed && blocks[^1].Kind == kind && kind != BlockKind.Heading)
+      {
+        blocks[^1].Lines.Add(line);
+      }
+      else
+      {
+        blocks.Add(new Block(kind, [line]));
+      }
+
+      closed = false;
+    }
+
+    return blocks;
+  }
+
   private static List<string> TrimBlank(List<string> lines)
     => lines
       .SkipWhile(string.IsNullOrWhiteSpace)
@@ -488,6 +632,20 @@ internal sealed partial class MagicItemParser
   [GeneratedRegex(@"^\+(\d) ")]
   private static partial Regex BonusRegex();
 
+  /// <summary>
+  ///   What sets a variant apart from the others: <c>(Air)</c> of <c>Ring of Elemental Command (Air)</c>, <c>Silver</c> of
+  ///   <c>Horn of Valhalla, Silver</c>
+  /// </summary>
+  [GeneratedRegex(@"\(([^)]+)\)\s*$|,\s*([^,]+)$")]
+  private static partial Regex DistinctionRegex();
+
+  /// <summary>Space after the end of a sentence</summary>
+  [GeneratedRegex(@"(?<=[.!?])\s+")]
+  private static partial Regex SentenceRegex();
+
+  [GeneratedRegex(@"\btable\b", RegexOptions.IgnoreCase)]
+  private static partial Regex TableReferenceRegex();
+
   #endregion
 
   #region Nested Types
@@ -499,6 +657,17 @@ internal sealed partial class MagicItemParser
   /// <param name="Bases">base item and variant name of a generic variant (<c>Chain Mail</c>, <c>+1 Chain Mail</c>)</param>
   /// <param name="Variations">names of the variations</param>
   private sealed record Entry(string Name, string TypeLine, List<string> Stats, List<string> Body, List<(string Base, string Name)> Bases, List<string> Variations);
+
+  private enum BlockKind
+  {
+    Paragraph,
+    Heading,
+    Table,
+    List,
+  }
+
+  /// <summary>Lines of markdown that render as one element (see <see cref="Blocks" />)</summary>
+  private sealed record Block(BlockKind Kind, List<string> Lines);
 
   #endregion
 }
