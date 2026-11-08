@@ -357,6 +357,7 @@ public sealed class RulesCatalogLoader(TableTopSheetsContext context): IRulesCat
         {
           OptionSourceEnum.Tool => await context.Items
             .OfType<Tool>()
+            .Where(entry => !entry.Magic)
             .Select(OptionProjections.Tool)
             .ToListAsync(cancellationToken),
           OptionSourceEnum.Language => small.Languages
@@ -373,10 +374,12 @@ public sealed class RulesCatalogLoader(TableTopSheetsContext context): IRulesCat
             .Select(OptionProjections.Feature)
             .ToListAsync(cancellationToken),
           OptionSourceEnum.Item => await context.Items
+            .Where(entry => !entry.Magic)
             .Select(OptionProjections.Item)
             .ToListAsync(cancellationToken),
           OptionSourceEnum.Weapon => await context.Items
             .OfType<Weapon>()
+            .Where(entry => !entry.Magic)
             .Select(OptionProjections.Weapon)
             .ToListAsync(cancellationToken),
           _ => [],

@@ -67,6 +67,29 @@ public class RulesCatalogLoaderTests
     Assert.NotEmpty(ChoiceService.Pending(evaluation));
   }
 
+  [Fact]
+  public async Task WeaponMasteryOffersOnlyMundaneWeapons()
+  {
+    await using TestWorld world = await TestWorld.CreateAsync();
+    Guid id = await world.CreateCharacterAsync(TestWorld.Scores(15, 14, 13, 10, 12, 8), "farmer", "str", "str", "con");
+    ICharacterService service = world.Service;
+    Character character = await service.LoadAsync(id);
+    await service.LevelUpAsync(character, new LevelUpRequest { ClassKey = "fighter", AllowIncomplete = true });
+    await world.Context.SaveChangesAsync();
+
+    // magic variants share the category of their base weapon, the option list must leave them out
+    CharacterEvaluation evaluation = await AssertSameAsFullCatalogAsync(world, id);
+    PendingChoice mastery = ChoiceService
+      .Pending(evaluation)
+      .Single(entry => entry.Choice.Key == "fighter.weapon-mastery");
+    List<string> keys = ChoiceService
+      .AvailableOptions(evaluation, mastery.Choice, mastery.Owner)
+      .Select(entry => entry.Key)
+      .ToList();
+    Assert.Contains("longsword", keys);
+    Assert.DoesNotContain(keys, key => world.Catalog.ItemsByKey[key].Magic);
+  }
+
   /// <summary>
   ///   Compare the sheet, the pending choices with every option and the option descriptions against the complete catalog
   /// </summary>
