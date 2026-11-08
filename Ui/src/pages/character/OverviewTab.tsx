@@ -422,7 +422,7 @@ const StoryCard = () => {
               asChild
               color='brand.fg'
             >
-              <NavLink to={`/characters/${id}/settings`}>Settings</NavLink>
+              <NavLink to={`/characters/${id}/settings`}>Name & Story</NavLink>
             </Link> page.
           </Text>
         )}

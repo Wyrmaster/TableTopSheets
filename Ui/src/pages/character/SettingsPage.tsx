@@ -25,13 +25,13 @@ import { portraitData } from './portrait'
 import { useCharacter } from './useCharacter'
 
 /**
- * Settings of a character after the creator: its portrait and the descriptive fields (name, alignment, appearance,
+ * Name & Story of a character after the creator: its portrait and the descriptive fields (name, alignment, appearance,
  * backstory)
  */
 export const SettingsPage = () => {
   return (
     <Stack gap='4'>
-      <Heading size='lg'>Settings</Heading>
+      <Heading size='lg'>Name & Story</Heading>
       <PortraitCard />
       <DetailsCard />
       <ApiHint>

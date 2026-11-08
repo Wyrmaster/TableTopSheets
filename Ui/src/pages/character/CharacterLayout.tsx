@@ -27,11 +27,11 @@ import { Icon } from '@/components/Icon'
 import {
   alertIcon,
   levelUpIcon,
+  nameStoryIcon,
   pdfIcon,
   pdfPortraitIcon,
-  settingsIcon,
   sheetIcon,
-  shopIcon,
+  shopPageIcon,
 } from '@/components/icons'
 import { useApiAction } from '@/hooks/useApiAction'
 import { useIntentQuery } from '@/hooks/useIntentQuery'
@@ -58,20 +58,20 @@ const pages = [
     match: 'shop',
     label: 'Shop',
     short: 'Shop',
-    icon: shopIcon,
+    icon: shopPageIcon,
   },
   {
     to: 'settings',
     match: 'settings',
-    label: 'Settings',
-    short: 'Settings',
-    icon: settingsIcon,
+    label: 'Name & Story',
+    short: 'Story',
+    icon: nameStoryIcon,
   },
 ]
 
 /**
  * Loads a character (state and sheet) and frames its pages: header with stats, Character sheet · Level up · Shop ·
- * Settings
+ * Name & Story
  */
 export const CharacterLayout = () => {
   const { id = '' } = useParams()
