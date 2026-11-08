@@ -101,7 +101,7 @@ export const FilterSelect = ({
   )
 }
 
-/** Select of the item lists: all items, mundane items or magic items */
+/** Select of the item lists: mundane and magic items, mundane items or magic items */
 export const MagicSelect = ({
   value,
   onChange,
@@ -112,11 +112,11 @@ export const MagicSelect = ({
   return (
     <FilterSelect
       label='Magic'
-      width='150px'
+      width='210px'
       value={value}
       onChange={(next) => onChange(next as MagicFilter)}
     >
-      <option value=''>All items</option>
+      <option value=''>Mundane & Magic Items</option>
       <option value='false'>Mundane</option>
       <option value='true'>Magic</option>
     </FilterSelect>
