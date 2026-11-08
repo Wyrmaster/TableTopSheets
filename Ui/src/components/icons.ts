@@ -15,6 +15,7 @@ export {
   mdiCardAccountDetailsOutline as sheetIcon,
   mdiCardsOutline as cardsIcon,
   mdiCart as shopIcon,
+  mdiChartBoxOutline as statsIcon,
   mdiCheck as checkIcon,
   mdiCheckCircle as checkCircleIcon,
   mdiChevronLeft as previousIcon,

@@ -4,16 +4,18 @@ import {
   Box,
   Button,
   Card,
+  Drawer,
   Flex,
   Grid,
   Heading,
   HStack,
+  Portal,
   Spinner,
   Stack,
   Steps,
   Text,
 } from '@chakra-ui/react'
-import { useState } from 'react'
+import { type ReactNode, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import {
   AbilityKeys,
@@ -31,6 +33,8 @@ import type { CharacterDetails } from '@/components/characterDetails'
 import { CharacterDetailsFields } from '@/components/CharacterDetailsFields'
 import { ChoiceList } from '@/components/choices/ChoiceList'
 import { SkillProficiencies } from '@/components/SkillProficiencies'
+import { Icon } from '@/components/Icon'
+import { statsIcon } from '@/components/icons'
 import { equipmentComplete } from '@/components/startingEquipment/startingEquipment'
 import { StartingEquipmentCard } from '@/components/startingEquipment/StartingEquipmentCard'
 import { StartingEquipmentPicker } from '@/components/startingEquipment/StartingEquipmentPicker'
@@ -179,6 +183,19 @@ export const CreatorPage = () => {
 
   const applyState = (next: CharacterStateDto) => draft.setData(next)
 
+  const summary = (
+    <Summary
+      name={details?.name ?? ''}
+      className={classKey}
+      species={state?.species ?? species}
+      background={state?.background ?? background}
+      scores={state
+        ? Object.fromEntries(state.abilities.map((ability) => [ability.key, ability.score])) as DraftScores
+        : scores}
+      state={state}
+    />
+  )
+
   return (
     <Box
       px={{
@@ -212,17 +229,20 @@ export const CreatorPage = () => {
         </Steps.List>
       </Steps.Root>
       <HStack
-        hideFrom='md'
+        hideFrom='lg'
         justify='space-between'
         mb='4'
       >
-        <Text fontWeight='bold'>{steps[step]}</Text>
-        <Text
-          fontSize='sm'
-          color='fg.muted'
-        >
-          Step {step + 1} of {steps.length}
-        </Text>
+        <Box hideFrom='md'>
+          <Text fontWeight='bold'>{steps[step]}</Text>
+          <Text
+            fontSize='sm'
+            color='fg.muted'
+          >
+            Step {step + 1} of {steps.length}
+          </Text>
+        </Box>
+        <SummaryDrawer>{summary}</SummaryDrawer>
       </HStack>
 
       <Grid
@@ -399,16 +419,8 @@ export const CreatorPage = () => {
           </Flex>
         </Stack>
 
-        <Summary
-          name={details?.name ?? ''}
-          className={classKey}
-          species={state?.species ?? species}
-          background={state?.background ?? background}
-          scores={state
-            ? Object.fromEntries(state.abilities.map((ability) => [ability.key, ability.score])) as DraftScores
-            : scores}
-          state={state}
-        />
+        {/* below lg the summary would end up under the steps; the drawer above shows it there */}
+        <Box hideBelow='lg'>{summary}</Box>
       </Grid>
     </Box>
   )
@@ -494,6 +506,51 @@ const StepTitle = ({ title, text }: { title: string, text: string }) => {
       <Heading size='xl'>{title}</Heading>
       <Text color='fg.muted'>{text}</Text>
     </Box>
+  )
+}
+
+/**
+ * The summary (scores, proficiencies, open choices) on narrow screens, opened from the step header
+ */
+const SummaryDrawer = ({ children }: { children: ReactNode }) => {
+  return (
+    <Drawer.Root
+      placement='bottom'
+      lazyMount
+      unmountOnExit
+    >
+      <Drawer.Trigger asChild>
+        <Button
+          size='sm'
+          variant='outline'
+          ms='auto'
+        >
+          <Icon path={statsIcon} />
+          Stats
+        </Button>
+      </Drawer.Trigger>
+      <Portal>
+        <Drawer.Backdrop />
+        <Drawer.Positioner>
+          <Drawer.Content
+            maxH='85dvh'
+            roundedTop='l3'
+          >
+            <Drawer.Body
+              py='4'
+              overflowY='auto'
+            >
+              {children}
+            </Drawer.Body>
+            <Drawer.Footer>
+              <Drawer.ActionTrigger asChild>
+                <Button variant='outline'>Close</Button>
+              </Drawer.ActionTrigger>
+            </Drawer.Footer>
+          </Drawer.Content>
+        </Drawer.Positioner>
+      </Portal>
+    </Drawer.Root>
   )
 }
 
