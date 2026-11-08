@@ -286,6 +286,12 @@ export const ChoiceCard = ({
             </HStack>
           )}
           <Box flex='1' />
+          <Text
+            fontSize='sm'
+            color='fg.muted'
+          >
+            {picked} / {choice.remaining} selected
+          </Text>
           <Button
             size='sm'
             colorPalette='brand'
