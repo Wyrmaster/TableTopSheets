@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { type Intent, type ProblemDetails, useApi } from '@/api'
 
 export interface IntentQuery<T> {
@@ -7,7 +7,8 @@ export interface IntentQuery<T> {
   loading: boolean
   /** Execute the intent again */
   reload: () => void
-  /** Replace the data with an answer that arrived another way (e.g. the state returned by a write) */
+  /** Replace the data with an answer that arrived another way (e.g. the state returned by a write); cancels a running
+   * request so its older answer can't overwrite it */
   setData: (data: T) => void
 }
 
@@ -25,6 +26,7 @@ export const useIntentQuery = <T>(create: () => Intent<T> | null, key: string): 
   const { execute } = useApi()
   const [state, setState] = useState<QueryState<T>>({ loading: true })
   const [version, setVersion] = useState(0)
+  const running = useRef<AbortController | null>(null)
 
   useEffect(() => {
     const intent = create()
@@ -35,20 +37,25 @@ export const useIntentQuery = <T>(create: () => Intent<T> | null, key: string): 
 
     // 1. keep the previous data while loading, so a reload doesn't flash an empty page
     const controller = new AbortController()
+    running.current = controller
     setState((previous) => ({
       ...previous,
       loading: true,
     }))
 
-    // 2. store the answer unless the request was cancelled by a newer one
+    // 2. store the answer unless the request was cancelled by a newer one or by setData
     execute(intent, controller.signal).then((result) => {
+      if (controller.signal.aborted) {
+        return
+      }
+
       if (result.ok) {
         setState({
           data: result.data,
           loading: false,
         })
       }
-      else if (!result.aborted) {
+      else {
         setState({
           problem: result.problem,
           loading: false,
@@ -60,10 +67,13 @@ export const useIntentQuery = <T>(create: () => Intent<T> | null, key: string): 
   }, [key, version, execute])
 
   const reload = useCallback(() => setVersion((value) => value + 1), [])
-  const setData = useCallback((data: T) => setState({
-    data,
-    loading: false,
-  }), [])
+  const setData = useCallback((data: T) => {
+    running.current?.abort()
+    setState({
+      data,
+      loading: false,
+    })
+  }, [])
 
   return {
     data: state.data,
