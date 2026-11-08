@@ -4,6 +4,7 @@ import {
   Box,
   Button,
   Card,
+  Dialog,
   Drawer,
   Flex,
   Grid,
@@ -21,6 +22,7 @@ import {
   AbilityKeys,
   type CharacterStateDto,
   CreateCharacterIntent,
+  DeleteCharacterIntent,
   GetCharacterIntent,
   GetCharacterSheetIntent,
   LevelUpIntent,
@@ -55,7 +57,10 @@ import { RuleCards } from './RuleCards'
 
 const steps = ['Class', 'Species', 'Background', 'Ability scores', 'Choices', 'Details']
 
-/** The ability scores step saves the draft; from the choices step on the creator works on the saved draft */
+/**
+ * The ability scores step saves the draft; from the choices step on the creator works on the saved draft. Going back
+ * and changing class, origin or scores replaces the draft on the next save
+ */
 const SaveStep = 3
 const ChoicesStep = 4
 
@@ -67,8 +72,9 @@ const PlaceholderName = 'New character'
 /**
  * Character creator. Class, species, background and ability scores are chosen locally; "Save" stores the character
  * (POST /api/characters) and takes level 1 of the class (POST …/levels). The remaining steps work on the saved draft
- * (/characters/new/{id}), so the creator can be left and resumed. The name is set in the details step; "Finish" saves
- * the details.
+ * (/characters/new/{id}), so the creator can be left and resumed. Going back from the choices step keeps the draft
+ * until it is saved with other inputs; then a new draft replaces it. The name is set in the details step; "Finish"
+ * saves the details.
  */
 export const CreatorPage = () => {
   const { id } = useParams()
@@ -91,6 +97,19 @@ export const CreatorPage = () => {
   // the saved draft
   const draft = useIntentQuery(() => (id ? new GetCharacterIntent(id) : null), id ?? '')
   const state = draft.data
+
+  // the inputs the draft was saved with; saving other inputs replaces the draft
+  const origin = JSON.stringify({
+    classKey,
+    classEquipment,
+    species,
+    background,
+    backgroundEquipment,
+    method,
+    scores,
+  })
+  const [savedOrigin, setSavedOrigin] = useState<string | null>(null)
+  const [confirmReplace, setConfirmReplace] = useState(false)
   const [editedDetails, setDetails] = useState<CharacterDetails | null>(null)
   const details: CharacterDetails | null = editedDetails ?? (state
     ? {
@@ -111,12 +130,15 @@ export const CreatorPage = () => {
     Boolean(details?.name.trim()),
   ][step]
 
-  // 1. the character with its origin, 2. level 1 of the class; when 2 fails, the choices step offers the class again
+  // 1. the character with its origin, 2. level 1 of the class; when 2 fails, the choices step offers the class again;
+  // 3. the draft saved before (after going back) is deleted
   const create = async () => {
     const abilities = completeScores(scores)
     if (!abilities) {
       return
     }
+
+    const previous = state?.id
 
     const result = await run(new CreateCharacterIntent({
       name: PlaceholderName,
@@ -130,10 +152,27 @@ export const CreatorPage = () => {
       return
     }
 
+    setSavedOrigin(origin)
     navigate(`/characters/new/${result.data.id}`, { replace: true })
     draft.setData(result.data)
     setStep(ChoicesStep)
     await takeClass(result.data.id)
+    if (previous) {
+      await run(new DeleteCharacterIntent(previous))
+    }
+  }
+
+  // a saved draft is kept when nothing changed, other inputs replace it after a confirmation
+  const save = () => {
+    if (!state) {
+      create()
+    }
+    else if (origin === savedOrigin) {
+      setStep(ChoicesStep)
+    }
+    else {
+      setConfirmReplace(true)
+    }
   }
 
   const takeClass = async (characterId = id) => {
@@ -171,7 +210,7 @@ export const CreatorPage = () => {
 
   const next = () => {
     if (step === SaveStep) {
-      create()
+      save()
     }
     else if (step === steps.length - 1) {
       finish()
@@ -403,7 +442,7 @@ export const CreatorPage = () => {
           >
             <Button
               variant='outline'
-              disabled={step === 0 || step === ChoicesStep}
+              disabled={step === 0}
               onClick={() => setStep(step - 1)}
             >
               Back
@@ -422,6 +461,14 @@ export const CreatorPage = () => {
         {/* below lg the summary would end up under the steps; the drawer above shows it there */}
         <Box hideBelow='lg'>{summary}</Box>
       </Grid>
+      <ReplaceDraftDialog
+        open={confirmReplace}
+        onClose={() => setConfirmReplace(false)}
+        onReplace={() => {
+          setConfirmReplace(false)
+          create()
+        }}
+      />
     </Box>
   )
 }
@@ -506,6 +553,59 @@ const StepTitle = ({ title, text }: { title: string, text: string }) => {
       <Heading size='xl'>{title}</Heading>
       <Text color='fg.muted'>{text}</Text>
     </Box>
+  )
+}
+
+/**
+ * Confirmation before a draft is saved again with another class, origin or other scores
+ */
+const ReplaceDraftDialog = ({
+  open,
+  onClose,
+  onReplace,
+}: {
+  open: boolean
+  onClose: () => void
+  onReplace: () => void
+}) => {
+  return (
+    <Dialog.Root
+      placement='center'
+      open={open}
+      onOpenChange={(details) => {
+        if (!details.open) {
+          onClose()
+        }
+      }}
+    >
+      <Portal>
+        <Dialog.Backdrop />
+        <Dialog.Positioner>
+          <Dialog.Content>
+            <Dialog.Header>
+              <Dialog.Title>Save the changes?</Dialog.Title>
+            </Dialog.Header>
+            <Dialog.Body>
+              <Text color='fg.muted'>
+                The draft is saved again with the new class, origin and scores; the choices made so far and the starting
+                equipment are lost.
+              </Text>
+            </Dialog.Body>
+            <Dialog.Footer>
+              <Dialog.ActionTrigger asChild>
+                <Button variant='outline'>Cancel</Button>
+              </Dialog.ActionTrigger>
+              <Button
+                colorPalette='brand'
+                onClick={onReplace}
+              >
+                Save
+              </Button>
+            </Dialog.Footer>
+          </Dialog.Content>
+        </Dialog.Positioner>
+      </Portal>
+    </Dialog.Root>
   )
 }
 
