@@ -18,6 +18,7 @@ import {
   Text,
 } from '@chakra-ui/react'
 import { useState } from 'react'
+import { useNavigate } from 'react-router'
 import {
   type ClassSummaryDto,
   GetChoiceOptionsIntent,
@@ -37,7 +38,7 @@ import { StartingEquipmentCard } from '@/components/startingEquipment/StartingEq
 import { StartingEquipmentPicker } from '@/components/startingEquipment/StartingEquipmentPicker'
 import { useRuleStartingEquipment } from '@/components/startingEquipment/useRuleStartingEquipment'
 import { Icon } from '@/components/Icon'
-import { levelUpIcon, undoIcon } from '@/components/icons'
+import { levelUpIcon, startOverIcon, undoIcon } from '@/components/icons'
 import { InfoButton } from '@/components/InfoButton'
 import { SkillProficiencies } from '@/components/SkillProficiencies'
 import { useApiAction } from '@/hooks/useApiAction'
@@ -108,6 +109,7 @@ const GainLevel = () => {
     sheet,
     applyState,
   } = useCharacter()
+  const navigate = useNavigate()
   const { run, busy } = useApiAction()
   const classes = useIntentQuery(() => new ListClassesIntent({ pageSize: 50 }), 'classes')
   const [classKey, setClassKey] = useState(state.classes[0]?.key ?? '')
@@ -180,7 +182,8 @@ const GainLevel = () => {
             Character level {state.level} → {state.level + 1}. Nothing is saved until you press “Level up”.
           </Text>
         </Box>
-        {state.level > 0 && (
+        {state.level === 1 && <StartOverButton onStartOver={() => navigate(`/characters/new?replaces=${id}`)} />}
+        {state.level > 1 && (
           <UndoButton
             level={state.level}
             onUndo={undo}
@@ -491,6 +494,55 @@ const SwapChoice = ({
         )}
       </Flex>
     </Box>
+  )
+}
+
+/**
+ * Level 1 isn't taken back on its own: the character is built again in the creator and replaces this one
+ */
+const StartOverButton = ({ onStartOver }: { onStartOver: () => void }) => {
+  return (
+    <Dialog.Root placement='center'>
+      <Dialog.Trigger asChild>
+        <Button
+          size='sm'
+          variant='outline'
+        >
+          <Icon path={startOverIcon} />
+          Start over
+        </Button>
+      </Dialog.Trigger>
+      <Portal>
+        <Dialog.Backdrop />
+        <Dialog.Positioner>
+          <Dialog.Content>
+            <Dialog.Header>
+              <Dialog.Title>Start over?</Dialog.Title>
+            </Dialog.Header>
+            <Dialog.Body>
+              <Text color='fg.muted'>
+                The character is built again in the creator, from the class to the ability scores. Name, story and
+                portrait carry over; choices, inventory and everything else start fresh. This character stays until the
+                new one is saved.
+              </Text>
+            </Dialog.Body>
+            <Dialog.Footer>
+              <Dialog.ActionTrigger asChild>
+                <Button variant='outline'>Cancel</Button>
+              </Dialog.ActionTrigger>
+              <Dialog.ActionTrigger asChild>
+                <Button
+                  colorPalette='red'
+                  onClick={onStartOver}
+                >
+                  Start over
+                </Button>
+              </Dialog.ActionTrigger>
+            </Dialog.Footer>
+          </Dialog.Content>
+        </Dialog.Positioner>
+      </Portal>
+    </Dialog.Root>
   )
 }
 

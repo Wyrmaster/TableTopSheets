@@ -143,6 +143,27 @@ export class SetPortraitIntent extends BodyIntent<SetPortraitDto, CharacterState
   }
 }
 
+/** GET /api/characters/{id}/portrait: the picture as blob (404 without one) */
+export class GetCharacterPortraitIntent extends Intent<Blob> {
+  readonly method = 'GET'
+  override readonly responseKind = 'blob'
+
+  readonly characterId: Guid
+
+  /**
+   * @param characterId id of the character
+   */
+  constructor(characterId: Guid) {
+    super()
+    this.characterId = characterId
+  }
+
+  /** Route of the intent */
+  get path() {
+    return characterPath(this.characterId, '/portrait')
+  }
+}
+
 /** DELETE /api/characters/{id}/portrait: remove the picture */
 export class RemovePortraitIntent extends Intent<CharacterStateDto> {
   readonly method = 'DELETE'

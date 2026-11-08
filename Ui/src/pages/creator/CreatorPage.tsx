@@ -17,15 +17,17 @@ import {
   Text,
 } from '@chakra-ui/react'
 import { type ReactNode, useState } from 'react'
-import { useNavigate, useParams } from 'react-router'
+import { useNavigate, useParams, useSearchParams } from 'react-router'
 import {
   AbilityKeys,
   type CharacterStateDto,
   CreateCharacterIntent,
   DeleteCharacterIntent,
   GetCharacterIntent,
+  GetCharacterPortraitIntent,
   GetCharacterSheetIntent,
   LevelUpIntent,
+  SetPortraitIntent,
   type StartingEquipmentOptionDto,
   type TakeStartingEquipmentDto,
   UpdateCharacterIntent,
@@ -43,6 +45,7 @@ import { StartingEquipmentPicker } from '@/components/startingEquipment/Starting
 import { useRuleStartingEquipment } from '@/components/startingEquipment/useRuleStartingEquipment'
 import { useApiAction } from '@/hooks/useApiAction'
 import { useIntentQuery } from '@/hooks/useIntentQuery'
+import { toBase64 } from '@/pages/character/portrait'
 import {
   type AbilityMethod,
   completeScores,
@@ -74,10 +77,15 @@ const PlaceholderName = 'New character'
  * (POST /api/characters) and takes level 1 of the class (POST …/levels). The remaining steps work on the saved draft
  * (/characters/new/{id}), so the creator can be left and resumed. Going back from the choices step keeps the draft
  * until it is saved with other inputs; then a new draft replaces it. The name is set in the details step; "Finish"
- * saves the details.
+ * saves the details. Started over from the level up page (?replaces={id}), the new character takes over name, story
+ * and portrait of the old one, which is deleted once the new one is saved.
  */
 export const CreatorPage = () => {
   const { id } = useParams()
+  const [searchParams] = useSearchParams()
+  // the character started over from the level up page; replaced by the first save
+  const replaces = id ? null : searchParams.get('replaces')
+  const replaced = useIntentQuery(() => (replaces ? new GetCharacterIntent(replaces) : null), replaces ?? '')
   const navigate = useNavigate()
   const { run, busy } = useApiAction()
   const [step, setStep] = useState(id ? ChoicesStep : 0)
@@ -131,14 +139,15 @@ export const CreatorPage = () => {
   ][step]
 
   // 1. the character with its origin, 2. level 1 of the class; when 2 fails, the choices step offers the class again;
-  // 3. the draft saved before (after going back) is deleted
+  // 3. the character it replaces (a draft saved before going back, or one started over) hands over its details and is
+  // deleted
   const create = async () => {
     const abilities = completeScores(scores)
     if (!abilities) {
       return
     }
 
-    const previous = state?.id
+    const previous = state?.id ?? replaces
 
     const result = await run(new CreateCharacterIntent({
       name: PlaceholderName,
@@ -157,9 +166,43 @@ export const CreatorPage = () => {
     draft.setData(result.data)
     setStep(ChoicesStep)
     await takeClass(result.data.id)
-    if (previous) {
+    if (previous && await carryOver(previous, result.data.id)) {
       await run(new DeleteCharacterIntent(previous))
     }
+  }
+
+  // name, alignment, story and portrait of a replaced character move to the new one; false keeps the old one
+  const carryOver = async (fromId: string, toId: string) => {
+    const from = await run(new GetCharacterIntent(fromId))
+    if (!from.ok) {
+      return false
+    }
+
+    const updated = await run(new UpdateCharacterIntent(toId, {
+      name: from.data.name,
+      alignment: from.data.alignment,
+      appearance: from.data.appearance || null,
+      backstory: from.data.backstory || null,
+    }))
+    if (!updated.ok) {
+      return false
+    }
+
+    draft.setData(updated.data)
+    if (!from.data.portraitUrl) {
+      return true
+    }
+
+    const picture = await run(new GetCharacterPortraitIntent(fromId))
+    if (!picture.ok) {
+      return false
+    }
+
+    const withPortrait = await run(new SetPortraitIntent(toId, { data: await toBase64(picture.data) }))
+    if (withPortrait.ok) {
+      draft.setData(withPortrait.data)
+    }
+    return withPortrait.ok
   }
 
   // a saved draft is kept when nothing changed, other inputs replace it after a confirmation
@@ -246,6 +289,18 @@ export const CreatorPage = () => {
         md: '6',
       }}
     >
+      {replaced.data && (
+        <Alert.Root
+          status='info'
+          mb='4'
+        >
+          <Alert.Indicator />
+          <Alert.Title>
+            Starting over: {replaced.data.name} is replaced once the new character is saved; name, story and portrait
+            carry over.
+          </Alert.Title>
+        </Alert.Root>
+      )}
       <Steps.Root
         step={step}
         count={steps.length}

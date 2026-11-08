@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { HttpClient } from '../core/HttpClient'
 import { RegisterIntent } from './auth'
 import { CreateCardsPdfIntent } from './cards'
-import { CreateCharacterIntent, ListCharactersIntent } from './characters'
+import { CreateCharacterIntent, GetCharacterPortraitIntent, ListCharactersIntent } from './characters'
 import { GetChoiceOptionsIntent, RemoveSelectionIntent, SelectOptionsIntent } from './choices'
 import {
   EquipItemIntent,
@@ -46,6 +46,7 @@ describe('intents', () => {
         cha: 10,
       },
     }), 'POST', '/api/characters', false],
+    [new GetCharacterPortraitIntent('c1'), 'GET', '/api/characters/c1/portrait', false],
     [new SelectOptionsIntent('c1', { selections: [] }), 'POST', '/api/characters/c1/choices', false],
     [new RemoveSelectionIntent('c1', 's1'), 'DELETE', '/api/characters/c1/selections/s1', false],
     [new PreviewLevelUpIntent('c1', 'wizard'), 'GET', '/api/characters/c1/level-up/preview?class=wizard', false],

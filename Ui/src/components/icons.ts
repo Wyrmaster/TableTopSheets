@@ -40,6 +40,7 @@ export {
   mdiMagnify as searchIcon,
   mdiMinus as minusIcon,
   mdiPlus as plusIcon,
+  mdiRestart as startOverIcon,
   mdiRing as ringIcon,
   mdiSack as shopPageIcon,
   mdiShieldOutline as shieldIcon,

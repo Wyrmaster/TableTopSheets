@@ -18,7 +18,8 @@ const loadImage = (file: File) => new Promise<HTMLImageElement>((resolve, reject
   image.src = url
 })
 
-const toBase64 = (blob: Blob) => new Promise<string>((resolve, reject) => {
+/** A picture as base64 for `SetPortraitIntent` */
+export const toBase64 = (blob: Blob) => new Promise<string>((resolve, reject) => {
   const reader = new FileReader()
   // the result is a data url (`data:image/jpeg;base64,…`); the API wants the part after the comma
   reader.onload = () => resolve(String(reader.result).split(',')[1] ?? '')
