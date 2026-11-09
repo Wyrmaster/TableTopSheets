@@ -7,13 +7,17 @@ import {
   GetItemIntent,
   GetSpeciesIntent,
   GetSpellIntent,
+  GetWeaponMasteryIntent,
   type ItemDetailDto,
   problemMessages,
   type RuleDetailDto,
   type SpellDetailDto,
+  type WeaponMasteryDto,
 } from '@/api'
 import { ApiHint } from '@/components/ApiHint'
 import { Facts, Prose } from '@/components/Facts'
+import { MasteryBadge } from '@/components/MasteryBadge'
+import type { MasteryStatus } from '@/components/mastery'
 import { RarityBadge } from '@/components/RarityBadge'
 import { RuleImage } from '@/components/RuleImage'
 import { StartingEquipmentList } from '@/components/startingEquipment/StartingEquipmentList'
@@ -83,6 +87,8 @@ const RuleContent = (
         return new GetClassIntent(target.key)
       case 'item':
         return new GetItemIntent(target.key)
+      case 'mastery':
+        return new GetWeaponMasteryIntent(target.key)
     }
   }, `${target.kind}:${target.key}`)
 
@@ -94,12 +100,22 @@ const RuleContent = (
     return <Spinner />
   }
 
-  const route = `GET /api/rules/${target.kind === 'species' ? 'species' : `${target.kind}s`}/${target.key}`
+  const collection = {
+    species: 'species',
+    mastery: 'masteries',
+  }[target.kind as string] ?? `${target.kind}s`
+  const route = `GET /api/rules/${collection}/${target.key}`
   return (
     <Stack gap='4'>
       {target.kind === 'spell' && <SpellView spell={query.data as SpellDetailDto} />}
       {target.kind === 'class' && <ClassView detail={query.data as ClassDetailDto} />}
       {target.kind === 'item' && <ItemView detail={query.data as ItemDetailDto} />}
+      {target.kind === 'mastery' && (
+        <MasteryView
+          mastery={query.data as WeaponMasteryDto}
+          status={target.status}
+        />
+      )}
       {(target.kind === 'species' || target.kind === 'background' || target.kind === 'feat') && (
         <RuleView
           label={{
@@ -221,9 +237,37 @@ const ClassView = ({ detail }: { detail: ClassDetailDto }) => {
   )
 }
 
+const MasteryView = ({ mastery, status }: { mastery: WeaponMasteryDto, status?: MasteryStatus }) => {
+  return (
+    <>
+      <Header
+        label='Weapon mastery'
+        title={mastery.name}
+      />
+      {status && (
+        <HStack>
+          <Badge
+            colorPalette={status === 'mastered' ? 'brand' : 'gray'}
+            variant={status === 'mastered' ? 'solid' : 'outline'}
+          >
+            {status === 'mastered' ? 'You have mastery' : 'Not mastered'}
+          </Badge>
+        </HStack>
+      )}
+      <Prose
+        text={mastery.description}
+        blocks={mastery.descriptionBlocks}
+      />
+    </>
+  )
+}
+
 const ItemView = ({ detail }: { detail: ItemDetailDto }) => {
   const item = detail.item
-  const properties = Object.entries(detail.properties).map(([key, value]): [string, string] => [key, value])
+  // the mastery is shown as a badge that opens its rule text
+  const properties = Object.entries(detail.properties)
+    .filter(([key]) => key !== 'mastery')
+    .map(([key, value]): [string, string] => [key, value])
   // artifacts have no price
   const cost = item.priceless ? 'Priceless' : `${item.costCp / 100} gp${item.bundle > 1 ? ` per ${item.bundle}` : ''}`
   return (
@@ -242,6 +286,12 @@ const ItemView = ({ detail }: { detail: ItemDetailDto }) => {
         {item.magic && <Badge colorPalette='brand'>Magic</Badge>}
         <RarityBadge rarity={item.rarity} />
         {item.requiresAttunement && <Badge>Requires attunement</Badge>}
+        {item.masteryKey && item.masteryName && (
+          <MasteryBadge
+            masteryKey={item.masteryKey}
+            name={item.masteryName}
+          />
+        )}
       </HStack>
       <Facts
         items={[

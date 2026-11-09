@@ -163,10 +163,33 @@ public static class CardMapper
       Name = item.Name,
       Subtitle = item.Rarity is { } subtitleRarity ? $"{type}, {Rarity(subtitleRarity)}" : type,
       Facts = facts,
-      Description = HtmlText.ToBlocks(item.DescriptionHtml),
+      Description = item is Weapon { Mastery: { } weaponMastery }
+        ? [.. HtmlText.ToBlocks(item.DescriptionHtml), .. MasteryBlocks(weaponMastery)]
+        : HtmlText.ToBlocks(item.DescriptionHtml),
       Image = image,
       Footer = item.Magic ? "Magic Item" : "Item",
     };
+  }
+
+  /// <summary>
+  ///   Rule text of a weapon's mastery, led by <c>Mastery: Sap.</c> in bold
+  /// </summary>
+  private static IEnumerable<TextBlock> MasteryBlocks(WeaponMastery mastery)
+  {
+    List<TextBlock> blocks = HtmlText
+      .ToBlocks(mastery.DescriptionHtml)
+      .ToList();
+    TextSpan label = new($"Mastery: {mastery.Name}. ", Bold: true);
+    if (blocks.Count > 0 && blocks[0].Kind == TextBlockKindEnum.Paragraph)
+    {
+      blocks[0] = blocks[0] with { Spans = [label, .. blocks[0].Spans] };
+    }
+    else
+    {
+      blocks.Insert(0, new TextBlock(TextBlockKindEnum.Paragraph) { Spans = [label] });
+    }
+
+    return blocks;
   }
 
   /// <summary>

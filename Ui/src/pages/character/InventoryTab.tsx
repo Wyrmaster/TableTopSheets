@@ -41,6 +41,8 @@ import {
   ringIcon,
 } from '@/components/icons'
 import { InfoButton } from '@/components/InfoButton'
+import { MasteryBadge } from '@/components/MasteryBadge'
+import { isMastered } from '@/components/mastery'
 import { RarityBadge } from '@/components/RarityBadge'
 import { useApiAction } from '@/hooks/useApiAction'
 import type { CardSelection } from '@/hooks/useCardSelection'
@@ -189,6 +191,11 @@ export const InventoryTab = ({ cards }: { cards: CardSelection }) => {
   const itemViolations = (item: CharacterItemDto) => violations
     .filter((violation) => violation.message.includes(item.name))
   const attack = (item: CharacterItemDto) => sheet.attacks.find((entry) => entry.name === item.name)
+  // equipped or not, a weapon shows its mastery only when the character can use it
+  const isMasteredItem = (item: CharacterItemDto) => {
+    const summary = details.get(item.itemKey)?.item
+    return !!summary?.masteryKey && isMastered(sheet.weaponMasteryKeys, summary)
+  }
 
   // sell credits half the cost per piece; remove throws the item away
   const remove = async (item: CharacterItemDto, options: { quantity?: number, sell?: boolean }) => {
@@ -208,6 +215,7 @@ export const InventoryTab = ({ cards }: { cards: CardSelection }) => {
       item={item}
       detail={details.get(item.itemKey)}
       attack={attack(item)}
+      mastered={isMasteredItem(item)}
       violations={itemViolations(item).map((violation) => violation.message)}
       onToggle={isEquippable(item) ? () => toggle(item) : undefined}
       selected={cards.active && cards.isSelected('item', item.itemKey)}
@@ -391,6 +399,7 @@ const ItemRow = ({
   item,
   detail,
   attack,
+  mastered,
   violations,
   onToggle,
   extra,
@@ -401,6 +410,8 @@ const ItemRow = ({
   item: CharacterItemDto
   detail?: ItemDetailDto
   attack?: AttackSheet
+  /** the character has mastery with the weapon: shows the mastery badge */
+  mastered?: boolean
   violations: string[]
   onToggle?: () => void
   extra?: ReactNode
@@ -469,13 +480,22 @@ const ItemRow = ({
         flex='1'
         minW='140px'
       >
-        <HStack gap='2'>
+        <HStack
+          gap='2'
+          wrap='wrap'
+        >
           <Text fontWeight='semibold'>{item.name}</Text>
           {item.notes && <Text color='fg.muted'>({item.notes})</Text>}
           {item.quantity > 1 && <Badge>×{item.quantity}</Badge>}
           {slotLabel[item.slot] && <Badge colorPalette='brand'>{slotLabel[item.slot]}</Badge>}
           {item.attuned && <Badge colorPalette='brand'>attuned</Badge>}
           <RarityBadge rarity={item.rarity} />
+          {mastered && detail?.item.masteryKey && detail.item.masteryName && (
+            <MasteryBadge
+              masteryKey={detail.item.masteryKey}
+              name={detail.item.masteryName}
+            />
+          )}
         </HStack>
         <Text
           fontSize='sm'

@@ -37,6 +37,7 @@ import type {
   BackgroundSummaryDto,
   FeatureDto,
   ChoiceDefinitionDto,
+  WeaponMasteryDto,
 } from './dtos/rules'
 import type { CoinsDto } from './dtos/inventory'
 import type {
@@ -77,6 +78,7 @@ import {
   GetItemIntent,
   GetSpeciesIntent,
   GetSpellIntent,
+  GetWeaponMasteryIntent,
   ListBackgroundsIntent,
   ListClassesIntent,
   ListFeatsIntent,
@@ -262,6 +264,15 @@ const Shapes = {
     priceless: true,
     imageUrl: true,
     thumbnailUrl: true,
+    masteryKey: true,
+    masteryName: true,
+    baseKey: true,
+  }),
+  weaponMastery: keys<WeaponMasteryDto>({
+    key: true,
+    name: true,
+    description: true,
+    descriptionBlocks: true,
   }),
   itemDetail: keys<ItemDetailDto>({
     item: true,
@@ -453,6 +464,7 @@ const Shapes = {
     armorTraining: true,
     weaponProficiencies: true,
     weaponMasteries: true,
+    weaponMasteryKeys: true,
     toolProficiencies: true,
     languages: true,
     spellcasting: true,
@@ -607,6 +619,7 @@ describe.skipIf(!apiUrl)('API integration', () => {
     const items = await ok(new ListItemsIntent({ kind: 'Weapon', search: 'quarterstaff' }))
     expectShape(items.items[0], Shapes.item)
     expectShape(await ok(new GetItemIntent('quarterstaff')), Shapes.itemDetail)
+    expectShape(await ok(new GetWeaponMasteryIntent('topple')), Shapes.weaponMastery)
     const wizard = await ok(new GetClassIntent('wizard'))
     expectShape(wizard, Shapes.classDetail)
     expectShape(wizard.features[0], Shapes.feature)

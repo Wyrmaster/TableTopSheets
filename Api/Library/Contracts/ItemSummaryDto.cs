@@ -27,4 +27,16 @@ public sealed record ItemSummaryDto
 
   /// <summary>Small version of the picture for lists and rows; null when there is none</summary>
   public string? ThumbnailUrl { get; init; }
+
+  /// <summary>Key of the weapon's mastery property (<c>/api/rules/masteries/{key}</c>); null for items without one</summary>
+  public string? MasteryKey { get; init; }
+
+  /// <summary>Name of the weapon's mastery property; null for items without one</summary>
+  public string? MasteryName { get; init; }
+
+  /// <summary>
+  ///   Key of the mundane item a magic variant is made from (<c>longsword</c> for a +1 Longsword); null for mundane items.
+  ///   Proficiency and mastery follow it
+  /// </summary>
+  public string? BaseKey { get; init; }
 }

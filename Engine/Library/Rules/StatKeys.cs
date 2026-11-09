@@ -33,6 +33,8 @@ public static class StatKeys
     new($@"^proficiency\.(weapon|tool)\.{Name}$"),
     new($@"^language\.{Name}$"),
     new($@"^mastery\.{Name}$"),
+    // mastery properties usable with every mastered weapon (Tactical Master: push, sap, slow)
+    new($@"^masteryProperty\.{Name}$"),
     new($@"^spell\.{Name}$"),
     new($@"^spellcasting\.({Name}\.)?(attack|dc)\.bonus$"),
 

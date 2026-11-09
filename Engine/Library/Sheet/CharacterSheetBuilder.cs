@@ -95,6 +95,10 @@ public static class CharacterSheetBuilder
         .StatKeysWithPrefix("mastery.")
         .Select(key => ItemName(evaluation, key["mastery.".Length..]))
         .ToList(),
+      WeaponMasteryKeys = evaluation
+        .StatKeysWithPrefix("mastery.")
+        .Select(key => key["mastery.".Length..])
+        .ToList(),
       ToolProficiencies = evaluation
         .StatKeysWithPrefix("proficiency.tool.")
         .Select(key => ItemName(evaluation, key["proficiency.tool.".Length..]) + (evaluation.Stat(key) >= 20 ? " (Expertise)" : string.Empty))
@@ -305,17 +309,23 @@ public static class CharacterSheetBuilder
       }
 
       notes.AddRange(PropertyNames(weapon.Properties & ~(WeaponPropertyEnum.Versatile | WeaponPropertyEnum.Range)));
-      if (weapon.MasteryId is { } masteryId && evaluation.Stat($"mastery.{evaluation.BaseKey(weapon)}") > 0)
-      {
-        notes.Add($"Mastery: {evaluation.Catalog.Masteries[masteryId].Name}");
-      }
-
+      // the mastery is a value of its own: the web app shows it as a badge, the PDF adds it to the notes
+      WeaponMastery? mastery = evaluation.HasMastery(weapon) ? evaluation.MasteryOf(weapon) : null;
       if (!proficient)
       {
         notes.Add("not proficient");
       }
 
-      attacks.Add(new(offHand ? $"{weapon.Name} (off hand)" : weapon.Name, attackBonus, Damage(weapon.Damage, damageBonus), Dice(weapon.Damage), damageBonus, weapon.DamageType, string.Join(", ", notes)));
+      attacks.Add(new(
+        offHand ? $"{weapon.Name} (off hand)" : weapon.Name,
+        attackBonus,
+        Damage(weapon.Damage, damageBonus),
+        Dice(weapon.Damage),
+        damageBonus,
+        weapon.DamageType,
+        string.Join(", ", notes),
+        Mastery: mastery?.Name,
+        MasteryKey: mastery?.Key));
     }
 
     // unarmed strike: 1 + Strength, or the Martial Arts die
@@ -488,24 +498,118 @@ public static class CharacterSheetBuilder
     })
     .ToList();
 
-  private static List<FeatureSheet> Features(CharacterEvaluation evaluation, SheetSectionEnum section) => evaluation.Features
-    .Where(entry => entry.Feature.SheetSection == section)
-    .Select(entry =>
-    {
-      string description = HtmlText.ToPlain(entry.Feature.DescriptionHtml);
-      List<string> choices = evaluation.Selections
-        .Where(selection => selection.Owner == entry)
-        .Select(selection => evaluation.OptionName(selection.Choice, selection.Selection.OptionKey))
-        .ToList();
-      string name = entry.Feature.Name
-                    + (choices.Count > 0 ? $" ({string.Join(", ", choices)})" : string.Empty)
-                    + (entry.Feature.Toggleable ? entry.Active ? " [active]" : " [inactive]" : string.Empty);
-      return new FeatureSheet(entry.Feature.Key, name, entry.Source, description, entry.Feature.Spellcasting != null)
+  private static List<FeatureSheet> Features(CharacterEvaluation evaluation, SheetSectionEnum section)
+  {
+    // the first Weapon Mastery feature (of any class) lists the usable masteries, further ones don't repeat them
+    List<MasteryEntry>? masteries = null;
+    bool masteriesShown = false;
+    return evaluation.Features
+      .Where(entry => entry.Feature.SheetSection == section)
+      .Select(entry =>
       {
-        DescriptionBlocks = HtmlText.ToBlocks(entry.Feature.DescriptionHtml),
-      };
-    })
-    .ToList();
+        FeatureSheet sheet = Feature(evaluation, entry);
+        if (!entry.Feature.Key.EndsWith(".weapon-mastery", StringComparison.Ordinal))
+        {
+          return sheet;
+        }
+
+        if (masteriesShown)
+        {
+          return sheet with { Description = string.Empty, DescriptionBlocks = [] };
+        }
+
+        masteriesShown = true;
+        masteries ??= Masteries(evaluation);
+        return masteries.Count == 0
+          ? sheet
+          : sheet with
+          {
+            Description = string.Join("\n", masteries.Select(mastery => $"{mastery.Label}: {HtmlText.ToPlain(mastery.Mastery.DescriptionHtml)}")),
+            DescriptionBlocks = masteries
+              .SelectMany(MasteryBlocks)
+              .ToList(),
+          };
+      })
+      .ToList();
+  }
+
+  private static FeatureSheet Feature(CharacterEvaluation evaluation, FeatureInstance entry)
+  {
+    string description = HtmlText.ToPlain(entry.Feature.DescriptionHtml);
+    List<string> choices = evaluation.Selections
+      .Where(selection => selection.Owner == entry)
+      .Select(selection => evaluation.OptionName(selection.Choice, selection.Selection.OptionKey))
+      .ToList();
+    string name = entry.Feature.Name
+                  + (choices.Count > 0 ? $" ({string.Join(", ", choices)})" : string.Empty)
+                  + (entry.Feature.Toggleable ? entry.Active ? " [active]" : " [inactive]" : string.Empty);
+    return new FeatureSheet(entry.Feature.Key, name, entry.Source, description, entry.Feature.Spellcasting != null)
+    {
+      DescriptionBlocks = HtmlText.ToBlocks(entry.Feature.DescriptionHtml),
+    };
+  }
+
+  /// <summary>
+  ///   Mastery properties the character can use, each once with the weapons it applies to: those of the equipped weapons,
+  ///   or of all mastered weapons when no equipped one has a usable mastery; then the ones usable with every mastered
+  ///   weapon (<c>masteryProperty.*</c>, Tactical Master)
+  /// </summary>
+  private static List<MasteryEntry> Masteries(CharacterEvaluation evaluation)
+  {
+    List<(WeaponMastery Mastery, string Weapon)> equipped = evaluation.EquippedItems
+      .Select(entry => evaluation.Catalog.Items[entry.ItemId])
+      .OfType<Weapon>()
+      .Where(evaluation.HasMastery)
+      .Select(weapon => (Mastery: evaluation.MasteryOf(weapon), Weapon: weapon.Name))
+      .Where(entry => entry.Mastery != null)
+      .Select(entry => (entry.Mastery!, entry.Weapon))
+      .ToList();
+    List<(WeaponMastery Mastery, string Weapon)> weapons = equipped.Count > 0
+      ? equipped
+      : evaluation
+        .StatKeysWithPrefix("mastery.")
+        .Select(key => evaluation.Catalog.ItemsByKey.GetValueOrDefault(key["mastery.".Length..]))
+        .OfType<Weapon>()
+        .Select(weapon => (Mastery: evaluation.MasteryOf(weapon), Weapon: weapon.Name))
+        .Where(entry => entry.Mastery != null)
+        .Select(entry => (entry.Mastery!, entry.Weapon))
+        .ToList();
+
+    List<MasteryEntry> masteries = weapons
+      .GroupBy(entry => entry.Mastery.Id)
+      .Select(group => new MasteryEntry(group.First().Mastery, $"{group.First().Mastery.Name} ({string.Join(", ", group
+        .Select(entry => entry.Weapon)
+        .Distinct())})"))
+      .ToList();
+    masteries.AddRange(evaluation
+      .StatKeysWithPrefix("masteryProperty.")
+      .Select(key => evaluation.Catalog.Masteries.Values.FirstOrDefault(mastery => mastery.Key == key["masteryProperty.".Length..]))
+      .OfType<WeaponMastery>()
+      .Where(mastery => masteries.All(entry => entry.Mastery.Id != mastery.Id))
+      .Select(mastery => new MasteryEntry(mastery, mastery.Name)));
+    return masteries;
+  }
+
+  /// <summary>
+  ///   Rule text of a mastery, led by its name and weapons in bold
+  /// </summary>
+  private static IEnumerable<TextBlock> MasteryBlocks(MasteryEntry entry)
+  {
+    List<TextBlock> blocks = HtmlText
+      .ToBlocks(entry.Mastery.DescriptionHtml)
+      .ToList();
+    TextSpan label = new($"{entry.Label}: ", Bold: true);
+    if (blocks.Count > 0 && blocks[0].Kind == TextBlockKindEnum.Paragraph)
+    {
+      blocks[0] = blocks[0] with { Spans = [label, .. blocks[0].Spans] };
+    }
+    else
+    {
+      blocks.Insert(0, new TextBlock(TextBlockKindEnum.Paragraph) { Spans = [label] });
+    }
+
+    return blocks;
+  }
 
   private static List<ResourceSheet> Resources(CharacterEvaluation evaluation) => evaluation.Features
     .SelectMany(entry => entry.Feature.Resources)
@@ -585,6 +689,13 @@ public static class CharacterSheetBuilder
         .Repeat(DiceEnum.D1, Math.Max(1, (int)value.AsNumber()))
         .ToList();
   }
+
+  #endregion
+
+  #region Nested Types
+
+  /// <param name="Label">name of the mastery with the weapons it applies to: <c>Nick (Scimitar, Dagger)</c></param>
+  private sealed record MasteryEntry(WeaponMastery Mastery, string Label);
 
   #endregion
 }

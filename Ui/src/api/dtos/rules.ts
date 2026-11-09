@@ -107,6 +107,21 @@ export interface ItemSummaryDto {
   imageUrl: string | null
   /** small version of the picture for rows */
   thumbnailUrl: string | null
+  /** key of the weapon's mastery property (`/api/rules/masteries/{key}`); null for items without one */
+  masteryKey: string | null
+  /** name of the weapon's mastery property; null for items without one */
+  masteryName: string | null
+  /** mundane item a magic variant is made from (`longsword` for a +1 Longsword); null for mundane items */
+  baseKey: string | null
+}
+
+/** Mastery property of a weapon (Nick, Sap, …) with its rule text */
+export interface WeaponMasteryDto {
+  key: string
+  name: string
+  description: string
+  /** structure of the description (paragraphs, headings, lists, tables) */
+  descriptionBlocks: TextBlock[]
 }
 
 /** Definition of a choice as authored in the rules (independent of a character) */

@@ -1,9 +1,16 @@
 import { createContext } from 'react'
 import type { TextBlock } from '@/api'
+import type { MasteryStatus } from '@/components/mastery'
 
 /** What the detail view shows: a rule entity loaded from the API, or a feature text that is already at hand */
 export type InspectTarget =
   | { kind: 'spell' | 'species' | 'background' | 'feat' | 'class' | 'item', key: string }
+  | {
+    kind: 'mastery',
+    key: string,
+    /** whether the character can use it; left out where no character is involved */
+    status?: MasteryStatus
+  }
   | {
     kind: 'feature',
     name: string,

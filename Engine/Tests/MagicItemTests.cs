@@ -29,7 +29,7 @@ public class MagicItemTests
     // Strength +2, proficiency +2, magic +1
     Assert.Equal(5, magic.AttackBonus);
     Assert.Equal("1d8+3", magic.Damage);
-    Assert.Contains("Mastery: Sap", magic.Notes);
+    Assert.Equal("Sap", magic.Mastery);
     Assert.DoesNotContain("not proficient", magic.Notes);
     Assert.Equal(4, plain.AttackBonus);
   }

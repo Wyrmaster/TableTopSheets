@@ -7,6 +7,8 @@ namespace TableTopSheets.Common.Sheet;
 /// <param name="SaveDc">set instead of an attack roll for effects that force a saving throw</param>
 /// <param name="SaveAbility">ability key of the saving throw</param>
 /// <param name="DamageType">null when the damage type is chosen on use</param>
+/// <param name="Mastery">name of the weapon's mastery property when the character can use it</param>
+/// <param name="MasteryKey">key of that mastery property</param>
 public sealed record AttackSheet
 (
   string Name,
@@ -17,5 +19,7 @@ public sealed record AttackSheet
   DamageTypeEnum? DamageType,
   string Notes,
   int? SaveDc = null,
-  string? SaveAbility = null
+  string? SaveAbility = null,
+  string? Mastery = null,
+  string? MasteryKey = null
 );

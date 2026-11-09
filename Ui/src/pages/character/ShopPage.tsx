@@ -32,6 +32,7 @@ import { Icon } from '@/components/Icon'
 import { freeIcon, shopIcon } from '@/components/icons'
 import { ItemCategoryOptions } from '@/components/ItemCategoryOptions'
 import { ItemRow } from '@/components/ItemRow'
+import { masteryStatus } from '@/components/mastery'
 import { type MagicFilter, magicParam } from '@/components/magicFilter'
 import { rarityLabel } from '@/components/rarity'
 import { sortParam } from '@/components/sort'
@@ -68,6 +69,7 @@ export const ShopPage = () => {
   const {
     id,
     state,
+    sheet,
     applyState,
   } = useCharacter()
   const { run } = useApiAction()
@@ -239,6 +241,7 @@ export const ShopPage = () => {
             <ItemRow
               key={item.key}
               item={item}
+              masteryStatus={masteryStatus(sheet.weaponMasteryKeys, item)}
               selected={cards.active && cards.isSelected('item', item.key)}
               onClick={cards.active ? () => cards.toggle('item', item.key) : undefined}
               control={(
