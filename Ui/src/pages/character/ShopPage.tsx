@@ -253,13 +253,9 @@ export const ShopPage = () => {
                 />
               )}
               actions={(
-                // phones show both buttons as icons, "Add free" below "Buy" and the quantity below both to save
-                // width; selecting for cards there needs the room of the row
+                // phones show both buttons as icons on the row's second line; selecting for cards there needs the
+                // room of the row
                 <Flex
-                  direction={{
-                    base: 'column-reverse',
-                    md: 'row',
-                  }}
                   align='center'
                   gap={{
                     base: '1',

@@ -332,9 +332,10 @@ public sealed class RulesCatalog
         .Where(entry => !entry.Magic)
         .Select(OptionProjections.ItemOption)
         .ToList(),
+      // variants (magic weapons, staff focuses) count as their base weapon, which is offered instead
       [nameof(OptionSourceEnum.Weapon)] = this.Items.Values
         .OfType<Weapon>()
-        .Where(entry => !entry.Magic)
+        .Where(entry => !entry.Magic && entry.BaseItemId == null)
         .Select(OptionProjections.WeaponOption)
         .ToList(),
     };

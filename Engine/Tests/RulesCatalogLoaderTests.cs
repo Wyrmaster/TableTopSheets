@@ -88,6 +88,10 @@ public class RulesCatalogLoaderTests
       .ToList();
     Assert.Contains("longsword", keys);
     Assert.DoesNotContain(keys, key => world.Catalog.ItemsByKey[key].Magic);
+    // staff focuses are Quarterstaffs: only the Quarterstaff itself is offered
+    Assert.Contains("quarterstaff", keys);
+    Assert.DoesNotContain("arcane-focus-staff", keys);
+    Assert.DoesNotContain("druidic-focus-wooden-staff", keys);
   }
 
   /// <summary>

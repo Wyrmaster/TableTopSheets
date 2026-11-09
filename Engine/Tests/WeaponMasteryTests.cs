@@ -2,6 +2,7 @@ using TableTopSheets.Common.Enum.Rules;
 using TableTopSheets.Common.Sheet;
 using TableTopSheets.Engine.Services;
 using TableTopSheets.Persistence.Entity.Characters;
+using TableTopSheets.Persistence.Entity.Rules.Items;
 
 namespace TableTopSheets.Engine.Tests;
 
@@ -94,6 +95,33 @@ public class WeaponMasteryTests
     Assert.Equal("sap", attack.MasteryKey);
     Assert.DoesNotContain("Mastery", attack.Notes);
     Assert.Equal(["dagger", "longsword", "scimitar"], sheet.WeaponMasteryKeys);
+  }
+
+  [Fact]
+  public async Task StaffFocusUsesTheMasteryOfTheQuarterstaff()
+  {
+    await using TestWorld world = await TestWorld.CreateAsync();
+    Guid id = await world.CreateCharacterAsync(TestWorld.Scores(15, 13, 14, 8, 12, 10), "farmer", "con", "con", "wis");
+    await world.LevelUpAsync(id, "fighter", selections:
+    [
+      new("fighter.fighting-style", "defense"),
+      new("fighter.weapon-mastery", "quarterstaff"),
+      new("fighter.weapon-mastery", "longsword"),
+      new("fighter.weapon-mastery", "scimitar"),
+    ]);
+    await EquipAsync(world, id, "arcane-focus-staff", EquipSlotEnum.MainHand);
+
+    CharacterSheet sheet = await world.SheetAsync(id);
+    AttackSheet attack = sheet.Attacks.Single(entry => entry.Name == "Arcane Focus (Staff)");
+
+    Assert.Equal("Topple", attack.Mastery);
+    Assert.DoesNotContain("not proficient", attack.Notes);
+    Assert.StartsWith("Topple (Arcane Focus (Staff)): ", WeaponMastery(sheet).Description);
+
+    // a magic weapon made from a staff focus stays a focus, but is a Quarterstaff too
+    Item silvered = world.Catalog.ItemsByKey["silvered-staff"];
+    Assert.Equal("quarterstaff", world.Catalog.Items[silvered.BaseItemId!.Value].Key);
+    Assert.Equal("arcane-focus", silvered.Group);
   }
 
   [Fact]

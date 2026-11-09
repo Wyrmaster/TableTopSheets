@@ -9,6 +9,16 @@
       "cost": 2500,
       "weight": 3,
       "description": "<p>A Wizard's spellbook is a Tiny object that weighs 3 pounds, contains 100 pages, and can be read only by its owner or someone casting <em>Identify</em>. A Wizard can use it as a Spellcasting Focus for Wizard spells.</p>"
+    },
+    // staff focuses are also Quarterstaffs: proficiency and Weapon Mastery follow the Quarterstaff, and weapon choices
+    // offer only the Quarterstaff itself
+    {
+      "key": "arcane-focus-staff",
+      "base": "quarterstaff"
+    },
+    {
+      "key": "druidic-focus-wooden-staff",
+      "base": "quarterstaff"
     }
   ]
 }

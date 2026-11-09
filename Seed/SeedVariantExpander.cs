@@ -6,7 +6,9 @@ namespace TableTopSheets.Seed;
 /// <summary>
 ///   Turns item templates (<c>+1 Weapon</c>, <c>Ioun Stone</c>) into their concrete variants (<c>+1 Longsword</c>,
 ///   <c>Ioun Stone, Agility</c>). A variant starts as a copy of its base item, takes the template's values and features and
-///   finally its own; the description is the template's followed by the variant's
+///   finally its own; the description is the template's followed by the variant's. A base item may itself be made from a
+///   mundane item (a staff focus is a Quarterstaff): the variant copies the base item but names the mundane one as its base,
+///   so proficiency and mastery follow it
 /// </summary>
 public static class SeedVariantExpander
 {
@@ -27,7 +29,7 @@ public static class SeedVariantExpander
       .Where(entry => entry.Variants.Count == 0)
       .ToDictionary(entry => entry.Key);
     Dictionary<string, SeedItem> bases = items
-      .Where(entry => entry.Variants.Count == 0 && entry.Base == null)
+      .Where(entry => entry.Variants.Count == 0)
       .ToDictionary(entry => entry.Key);
     List<SeedItem> expanded = new();
     foreach (SeedItem item in items.Where(entry => !overrides.ContainsKey(entry.Key)))
@@ -50,7 +52,15 @@ public static class SeedVariantExpander
           continue;
         }
 
-        SeedItem result = Variant(item, variant, baseItem);
+        // a base item made from a mundane item hands that one on as the base (Silvered Staff: staff focus → Quarterstaff)
+        string? rootKey = baseItem?.Base ?? baseItem?.Key;
+        if (baseItem?.Base != null && (!bases.TryGetValue(baseItem.Base, out SeedItem? root) || root.Base != null))
+        {
+          errors.Add($"Item '{variant.Key}': base item '{baseItem.Key}' must be made from a mundane item without a base");
+          continue;
+        }
+
+        SeedItem result = Variant(item, variant, baseItem, rootKey);
         if (overrides.TryGetValue(result.Key, out SeedItem? existing))
         {
           SeedMerger.MergeItem(result, Clone(existing));
@@ -63,7 +73,8 @@ public static class SeedVariantExpander
     return expanded;
   }
 
-  private static SeedItem Variant(SeedItem template, SeedItem variant, SeedItem? baseItem)
+  /// <param name="rootKey">key of the mundane item the variant is made from, the base item's own base when it has one</param>
+  private static SeedItem Variant(SeedItem template, SeedItem variant, SeedItem? baseItem, string? rootKey)
   {
     SeedItem result = new() { Key = variant.Key };
     int baseCost = 0;
@@ -87,7 +98,7 @@ public static class SeedVariantExpander
     SeedMerger.MergeItem(result, shared);
     SeedMerger.MergeItem(result, Clone(variant));
 
-    result.Base = baseItem?.Key;
+    result.Base = rootKey;
     result.Description = string.Concat(template.Description, variant.Description);
     result.Cost = variant.Cost ?? (template.Variants.Count == 0 ? template.Cost : null) ?? baseCost + (MagicItemPrice.Of(result.Rarity, baseItem?.Category ?? result.Category) ?? 0);
     // keys (and so the ids) of features and their choices are made unique per variant

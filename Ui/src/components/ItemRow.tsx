@@ -54,7 +54,9 @@ export const ItemRow = ({
   return (
     <Flex
       align='center'
-      gap='3'
+      wrap='wrap'
+      columnGap='3'
+      rowGap='2'
       px='3'
       py='2.5'
       borderTopWidth='1px'
@@ -100,20 +102,31 @@ export const ItemRow = ({
           {[item.kind, item.category, item.weight && `${item.weight} lb`].filter(Boolean).join(' · ')}
         </Text>
       </Box>
-      <Text fontWeight='semibold'>{priceLabel(item)}</Text>
-      <InfoButton target={{
-        kind: 'item',
-        key: item.key,
-      }}
-      />
-      {actions && (
-        <Box
-          display='contents'
-          onClick={(event) => event.stopPropagation()}
-        >
-          {actions}
-        </Box>
-      )}
+      {/* with actions (shop) phones put price and buttons on a line of their own, so the name keeps its width */}
+      <HStack
+        gap='3'
+        w={actions
+          ? {
+            base: 'full',
+            md: 'auto',
+          }
+          : 'auto'}
+        justify='space-between'
+      >
+        <HStack gap='3'>
+          <Text fontWeight='semibold'>{priceLabel(item)}</Text>
+          <InfoButton target={{
+            kind: 'item',
+            key: item.key,
+          }}
+          />
+        </HStack>
+        {actions && (
+          <Box onClick={(event) => event.stopPropagation()}>
+            {actions}
+          </Box>
+        )}
+      </HStack>
     </Flex>
   )
 }

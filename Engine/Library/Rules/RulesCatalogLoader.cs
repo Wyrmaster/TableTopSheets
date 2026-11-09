@@ -377,9 +377,10 @@ public sealed class RulesCatalogLoader(TableTopSheetsContext context): IRulesCat
             .Where(entry => !entry.Magic)
             .Select(OptionProjections.Item)
             .ToListAsync(cancellationToken),
+          // variants (magic weapons, staff focuses) count as their base weapon, which is offered instead
           OptionSourceEnum.Weapon => await context.Items
             .OfType<Weapon>()
-            .Where(entry => !entry.Magic)
+            .Where(entry => !entry.Magic && entry.BaseItemId == null)
             .Select(OptionProjections.Weapon)
             .ToListAsync(cancellationToken),
           _ => [],
