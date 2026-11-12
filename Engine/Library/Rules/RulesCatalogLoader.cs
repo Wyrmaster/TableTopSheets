@@ -144,6 +144,21 @@ public sealed class RulesCatalogLoader(TableTopSheetsContext context): IRulesCat
       cancellationToken
     );
 
+    // a variant is evaluated through its base (proficiency, mastery, item conditions); chains are one level deep
+    HashSet<Guid> loadedItemIds = items
+      .Select(entry => entry.Id)
+      .ToHashSet();
+    List<Guid> baseItemIds = items
+      .Select(entry => entry.BaseItemId)
+      .OfType<Guid>()
+      .Where(baseId => !loadedItemIds.Contains(baseId))
+      .Distinct()
+      .ToList();
+    if (baseItemIds.Count > 0)
+    {
+      items.AddRange(await this._items.GetAsync(context.Items, baseItemIds, [], cancellationToken));
+    }
+
     List<Choice> choices = features
       .SelectMany(entry => entry.Choices)
       .ToList();

@@ -88,7 +88,8 @@ public sealed partial class CharacterEvaluation
   /// <summary>
   ///   Key of the mundane item a magic variant is made from (<c>longsword</c> for a +1 Longsword), else the item's own key
   /// </summary>
-  public string BaseKey(Item item) => item.BaseItemId is { } baseId ? this.Catalog.Items[baseId].Key : item.Key;
+  public string BaseKey(Item item)
+    => item.BaseItemId is { } baseId && this.Catalog.Items.TryGetValue(baseId, out Item? baseItem) ? baseItem.Key : item.Key;
 
   /// <summary>
   ///   Mastery property of a weapon; a magic variant without its own takes the one of its base weapon
@@ -96,7 +97,11 @@ public sealed partial class CharacterEvaluation
   public WeaponMastery? MasteryOf(Weapon weapon)
   {
     Guid? masteryId = weapon.MasteryId
-                      ?? (weapon.BaseItemId is { } baseId && this.Catalog.Items[baseId] is Weapon baseWeapon ? baseWeapon.MasteryId : null);
+                      ?? (weapon.BaseItemId is { } baseId
+                          && this.Catalog.Items.TryGetValue(baseId, out Item? baseItem)
+                          && baseItem is Weapon baseWeapon
+                        ? baseWeapon.MasteryId
+                        : null);
     return masteryId is { } id ? this.Catalog.Masteries[id] : null;
   }
 

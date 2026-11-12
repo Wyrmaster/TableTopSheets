@@ -146,4 +146,19 @@ public class MagicItemTests
 
     Assert.Contains((await world.SheetAsync(id)).Resistances, entry => entry.Contains("fire", StringComparison.OrdinalIgnoreCase));
   }
+
+  [Fact]
+  public async Task MagicWeaponWhoseBaseTheCharacterNeverReferencedCanBeEquipped()
+  {
+    await using TestWorld world = await TestWorld.CreateAsync();
+    Guid id = await world.CreateCharacterAsync(TestWorld.Scores(10, 15, 13, 8, 14, 10), "farmer", "con", "con", "wis");
+    await world.LevelUpManyAsync(id, "monk", 2);
+    CharacterItem staff = await world.Service.AddItemAsync(id, "flame-tongue-quarterstaff");
+    await world.Service.EquipAsync(id, staff.Id, EquipSlotEnum.MainHand);
+
+    CharacterSheet sheet = await world.SheetAsync(id);
+
+    AttackSheet attack = sheet.Attacks.Single(entry => entry.Name.Contains("Quarterstaff", StringComparison.Ordinal));
+    Assert.DoesNotContain("not proficient", attack.Notes);
+  }
 }
