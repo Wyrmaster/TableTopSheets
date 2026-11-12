@@ -161,4 +161,13 @@ public class MagicItemTests
     AttackSheet attack = sheet.Attacks.Single(entry => entry.Name.Contains("Quarterstaff", StringComparison.Ordinal));
     Assert.DoesNotContain("not proficient", attack.Notes);
   }
+
+  [Fact]
+  public async Task MagicWeaponVariantsRequireAttunementLikeTheirTemplate()
+  {
+    await using TestWorld world = await TestWorld.CreateAsync();
+
+    Assert.True(world.Catalog.ItemsByKey["flame-tongue-quarterstaff"].RequiresAttunement);
+    Assert.False(world.Catalog.ItemsByKey["plus1-longsword"].RequiresAttunement);
+  }
 }
