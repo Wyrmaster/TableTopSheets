@@ -15,6 +15,7 @@ import type {
   SpellDetailDto,
   SpellFilter,
   SpellSummaryDto,
+  WeaponMasteryDto,
 } from '../dtos/rules'
 
 /**
@@ -175,4 +176,9 @@ export class ListItemsIntent extends PagedIntent<ItemSummaryDto, ItemFilter> {
 /** GET /api/rules/items/{key}: item with its full text and properties */
 export class GetItemIntent extends RuleDetailIntent<ItemDetailDto> {
   protected readonly collection = 'items'
+}
+
+/** GET /api/rules/masteries/{key}: weapon mastery property with its rule text */
+export class GetWeaponMasteryIntent extends RuleDetailIntent<WeaponMasteryDto> {
+  protected readonly collection = 'masteries'
 }

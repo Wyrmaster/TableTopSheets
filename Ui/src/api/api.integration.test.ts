@@ -37,6 +37,7 @@ import type {
   BackgroundSummaryDto,
   FeatureDto,
   ChoiceDefinitionDto,
+  WeaponMasteryDto,
 } from './dtos/rules'
 import type { CoinsDto } from './dtos/inventory'
 import type {
@@ -77,6 +78,7 @@ import {
   GetItemIntent,
   GetSpeciesIntent,
   GetSpellIntent,
+  GetWeaponMasteryIntent,
   ListBackgroundsIntent,
   ListClassesIntent,
   ListFeatsIntent,
@@ -262,6 +264,15 @@ const Shapes = {
     priceless: true,
     imageUrl: true,
     thumbnailUrl: true,
+    masteryKey: true,
+    masteryName: true,
+    baseKey: true,
+  }),
+  weaponMastery: keys<WeaponMasteryDto>({
+    key: true,
+    name: true,
+    description: true,
+    descriptionBlocks: true,
   }),
   itemDetail: keys<ItemDetailDto>({
     item: true,
@@ -453,6 +464,7 @@ const Shapes = {
     armorTraining: true,
     weaponProficiencies: true,
     weaponMasteries: true,
+    weaponMasteryKeys: true,
     toolProficiencies: true,
     languages: true,
     spellcasting: true,
@@ -607,11 +619,15 @@ describe.skipIf(!apiUrl)('API integration', () => {
     const items = await ok(new ListItemsIntent({ kind: 'Weapon', search: 'quarterstaff' }))
     expectShape(items.items[0], Shapes.item)
     expectShape(await ok(new GetItemIntent('quarterstaff')), Shapes.itemDetail)
+    expectShape(await ok(new GetWeaponMasteryIntent('topple')), Shapes.weaponMastery)
     const wizard = await ok(new GetClassIntent('wizard'))
     expectShape(wizard, Shapes.classDetail)
     expectShape(wizard.features[0], Shapes.feature)
-    expectShape(wizard.features[0].descriptionBlocks[0], Shapes.textBlock)
-    expectShape(wizard.features[0].descriptionBlocks[0].spans[0], Shapes.textSpan)
+    // hidden features (Proficiencies) have no text, the blocks are checked on the first one that has
+    const described = wizard.features.find((feature) => feature.descriptionBlocks.length > 0)
+    expect(described).toBeDefined()
+    expectShape(described!.descriptionBlocks[0], Shapes.textBlock)
+    expectShape(described!.descriptionBlocks[0].spans[0], Shapes.textSpan)
     const acolyte = await ok(new GetBackgroundIntent('acolyte'))
     expectShape(acolyte, Shapes.ruleDetail)
     expectShape(acolyte.startingEquipment[0], Shapes.startingEquipmentOption)
@@ -682,10 +698,14 @@ describe.skipIf(!apiUrl)('API integration', () => {
     expect(characterSpells.classes[0].pool).toBe('Spellbook')
 
     // equipment
+    // the character carries its starting equipment already, so the added item is found by its id
+    const carried = new Set(state.items.map((item) => item.id))
     state = await ok(new AddItemIntent(state.id, { itemKey: 'quarterstaff' }))
-    expectShape(state.items[0], Shapes.item_)
-    state = await ok(new EquipItemIntent(state.id, state.items[0].id, { slot: 'MainHand' }))
-    expect(state.items[0].slot).toBe('MainHand')
+    const added = state.items.find((item) => !carried.has(item.id))
+    expect(added?.itemKey).toBe('quarterstaff')
+    expectShape(added, Shapes.item_)
+    state = await ok(new EquipItemIntent(state.id, added!.id, { slot: 'MainHand' }))
+    expect(state.items.find((item) => item.id === added!.id)?.slot).toBe('MainHand')
 
     // coins: buy a longsword (15 gp), sell it for half, pay 5 sp
     state = await ok(new SetCoinsIntent(state.id, {

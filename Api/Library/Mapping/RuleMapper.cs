@@ -55,6 +55,7 @@ public static class RuleMapper
     spell.Lists
   );
 
+  /// <param name="item">item (with the mastery of a weapon and the base item of a magic variant)</param>
   public static ItemSummaryDto Summary(Item item) => new
   (
     item.Key,
@@ -68,7 +69,33 @@ public static class RuleMapper
     item.Bundle,
     item.Rarity,
     item.Rarity == RarityEnum.Artifact
-  );
+  )
+  {
+    MasteryKey = Mastery(item)?.Key,
+    MasteryName = Mastery(item)?.Name,
+    BaseKey = item.BaseItem?.Key,
+  };
+
+  /// <summary>
+  ///   Mastery property of a weapon; a magic variant without its own takes the one of its base weapon
+  /// </summary>
+  public static WeaponMastery? Mastery(Item item) => item switch
+  {
+    Weapon { Mastery: { } mastery } => mastery,
+    Weapon { BaseItem: Weapon { Mastery: { } mastery } } => mastery,
+    _ => null,
+  };
+
+  /// <param name="mastery">the mastery property</param>
+  public static WeaponMasteryDto Detail(WeaponMastery mastery) => new
+  (
+    mastery.Key,
+    mastery.Name,
+    HtmlText.ToPlain(mastery.DescriptionHtml)
+  )
+  {
+    DescriptionBlocks = HtmlText.ToBlocks(mastery.DescriptionHtml),
+  };
 
   public static string SchoolKey(Spell spell) => spell.School
     .ToString()
@@ -246,7 +273,7 @@ public static class RuleMapper
           properties["range"] = $"{weapon.RangeNormal}/{weapon.RangeLong}";
         }
 
-        if (weapon.Mastery is { } mastery)
+        if (Mastery(weapon) is { } mastery)
         {
           properties["mastery"] = mastery.Name;
         }

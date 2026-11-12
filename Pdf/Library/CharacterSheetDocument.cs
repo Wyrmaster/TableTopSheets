@@ -228,7 +228,10 @@ public class CharacterSheetDocument: Document
       .Concat(Enumerable.Repeat(DiceEnum.D1, Math.Max(0, attack.DamageBonus)))
       .ToArray(),
     DamageType = attack.DamageType ?? DamageTypeEnum.Force,
-    Notes = attack.Notes,
+    // the web app shows the mastery as a badge; on paper it stays a note
+    Notes = attack.Mastery == null
+      ? attack.Notes
+      : string.Join(", ", new[] { attack.Notes, $"Mastery: {attack.Mastery}" }.Where(entry => entry.Length > 0)),
     AttackRollText = attack.SaveDc is { } dc ? $"DC {dc}" : null,
     DamageText = attack.Damage.Contains(' ') || attack.DamageType == null ? $"{attack.Damage} {attack.DamageType}".TrimEnd() : null,
   };

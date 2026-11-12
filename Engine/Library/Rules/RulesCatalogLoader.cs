@@ -144,6 +144,21 @@ public sealed class RulesCatalogLoader(TableTopSheetsContext context): IRulesCat
       cancellationToken
     );
 
+    // a variant is evaluated through its base (proficiency, mastery, item conditions); chains are one level deep
+    HashSet<Guid> loadedItemIds = items
+      .Select(entry => entry.Id)
+      .ToHashSet();
+    List<Guid> baseItemIds = items
+      .Select(entry => entry.BaseItemId)
+      .OfType<Guid>()
+      .Where(baseId => !loadedItemIds.Contains(baseId))
+      .Distinct()
+      .ToList();
+    if (baseItemIds.Count > 0)
+    {
+      items.AddRange(await this._items.GetAsync(context.Items, baseItemIds, [], cancellationToken));
+    }
+
     List<Choice> choices = features
       .SelectMany(entry => entry.Choices)
       .ToList();
@@ -377,9 +392,10 @@ public sealed class RulesCatalogLoader(TableTopSheetsContext context): IRulesCat
             .Where(entry => !entry.Magic)
             .Select(OptionProjections.Item)
             .ToListAsync(cancellationToken),
+          // variants (magic weapons, staff focuses) count as their base weapon, which is offered instead
           OptionSourceEnum.Weapon => await context.Items
             .OfType<Weapon>()
-            .Where(entry => !entry.Magic)
+            .Where(entry => !entry.Magic && entry.BaseItemId == null)
             .Select(OptionProjections.Weapon)
             .ToListAsync(cancellationToken),
           _ => [],

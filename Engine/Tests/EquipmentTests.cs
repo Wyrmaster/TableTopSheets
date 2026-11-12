@@ -130,7 +130,7 @@ public class EquipmentTests
     // Strength +2, proficiency +2; Dueling +2 damage
     Assert.Equal(4, attack.AttackBonus);
     Assert.Equal("1d8+4", attack.Damage);
-    Assert.Contains("Mastery: Sap", attack.Notes);
+    Assert.Equal("Sap", attack.Mastery);
   }
 
   [Theory]

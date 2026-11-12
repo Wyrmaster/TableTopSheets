@@ -107,6 +107,11 @@ public sealed record CharacterSheet
 
   public IReadOnlyList<string> WeaponMasteries { get; init; } = [];
 
+  /// <summary>
+  ///   Keys of the (mundane) weapons the character has mastery with; a magic variant counts as its base weapon
+  /// </summary>
+  public IReadOnlyList<string> WeaponMasteryKeys { get; init; } = [];
+
   public IReadOnlyList<string> ToolProficiencies { get; init; } = [];
 
   public IReadOnlyList<string> Languages { get; init; } = [];

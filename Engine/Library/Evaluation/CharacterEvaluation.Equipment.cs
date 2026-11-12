@@ -1,6 +1,7 @@
 using TableTopSheets.Common.Enum.Item;
 using TableTopSheets.Common.Enum.Rules;
 using TableTopSheets.Persistence.Entity.Characters;
+using TableTopSheets.Persistence.Entity.Rules;
 using TableTopSheets.Persistence.Entity.Rules.Items;
 
 namespace TableTopSheets.Engine.Evaluation;
@@ -87,7 +88,27 @@ public sealed partial class CharacterEvaluation
   /// <summary>
   ///   Key of the mundane item a magic variant is made from (<c>longsword</c> for a +1 Longsword), else the item's own key
   /// </summary>
-  public string BaseKey(Item item) => item.BaseItemId is { } baseId ? this.Catalog.Items[baseId].Key : item.Key;
+  public string BaseKey(Item item)
+    => item.BaseItemId is { } baseId && this.Catalog.Items.TryGetValue(baseId, out Item? baseItem) ? baseItem.Key : item.Key;
+
+  /// <summary>
+  ///   Mastery property of a weapon; a magic variant without its own takes the one of its base weapon
+  /// </summary>
+  public WeaponMastery? MasteryOf(Weapon weapon)
+  {
+    Guid? masteryId = weapon.MasteryId
+                      ?? (weapon.BaseItemId is { } baseId
+                          && this.Catalog.Items.TryGetValue(baseId, out Item? baseItem)
+                          && baseItem is Weapon baseWeapon
+                        ? baseWeapon.MasteryId
+                        : null);
+    return masteryId is { } id ? this.Catalog.Masteries[id] : null;
+  }
+
+  /// <summary>
+  ///   The character has mastery with the weapon (<c>mastery.*</c> of its base weapon)
+  /// </summary>
+  public bool HasMastery(Weapon weapon) => this.Stat($"mastery.{this.BaseKey(weapon)}") > 0;
 
   /// <summary>
   ///   The item is the one of the key or a variant of it

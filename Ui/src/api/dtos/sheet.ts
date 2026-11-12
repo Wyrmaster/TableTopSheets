@@ -63,6 +63,10 @@ export interface AttackSheet {
   saveDc: number | null
   /** ability key of the saving throw */
   saveAbility: string | null
+  /** name of the weapon's mastery property when the character can use it */
+  mastery: string | null
+  /** key of that mastery property */
+  masteryKey: string | null
 }
 
 export interface SpellcastingSheet {
@@ -174,6 +178,8 @@ export interface CharacterSheet {
   armorTraining: ArmorFlags
   weaponProficiencies: string[]
   weaponMasteries: string[]
+  /** keys of the (mundane) weapons the character has mastery with; a magic variant counts as its base weapon */
+  weaponMasteryKeys: string[]
   toolProficiencies: string[]
   languages: string[]
 

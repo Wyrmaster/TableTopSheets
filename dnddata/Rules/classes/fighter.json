@@ -271,7 +271,24 @@
         {
           "key": "fighter.tactical-master",
           "name": "Tactical Master",
-          "level": 9
+          "level": 9,
+          "effects": [
+            {
+              "target": "masteryProperty.push",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "masteryProperty.sap",
+              "op": "Grant",
+              "value": "1"
+            },
+            {
+              "target": "masteryProperty.slow",
+              "op": "Grant",
+              "value": "1"
+            }
+          ]
         },
         {
           "key": "fighter.two-extra-attacks",

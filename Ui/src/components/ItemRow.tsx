@@ -8,6 +8,8 @@ import {
 import type { ReactNode } from 'react'
 import type { ItemSummaryDto } from '@/api'
 import { InfoButton } from '@/components/InfoButton'
+import { MasteryBadge } from '@/components/MasteryBadge'
+import type { MasteryStatus } from '@/components/mastery'
 import { useInspector } from '@/components/inspector/useInspector'
 import { RarityBadge } from '@/components/RarityBadge'
 import { Thumbnail } from '@/components/Thumbnail'
@@ -34,6 +36,7 @@ export const ItemRow = ({
   actions,
   onClick,
   selected,
+  masteryStatus,
 }: {
   item: ItemSummaryDto
   control?: ReactNode
@@ -43,13 +46,17 @@ export const ItemRow = ({
   onClick?: () => void
   /** highlights the row, e.g. when it is selected */
   selected?: boolean
+  /** whether the character can use the weapon's mastery (shop); left out where no character is involved */
+  masteryStatus?: MasteryStatus
 }) => {
   const { inspect } = useInspector()
 
   return (
     <Flex
       align='center'
-      gap='3'
+      wrap='wrap'
+      columnGap='3'
+      rowGap='2'
       px='3'
       py='2.5'
       borderTopWidth='1px'
@@ -80,6 +87,13 @@ export const ItemRow = ({
           {item.magic && <Badge colorPalette='brand'>magic</Badge>}
           <RarityBadge rarity={item.rarity} />
           {item.requiresAttunement && <Badge>attunement</Badge>}
+          {item.masteryKey && item.masteryName && (
+            <MasteryBadge
+              masteryKey={item.masteryKey}
+              name={item.masteryName}
+              status={masteryStatus}
+            />
+          )}
         </HStack>
         <Text
           fontSize='sm'
@@ -88,20 +102,31 @@ export const ItemRow = ({
           {[item.kind, item.category, item.weight && `${item.weight} lb`].filter(Boolean).join(' · ')}
         </Text>
       </Box>
-      <Text fontWeight='semibold'>{priceLabel(item)}</Text>
-      <InfoButton target={{
-        kind: 'item',
-        key: item.key,
-      }}
-      />
-      {actions && (
-        <Box
-          display='contents'
-          onClick={(event) => event.stopPropagation()}
-        >
-          {actions}
-        </Box>
-      )}
+      {/* with actions (shop) phones put price and buttons on a line of their own, so the name keeps its width */}
+      <HStack
+        gap='3'
+        w={actions
+          ? {
+            base: 'full',
+            md: 'auto',
+          }
+          : 'auto'}
+        justify='space-between'
+      >
+        <HStack gap='3'>
+          <Text fontWeight='semibold'>{priceLabel(item)}</Text>
+          <InfoButton target={{
+            kind: 'item',
+            key: item.key,
+          }}
+          />
+        </HStack>
+        {actions && (
+          <Box onClick={(event) => event.stopPropagation()}>
+            {actions}
+          </Box>
+        )}
+      </HStack>
     </Flex>
   )
 }

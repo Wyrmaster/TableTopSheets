@@ -128,6 +128,10 @@ public static class RulesEndpoints
       .MapGet("/items/{key}", GetItem)
       .WithName("GetItem")
       .WithSummary("Item with its properties");
+    group
+      .MapGet("/masteries/{key}", GetMastery)
+      .WithName("GetWeaponMastery")
+      .WithSummary("Weapon mastery property (Nick, Sap, …) with its rule text");
     return group;
   }
 
@@ -290,6 +294,9 @@ public static class RulesEndpoints
       .ToString()
       .ToLowerInvariant());
     return await context.Items
+      .Include(entry => ((Weapon)entry).Mastery)
+      .Include(entry => entry.BaseItem)
+      .ThenInclude(entry => ((Weapon)entry!).Mastery)
       .WhereIf(filter.Kind != null, entry => entry.Kind == filter.Kind)
       .WhereIf(category != null, entry => (entry is Weapon && weapons.Contains(((Weapon)entry).Category))
                                           || (entry is Armor && armors.Contains(((Armor)entry).Category))
@@ -308,6 +315,8 @@ public static class RulesEndpoints
     Item? item = await context.Items
       .AsNoTracking()
       .Include(entry => ((Weapon)entry).Mastery)
+      .Include(entry => entry.BaseItem)
+      .ThenInclude(entry => ((Weapon)entry!).Mastery)
       .FirstOrDefaultAsync(entry => entry.Key == key, cancellationToken);
     if (item == null)
     {
@@ -320,6 +329,13 @@ public static class RulesEndpoints
       .ToListAsync(cancellationToken));
     return TypedResults.Ok(detail with { Item = detail.Item.WithImage(images) });
   }
+
+  private static async Task<Results<Ok<WeaponMasteryDto>, NotFound>> GetMastery(TableTopSheetsContext context, string key, CancellationToken cancellationToken)
+    => await context.WeaponMasteries
+      .AsNoTracking()
+      .FirstOrDefaultAsync(entry => entry.Key == key, cancellationToken) is { } mastery
+      ? TypedResults.Ok(RuleMapper.Detail(mastery))
+      : TypedResults.NotFound();
 
   /// <summary>
   ///   Names of the items named by starting equipment, by key
