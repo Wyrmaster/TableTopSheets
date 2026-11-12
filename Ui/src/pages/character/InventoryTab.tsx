@@ -55,6 +55,8 @@ import { useCharacter } from './useCharacter'
 
 type Section = 'armor' | 'melee' | 'ranged' | 'worn' | 'backpack'
 
+const attunementLimit = 3
+
 /** "2 equipped · 1 in hand" */
 const equippedHint = (items: CharacterItemDto[]) => {
   const equipped = items.filter((item) => item.slot !== 'None').length
@@ -178,6 +180,34 @@ export const InventoryTab = ({ cards }: { cards: CardSelection }) => {
     }
   }
 
+  // any item that requires attunement can be attuned, whatever its section; its effects need it equipped as well
+  const attuneButton = (item: CharacterItemDto) => {
+    if (!item.requiresAttunement) {
+      return null
+    }
+
+    return (
+      <HStack gap='1'>
+        {item.attuned && item.slot === 'None' && (
+          <Text
+            fontSize='xs'
+            color='fg.muted'
+          >
+            equip to apply
+          </Text>
+        )}
+        <Button
+          size='xs'
+          variant='outline'
+          disabled={!item.attuned && attuned >= attunementLimit}
+          onClick={() => attune(item)}
+        >
+          {item.attuned ? 'End attunement' : 'Attune'}
+        </Button>
+      </HStack>
+    )
+  }
+
   // recovered ammunition joins the stack for free; buying more is the shop's job
   const addToStack = async (item: CharacterItemDto) => {
     const result = await run(new AddToStackIntent(id, item.id, { quantity: 1 }))
@@ -230,6 +260,7 @@ export const InventoryTab = ({ cards }: { cards: CardSelection }) => {
       )}
       extra={(
         <>
+          {attuneButton(item)}
           {extra?.(item)}
           {isStackable(item, details.get(item.itemKey)) && (
             <StackStepper
@@ -268,6 +299,15 @@ export const InventoryTab = ({ cards }: { cards: CardSelection }) => {
         state={state}
         onState={applyState}
       />
+
+      {state.items.some((item) => item.requiresAttunement) && (
+        <Text
+          fontSize='sm'
+          color='fg.muted'
+        >
+          Attuned {attuned} / {attunementLimit}
+        </Text>
+      )}
 
       <SimpleGrid
         minChildWidth='320px'
@@ -313,17 +353,9 @@ export const InventoryTab = ({ cards }: { cards: CardSelection }) => {
         <Section
           icon={ringIcon}
           title='Worn & attuned'
-          hint={`Attuned ${attuned} / 3`}
+          hint={`Attuned ${attuned} / ${attunementLimit}`}
         >
-          {rows(bySection('worn'), (item) => item.requiresAttunement && item.slot !== 'None' && (
-            <Button
-              size='xs'
-              variant='outline'
-              onClick={() => attune(item)}
-            >
-              {item.attuned ? 'End attunement' : 'Attune'}
-            </Button>
-          ))}
+          {rows(bySection('worn'))}
         </Section>
         <Section
           icon={bagIcon}
